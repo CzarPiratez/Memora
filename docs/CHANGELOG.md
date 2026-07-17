@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Verified dependency-injection foundation
+
+- **Requirement:** P-17.
+- **Decision:** Hilt 2.60.1 owns application composition (ADR-006), using the existing
+  Android legacy KAPT compatibility bridge. Java 17 is configured as required by the
+  current official Hilt/Compose setup guidance.
+- **Scope:** Application, Room database/DAO/repository bindings, and the Android
+  entry point only. No source access, indexing work, permission, network behavior,
+  or visible UI behavior is added.
+- **Verification:** On 2026-07-18, `:app:testDebugUnitTest` completed successfully;
+  Hilt's generated tasks compiled the application graph. The existing automated test
+  task was current. The unchanged welcome screen then launched successfully on the
+  Medium Phone emulator.
+
 ### Verified persistence boundary
 
 - **Requirements:** P-04, P-05, P-09, P-14, P-17.

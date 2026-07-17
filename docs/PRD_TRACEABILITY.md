@@ -22,7 +22,7 @@ the behavior described here.
 | P-14 | Android work is offline-first, recoverable, and background-safe | WorkManager, Room | Interrupted/retry tests | Recoverable state persists in Room; emulator verified; WorkManager planned |
 | P-15 | Original files are not edited or deleted | All source adapters | Read-only permission and integration review | Planned |
 | P-16 | UI is recognition-first, not a dashboard of technical filters | Compose UI | User review against query/result flows | Planned |
-| P-17 | MediaStore, Room, WorkManager, Compose, MVVM, repository pattern, and Hilt form the Android foundation | Platform/data/app layers | Architecture review and build | Room/repository boundary complete and emulator verified; remaining foundation planned |
+| P-17 | MediaStore, Room, WorkManager, Compose, MVVM, repository pattern, and Hilt form the Android foundation | Platform/data/app layers | Architecture review and build | Room/repository and Hilt boundary complete; local build and emulator launch verified; remaining foundation planned |
 | P-18 | WhatsApp, Gmail, Calendar, video, audio, timeline, cloud sync, collaboration, manual tags, folders, and phone-wide chat remain out of MVP | Scope control | PR review and roadmap check | Accepted |
 | P-19 | User accounts are excluded, yet existing notes must be indexed | Product decision | ADR-003 resolved before note connector work | Open conflict |
 

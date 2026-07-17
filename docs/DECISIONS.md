@@ -69,3 +69,23 @@ available. This choice affects build-time code generation only; it does not affe
 app's runtime data or privacy model. While legacy KAPT is in use, the Room schema path
 is passed explicitly to the annotation processor and the generated schema JSON remains
 version-controlled.
+
+## ADR-006: Hilt owns application composition
+
+**Status:** Accepted
+
+**Decision:** Use Hilt to create application-scoped Android dependencies. The first
+binding module creates the Room database, its DAO, and the `AssetRepository` behind
+the domain interface. It does not inject persistence into a composable or allow UI
+code to access source content directly.
+
+**Reason:** The PRD requires Hilt and the architecture requires the UI, application,
+domain, and data layers to remain separately testable. Hilt provides compile-time
+validation of this dependency graph without adding user-visible behavior.
+
+**Privacy and data impact:** Hilt creates no account, network connection, permission,
+source scan, or copy of original user content. Room retains only Memora-owned derived
+records when a later use case explicitly requests the repository.
+
+**Verification plan:** Compile the generated graph, run the existing unit and Room
+tests, and launch the unchanged welcome screen on the Android emulator.
