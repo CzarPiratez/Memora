@@ -1,0 +1,66 @@
+# Roadmap and Quality Gates
+
+## Phase 0 - Foundation
+
+**Goal:** Establish the source-neutral model before touching real device data.
+
+**Deliverables:** domain Asset/Memory contracts, indexing-state model, unit tests,
+dependency-injection skeleton, and this documentation.
+
+**Exit gate:** an Asset can move through valid indexing states without Android APIs or
+AI, and invalid transitions are rejected by tests.
+
+## Phase 1 - Permissioned discovery
+
+**Goal:** Discover source assets incrementally and persist placeholder records.
+
+**Deliverables:** MediaStore image/screenshot adapter, PDF folder adapter, source
+cursors, Room schema, WorkManager scheduling, progress/error UI.
+
+**Exit gate:** restarting the app does not duplicate items; changed source assets are
+re-queued; revoking access leaves existing derived records safe and clearly marked.
+
+## Phase 2 - Deterministic extraction
+
+**Goal:** Extract source facts before semantic processing.
+
+**Deliverables:** EXIF/OCR metadata, PDF text/metadata extraction, test fixtures, and
+extraction diagnostics.
+
+**Exit gate:** fixtures produce expected structured extraction records offline.
+
+## Phase 3 - Understanding
+
+**Goal:** Convert extracted facts to validated semantic memories.
+
+**Deliverables:** Memory schema, intelligence interface, prompt/output validation,
+retry policy, and privacy disclosure.
+
+**Exit gate:** malformed output cannot corrupt the repository; every indexed memory
+contains traceable evidence.
+
+## Phase 4 - Recall and explanation
+
+**Goal:** Search memories by natural-language recall cues and explain each match.
+
+**Deliverables:** recall engine, evidence ranking, result screen, Explain Mode, and
+end-to-end tests with representative assets.
+
+**Exit gate:** a query returns the expected memory and an explanation based on stored
+evidence rather than invented text.
+
+## Phase 5 - Approved note connector
+
+**Goal:** Implement the selected automatic source strategy for existing notes.
+
+**Precondition:** ADR-003 is accepted and the required external setup is documented.
+
+**Exit gate:** notes are re-indexed incrementally without manual per-note sharing.
+
+## Mandatory quality gates for every phase
+
+- Requirement is mapped to `docs/PRODUCT_CONTRACT.md`.
+- Permission and data-flow impact are documented.
+- Tests pass.
+- App builds and runs on the emulator.
+- User verifies the visible step before the next user-facing feature.
