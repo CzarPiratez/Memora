@@ -15,7 +15,9 @@ emulator-backed tests pass. Hilt now owns the application-level Room database an
 repository bindings, and the unchanged app launches on the emulator. The app does
 **not** yet discover, extract, understand, or search any asset. A source-neutral
 Memory and evidence contract is now tested, but no Memory is persisted yet. The app
-contains no WorkManager job, source adapter, or AI integration.
+contains no real source adapter, WorkManager job, or AI integration. The read-only
+source discovery contract and its incremental cursor model are tested, but no real
+phone media has been opened or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -51,14 +53,18 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - The Memory/evidence domain tests passed with `:app:testDebugUnitTest` on
   2026-07-18. The unchanged welcome screen launched successfully afterward on the
   Medium Phone emulator.
+- `AssetDiscoverySourceTest` passed in Android Studio on 2026-07-18: 3 of 3 tests
+  passed. It verifies bounded discovery, source-owned cursors, and rejection of mixed
+  sources or duplicate identities. The emulator remained healthy during the run.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Define the read-only source discovery contract and its incremental cursor model before
-adding a MediaStore adapter. It must model permission/revocation and stable source
-identity without opening or indexing real user media yet.
+Plan the first platform adapter: read-only MediaStore discovery for photos and
+screenshots. Before implementation, define its privacy boundary, stable identifiers,
+incremental query strategy, and user-visible error/revocation behavior. Do not start
+indexing or retain any user media until that plan and its tests are approved.
 
 ## Important open decision
 

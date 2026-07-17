@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Verified source discovery contract
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15.
+- **Decision:** Discovery returns bounded, source-specific Asset pages and explicit
+  access/failure outcomes (ADR-008).
+- **Scope:** Pure Kotlin contract and unit tests only. No device media, document,
+  provider, permission, worker, or UI is accessed or changed.
+- **Verification:** On 2026-07-18, `AssetDiscoverySourceTest` passed in Android
+  Studio: 3 of 3 tests passed. The emulator remained healthy during the run.
+
 ### Verified Memory evidence contract
 
 - **Requirements:** P-09, P-10, P-11, P-12, P-13.

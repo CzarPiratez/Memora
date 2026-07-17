@@ -8,9 +8,9 @@ the behavior described here.
 |---|---|---|---|---|
 | P-01 | Memora behaves as a memory retrieval engine, not conventional file search | Product, recall UI | Query can be answered from recall cues rather than filename | Planned |
 | P-02 | Lifecycle is Discover -> Extract -> Understand -> Store -> Recall -> Explain | Application architecture | End-to-end test traces one asset through every stage | Planned |
-| P-03 | Photos, screenshots, PDFs, and notes are MVP sources | Source adapters | Each approved source produces Asset candidates | Domain contract complete; adapters planned |
-| P-04 | Discovery is continuous/incremental and source assets get stable internal identity | Source adapters, Room, WorkManager | Restart/change tests show no duplicates and changed assets requeue | Identity/fingerprint and Room upsert complete; emulator verified; source adapters planned |
-| P-05 | Discovery knows source facts before it knows semantic content | Domain | Placeholder Asset records contain identity/type/time/location only | Domain and Room placeholder record complete; emulator verified |
+| P-03 | Photos, screenshots, PDFs, and notes are MVP sources | Source adapters | Each approved source produces Asset candidates | Source-neutral discovery contract complete; platform adapters planned |
+| P-04 | Discovery is continuous/incremental and source assets get stable internal identity | Source adapters, Room, WorkManager | Restart/change tests show no duplicates and changed assets requeue | Identity/fingerprint, Room upsert, and bounded cursor contract complete; platform adapters planned |
+| P-05 | Discovery knows source facts before it knows semantic content | Domain | Placeholder Asset records contain identity/type/time/location only | Domain/Room placeholder records and source-neutral discovery contract complete; emulator verified |
 | P-06 | Images expose deterministic metadata, including OCR and available EXIF/GPS | Extraction | Image fixture tests | Planned |
 | P-07 | PDFs expose full text, page count, title, and metadata when available | Extraction | PDF fixture tests | Planned |
 | P-08 | Notes expose raw text and permitted source metadata | Note adapter/extraction | Provider fixture tests | Blocked by ADR-003 |
@@ -19,7 +19,7 @@ the behavior described here.
 | P-11 | The system invests intelligence during indexing, not by repeatedly re-reading files during search | Repository, recall | Search test works from stored memory data | Evidence-backed storage contract complete; repository/recall planned |
 | P-12 | Natural-language recall uses evidence-based ranking | Recall engine | Query ranking tests | Evidence-backed recall cues contract complete; ranking planned |
 | P-13 | Explain Mode states why a result matched | Recall UI | Explanation references stored evidence fields | Evidence citations contract complete; Explain Mode planned |
-| P-14 | Android work is offline-first, recoverable, and background-safe | WorkManager, Room | Interrupted/retry tests | Recoverable state persists in Room; emulator verified; WorkManager planned |
+| P-14 | Android work is offline-first, recoverable, and background-safe | WorkManager, Room | Interrupted/retry tests | Recoverable state, bounded discovery, and access outcomes modeled; WorkManager planned |
 | P-15 | Original files are not edited or deleted | All source adapters | Read-only permission and integration review | Planned |
 | P-16 | UI is recognition-first, not a dashboard of technical filters | Compose UI | User review against query/result flows | Planned |
 | P-17 | MediaStore, Room, WorkManager, Compose, MVVM, repository pattern, and Hilt form the Android foundation | Platform/data/app layers | Architecture review and build | Room/repository and Hilt boundary complete; local build and emulator launch verified; remaining foundation planned |
