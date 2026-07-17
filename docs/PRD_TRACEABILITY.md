@@ -9,7 +9,7 @@ the behavior described here.
 | P-01 | Memora behaves as a memory retrieval engine, not conventional file search | Product, recall UI | Query can be answered from recall cues rather than filename | Planned |
 | P-02 | Lifecycle is Discover -> Extract -> Understand -> Store -> Recall -> Explain | Application architecture | End-to-end test traces one asset through every stage | Planned |
 | P-03 | Photos, screenshots, PDFs, and notes are MVP sources | Source adapters | Each approved source produces Asset candidates | Source-neutral discovery contract complete; platform adapters planned |
-| P-04 | Discovery is continuous/incremental and source assets get stable internal identity | Source adapters, Room, WorkManager | Restart/change tests show no duplicates and changed assets requeue | Identity/fingerprint, Room upsert, and bounded cursor contract complete; platform adapters planned |
+| P-04 | Discovery is continuous/incremental and source assets get stable internal identity | Source adapters, Room, WorkManager | Restart/change tests show no duplicates and changed assets requeue | Identity/fingerprint, Room upsert, and bounded durable-checkpoint contract complete; platform adapters planned |
 | P-05 | Discovery knows source facts before it knows semantic content | Domain | Placeholder Asset records contain identity/type/time/location only | Domain/Room placeholder records and source-neutral discovery contract complete; emulator verified |
 | P-06 | Images expose deterministic metadata, including OCR and available EXIF/GPS | Extraction | Image fixture tests | Planned |
 | P-07 | PDFs expose full text, page count, title, and metadata when available | Extraction | PDF fixture tests | Planned |

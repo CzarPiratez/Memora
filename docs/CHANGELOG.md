@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Verified incremental checkpoint correction
+
+- **Requirements:** P-04, P-14.
+- **Decision:** Completed and empty discovery pages retain a durable source checkpoint
+  for the next incremental pass (ADR-008).
+- **Scope:** Contract correction and unit tests only. No device media or permission is
+  accessed.
+- **Verification:** On 2026-07-18, `AssetDiscoverySourceTest` passed in Android
+  Studio: 3 of 3 tests passed after the correction.
+
 ### Verified source discovery contract
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15.

@@ -1,7 +1,6 @@
 package com.memora.app.domain.discovery
 
 import com.memora.app.domain.asset.Asset
-import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.SourceCapability
 import com.memora.app.domain.asset.SourceId
 
@@ -40,14 +39,15 @@ data class DiscoveryRequest(
 data class DiscoveryPage(
     val sourceId: SourceId,
     val assets: List<Asset>,
-    val nextCursor: DiscoveryCursor?,
+    val checkpoint: DiscoveryCursor,
+    val hasMore: Boolean,
 ) {
     init {
         require(assets.all { it.identity.sourceId == sourceId }) {
             "A discovery page may only contain assets from its declared source."
         }
-        require(nextCursor == null || nextCursor.sourceId == sourceId) {
-            "A discovery page cursor must belong to the same source."
+        require(checkpoint.sourceId == sourceId) {
+            "A discovery page checkpoint must belong to the same source."
         }
         require(assets.map(Asset::identity).distinct().size == assets.size) {
             "A discovery page cannot contain duplicate asset identities."
@@ -55,7 +55,7 @@ data class DiscoveryPage(
     }
 
     val isComplete: Boolean
-        get() = nextCursor == null
+        get() = !hasMore
 }
 
 /** Structured source failure that is safe to record, surface, and retry later. */

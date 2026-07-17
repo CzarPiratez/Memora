@@ -15,24 +15,26 @@ import org.junit.Test
 
 class AssetDiscoverySourceTest {
     @Test
-    fun `discovery page preserves a source-owned incremental cursor`() {
+    fun `discovery page preserves a source-owned incremental checkpoint`() {
         val sourceId = SourceId("android-media-store")
         val page = DiscoveryPage(
             sourceId = sourceId,
             assets = listOf(asset(sourceId, "image-1")),
-            nextCursor = DiscoveryCursor(sourceId, "modified:1720000000000"),
+            checkpoint = DiscoveryCursor(sourceId, "modified:1720000000000"),
+            hasMore = true,
         )
 
         assertFalse(page.isComplete)
     }
 
     @Test
-    fun `completed discovery page has no next cursor`() {
+    fun `completed discovery page keeps a checkpoint for the next incremental pass`() {
         val sourceId = SourceId("android-media-store")
         val page = DiscoveryPage(
             sourceId = sourceId,
             assets = emptyList(),
-            nextCursor = null,
+            checkpoint = DiscoveryCursor(sourceId, "modified:1720000000000"),
+            hasMore = false,
         )
 
         assertTrue(page.isComplete)
@@ -46,14 +48,16 @@ class AssetDiscoverySourceTest {
             DiscoveryPage(
                 sourceId = mediaStore,
                 assets = listOf(asset(SourceId("document-tree"), "document-1")),
-                nextCursor = null,
+                checkpoint = DiscoveryCursor(mediaStore, "cursor-1"),
+                hasMore = false,
             )
         }
         assertThrows(IllegalArgumentException::class.java) {
             DiscoveryPage(
                 sourceId = mediaStore,
                 assets = listOf(asset(mediaStore, "image-1"), asset(mediaStore, "image-1")),
-                nextCursor = null,
+                checkpoint = DiscoveryCursor(mediaStore, "cursor-1"),
+                hasMore = false,
             )
         }
         assertThrows(IllegalArgumentException::class.java) {
@@ -61,6 +65,14 @@ class AssetDiscoverySourceTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             DiscoveryRequest(batchSize = 101)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            DiscoveryPage(
+                sourceId = mediaStore,
+                assets = emptyList(),
+                checkpoint = DiscoveryCursor(SourceId("document-tree"), "cursor-1"),
+                hasMore = false,
+            )
         }
     }
 

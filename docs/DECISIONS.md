@@ -111,13 +111,15 @@ extracted, call AI, read a source, persist Memory rows, or expose a search UI.
 
 **Decision:** Every source adapter implements one read-only discovery contract. It
 returns source-neutral Asset pages and source-owned opaque cursors in bounded batches.
-It reports access required, access revoked, and recoverable failure as explicit
-outcomes; it must never present them as an empty source.
+Every page, including a completed or empty page, returns a durable checkpoint for the
+next incremental pass. It reports access required, access revoked, and recoverable
+failure as explicit outcomes; it must never present them as an empty source.
 
 **Reason:** The product requires continuous incremental discovery without duplicate
-work, silent data loss, or misleading status after permissions are changed. A cursor
-is source-specific because MediaStore, document trees, and providers cannot safely
-share an assumed checkpoint format.
+work, silent data loss, or misleading status after permissions are changed. A durable
+completion checkpoint prevents a later pass from accidentally becoming a full rescan.
+A cursor is source-specific because MediaStore, document trees, and providers cannot
+safely share an assumed checkpoint format.
 
 **Scope:** This contract does not open a source, request a permission, persist a
 cursor, invoke a worker, or index a discovered Asset. Those responsibilities remain

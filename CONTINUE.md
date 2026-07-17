@@ -56,6 +56,9 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - `AssetDiscoverySourceTest` passed in Android Studio on 2026-07-18: 3 of 3 tests
   passed. It verifies bounded discovery, source-owned cursors, and rejection of mixed
   sources or duplicate identities. The emulator remained healthy during the run.
+- The corrected `AssetDiscoverySourceTest` passed in Android Studio on 2026-07-18:
+  3 of 3 tests passed. Completed and empty pages now retain a durable checkpoint for
+  the next incremental pass.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
