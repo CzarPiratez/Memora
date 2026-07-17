@@ -7,10 +7,11 @@
 **Project folder:** `MemoraApp/`
 
 **Current state:** Android Studio project is created and runs successfully on the
-Medium Phone emulator. The app presently contains a welcome screen and a prototype
-photo permission screen. It does **not** yet discover, extract, persist, understand,
-or search any asset. It contains no Room database, WorkManager job, source adapter,
-or AI integration.
+Medium Phone emulator. The app contains a welcome screen and a prototype photo
+permission screen. The source-neutral Asset and indexing-state domain contracts are
+implemented with local unit tests. The app does **not** yet discover, extract,
+persist, understand, or search any asset. It contains no Room database, WorkManager
+job, source adapter, or AI integration.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -33,17 +34,18 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 - Gradle sync completed in Android Studio.
 - The emulator starts and the app installs.
+- `:app:testDebugUnitTest` passed after the source-neutral domain foundation was added.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Create the source-neutral domain foundation only:
+Create the persistence boundary for the source-neutral domain foundation:
 
-- `AssetType`, `Asset`, source capability, indexing status, and immutable source
-  identity/fingerprint contracts.
-- Unit tests for identity and state transitions.
-- No MediaStore query, no AI call, no Room migration, and no UI redesign in that step.
+- Add Room entities, DAOs, and repository interfaces for Assets and indexing state.
+- Add migration policy and database integration tests.
+- No MediaStore query, no AI call, no WorkManager scheduling, and no UI redesign in
+  that step.
 
 After it runs, show the user the result and wait for feedback.
 
