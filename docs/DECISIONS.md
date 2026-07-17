@@ -51,3 +51,21 @@ permissions for PDFs, and a provider adapter for external notes.
 
 **Reason:** A single broad storage permission is neither sufficient nor appropriate on
 modern Android.
+
+## ADR-005: Room code generation uses Android legacy KAPT temporarily
+
+**Status:** Accepted with review trigger
+
+**Decision:** Use the `com.android.legacy-kapt` bridge for Room's compiler while this
+project uses AGP built-in Kotlin.
+
+**Reason:** The current KSP plugin attempts to configure generated Kotlin source sets
+in a way that AGP built-in Kotlin rejects. Android's official migration guidance
+provides legacy KAPT for this compatibility case. We will not suppress the AGP safety
+check or disable built-in Kotlin merely to make KSP compile.
+
+**Review trigger:** Re-evaluate KSP when a compatible plugin/toolchain combination is
+available. This choice affects build-time code generation only; it does not affect the
+app's runtime data or privacy model. While legacy KAPT is in use, the Room schema path
+is passed explicitly to the annotation processor and the generated schema JSON remains
+version-controlled.
