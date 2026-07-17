@@ -14,11 +14,11 @@ the behavior described here.
 | P-06 | Images expose deterministic metadata, including OCR and available EXIF/GPS | Extraction | Image fixture tests | Planned |
 | P-07 | PDFs expose full text, page count, title, and metadata when available | Extraction | PDF fixture tests | Planned |
 | P-08 | Notes expose raw text and permitted source metadata | Note adapter/extraction | Provider fixture tests | Blocked by ADR-003 |
-| P-09 | Assets are normalized into a common Memory structure | Domain, Room | Cross-source schema tests | Asset aggregate persists in Room; Memory model planned; emulator verified |
-| P-10 | Semantic understanding creates memories/signatures/anchors/summary | Understanding service | Validated structured-output fixtures | Planned |
-| P-11 | The system invests intelligence during indexing, not by repeatedly re-reading files during search | Repository, recall | Search test works from stored memory data | Planned |
-| P-12 | Natural-language recall uses evidence-based ranking | Recall engine | Query ranking tests | Planned |
-| P-13 | Explain Mode states why a result matched | Recall UI | Explanation references stored evidence fields | Planned |
+| P-09 | Assets are normalized into a common Memory structure | Domain, Room | Cross-source schema tests | Asset aggregate and evidence-backed Memory domain contract complete; Room persistence planned |
+| P-10 | Semantic understanding creates memories/signatures/anchors/summary | Understanding service | Validated structured-output fixtures | Memory signature/anchor contract complete; understanding planned |
+| P-11 | The system invests intelligence during indexing, not by repeatedly re-reading files during search | Repository, recall | Search test works from stored memory data | Evidence-backed storage contract complete; repository/recall planned |
+| P-12 | Natural-language recall uses evidence-based ranking | Recall engine | Query ranking tests | Evidence-backed recall cues contract complete; ranking planned |
+| P-13 | Explain Mode states why a result matched | Recall UI | Explanation references stored evidence fields | Evidence citations contract complete; Explain Mode planned |
 | P-14 | Android work is offline-first, recoverable, and background-safe | WorkManager, Room | Interrupted/retry tests | Recoverable state persists in Room; emulator verified; WorkManager planned |
 | P-15 | Original files are not edited or deleted | All source adapters | Read-only permission and integration review | Planned |
 | P-16 | UI is recognition-first, not a dashboard of technical filters | Compose UI | User review against query/result flows | Planned |

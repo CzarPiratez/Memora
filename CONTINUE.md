@@ -13,8 +13,9 @@ implemented with local unit tests. Room persistence for Assets and indexing stat
 implemented, its schema is exported to version control, and both local and
 emulator-backed tests pass. Hilt now owns the application-level Room database and
 repository bindings, and the unchanged app launches on the emulator. The app does
-**not** yet discover, extract, understand, or search any asset. It contains no
-WorkManager job, source adapter, or AI integration.
+**not** yet discover, extract, understand, or search any asset. A source-neutral
+Memory and evidence contract is now tested, but no Memory is persisted yet. The app
+contains no WorkManager job, source adapter, or AI integration.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -47,15 +48,17 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   `:app:testDebugUnitTest` on 2026-07-18. The existing automated test task was
   current, and the unchanged welcome screen then launched successfully on the Medium
   Phone emulator.
+- The Memory/evidence domain tests passed with `:app:testDebugUnitTest` on
+  2026-07-18. The unchanged welcome screen launched successfully afterward on the
+  Medium Phone emulator.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Define and test the source-neutral `Memory` and evidence domain contract. This remains
-offline and does not read a user source; it gives later extraction, understanding,
-recall, and Explain Mode a stable, testable model before MediaStore, AI, WorkManager,
-or new UI are added.
+Define the read-only source discovery contract and its incremental cursor model before
+adding a MediaStore adapter. It must model permission/revocation and stable source
+identity without opening or indexing real user media yet.
 
 ## Important open decision
 

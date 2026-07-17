@@ -89,3 +89,18 @@ records when a later use case explicitly requests the repository.
 
 **Verification plan:** Compile the generated graph, run the existing unit and Room
 tests, and launch the unchanged welcome screen on the Android emulator.
+
+## ADR-007: Memories must be evidence-backed and versioned by their Asset
+
+**Status:** Accepted
+
+**Decision:** A searchable `Memory` is a separate domain model bound to the stable
+identity and fingerprint of the Asset version from which it was created. Its summary
+and every recall anchor must cite one or more evidence items stored in that Memory.
+
+**Reason:** A memory retrieval engine must explain why a result matched from actual
+source-derived evidence. This boundary prevents an understanding or recall component
+from presenting an unsupported summary or recall cue as a fact.
+
+**Scope:** This is a pure domain contract only. It does not decide how evidence is
+extracted, call AI, read a source, persist Memory rows, or expose a search UI.

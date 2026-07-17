@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified Memory evidence contract
+
+- **Requirements:** P-09, P-10, P-11, P-12, P-13.
+- **Decision:** A Memory is versioned by its Asset and every summary/anchor cites
+  stored evidence (ADR-007).
+- **Scope:** Pure Kotlin domain model and unit tests only. No source is opened, no AI
+  is called, no derived content is persisted, and no visible behavior is changed.
+- **Verification:** On 2026-07-18, `:app:testDebugUnitTest` passed, including the
+  Memory contract tests. The unchanged welcome screen then launched successfully on
+  the Medium Phone emulator.
+
 ### Verified dependency-injection foundation
 
 - **Requirement:** P-17.
