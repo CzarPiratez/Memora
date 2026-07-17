@@ -124,3 +124,27 @@ safely share an assumed checkpoint format.
 **Scope:** This contract does not open a source, request a permission, persist a
 cursor, invoke a worker, or index a discovered Asset. Those responsibilities remain
 in later platform, data, and application layers.
+
+## ADR-009: MediaStore image discovery is read-only and permission-scoped
+
+**Status:** Accepted
+
+**Decision:** The first platform adapter will query only `MediaStore.Images` metadata
+after a fresh permission check. It will request image access only (not video), support
+Android 14+ selected-photo access through `READ_MEDIA_VISUAL_USER_SELECTED`, and
+return only the media items currently granted by Android. It will not request media
+location, open image bytes, generate thumbnails, edit files, or start automatically.
+
+**Incremental strategy:** A MediaStore cursor will contain the MediaStore version and
+generation checkpoint. A version change forces a safe full rescan; otherwise the
+adapter queries forward in bounded generation/ID order. Identity is volume plus media
+ID; the fingerprint includes the source generation and size. Screenshot classification
+is deterministic from the MediaStore display name or relative path only.
+
+**User-visible behavior:** Full, selected, missing, and revoked access are distinct
+states. Selected access is not described as full-library indexing, and a user-initiated
+control will be required before Android shows a reselection prompt.
+
+**Verification plan:** Unit-test cursor/row mapping and screenshot classification;
+then run an emulator integration test using only emulator-provided media. No user
+content is needed for automated tests.

@@ -64,10 +64,9 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Plan the first platform adapter: read-only MediaStore discovery for photos and
-screenshots. Before implementation, define its privacy boundary, stable identifiers,
-incremental query strategy, and user-visible error/revocation behavior. Do not start
-indexing or retain any user media until that plan and its tests are approved.
+Implement the planned read-only MediaStore adapter for photos and screenshots
+(ADR-009). Unit-test its source-row mapping and cursor behavior first; it must remain
+inactive until a later user-initiated indexing use case exists.
 
 ## Important open decision
 

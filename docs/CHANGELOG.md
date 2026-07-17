@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### MediaStore adapter design approved
+
+- **Requirements:** P-03, P-04, P-05, P-15, P-17.
+- **Decision:** Query only Android-granted image metadata, distinguish full and
+  selected-photo access, and use version/generation checkpoints (ADR-009).
+- **Privacy:** No media location, image bytes, thumbnail, write operation, automatic
+  scan, or user-content test fixture is permitted in this step.
+
 ### Verified incremental checkpoint correction
 
 - **Requirements:** P-04, P-14.
