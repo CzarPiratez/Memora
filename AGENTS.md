@@ -6,9 +6,10 @@ The source of truth is `C:\Users\DELL\Desktop\App\Memora.docx`. Memora is a
 **memory retrieval engine**, not a file browser, upload tool, or generic chatbot.
 It must help a person recall content by meaning and explain why a result matched.
 
-Read `CONTINUE.md` and the files in `docs/` before changing the app. Update the
-relevant document whenever a requirement, decision, architecture boundary, or
-delivery checkpoint changes.
+Before every step, read `docs/GOVERNANCE.md`, `CONTINUE.md`, and the applicable files
+in `docs/`. The mandatory pre-work gate in `docs/GOVERNANCE.md` is not optional.
+Update the relevant document whenever a requirement, decision, architecture boundary,
+or delivery checkpoint changes.
 
 ## Non-negotiable product behavior
 
@@ -67,6 +68,8 @@ Keep dependencies flowing inward:
   directly from composables.
 - Compile and run on the Android emulator after each meaningful change. Report any
   unverified area plainly.
+- Meet the enterprise-quality bar in `docs/GOVERNANCE.md`; compiling code alone is
+  never sufficient to call a feature complete.
 
 ## Collaboration rule
 

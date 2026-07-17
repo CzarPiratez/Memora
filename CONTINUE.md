@@ -19,10 +19,15 @@ does not satisfy automatic source indexing.
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/PRODUCT_CONTRACT.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/DECISIONS.md`
-5. `docs/ROADMAP.md`
+2. `docs/GOVERNANCE.md`
+3. `docs/PRODUCT_CONTRACT.md`
+4. `docs/ARCHITECTURE.md`
+5. `docs/DECISIONS.md`
+6. `docs/ROADMAP.md`
+7. `docs/PRD_TRACEABILITY.md`
+
+No implementation begins until this read gate is complete and the next change is
+mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Last verified behavior
 

@@ -59,6 +59,7 @@ evidence rather than invented text.
 
 ## Mandatory quality gates for every phase
 
+- The mandatory pre-work gate in `docs/GOVERNANCE.md` is completed before work starts.
 - Requirement is mapped to `docs/PRODUCT_CONTRACT.md`.
 - Permission and data-flow impact are documented.
 - Tests pass.
