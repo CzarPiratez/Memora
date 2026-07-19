@@ -8,8 +8,10 @@ import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.local.MemoraDatabaseMigrations
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
+import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
+import com.memora.app.domain.discovery.DiscoveryPageStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,6 +50,11 @@ object PersistenceModule {
     fun provideDiscoveryCheckpointRepository(
         checkpointDao: DiscoveryCheckpointDao,
     ): DiscoveryCheckpointRepository = RoomDiscoveryCheckpointRepository(checkpointDao)
+
+    @Provides
+    @Singleton
+    fun provideDiscoveryPageStore(database: MemoraDatabase): DiscoveryPageStore =
+        RoomDiscoveryPageStore(database)
 
     private const val DATABASE_NAME = "memora.db"
 }

@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Verified atomic discovery-page persistence
+
+- **Requirements:** P-04, P-05, P-14, P-17.
+- **Delivered:** An application `PersistDiscoveryPage` use case and a Room-backed
+  atomic store. For every successful source-neutral page, it writes all Asset
+  placeholders and that page's opaque source checkpoint in one database transaction.
+  Unchanged versions retain their current indexing state; changed fingerprints are
+  safely returned to `DISCOVERED`.
+- **Privacy:** This component receives only source-neutral Asset metadata and opaque
+  cursors. It opens no original content, requests no permission, performs no scan,
+  starts no background work, and changes no UI.
+- **Verification:** On 2026-07-19, local Gradle passed
+  `PersistDiscoveryPageTest`: 1 of 1. `RoomDiscoveryPageStoreTest` then passed in
+  Android Studio on the Medium Phone emulator: 3 of 3 tests passed.
+- **Known limitation:** No platform source invokes this boundary yet; therefore no
+  actual MediaStore result is persisted by the app, and restart behavior has not yet
+  been verified end-to-end.
+
 ### Verified durable discovery checkpoints
 
 - **Requirements:** P-04, P-14, P-17.
@@ -14,7 +32,8 @@
   `MemoraDatabaseMigrationTest` then passed: 1 of 1 test preserved a version-1 Asset
   across the migration.
 - **Known limitation:** This repository is intentionally not yet connected to
-  MediaStore discovery. Assets and their checkpoint are not yet written atomically.
+  MediaStore discovery. The later atomic page-store boundary is tested, but no
+  platform source invokes it yet.
 
 ### Verified MediaStore image/screenshot discovery adapter
 
