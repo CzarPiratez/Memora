@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Verified setup/indexing ViewModel state boundary
+
+- **Requirements:** P-05, P-14, P-16, P-17.
+- **Delivered:** A Hilt ViewModel with immutable state for photo access and one
+  explicit indexing request. The ViewModel receives a permission result from the UI;
+  it does not request Android permission. It blocks indexing without confirmed access,
+  prevents concurrent duplicate requests, preserves selected-photo scope, and exposes
+  recovery-safe access or failure outcomes.
+- **Dependency note:** Added the official AndroidX Lifecycle ViewModel KTX runtime for
+  `viewModelScope`, plus Kotlin coroutines test support for deterministic local state
+  tests. Neither dependency adds a permission, network access, source scan, or user
+  data collection.
+- **Verification:** On 2026-07-20, `MediaStoreSetupViewModelTest` passed in Android
+  Studio: 4 of 4 tests passed. The Hilt and Android-test compilation graph passed.
+- **Known limitation:** The current Compose prototype has not been connected to this
+  ViewModel yet, so the running app still cannot start indexing from its screen.
+
 ### Verified live MediaStore-to-Room indexing path
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-17.
@@ -17,7 +34,7 @@
   `IndexMediaStoreImagesIntegrationTest` passed in Android Studio on the Medium Phone
   emulator: 1 of 1 test passed after photo access was granted.
 - **Known limitation:** The prototype UI has not invoked this path yet. It has no
-  ViewModel state boundary, no user-visible indexing result, and no background work.
+  user-visible indexing result and no background work.
 
 ### Verified controlled MediaStore indexing boundary
 

@@ -28,7 +28,9 @@ reports whether Android granted the full image library or selected photos. It ha
 UI caller yet, so the running app has not persisted a normal MediaStore discovery
 page. An emulator integration test has verified the same flow persists one real,
 bounded emulator page and checkpoint atomically into an isolated in-memory Room
-database. No image bytes were opened.
+database. A Hilt ViewModel now exposes immutable setup/indexing state and accepts
+permission results from the UI, but the current prototype screen does not yet use it.
+No image bytes were opened.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -108,16 +110,20 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   verifies a real bounded MediaStore page and its source-owned checkpoint persist
   atomically into an isolated in-memory Room database, without opening or altering
   original media.
+- `MediaStoreSetupViewModelTest` passed in Android Studio on 2026-07-20: 4 of 4
+  tests passed. It verifies indexing is blocked until both an explicit permission
+  result and an explicit user request, selected-photo access stays distinct, recovery
+  states remain explicit, and duplicate requests are ignored while work is active.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Add a testable Hilt ViewModel state boundary for the existing setup flow. It must
-expose immutable setup/indexing status, receive Android permission results from the UI
-instead of requesting permission itself, and invoke one bounded MediaStore indexing
-page only after an explicit user event and confirmed access. Do not redesign the UI,
-schedule background work, or add extraction in this step.
+Connect the existing privacy/setup screen to the verified Hilt ViewModel without a
+visual redesign. The Activity/Compose layer must keep ownership of Android's permission
+launcher, report the result to the ViewModel, and expose one explicit `Start indexing`
+action only after access is confirmed. Render truthful full-versus-selected scope,
+success, and recoverable errors. Do not add background work or extraction.
 
 ## Important open decision
 

@@ -7,6 +7,11 @@ import com.memora.app.domain.discovery.ImageLibraryAccessScope
 import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import javax.inject.Inject
 
+/** Application port used by presentation code to start one explicit image-library scan. */
+interface MediaStoreImageIndexer {
+    suspend operator fun invoke(): MediaStoreIndexingOutcome
+}
+
 /**
  * Runs exactly one explicitly requested, bounded MediaStore discovery page.
  *
@@ -16,7 +21,11 @@ import javax.inject.Inject
 class IndexMediaStoreImages @Inject constructor(
     private val imageLibrarySource: ImageLibraryDiscoverySource,
     private val discoverSourcePage: DiscoverSourcePage,
-) {
+) : MediaStoreImageIndexer {
+    override suspend operator fun invoke(): MediaStoreIndexingOutcome = invoke(
+        batchSize = DiscoveryRequest.DEFAULT_BATCH_SIZE,
+    )
+
     suspend operator fun invoke(
         batchSize: Int = DiscoveryRequest.DEFAULT_BATCH_SIZE,
     ): MediaStoreIndexingOutcome {
