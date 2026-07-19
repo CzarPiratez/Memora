@@ -21,8 +21,9 @@ MediaStore catalogue successfully. Room database version 2 now persists source-o
 opaque checkpoints and safely migrates version-1 Asset data. Tested application and
 Room boundaries can now persist one source-neutral discovery page's Asset placeholders
 and checkpoint atomically, while preserving explicit access and source-failure
-outcomes. No image bytes were opened, and no actual MediaStore discovery page has yet
-been persisted or indexed.
+outcomes. A tested use case can now resume one bounded source-neutral discovery page
+from its saved source-owned checkpoint. No image bytes were opened, and no actual
+MediaStore discovery page has yet been persisted or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -89,16 +90,20 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   passed. It verifies that a successful page is committed, explicit access and source
   failure outcomes are returned without a write, and a persistence exception becomes
   a safe retryable failure.
+- `DiscoverSourcePageTest` passed in Android Studio on 2026-07-19: 6 of 6 tests
+  passed. It verifies saved-cursor resumption, first-pass discovery without a cursor,
+  explicit access handling, source failure handling, exception recovery, and rejection
+  of a page from an unexpected source.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Design and implement one application-layer use case that asks a source for exactly one
-bounded page using its saved checkpoint, then passes the resulting outcome to the
-verified result coordinator. It must not start automatically, change the UI, or bind
-the real MediaStore adapter yet. This is the smallest next step toward controlled,
-resumable source discovery.
+Design the controlled, user-initiated MediaStore indexing boundary that binds the
+tested MediaStore adapter to the checkpoint-driven use case. It must make full versus
+selected-photo access explicit, request no new permission itself, scan only one bounded
+page per explicit invocation, and expose an immutable outcome for a later ViewModel.
+Do not change the UI or schedule background work in this step.
 
 ## Important open decision
 

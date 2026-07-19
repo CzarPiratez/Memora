@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Verified checkpoint-driven discovery invocation
+
+- **Requirements:** P-04, P-05, P-14, P-17.
+- **Delivered:** An application use case that checks a source's access state, loads
+  only that source's saved opaque checkpoint, requests exactly one bounded page, then
+  passes the outcome through the verified result coordinator. It rejects pages that
+  claim a different source identity.
+- **Privacy:** The use case is inactive until called explicitly, requests no Android
+  permission, starts no background work, opens no original content, and has no UI.
+- **Verification:** On 2026-07-19, `DiscoverSourcePageTest` passed in Android Studio:
+  6 of 6 tests passed.
+- **Known limitation:** The real MediaStore adapter is still not bound to this use
+  case, so no actual source result is persisted by the running app.
+
 ### Verified discovery-result coordination
 
 - **Requirements:** P-04, P-05, P-14, P-17.
