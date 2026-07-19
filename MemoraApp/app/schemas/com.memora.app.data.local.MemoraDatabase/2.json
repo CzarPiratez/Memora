@@ -1,0 +1,144 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "b26d99f533ed6bcf961d7e1085cbe8d8",
+    "entities": [
+      {
+        "tableName": "assets",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`source_id` TEXT NOT NULL, `source_asset_key` TEXT NOT NULL, `asset_type` TEXT NOT NULL, `location` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `discovered_at_epoch_millis` INTEGER NOT NULL, `display_name` TEXT, `source_modified_at_epoch_millis` INTEGER, `indexing_status` TEXT NOT NULL, `indexing_attempt_count` INTEGER NOT NULL, `failure_code` TEXT, `failure_message` TEXT, PRIMARY KEY(`source_id`, `source_asset_key`))",
+        "fields": [
+          {
+            "fieldPath": "sourceId",
+            "columnName": "source_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceAssetKey",
+            "columnName": "source_asset_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assetType",
+            "columnName": "asset_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fingerprint",
+            "columnName": "fingerprint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discoveredAtEpochMillis",
+            "columnName": "discovered_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "display_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceModifiedAtEpochMillis",
+            "columnName": "source_modified_at_epoch_millis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "indexingStatus",
+            "columnName": "indexing_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "indexingAttemptCount",
+            "columnName": "indexing_attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failureCode",
+            "columnName": "failure_code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureMessage",
+            "columnName": "failure_message",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "source_id",
+            "source_asset_key"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_assets_fingerprint",
+            "unique": false,
+            "columnNames": [
+              "fingerprint"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_assets_fingerprint` ON `${TABLE_NAME}` (`fingerprint`)"
+          },
+          {
+            "name": "index_assets_indexing_status",
+            "unique": false,
+            "columnNames": [
+              "indexing_status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_assets_indexing_status` ON `${TABLE_NAME}` (`indexing_status`)"
+          }
+        ]
+      },
+      {
+        "tableName": "discovery_checkpoints",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`source_id` TEXT NOT NULL, `cursor_value` TEXT NOT NULL, `saved_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`source_id`))",
+        "fields": [
+          {
+            "fieldPath": "sourceId",
+            "columnName": "source_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cursorValue",
+            "columnName": "cursor_value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "savedAtEpochMillis",
+            "columnName": "saved_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "source_id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b26d99f533ed6bcf961d7e1085cbe8d8')"
+    ]
+  }
+}

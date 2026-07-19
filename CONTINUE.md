@@ -17,8 +17,9 @@ repository bindings, and the unchanged app launches on the emulator. The app doe
 Memory and evidence contract is now tested, but no Memory is persisted yet. The app
 contains no WorkManager job or AI integration. The MediaStore image adapter is covered
 by metadata-mapping and opaque-checkpoint tests and has queried the emulator's granted
-MediaStore catalogue successfully. No image bytes were opened and no discovery page,
-Asset, or cursor has been persisted or indexed.
+MediaStore catalogue successfully. Room database version 2 now persists source-owned
+opaque checkpoints and safely migrates version-1 Asset data. No image bytes were
+opened and no MediaStore discovery page or Asset has been persisted or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -67,14 +68,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   emulator on 2026-07-19: 1 of 1 test passed after the user granted photo access. It
   verifies a real, read-only bounded MediaStore query; it does not persist or index
   any result.
+- `RoomDiscoveryCheckpointRepositoryTest` passed in Android Studio on the Medium
+  Phone emulator on 2026-07-19: 2 of 2 tests passed. It verifies source-owned cursor
+  round-trip storage and idempotent replacement.
+- `MemoraDatabaseMigrationTest` passed in Android Studio on the Medium Phone emulator
+  on 2026-07-19: 1 of 1 test passed. It verifies an existing version-1 Asset record
+  survives the non-destructive migration to database version 2.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Persist source-owned discovery checkpoints in Room with a schema migration and an
-emulator-backed round-trip test. This is the smallest prerequisite for resumable
-incremental discovery. It must not call MediaStore, start indexing, or change the UI.
+Design and implement one application-layer use case that saves a discovered Asset page
+and its checkpoint atomically. This is the smallest prerequisite for crash-safe,
+resumable incremental discovery. It must not trigger MediaStore, start automatically,
+or change the UI.
 
 ## Important open decision
 

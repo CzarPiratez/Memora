@@ -3,9 +3,13 @@ package com.memora.app.data.di
 import android.content.Context
 import androidx.room.Room
 import com.memora.app.data.local.AssetDao
+import com.memora.app.data.local.DiscoveryCheckpointDao
 import com.memora.app.data.local.MemoraDatabase
+import com.memora.app.data.local.MemoraDatabaseMigrations
 import com.memora.app.data.local.RoomAssetRepository
+import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,15 +29,25 @@ object PersistenceModule {
         context,
         MemoraDatabase::class.java,
         DATABASE_NAME
-    ).build()
+    ).addMigrations(MemoraDatabaseMigrations.MIGRATION_1_2).build()
 
     @Provides
     fun provideAssetDao(database: MemoraDatabase): AssetDao = database.assetDao()
 
     @Provides
+    fun provideDiscoveryCheckpointDao(database: MemoraDatabase): DiscoveryCheckpointDao =
+        database.discoveryCheckpointDao()
+
+    @Provides
     @Singleton
     fun provideAssetRepository(assetDao: AssetDao): AssetRepository =
         RoomAssetRepository(assetDao)
+
+    @Provides
+    @Singleton
+    fun provideDiscoveryCheckpointRepository(
+        checkpointDao: DiscoveryCheckpointDao,
+    ): DiscoveryCheckpointRepository = RoomDiscoveryCheckpointRepository(checkpointDao)
 
     private const val DATABASE_NAME = "memora.db"
 }

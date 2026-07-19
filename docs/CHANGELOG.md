@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Verified durable discovery checkpoints
+
+- **Requirements:** P-04, P-14, P-17.
+- **Delivered:** Room database version 2, a source-owned opaque checkpoint table,
+  repository, Hilt binding, exported schema, and explicit migration from version 1.
+- **Privacy:** A checkpoint contains only its source ID, opaque source cursor, and
+  save time. It contains no original media, thumbnail, text, or semantic memory.
+- **Verification:** On 2026-07-19, `RoomDiscoveryCheckpointRepositoryTest` passed in
+  Android Studio on the Medium Phone emulator: 2 of 2 tests passed. The real
+  `MemoraDatabaseMigrationTest` then passed: 1 of 1 test preserved a version-1 Asset
+  across the migration.
+- **Known limitation:** This repository is intentionally not yet connected to
+  MediaStore discovery. Assets and their checkpoint are not yet written atomically.
+
 ### Verified MediaStore image/screenshot discovery adapter
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.
