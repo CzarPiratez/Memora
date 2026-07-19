@@ -18,10 +18,11 @@ Memory and evidence contract is now tested, but no Memory is persisted yet. The 
 contains no WorkManager job or AI integration. The MediaStore image adapter is covered
 by metadata-mapping and opaque-checkpoint tests and has queried the emulator's granted
 MediaStore catalogue successfully. Room database version 2 now persists source-owned
-opaque checkpoints and safely migrates version-1 Asset data. A tested application and
-Room boundary can now persist one source-neutral discovery page's Asset placeholders
-and checkpoint atomically. No image bytes were opened, and no actual MediaStore
-discovery page has yet been persisted or indexed.
+opaque checkpoints and safely migrates version-1 Asset data. Tested application and
+Room boundaries can now persist one source-neutral discovery page's Asset placeholders
+and checkpoint atomically, while preserving explicit access and source-failure
+outcomes. No image bytes were opened, and no actual MediaStore discovery page has yet
+been persisted or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -84,16 +85,20 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   and checkpoint together, unchanged asset versions retain their current indexing
   state, changed versions return to `DISCOVERED`, and an empty completed page advances
   its checkpoint.
+- `ProcessDiscoveryResultTest` passed in Android Studio on 2026-07-19: 3 of 3 tests
+  passed. It verifies that a successful page is committed, explicit access and source
+  failure outcomes are returned without a write, and a persistence exception becomes
+  a safe retryable failure.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Design and implement one application-layer discovery orchestrator that receives a
-source-neutral discovery result and persists only a successful page through the
-atomic page use case. It must preserve access-required, revoked, and failure outcomes
-without writing a checkpoint; it must not start MediaStore automatically or change the
-UI. This is the smallest next step toward controlled, resumable source discovery.
+Design and implement one application-layer use case that asks a source for exactly one
+bounded page using its saved checkpoint, then passes the resulting outcome to the
+verified result coordinator. It must not start automatically, change the UI, or bind
+the real MediaStore adapter yet. This is the smallest next step toward controlled,
+resumable source discovery.
 
 ## Important open decision
 

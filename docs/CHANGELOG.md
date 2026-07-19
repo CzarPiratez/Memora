@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Verified discovery-result coordination
+
+- **Requirements:** P-04, P-05, P-14, P-17.
+- **Delivered:** An application coordinator that sends only a successful discovery
+  page to the atomic page-store use case. Missing access, revoked access, and source
+  failures remain unchanged and cause no write. A storage exception becomes a
+  recoverable, non-sensitive failure outcome.
+- **Privacy:** The coordinator opens no source, requests no permission, starts no
+  scan, and changes no UI. It does not expose internal storage errors to a user.
+- **Verification:** On 2026-07-19, `ProcessDiscoveryResultTest` passed in Android
+  Studio: 3 of 3 tests passed.
+- **Known limitation:** No source calls this coordinator yet; no actual MediaStore
+  discovery page is persisted by the running app.
+
 ### Verified atomic discovery-page persistence
 
 - **Requirements:** P-04, P-05, P-14, P-17.
