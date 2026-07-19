@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Verified MediaStore image/screenshot discovery adapter
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.
+- **Delivered:** A bounded, read-only `ContentResolver` query adapter for image and
+  screenshot metadata; an opaque MediaStore version/watermark/ID checkpoint; and
+  runtime access-state handling for full, selected, missing, and revoked access.
+- **Privacy:** The adapter never opens image bytes, creates thumbnails, writes to
+  MediaStore, requests location, persists scan results, or starts automatically.
+- **Verification:** On 2026-07-19, local Gradle compiled the app and passed 5 of 5
+  selected mapper/checkpoint unit tests. `MediaStoreImageDiscoverySourceTest` then
+  passed in Android Studio on the Medium Phone emulator: 1 of 1 test passed after
+  photo access was granted, proving a real read-only catalogue query.
+- **Known limitation:** The adapter is intentionally not injected into a worker or
+  UI and no cursor/Asset page is stored in Room yet.
+
 ### MediaStore adapter design approved
 
 - **Requirements:** P-03, P-04, P-05, P-15, P-17.

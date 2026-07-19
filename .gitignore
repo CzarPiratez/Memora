@@ -4,12 +4,7 @@ MemoraApp/.kotlin/
 MemoraApp/build/
 MemoraApp/app/build/
 MemoraApp/local.properties
-MemoraApp/.idea/caches/
-MemoraApp/.idea/libraries/
-MemoraApp/.idea/modules.xml
-MemoraApp/.idea/workspace.xml
-MemoraApp/.idea/navEditor.xml
-MemoraApp/.idea/assetWizardSettings.xml
+MemoraApp/.idea/
 
 # Local rendering and operating-system files
 memora-render/

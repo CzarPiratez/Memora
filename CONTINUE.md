@@ -15,9 +15,10 @@ emulator-backed tests pass. Hilt now owns the application-level Room database an
 repository bindings, and the unchanged app launches on the emulator. The app does
 **not** yet discover, extract, understand, or search any asset. A source-neutral
 Memory and evidence contract is now tested, but no Memory is persisted yet. The app
-contains no real source adapter, WorkManager job, or AI integration. The read-only
-source discovery contract and its incremental cursor model are tested, but no real
-phone media has been opened or indexed.
+contains no WorkManager job or AI integration. The MediaStore image adapter is covered
+by metadata-mapping and opaque-checkpoint tests and has queried the emulator's granted
+MediaStore catalogue successfully. No image bytes were opened and no discovery page,
+Asset, or cursor has been persisted or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -59,14 +60,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - The corrected `AssetDiscoverySourceTest` passed in Android Studio on 2026-07-18:
   3 of 3 tests passed. Completed and empty pages now retain a durable checkpoint for
   the next incremental pass.
+- On 2026-07-19, the local Gradle task passed for the MediaStore metadata mapper and
+  checkpoint codec: 5 of 5 selected unit tests passed. The adapter is metadata-only,
+  bounded, and inactive.
+- `MediaStoreImageDiscoverySourceTest` passed in Android Studio on the Medium Phone
+  emulator on 2026-07-19: 1 of 1 test passed after the user granted photo access. It
+  verifies a real, read-only bounded MediaStore query; it does not persist or index
+  any result.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Implement the planned read-only MediaStore adapter for photos and screenshots
-(ADR-009). Unit-test its source-row mapping and cursor behavior first; it must remain
-inactive until a later user-initiated indexing use case exists.
+Persist source-owned discovery checkpoints in Room with a schema migration and an
+emulator-backed round-trip test. This is the smallest prerequisite for resumable
+incremental discovery. It must not call MediaStore, start indexing, or change the UI.
 
 ## Important open decision
 
