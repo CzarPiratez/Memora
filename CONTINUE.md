@@ -25,8 +25,10 @@ outcomes. A tested use case can now resume one bounded source-neutral discovery 
 from its saved source-owned checkpoint. A Hilt-bound application use case now binds
 the read-only MediaStore adapter to that flow for one explicit, bounded page and
 reports whether Android granted the full image library or selected photos. It has no
-UI caller yet, so no actual MediaStore discovery page has been persisted by the
-running app. No image bytes were opened.
+UI caller yet, so the running app has not persisted a normal MediaStore discovery
+page. An emulator integration test has verified the same flow persists one real,
+bounded emulator page and checkpoint atomically into an isolated in-memory Room
+database. No image bytes were opened.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -101,16 +103,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   passed. It verifies one bounded, explicitly requested page is persisted, full and
   selected-photo access remain distinct, missing access performs no query or write,
   and revoked/failure outcomes remain safe for a later ViewModel.
+- `IndexMediaStoreImagesIntegrationTest` passed in Android Studio on the Medium Phone
+  emulator on 2026-07-20: 1 of 1 test passed after photo access was granted. It
+  verifies a real bounded MediaStore page and its source-owned checkpoint persist
+  atomically into an isolated in-memory Room database, without opening or altering
+  original media.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Verify the controlled MediaStore binding on the Android emulator with an integration
-test that uses only emulator-provided media. It must show that one explicit bounded
-invocation saves the matching Asset placeholders and checkpoint atomically, reports
-the live full-versus-selected access scope honestly, and does not open image bytes or
-modify originals. Do not add a user-facing UI control or background work in this step.
+Add a testable Hilt ViewModel state boundary for the existing setup flow. It must
+expose immutable setup/indexing status, receive Android permission results from the UI
+instead of requesting permission itself, and invoke one bounded MediaStore indexing
+page only after an explicit user event and confirmed access. Do not redesign the UI,
+schedule background work, or add extraction in this step.
 
 ## Important open decision
 

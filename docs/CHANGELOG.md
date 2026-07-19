@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Verified live MediaStore-to-Room indexing path
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-17.
+- **Delivered:** An Android emulator integration test that executes one explicit,
+  bounded `MediaStore -> discovery use case -> Room` path using a temporary in-memory
+  database. It verifies the returned page's Asset placeholders and opaque checkpoint
+  are saved together and that the reported access scope agrees with Android's live
+  grant.
+- **Privacy:** The test reads only the emulator's existing MediaStore metadata. It
+  opens no image bytes, inserts no media, creates no thumbnail, changes no original,
+  and leaves no derived records in the normal Memora database.
+- **Verification:** On 2026-07-20,
+  `IndexMediaStoreImagesIntegrationTest` passed in Android Studio on the Medium Phone
+  emulator: 1 of 1 test passed after photo access was granted.
+- **Known limitation:** The prototype UI has not invoked this path yet. It has no
+  ViewModel state boundary, no user-visible indexing result, and no background work.
+
 ### Verified controlled MediaStore indexing boundary
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-17.
@@ -15,8 +32,7 @@
 - **Verification:** On 2026-07-19, `IndexMediaStoreImagesTest` passed in Android
   Studio: 5 of 5 tests passed. The Hilt application and Android-test graphs also
   compiled successfully.
-- **Known limitation:** This use case has no user-facing ViewModel or UI caller yet,
-  and its live adapter-to-Room path has not yet been exercised in one emulator test.
+- **Known limitation:** This use case has no user-facing ViewModel or UI caller yet.
 
 ### Verified checkpoint-driven discovery invocation
 
