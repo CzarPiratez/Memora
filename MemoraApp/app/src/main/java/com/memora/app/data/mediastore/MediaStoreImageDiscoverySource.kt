@@ -9,11 +9,12 @@ import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAccessModel
 import com.memora.app.domain.asset.SourceCapability
-import com.memora.app.domain.discovery.AssetDiscoverySource
 import com.memora.app.domain.discovery.DiscoveryFailure
 import com.memora.app.domain.discovery.DiscoveryPage
 import com.memora.app.domain.discovery.DiscoveryRequest
 import com.memora.app.domain.discovery.DiscoveryResult
+import com.memora.app.domain.discovery.ImageLibraryAccessScope
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import com.memora.app.domain.discovery.SourceAccessState
 import java.time.Clock
 import java.time.Instant
@@ -29,7 +30,7 @@ import kotlinx.coroutines.withContext
 class MediaStoreImageDiscoverySource(
     context: Context,
     private val clock: Clock = Clock.systemUTC(),
-) : AssetDiscoverySource {
+) : ImageLibraryDiscoverySource {
     private val appContext = context.applicationContext
     private val resolver: ContentResolver = appContext.contentResolver
 
@@ -41,12 +42,16 @@ class MediaStoreImageDiscoverySource(
         supportsBackgroundIndexing = true,
     )
 
-    override suspend fun accessState(): SourceAccessState = when (mediaStoreImageAccess(appContext)) {
-        MediaStoreAccess.FULL,
-        MediaStoreAccess.SELECTED,
-        -> SourceAccessState.GRANTED
+    override suspend fun accessState(): SourceAccessState = if (accessScope() == null) {
+        SourceAccessState.ACCESS_REQUIRED
+    } else {
+        SourceAccessState.GRANTED
+    }
 
-        MediaStoreAccess.REQUIRED -> SourceAccessState.ACCESS_REQUIRED
+    override suspend fun accessScope(): ImageLibraryAccessScope? = when (mediaStoreImageAccess(appContext)) {
+        MediaStoreAccess.FULL -> ImageLibraryAccessScope.FULL_LIBRARY
+        MediaStoreAccess.SELECTED -> ImageLibraryAccessScope.SELECTED_PHOTOS
+        MediaStoreAccess.REQUIRED -> null
     }
 
     override suspend fun discover(request: DiscoveryRequest): DiscoveryResult = withContext(Dispatchers.IO) {

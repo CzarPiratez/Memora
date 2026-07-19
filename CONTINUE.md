@@ -22,8 +22,11 @@ opaque checkpoints and safely migrates version-1 Asset data. Tested application 
 Room boundaries can now persist one source-neutral discovery page's Asset placeholders
 and checkpoint atomically, while preserving explicit access and source-failure
 outcomes. A tested use case can now resume one bounded source-neutral discovery page
-from its saved source-owned checkpoint. No image bytes were opened, and no actual
-MediaStore discovery page has yet been persisted or indexed.
+from its saved source-owned checkpoint. A Hilt-bound application use case now binds
+the read-only MediaStore adapter to that flow for one explicit, bounded page and
+reports whether Android granted the full image library or selected photos. It has no
+UI caller yet, so no actual MediaStore discovery page has been persisted by the
+running app. No image bytes were opened.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -94,16 +97,20 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   passed. It verifies saved-cursor resumption, first-pass discovery without a cursor,
   explicit access handling, source failure handling, exception recovery, and rejection
   of a page from an unexpected source.
+- `IndexMediaStoreImagesTest` passed in Android Studio on 2026-07-19: 5 of 5 tests
+  passed. It verifies one bounded, explicitly requested page is persisted, full and
+  selected-photo access remain distinct, missing access performs no query or write,
+  and revoked/failure outcomes remain safe for a later ViewModel.
 - Welcome screen displays the intended privacy-first language.
 - Tapping setup can request image access and Android reports the result.
 
 ## Next approved engineering step
 
-Design the controlled, user-initiated MediaStore indexing boundary that binds the
-tested MediaStore adapter to the checkpoint-driven use case. It must make full versus
-selected-photo access explicit, request no new permission itself, scan only one bounded
-page per explicit invocation, and expose an immutable outcome for a later ViewModel.
-Do not change the UI or schedule background work in this step.
+Verify the controlled MediaStore binding on the Android emulator with an integration
+test that uses only emulator-provided media. It must show that one explicit bounded
+invocation saves the matching Asset placeholders and checkpoint atomically, reports
+the live full-versus-selected access scope honestly, and does not open image bytes or
+modify originals. Do not add a user-facing UI control or background work in this step.
 
 ## Important open decision
 

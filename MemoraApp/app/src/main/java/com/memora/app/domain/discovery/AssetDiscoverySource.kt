@@ -102,3 +102,25 @@ interface AssetDiscoverySource {
 
     suspend fun discover(request: DiscoveryRequest): DiscoveryResult
 }
+
+/**
+ * The access scope Android has currently granted for the shared image library.
+ *
+ * This is deliberately separate from [SourceAccessState]. A source can be usable
+ * while Android limits it to user-selected photos, which must never be presented as
+ * full-library indexing.
+ */
+enum class ImageLibraryAccessScope {
+    FULL_LIBRARY,
+    SELECTED_PHOTOS,
+}
+
+/**
+ * Application-facing port for the Android shared-image source.
+ *
+ * It allows a use case to expose the meaningful access scope without importing
+ * Android permission APIs. It does not request, alter, or cache a permission.
+ */
+interface ImageLibraryDiscoverySource : AssetDiscoverySource {
+    suspend fun accessScope(): ImageLibraryAccessScope?
+}

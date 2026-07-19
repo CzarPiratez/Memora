@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Verified controlled MediaStore indexing boundary
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-17.
+- **Delivered:** A Hilt-bound application use case that invokes the existing
+  checkpoint-driven discovery flow for exactly one explicit, bounded MediaStore page.
+  It returns an immutable outcome for a later ViewModel, including the truthful
+  distinction between full-library and selected-photo access.
+- **Privacy:** This boundary neither requests nor caches a permission, starts itself,
+  schedules background work, opens image bytes, creates thumbnails, modifies original
+  media, or changes the prototype UI. Without a future explicit caller it is inert.
+- **Verification:** On 2026-07-19, `IndexMediaStoreImagesTest` passed in Android
+  Studio: 5 of 5 tests passed. The Hilt application and Android-test graphs also
+  compiled successfully.
+- **Known limitation:** This use case has no user-facing ViewModel or UI caller yet,
+  and its live adapter-to-Room path has not yet been exercised in one emulator test.
+
 ### Verified checkpoint-driven discovery invocation
 
 - **Requirements:** P-04, P-05, P-14, P-17.
