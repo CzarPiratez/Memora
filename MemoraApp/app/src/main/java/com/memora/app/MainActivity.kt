@@ -2,6 +2,7 @@ package com.memora.app
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +44,9 @@ import androidx.compose.ui.unit.dp
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
+import com.memora.app.ui.setup.DocumentTreeConnectionState
+import com.memora.app.ui.setup.DocumentTreeSetupUiState
+import com.memora.app.ui.setup.DocumentTreeSetupViewModel
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,19 +54,26 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val mediaStoreSetupViewModel: MediaStoreSetupViewModel by viewModels()
+    private val documentTreeSetupViewModel: DocumentTreeSetupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val setupUiState by mediaStoreSetupViewModel.uiState.collectAsState()
+            val documentTreeSetupUiState by documentTreeSetupViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MemoraApp(
                         setupUiState = setupUiState,
+                        documentTreeSetupUiState = documentTreeSetupUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
+                        onDocumentTreeReadAccessReceived =
+                            documentTreeSetupViewModel::onPersistedReadAccessReceived,
+                        onDocumentTreeReadAccessFailed =
+                            documentTreeSetupViewModel::onPersistableReadAccessFailed,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -73,8 +85,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MemoraApp(
     setupUiState: MediaStoreSetupUiState,
+    documentTreeSetupUiState: DocumentTreeSetupUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
+    onDocumentTreeReadAccessReceived: (String) -> Unit,
+    onDocumentTreeReadAccessFailed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -84,7 +99,22 @@ fun MemoraApp(
     ) {
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
     }
+    val documentTreeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+    ) { treeUri ->
+        if (treeUri == null) return@rememberLauncherForActivityResult
+
+        val readPermission = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(treeUri, readPermission)
+        }.onSuccess {
+            onDocumentTreeReadAccessReceived(treeUri.toString())
+        }.onFailure {
+            onDocumentTreeReadAccessFailed()
+        }
+    }
     var isShowingPrivacyScreen by rememberSaveable { mutableStateOf(false) }
+    var isShowingDocumentTreeScreen by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
@@ -98,9 +128,17 @@ fun MemoraApp(
             onBack = { isShowingPrivacyScreen = false },
             modifier = modifier,
         )
+    } else if (isShowingDocumentTreeScreen) {
+        DocumentTreeSetupScreen(
+            setupUiState = documentTreeSetupUiState,
+            onChooseFolder = { documentTreeLauncher.launch(null) },
+            onBack = { isShowingDocumentTreeScreen = false },
+            modifier = modifier,
+        )
     } else {
         MemoraWelcomeScreen(
             onBeginSetup = { isShowingPrivacyScreen = true },
+            onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
             modifier = modifier,
         )
     }
@@ -109,6 +147,7 @@ fun MemoraApp(
 @Composable
 fun MemoraWelcomeScreen(
     onBeginSetup: () -> Unit,
+    onConnectPdfFolder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -159,6 +198,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Begin setup")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = onConnectPdfFolder,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Connect a PDF folder")
         }
     }
 }
@@ -282,6 +328,110 @@ fun PrivacyScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Allow photo access")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DocumentTreeSetupScreen(
+    setupUiState: DocumentTreeSetupUiState,
+    onChooseFolder: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Button(onClick = onBack) {
+            Text("Back")
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Connect a PDF folder",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Choose one folder that Memora may later rescan for PDFs. Android controls this permission, and Memora will keep only a private reference to the folder.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            shape = RoundedCornerShape(20.dp),
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "What happens next",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "- You choose one folder\n- Access is read-only\n- This step does not open or index any PDF",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+
+        when (val connection = setupUiState.connection) {
+            DocumentTreeConnectionState.READY -> {
+                Button(
+                    onClick = onChooseFolder,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Choose a PDF folder")
+                }
+            }
+
+            DocumentTreeConnectionState.SAVING -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Saving your private folder connection…")
+                }
+            }
+
+            DocumentTreeConnectionState.CONNECTED -> {
+                Text(
+                    text = "PDF folder connected. Memora has not opened or indexed any document yet.",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = onChooseFolder,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Connect another PDF folder")
+                }
+            }
+
+            is DocumentTreeConnectionState.FAILED -> {
+                Text(
+                    text = connection.message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onChooseFolder,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Choose a PDF folder")
                 }
             }
         }

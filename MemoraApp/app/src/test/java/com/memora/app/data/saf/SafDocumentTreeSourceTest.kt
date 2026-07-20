@@ -1,5 +1,6 @@
 package com.memora.app.data.saf
 
+import com.memora.app.domain.discovery.DocumentTreeSource
 import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -11,16 +12,16 @@ class SafDocumentTreeSourceTest {
         val treeUri = "content://com.android.externalstorage.documents/tree/primary%3ADocuments"
 
         assertEquals(
-            SafDocumentTreeSource.sourceIdFor(treeUri),
-            SafDocumentTreeSource.sourceIdFor(treeUri),
+            DocumentTreeSource.sourceIdFor(treeUri),
+            DocumentTreeSource.sourceIdFor(treeUri),
         )
     }
 
     @Test
     fun `different approved document trees have independent source identities`() {
         assertFalse(
-            SafDocumentTreeSource.sourceIdFor("content://example/tree/one") ==
-                SafDocumentTreeSource.sourceIdFor("content://example/tree/two"),
+            DocumentTreeSource.sourceIdFor("content://example/tree/one") ==
+                DocumentTreeSource.sourceIdFor("content://example/tree/two"),
         )
     }
 
@@ -28,7 +29,7 @@ class SafDocumentTreeSourceTest {
     fun `approval keeps the private tree reference out of the source identity`() {
         val treeUri = "content://com.android.externalstorage.documents/tree/primary%3ATaxes"
 
-        val approval = SafDocumentTreeSource.approvalFor(
+        val approval = DocumentTreeSource.approvalFor(
             persistedTreeUri = treeUri,
             approvedAt = Instant.parse("2026-07-20T12:00:00Z"),
         )

@@ -2,23 +2,29 @@
 
 ## Unreleased
 
-### Verified SAF PDF-folder approval foundation
+### Verified user-approved SAF PDF-folder connection
 
-- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-16, P-17.
 - **Decision:** ADR-010 establishes each approved SAF document tree as an
   independently resumable source with a SHA-256-derived source ID. Room database
   version 3 stores the private URI reference and approval time required by a later
   platform adapter.
-- **Privacy:** This change does not launch Android's folder picker, enumerate a tree,
-  open a PDF, copy content, request broad storage access, or start background work.
-  The raw tree URI remains private database data and does not appear in source IDs.
+- **Delivered:** The privacy-explained Compose setup screen launches Android's
+  `ACTION_OPEN_DOCUMENT_TREE` picker. It persists only the chosen tree's read grant,
+  then asks a Hilt ViewModel and application use case to save the private reference.
+  The UI never accesses Room directly.
+- **Privacy:** This flow does not enumerate a tree, open a PDF, copy content, request
+  broad storage access, or start background work. The raw tree URI remains private
+  database data and does not appear in source IDs.
 - **Verification:** On 2026-07-20, `SafDocumentTreeSourceTest` passed in Android
   Studio: 3 of 3 tests. `RoomDocumentTreeApprovalRepositoryTest` then passed on the
   Medium Phone emulator: 2 of 2 tests. `MemoraDatabaseMigrationTest` passed: 1 of 1
   test verified the original Asset fixture survives the version-3 migration.
-- **Known limitation:** No Android picker, persisted URI grant, document enumeration,
-  or PDF discovery exists yet. Those require a later explicit, user-approved setup
-  action.
+  `DocumentTreeSetupViewModelTest` passed: 4 of 4 tests, and
+  `ApproveDocumentTreeTest` passed: 1 of 1. The user then selected an emulator folder
+  through Android's live picker and observed the truthful connected state.
+- **Known limitation:** No document enumeration or PDF discovery exists yet. The
+  connected folder remains inert until the later, bounded read-only SAF adapter.
 
 ### Verified Compose setup and explicit MediaStore indexing control
 

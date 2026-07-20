@@ -164,11 +164,12 @@ valid.
 independently. A stable hashed identity prevents the raw folder URI from becoming a
 general source identifier or appearing in checkpoints, logs, or user-facing state.
 
-**Privacy and scope:** This foundation stores a private reference to a user-approved
-folder only. It does not launch Android's picker, enumerate documents, open PDF
-bytes, extract text, copy a file, request broad storage permission, schedule work,
-or enable manual per-file import. A later SAF adapter must freshly verify the
-platform-held persisted grant and report revocation explicitly.
+**Privacy and scope:** Android's `ACTION_OPEN_DOCUMENT_TREE` picker is launched only
+after the user sees the folder-scope explanation. Memora persists only Android's read
+grant for the selected tree and stores its private reference. It does not enumerate
+documents, open PDF bytes, extract text, copy a file, request broad storage
+permission, schedule work, or enable manual per-file import. A later SAF adapter must
+freshly verify the platform-held persisted grant and report revocation explicitly.
 
 **Verification plan:** Unit-test deterministic source identity creation and
 source-ownership validation, then run an emulator Room test for approval persistence

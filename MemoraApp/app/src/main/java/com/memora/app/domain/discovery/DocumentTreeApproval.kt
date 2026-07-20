@@ -1,6 +1,7 @@
 package com.memora.app.domain.discovery
 
 import com.memora.app.domain.asset.SourceId
+import java.security.MessageDigest
 import java.time.Instant
 
 /**
@@ -27,4 +28,30 @@ interface DocumentTreeApprovalRepository {
     suspend fun save(approval: DocumentTreeApproval)
 
     suspend fun findAll(): List<DocumentTreeApproval>
+}
+
+/** Creates a stable private identity for one Android SAF document-tree reference. */
+object DocumentTreeSource {
+    private const val SOURCE_ID_PREFIX = "android-saf-document-tree:"
+
+    fun approvalFor(
+        persistedTreeUri: String,
+        approvedAt: Instant,
+    ): DocumentTreeApproval = DocumentTreeApproval(
+        sourceId = sourceIdFor(persistedTreeUri),
+        treeUri = persistedTreeUri,
+        approvedAt = approvedAt,
+    )
+
+    fun sourceIdFor(persistedTreeUri: String): SourceId {
+        require(persistedTreeUri.isNotBlank()) {
+            "An approved document tree URI cannot be blank."
+        }
+
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(persistedTreeUri.toByteArray(Charsets.UTF_8))
+            .joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
+
+        return SourceId(SOURCE_ID_PREFIX + digest)
+    }
 }

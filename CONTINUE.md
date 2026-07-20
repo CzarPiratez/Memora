@@ -36,8 +36,11 @@ full-versus-selected-photo scope. On 2026-07-20 the Medium Phone emulator comple
 that flow with 0 permitted items; no image bytes were opened.
 A source-neutral document-tree approval contract and Room database version 3 now
 persist private SAF tree references. Each approved future folder has an independent,
-hashed source identity and therefore independent indexing checkpoint. No Android
-picker, real folder, or PDF has been opened yet.
+hashed source identity and therefore independent indexing checkpoint. The Compose
+setup flow launches Android's folder picker only after an explanation, persists read
+access only when the user selects a folder, and saves the private reference through
+its ViewModel. On 2026-07-20 the user connected one emulator folder successfully; no
+PDF was opened or indexed.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -142,13 +145,23 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - `MemoraDatabaseMigrationTest` passed on the Medium Phone emulator on 2026-07-20:
   1 of 1 test passed after Room database version 3 added the document-tree approval
   table without destructively resetting the version-1 Asset fixture.
+- `DocumentTreeSetupViewModelTest` passed in Android Studio on 2026-07-20: 4 of 4
+  tests passed. It verifies Android's persisted read grant is the only path that can
+  save a folder reference, and platform or persistence failures remain recoverable.
+- `ApproveDocumentTreeTest` passed in Android Studio on 2026-07-20: 1 of 1 test
+  passed. It verifies the application boundary saves one private approval only after
+  it receives a persisted tree URI.
+- On 2026-07-20 the user opened the live Android folder picker, selected an emulator
+  folder, and observed `PDF folder connected. Memora has not opened or indexed any
+  document yet.`
 
 ## Next approved engineering step
 
-Connect the PDF setup screen to Android's `ACTION_OPEN_DOCUMENT_TREE` picker. Explain
-the read-only PDF-folder scope before launching it, persist only the selected tree's
-read permission, then save its private approval record through a ViewModel. Do not
-enumerate documents, open PDF bytes, extract text, or schedule background work.
+Build the read-only SAF PDF discovery adapter. It must freshly verify the persisted
+tree grant, enumerate only a bounded page of PDF metadata from that approved source,
+return source-neutral Asset placeholders and a source-owned cursor, and surface
+revocation explicitly. Do not open PDF bytes, extract text, index automatically, or
+schedule background work.
 
 ## Important open decision
 
