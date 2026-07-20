@@ -48,7 +48,12 @@ responsible for incremental indexing.
 - The app asks for source access before discovery.
 - Indexing state must be visible and recoverable.
 - Source access must be revocable.
-- Data handling must be explained before any cloud AI processing is introduced.
+- Core memory creation, retrieval, ranking, and explanation execute locally after the
+  required on-device capability is installed. They do not depend on cloud AI.
+- The app explains the source scope, local processing, model-pack storage, and any
+  optional network action before the user enables it.
+- Cloud AI, backup, and sync are future optional enhancements only; they need their
+  own explicit product decision, consent, and data-handling contract.
 
 ## MVP exclusions from the PRD
 

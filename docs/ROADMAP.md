@@ -1,5 +1,18 @@
 # Roadmap and Quality Gates
 
+## Local-AI architecture gate - required before AI work
+
+**Goal:** Make the offline-first local-AI promise testable before any model, OCR,
+embedding, vector, or WorkManager AI dependency is introduced.
+
+**Deliverables:** approved Local AI Technical Specification, model capability
+interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
+plan, and Local-AI traceability IDs.
+
+**Exit gate:** an engineering review can prove that normal memory creation, recall,
+ranking, and explanation have no cloud dependency and that unsupported devices receive
+a truthful outcome rather than a hidden degraded claim.
+
 ## Phase 0 - Foundation
 
 **Goal:** Establish the source-neutral model before touching real device data.
@@ -24,17 +37,17 @@ re-queued; revoking access leaves existing derived records safe and clearly mark
 
 **Goal:** Extract source facts before semantic processing.
 
-**Deliverables:** EXIF/OCR metadata, PDF text/metadata extraction, test fixtures, and
-extraction diagnostics.
+**Deliverables:** local EXIF/OCR metadata, local PDF text/metadata extraction, test
+fixtures, and extraction diagnostics.
 
 **Exit gate:** fixtures produce expected structured extraction records offline.
 
-## Phase 3 - Understanding
+## Phase 3 - Local understanding
 
 **Goal:** Convert extracted facts to validated semantic memories.
 
-**Deliverables:** Memory schema, intelligence interface, prompt/output validation,
-retry policy, and privacy disclosure.
+**Deliverables:** Memory schema, local intelligence interfaces, AI Pack/model registry,
+validated output, retry policy, model-version policy, and privacy disclosure.
 
 **Exit gate:** malformed output cannot corrupt the repository; every indexed memory
 contains traceable evidence.
@@ -43,8 +56,9 @@ contains traceable evidence.
 
 **Goal:** Search memories by natural-language recall cues and explain each match.
 
-**Deliverables:** recall engine, evidence ranking, result screen, Explain Mode, and
-end-to-end tests with representative assets.
+**Deliverables:** local query encoding where required, vector candidate retrieval,
+evidence ranking, result screen, Explain Mode, and end-to-end tests with
+representative assets.
 
 **Exit gate:** a query returns the expected memory and an explanation based on stored
 evidence rather than invented text.

@@ -9,9 +9,9 @@ deterministic extraction, semantic memory records, and indexing state.
 flowchart LR
     A[Platform source adapters] --> B[Asset discovery]
     B --> C[Deterministic extraction]
-    C --> D[Memory creation]
-    D --> E[Semantic understanding]
-    E --> F[Room memory repository]
+    C --> D[Local Intelligence Layer]
+    D --> E[Validated Memory + evidence + embeddings]
+    E --> F[Room memory repository and local vector index]
     F --> G[Recall engine]
     G --> H[Explain mode]
 ```
@@ -37,6 +37,10 @@ needed for recovery and incremental re-indexing.
 
 Owns use cases: discover source, extract asset, create memory, index asset, search
 memories, and explain result. WorkManager invokes these use cases in bounded batches.
+The Local Intelligence Layer is accessed through capability interfaces such as
+`VisionEngine`, `OcrEngine`, `DocumentEngine`, `EmbeddingEngine`, `MemoryBuilder`,
+and `RecallRanker`. It is local-first, capability/version-aware, and may not expose a
+cloud provider as a core dependency.
 
 ### 5. UI
 
@@ -66,7 +70,8 @@ that a MediaStore URI, a document URI, and a provider note ID behave the same wa
 5. Create a placeholder Memory record with recoverable indexing status.
 6. Run semantic understanding in a bounded worker.
 7. Validate structured output before replacing the placeholder with a searchable Memory.
-8. Record evidence and diagnostics so the result can be explained and failures retried.
+8. Persist compatible embeddings, evidence, model/extraction versions, and diagnostics
+   atomically so the result can be retrieved, explained, or safely retried.
 
 ## Safety boundaries
 
@@ -76,3 +81,7 @@ that a MediaStore URI, a document URI, and a provider note ID behave the same wa
 - API credentials and provider secrets are never in the Android app.
 - Failed work is retryable and idempotent; duplicate discovery does not create
   duplicate memories.
+- Search uses stored Memories and local query-only processing where necessary. It does
+  not reopen or reanalyse original assets for normal recall.
+- AI Pack delivery, model availability, fallback, integrity, and update behaviour are
+  governed by `LOCAL_AI_TECHNICAL_SPEC.md` before an AI implementation is added.

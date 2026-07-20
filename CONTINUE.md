@@ -50,15 +50,24 @@ The visible prototype is not the final product contract. In particular, the prio
 idea of importing notes through Share is rejected as the primary workflow because it
 does not satisfy automatic source indexing.
 
+On 2026-07-20, the original PRD and both accepted addenda were copied into
+`docs/product-source/` with SHA-256 records. The new
+`docs/LOCAL_AI_TECHNICAL_SPEC.md` and ADR-012 make the core memory lifecycle
+local-first and offline after a required on-device capability is installed. No model,
+AI Pack, cloud service, vector index, OCR, extraction implementation, or WorkManager
+job exists yet. Existing source discovery remains compatible with this decision.
+
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/GOVERNANCE.md`
-3. `docs/PRODUCT_CONTRACT.md`
-4. `docs/ARCHITECTURE.md`
-5. `docs/DECISIONS.md`
-6. `docs/ROADMAP.md`
-7. `docs/PRD_TRACEABILITY.md`
+2. `docs/PRODUCT_SOURCE_REGISTRY.md`
+3. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
+4. `docs/GOVERNANCE.md`
+5. `docs/PRODUCT_CONTRACT.md`
+6. `docs/ARCHITECTURE.md`
+7. `docs/DECISIONS.md`
+8. `docs/ROADMAP.md`
+9. `docs/PRD_TRACEABILITY.md`
 
 No implementation begins until this read gate is complete and the next change is
 mapped to its requirements, acceptance criteria, risks, and verification plan.
@@ -173,6 +182,8 @@ case so one explicit foreground request can persist one bounded PDF placeholder 
 and its source-owned checkpoint atomically. Do not add automatic/background work,
 open PDF bytes, extract text, or change the current UI yet. The source must preserve
 explicit access-revoked and retryable-failure outcomes.
+This remains a discovery-only step; it must use the Local-AI change-control gate and
+must not introduce model or cloud behaviour.
 
 ## Important open decision
 

@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Local-first engineering governance checkpoint
+
+- **Delivered:** Preserved immutable, versioned repository copies of the original
+  PRD and both accepted addenda in `docs/product-source/`, with SHA-256 values in
+  `docs/PRODUCT_SOURCE_REGISTRY.md`.
+- **Decision:** Added ADR-012 and `docs/LOCAL_AI_TECHNICAL_SPEC.md`. Normal memory
+  creation, retrieval, ranking, and explanation are now governed as local-first and
+  offline after required on-device capability installation. Cloud AI is optional and
+  cannot become a core dependency.
+- **Process:** Strengthened the mandatory pre-work gate. Every meaningful delivery
+  must use the product registry, local-AI specification, current-code inspection,
+  traceability IDs, and `docs/CHANGE_CONTROL_TEMPLATE.md`; conversational memory is
+  not an authority.
+- **Scope:** Documentation and source-artifact checkpoint only. No Android code,
+  dependencies, permissions, source access, model, network client, or user-visible
+  behaviour changed.
+
 ### Verified bounded SAF PDF metadata discovery
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.

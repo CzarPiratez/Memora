@@ -2,14 +2,19 @@
 
 ## Product authority
 
-The source of truth is `C:\Users\DELL\Desktop\App\Memora.docx`. Memora is a
-**memory retrieval engine**, not a file browser, upload tool, or generic chatbot.
-It must help a person recall content by meaning and explain why a result matched.
+The immutable product baseline and accepted amendments are registered in
+`docs/PRODUCT_SOURCE_REGISTRY.md`. `Memora.docx` defines the product vision;
+`LOCAL_AI_TECHNICAL_SPEC.md` defines the binding local-first implementation rules
+where an AI architecture detail would otherwise conflict. Memora is a **memory
+retrieval engine**, not a file browser, upload tool, or generic chatbot. It must help
+a person recall content by meaning and explain why a result matched.
 
-Before every step, read `docs/GOVERNANCE.md`, `CONTINUE.md`, and the applicable files
-in `docs/`. The mandatory pre-work gate in `docs/GOVERNANCE.md` is not optional.
-Update the relevant document whenever a requirement, decision, architecture boundary,
-or delivery checkpoint changes.
+Before every step, read `docs/PRODUCT_SOURCE_REGISTRY.md`,
+`docs/LOCAL_AI_TECHNICAL_SPEC.md`, `docs/GOVERNANCE.md`, `CONTINUE.md`, and the
+applicable files in `docs/`. The mandatory pre-work gate in `docs/GOVERNANCE.md` is
+not optional. Work from those sources and current-code inspection, never from
+conversational memory alone. Update the relevant document whenever a requirement,
+decision, architecture boundary, or delivery checkpoint changes.
 
 ## Non-negotiable product behavior
 
@@ -36,6 +41,9 @@ or delivery checkpoint changes.
   indexed, where it remains stored, and what will leave the device before asking.
 - No AI key, provider secret, or long-lived access token may be committed to the
   repository or embedded in the APK.
+- Core memory creation, retrieval, ranking, and explanation are local after the
+  required on-device capability is installed. Cloud AI is optional and never a core
+  dependency.
 
 ## Architecture boundaries
 

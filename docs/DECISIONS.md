@@ -209,3 +209,30 @@ read-only in every outcome.
 metadata-to-Asset mapping, non-PDF filtering, and provider failure handling; then
 run a read-only emulator test against the already user-approved tree. The test must
 not create, alter, open, or delete any document.
+
+## ADR-012: Local-first AI and offline core are binding architecture
+
+**Status:** Accepted
+
+**Decision:** The original PRD remains the immutable product baseline. Addendum 1 is
+accepted as the implementation amendment for any AI architecture conflict, and
+`docs/LOCAL_AI_TECHNICAL_SPEC.md` is the binding, testable engineering interpretation.
+Memora's normal memory creation, retrieval, ranking, and explanation paths execute
+locally after a required capability is installed. Cloud AI is an optional future
+enhancement, never a core dependency.
+
+**Reason:** Memora's trust proposition is that the phone itself remembers. A
+cloud-required AI pipeline would contradict its offline, privacy-first, source-owned
+product model. Capability interfaces and versioned packs preserve future model choice
+without coupling the domain to a vendor or a named model.
+
+**Clarifications:** “AI runs once” means once per source fingerprint plus relevant
+extraction, schema, and model version. “Memories live forever” means durable until
+the user removes the source/data or a retention policy requires removal. Query-only
+local encoding is allowed for semantic search; original assets must not be reopened or
+reanalysed during normal recall.
+
+**Consequences:** No AI SDK, model, model download, vector index, WorkManager AI job,
+or network feature may be added without satisfying the Local AI Technical
+Specification acceptance gate. Existing discovery work remains compatible because it
+is read-only, bounded, local, and independent of AI.

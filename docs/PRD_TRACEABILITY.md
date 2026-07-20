@@ -25,6 +25,13 @@ the behavior described here.
 | P-17 | MediaStore, Room, WorkManager, Compose, MVVM, repository pattern, and Hilt form the Android foundation | Platform/data/app layers | Architecture review and build | Room/repository/Hilt boundaries complete, including non-destructive Room migrations through version 3, Hilt-bound atomic discovery/page-indexing boundaries, verified Compose permission/indexing, Hilt-bound SAF approval, and a compiled plus emulator-verified read-only SAF metadata adapter; WorkManager planned |
 | P-18 | WhatsApp, Gmail, Calendar, video, audio, timeline, cloud sync, collaboration, manual tags, folders, and phone-wide chat remain out of MVP | Scope control | PR review and roadmap check | Accepted |
 | P-19 | User accounts are excluded, yet existing notes must be indexed | Product decision | ADR-003 resolved before note connector work | Open conflict |
+| A-01 | Core memory creation, retrieval, ranking, and explanation work locally after required on-device capability installation | Local Intelligence Layer | Offline end-to-end verification with network unavailable | Planned |
+| A-02 | Cloud AI is optional and never a core dependency | Product, architecture, dependency review | Dependency/data-flow review proves no remote AI path in normal operation | Accepted in specification; no implementation yet |
+| A-03 | Models are accessed through replaceable capability interfaces and versioned AI Packs | Domain, application, platform/data | Contract tests, manifest integrity tests, compatibility and fallback tests | Planned |
+| A-04 | Understanding is performed per source/model/schema version, not repeatedly at search time | Application, Room, workers | Reindex/version tests and recall test that does not reopen an Asset | Planned |
+| A-05 | Local search ranks stored evidence and provides factual explanation | Recall engine, Room/vector index | Offline semantic recall and evidence-citation tests | Planned |
+| A-06 | Indexing is bounded, battery-aware, cancellable, and truthful under constraints | WorkManager, UI | Constraint, cancellation, retry, and paused-state tests | Planned |
+| A-07 | AI Pack installation/update is explicit, integrity-checked, version-compatible, and does not upload user data | Platform/data, product UI | Offline/install/failure/rollback and disclosure tests | Planned |
 
 ## Definition of traceable delivery
 
