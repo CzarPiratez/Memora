@@ -29,8 +29,11 @@ UI caller yet, so the running app has not persisted a normal MediaStore discover
 page. An emulator integration test has verified the same flow persists one real,
 bounded emulator page and checkpoint atomically into an isolated in-memory Room
 database. A Hilt ViewModel now exposes immutable setup/indexing state and accepts
-permission results from the UI, but the current prototype screen does not yet use it.
-No image bytes were opened.
+permission results from the UI and is connected to the Compose setup screen. After a
+user grants access and explicitly chooses `Start indexing`, the app persists one
+bounded, read-only MediaStore metadata page and shows the truthful count and
+full-versus-selected-photo scope. On 2026-07-20 the Medium Phone emulator completed
+that flow with 0 permitted items; no image bytes were opened.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -114,16 +117,25 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   tests passed. It verifies indexing is blocked until both an explicit permission
   result and an explicit user request, selected-photo access stays distinct, recovery
   states remain explicit, and duplicate requests are ignored while work is active.
-- Welcome screen displays the intended privacy-first language.
-- Tapping setup can request image access and Android reports the result.
+- `IndexingSummaryTest` passed in Android Studio on 2026-07-20: 3 of 3 tests passed.
+  It verifies the completion message remains truthful for full-library access,
+  selected-photo access, an incomplete page, and an empty completed page.
+- On 2026-07-20, the user ran the app on the Medium Phone emulator, granted access,
+  explicitly started indexing, and observed the completed `0 items` full-library
+  message. This was expected for the emulator's permitted catalogue.
+- Android 17 (API 37.1) currently fails Compose instrumentation tests before their
+  assertions because its test environment lacks `InputManager.getInstance`. The
+  failure is in the emulator/test-tool bridge, not Memora. The blocked Compose test
+  was removed; pure presentation copy is locally tested, and the visible flow is
+  manually verified on the emulator. Revisit when the emulator image or Compose test
+  tooling is compatible.
 
 ## Next approved engineering step
 
-Connect the existing privacy/setup screen to the verified Hilt ViewModel without a
-visual redesign. The Activity/Compose layer must keep ownership of Android's permission
-launcher, report the result to the ViewModel, and expose one explicit `Start indexing`
-action only after access is confirmed. Render truthful full-versus-selected scope,
-success, and recoverable errors. Do not add background work or extraction.
+Build the PDF discovery foundation: define a source-neutral, persisted Storage Access
+Framework folder approval boundary and its source-owned checkpoint contract. Do not
+open PDF bytes, extract text, schedule background work, or offer per-file import. The
+user must explicitly approve a document location before any later discovery can run.
 
 ## Important open decision
 

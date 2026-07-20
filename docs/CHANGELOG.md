@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Verified Compose setup and explicit MediaStore indexing control
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-16, P-17.
+- **Delivered:** The Compose setup screen now reports Android permission results to
+  the Hilt ViewModel and exposes `Start indexing` only after confirmed access. One
+  user-initiated request indexes one bounded metadata-only page, then renders a
+  truthful full-library or selected-photo completion message, or a recoverable error.
+- **Privacy:** The Activity owns Android's permission launcher. The UI has no direct
+  source, Room, or AI calls. The workflow does not open image bytes, modify originals,
+  upload content, or schedule background work.
+- **Verification:** On 2026-07-20, `IndexingSummaryTest` passed in Android Studio:
+  3 of 3 tests passed. The Kotlin, Hilt, Android-test compilation, and local unit-test
+  graphs compiled successfully. The user then verified the visible app flow on the
+  Medium Phone emulator: it completed with 0 permitted items, a valid empty result.
+- **Known limitation:** Android 17 (API 37.1) currently fails Compose
+  instrumentation tests before test assertions due to the emulator/test bridge
+  expecting the unavailable `InputManager.getInstance` method. This is recorded in
+  `CONTINUE.md`; presentation copy is locally tested and the visible flow is manually
+  verified until compatible tooling is available.
+
 ### Verified setup/indexing ViewModel state boundary
 
 - **Requirements:** P-05, P-14, P-16, P-17.
@@ -16,8 +36,8 @@
   data collection.
 - **Verification:** On 2026-07-20, `MediaStoreSetupViewModelTest` passed in Android
   Studio: 4 of 4 tests passed. The Hilt and Android-test compilation graph passed.
-- **Known limitation:** The current Compose prototype has not been connected to this
-  ViewModel yet, so the running app still cannot start indexing from its screen.
+- **Known limitation:** This ViewModel starts one foreground, user-initiated page
+  only. Background scheduling and extraction remain future work.
 
 ### Verified live MediaStore-to-Room indexing path
 
@@ -33,8 +53,8 @@
 - **Verification:** On 2026-07-20,
   `IndexMediaStoreImagesIntegrationTest` passed in Android Studio on the Medium Phone
   emulator: 1 of 1 test passed after photo access was granted.
-- **Known limitation:** The prototype UI has not invoked this path yet. It has no
-  user-visible indexing result and no background work.
+- **Known limitation:** The verified UI starts a foreground page only; background
+  work remains intentionally unimplemented.
 
 ### Verified controlled MediaStore indexing boundary
 
