@@ -236,3 +236,39 @@ reanalysed during normal recall.
 or network feature may be added without satisfying the Local AI Technical
 Specification acceptance gate. Existing discovery work remains compatible because it
 is read-only, bounded, local, and independent of AI.
+
+## ADR-013: SAF descendant traversal is depth-first, resumable, and metadata-only
+
+**Status:** Accepted
+
+**Decision:** The SAF PDF adapter extends from selected-root-only discovery to a
+source-owned, depth-first traversal of the approved document tree. Each invocation
+reads the immediate children of exactly one pending folder, using Android's
+child-document API and the existing bounded page limit. The opaque v2 checkpoint
+stores the pending folder frames and each frame's last consumed child document ID.
+When a page discovers folders, it schedules them depth-first; when a folder is
+finished, its frame is removed. The prior v1 root-only checkpoint remains readable
+and resumes as the root frame.
+
+**Reason:** The product cannot claim a connected folder covers PDFs in nested folders
+while only the root is queried. A depth-first continuation checkpoint lets Memora
+move through descendants over small, restart-safe calls without an unbounded recursive
+query or a provider-specific subtree assumption.
+
+**Privacy and scope:** This remains metadata-only. The adapter reads only document
+IDs, MIME types, names, sizes, and modification times from the existing approved
+tree. It never opens a document URI, reads bytes or text, copies content, requests
+broader access, starts automatically, schedules background work, or changes source
+content. A provider page claiming more rows while returning no rows is an explicit
+retryable failure rather than an endless or silent scan.
+
+**Known limitation:** The traversal is not yet background-scheduled or wired to a
+new visible control. Large-provider behavior and restart continuation across an
+actual nested emulator tree still require live verification. PDF extraction remains
+separate Phase 2 work.
+
+**Verification plan:** Unit-test root and nested-folder traversal, v1 checkpoint
+compatibility, bounded requests, grant loss, and failure handling; compile Android
+tests; then rerun the existing read-only SAF adapter integration test on the approved
+emulator folder. No test creates, opens, modifies, copies, extracts, or deletes a
+source document.

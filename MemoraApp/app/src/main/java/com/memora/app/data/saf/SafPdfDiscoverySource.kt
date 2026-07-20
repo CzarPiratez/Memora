@@ -24,8 +24,9 @@ import kotlinx.coroutines.withContext
  * Reads one bounded metadata page from a user-approved SAF document tree.
  *
  * This adapter checks Android's retained read grant for every call. It only examines
- * immediate-child metadata and emits declared PDFs; it never opens a document URI or
- * reads PDF content. Descendant traversal is deliberately a later, documented step.
+ * one bounded immediate-child metadata page per invocation and emits declared PDFs.
+ * Its source-owned checkpoint resumes a depth-first traversal across descendant
+ * folders. It never opens a document URI or reads PDF content.
  */
 class SafPdfDiscoverySource(
     private val approval: DocumentTreeApproval,
@@ -54,15 +55,24 @@ class SafPdfDiscoverySource(
                 return@withContext DiscoveryResult.AccessRevoked
             }
             val checkpoint = checkpointFor(request)
+            val currentFolder = checkpoint.frames.lastOrNull()
+                ?: return@withContext completedPage(checkpoint)
             val metadataPage = catalog.readChildMetadataPage(
                 treeUri = approval.treeUri,
-                afterDocumentId = checkpoint.afterDocumentId,
+                parentDocumentId = currentFolder.parentDocumentId,
+                afterDocumentId = currentFolder.afterDocumentId,
                 limit = request.batchSize,
             )
             val consumed = metadataPage.documents
-            val nextCheckpoint = consumed.lastOrNull()?.documentId?.let { documentId ->
-                SafPdfDiscoveryCheckpoint(approval.sourceId, documentId)
-            } ?: checkpoint
+            if (consumed.isEmpty() && metadataPage.hasMore) {
+                return@withContext DiscoveryResult.Failed(
+                    DiscoveryFailure(
+                        code = "SAF_DOCUMENT_CURSOR_STALLED",
+                        message = "Memora could not safely continue the approved PDF folder scan. You can retry later.",
+                    )
+                )
+            }
+            val nextCheckpoint = checkpoint.advance(currentFolder, metadataPage)
 
             DiscoveryResult.Page(
                 DiscoveryPage(
@@ -73,7 +83,7 @@ class SafPdfDiscoverySource(
                         .map { metadata -> metadata.toAsset(approval, Instant.now(clock)) }
                         .toList(),
                     checkpoint = nextCheckpoint.toCursor(),
-                    hasMore = metadataPage.hasMore,
+                    hasMore = nextCheckpoint.frames.isNotEmpty(),
                 )
             )
         } catch (_: SecurityException) {
@@ -104,10 +114,42 @@ class SafPdfDiscoverySource(
         return requested
     }
 
+    private fun completedPage(checkpoint: SafPdfDiscoveryCheckpoint): DiscoveryResult.Page = DiscoveryResult.Page(
+        DiscoveryPage(
+            sourceId = approval.sourceId,
+            assets = emptyList(),
+            checkpoint = checkpoint.toCursor(),
+            hasMore = false,
+        )
+    )
+
+    private fun SafPdfDiscoveryCheckpoint.advance(
+        currentFolder: SafPdfDiscoveryCheckpoint.FolderFrame,
+        metadataPage: SafDocumentTreeMetadataPage,
+    ): SafPdfDiscoveryCheckpoint {
+        val remaining = frames.dropLast(1).toMutableList()
+        if (metadataPage.hasMore) {
+            val lastDocumentId = metadataPage.documents.last().documentId
+            remaining += currentFolder.copy(afterDocumentId = lastDocumentId)
+        }
+        metadataPage.documents
+            .asReversed()
+            .filter(::isFolder)
+            .forEach { folder ->
+                remaining += SafPdfDiscoveryCheckpoint.FolderFrame(
+                    parentDocumentId = folder.documentId,
+                    afterDocumentId = null,
+                )
+            }
+        return SafPdfDiscoveryCheckpoint(approval.sourceId, remaining)
+    }
+
     private fun isPdf(metadata: SafDocumentMetadata): Boolean = metadata.mimeType.equals(
         PDF_MIME_TYPE,
         ignoreCase = true,
     )
+
+    private fun isFolder(metadata: SafDocumentMetadata): Boolean = metadata.mimeType == DIRECTORY_MIME_TYPE
 
     private fun SafDocumentMetadata.toAsset(
         approval: DocumentTreeApproval,
@@ -131,6 +173,7 @@ class SafPdfDiscoverySource(
 
     private companion object {
         const val PDF_MIME_TYPE = "application/pdf"
+        const val DIRECTORY_MIME_TYPE = "vnd.android.document/directory"
         const val UNKNOWN_VERSION = "unknown-version"
         const val UNKNOWN_SIZE = "unknown-size"
     }

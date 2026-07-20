@@ -67,6 +67,14 @@ integration-test source compiled on 2026-07-20. The user then ran
 `IndexSafPdfFolderIntegrationTest` on the Medium Phone emulator: 1 of 1 test passed.
 The live test queried only the already approved folder's bounded PDF metadata page and
 persisted only its placeholders and checkpoint to an isolated in-memory Room database.
+The SAF adapter now has a depth-first, source-owned v2 traversal checkpoint so it can
+resume nested folders through one bounded metadata page per invocation; prior v1
+root-only checkpoints remain readable. Local traversal tests and Android-test
+compilation passed on 2026-07-20. The user then reran
+`SafPdfDiscoverySourceIntegrationTest` on the Medium Phone emulator: 1 of 1 test
+passed after reconnecting the approved folder. That regression test verifies live
+Android access; deterministic local tests verify the nested-folder behavior because
+the emulator folder is not assumed to contain a nested PDF fixture.
 
 ## Read in this order
 
@@ -191,13 +199,19 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   metadata page persists its placeholders and source-owned checkpoint atomically into
   an isolated in-memory Room database, without opening, copying, extracting, changing,
   or deleting a PDF.
+- `SafPdfDiscoverySourceTest` passed locally on 2026-07-20 after descendant traversal
+  was added. It verifies depth-first nested-folder resumption, bounded folder pages,
+  v1 root-checkpoint compatibility, access revocation, and safe failure behavior.
+  The user then reran `SafPdfDiscoverySourceIntegrationTest` on the Medium Phone
+  emulator: 1 of 1 test passed after reconnecting the approved folder. It confirms
+  the changed adapter remains metadata-only under a live persisted Android grant.
 
 ## Next approved engineering step
 
-Add resumable descendant traversal (or a documented provider subtree strategy) before
-claiming that a connected folder discovers all PDFs below its root. Keep it to
-metadata-only discovery and source-owned checkpoints. Do not add PDF byte access,
-extraction, background work, model, cloud behaviour, or a UI redesign in that step.
+Add an explicit, truthful foreground control for indexing a connected PDF folder, or
+begin the separately governed deterministic PDF extraction boundary. Choose one only
+after recording its requirements and verification plan; do not combine either with
+background work, model, cloud behaviour, or a UI redesign.
 
 ## Important open decision
 

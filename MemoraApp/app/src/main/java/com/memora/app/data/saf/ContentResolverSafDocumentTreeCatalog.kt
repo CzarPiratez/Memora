@@ -12,10 +12,10 @@ import kotlinx.coroutines.withContext
 /**
  * Android implementation of [SafDocumentTreeCatalog].
  *
- * It queries only immediate child metadata through the persisted tree URI. The
- * requested limit is supplied to the provider and enforced again while consuming the
- * cursor, so Memora never exposes an unbounded page even if a provider ignores the
- * optional query hint.
+ * It queries immediate-child metadata for one requested folder through the persisted
+ * tree URI. The requested limit is supplied to the provider and enforced again while
+ * consuming the cursor, so Memora never exposes an unbounded page even if a provider
+ * ignores the optional query hint.
  */
 class ContentResolverSafDocumentTreeCatalog(
     context: Context,
@@ -31,6 +31,7 @@ class ContentResolverSafDocumentTreeCatalog(
 
     override suspend fun readChildMetadataPage(
         treeUri: String,
+        parentDocumentId: String?,
         afterDocumentId: String?,
         limit: Int,
     ): SafDocumentTreeMetadataPage = withContext(Dispatchers.IO) {
@@ -40,7 +41,7 @@ class ContentResolverSafDocumentTreeCatalog(
         val treeDocumentId = DocumentsContract.getTreeDocumentId(parsedTreeUri)
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
             parsedTreeUri,
-            treeDocumentId,
+            parentDocumentId ?: treeDocumentId,
         )
         val rows = resolver.query(
             childrenUri,

@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### Verified SAF descendant traversal
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17; no Local-AI requirement is
+  implemented by this step.
+- **Decision:** ADR-013 replaces root-only traversal with a resumable depth-first
+  checkpoint strategy. One invocation reads children from exactly one pending folder;
+  it never recurses unboundedly in a single call.
+- **Delivered:** The SAF adapter's v2 checkpoint stores pending folder frames and
+  their source-owned cursors, discovers declared PDF metadata in descendant folders,
+  and reads a prior v1 root checkpoint safely. An empty provider page that claims more
+  data becomes an explicit retryable failure.
+- **Privacy:** The implementation reads metadata only and changes no source content.
+  It does not open a PDF, read bytes/text, copy a document, request broader access,
+  start automatically, or schedule background work.
+- **Verification:** Local `SafPdfDiscoverySourceTest` passed on 2026-07-20, including
+  deterministic nested traversal and v1-resume coverage. Android-test compilation
+  passed. The user then reran `SafPdfDiscoverySourceIntegrationTest` on the Medium
+  Phone emulator: 1 of 1 test passed after reconnecting the approved folder.
+- **Known limitation:** The emulator is not assumed to contain a nested PDF fixture,
+  so its live test confirms platform access/regression while the nested logic remains
+  deterministically covered locally. Background scheduling and PDF extraction remain
+  future work.
+
 ### Verified SAF PDF metadata page persistence
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17; A-01 and A-02 remain
@@ -19,9 +42,10 @@
   Phone emulator: 1 of 1 test passed against the already approved folder. It read one
   bounded metadata page and wrote only its placeholders and checkpoint to an isolated
   in-memory Room database.
-- **Known limitation:** This is one explicit immediate-child metadata page only.
-  Descendant traversal, PDF bytes/text extraction, background scheduling, and UI
-  initiation remain deliberately out of scope.
+- **Known limitation:** This is one explicit bounded metadata page per invocation.
+  Descendant traversal is now handled through its source-owned checkpoint (ADR-013),
+  but PDF bytes/text extraction, background scheduling, and UI initiation remain
+  deliberately out of scope.
 
 ### Local-first engineering governance checkpoint
 

@@ -60,7 +60,69 @@ class SafPdfDiscoverySourceTest {
 
         val checkpoint = SafPdfDiscoveryCheckpoint.from(page.checkpoint)
         assertEquals(approval.sourceId, checkpoint.sourceId)
-        assertEquals("image", checkpoint.afterDocumentId)
+        assertEquals(
+            listOf(SafPdfDiscoveryCheckpoint.FolderFrame(parentDocumentId = null, afterDocumentId = "image")),
+            checkpoint.frames,
+        )
+    }
+
+    @Test
+    fun `resumes a depth first descendant folder traversal one bounded metadata page at a time`() = runTest {
+        val catalog = FakeCatalog(
+            pagesByParentDocumentId = mapOf(
+                null to SafDocumentTreeMetadataPage(
+                    documents = listOf(
+                        document(id = "root-pdf", mimeType = "application/pdf", name = "root.pdf"),
+                        document(id = "nested", mimeType = DIRECTORY_MIME_TYPE, name = "nested"),
+                    ),
+                    hasMore = false,
+                ),
+                "nested" to SafDocumentTreeMetadataPage(
+                    documents = listOf(
+                        document(id = "nested-pdf", mimeType = "application/pdf", name = "nested.pdf"),
+                    ),
+                    hasMore = false,
+                ),
+            ),
+        )
+        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+
+        val rootResult = source.discover(DiscoveryRequest(batchSize = 2)) as DiscoveryResult.Page
+        assertEquals(listOf("root-pdf"), rootResult.value.assets.map { it.identity.sourceAssetKey.value })
+        assertTrue(rootResult.value.hasMore)
+        assertEquals(
+            listOf(SafPdfDiscoveryCheckpoint.FolderFrame(parentDocumentId = "nested", afterDocumentId = null)),
+            SafPdfDiscoveryCheckpoint.from(rootResult.value.checkpoint).frames,
+        )
+
+        val nestedResult = source.discover(
+            DiscoveryRequest(cursor = rootResult.value.checkpoint, batchSize = 2),
+        ) as DiscoveryResult.Page
+        assertEquals(listOf("nested-pdf"), nestedResult.value.assets.map { it.identity.sourceAssetKey.value })
+        assertFalse(nestedResult.value.hasMore)
+        assertEquals(emptyList<SafPdfDiscoveryCheckpoint.FolderFrame>(), SafPdfDiscoveryCheckpoint.from(nestedResult.value.checkpoint).frames)
+        assertEquals(listOf(null, "nested"), catalog.requestedParentDocumentIds)
+    }
+
+    @Test
+    fun `resumes a prior root checkpoint without duplicating earlier documents`() = runTest {
+        val catalog = FakeCatalog(
+            page = SafDocumentTreeMetadataPage(
+                documents = listOf(document(id = "later", mimeType = "application/pdf", name = "later.pdf")),
+                hasMore = false,
+            ),
+        )
+        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val legacyCursor = DiscoveryCursor(
+            sourceId = approval.sourceId,
+            value = "saf-pdf-v1:b2xkZXI",
+        )
+
+        val result = source.discover(DiscoveryRequest(cursor = legacyCursor)) as DiscoveryResult.Page
+
+        assertEquals(listOf("later"), result.value.assets.map { it.identity.sourceAssetKey.value })
+        assertEquals("older", catalog.requestedAfterDocumentId)
+        assertEquals(null, catalog.requestedParentDocumentIds.single())
     }
 
     @Test
@@ -69,7 +131,9 @@ class SafPdfDiscoverySourceTest {
         val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
         val foreignCursor = SafPdfDiscoveryCheckpoint(
             sourceId = SourceId("android-saf-document-tree:other"),
-            afterDocumentId = "report",
+            frames = listOf(
+                SafPdfDiscoveryCheckpoint.FolderFrame(parentDocumentId = null, afterDocumentId = "report"),
+            ),
         ).toCursor()
 
         val result = source.discover(DiscoveryRequest(cursor = foreignCursor))
@@ -118,9 +182,11 @@ class SafPdfDiscoverySourceTest {
     private class FakeCatalog(
         private val hasAccess: Boolean = true,
         private val page: SafDocumentTreeMetadataPage = SafDocumentTreeMetadataPage(emptyList(), false),
+        private val pagesByParentDocumentId: Map<String?, SafDocumentTreeMetadataPage> = emptyMap(),
         private val readFailure: Exception? = null,
     ) : SafDocumentTreeCatalog {
         var readCalls: Int = 0
+        val requestedParentDocumentIds = mutableListOf<String?>()
         var requestedAfterDocumentId: String? = null
         var requestedLimit: Int? = null
 
@@ -128,14 +194,20 @@ class SafPdfDiscoverySourceTest {
 
         override suspend fun readChildMetadataPage(
             treeUri: String,
+            parentDocumentId: String?,
             afterDocumentId: String?,
             limit: Int,
         ): SafDocumentTreeMetadataPage {
             readCalls += 1
+            requestedParentDocumentIds += parentDocumentId
             requestedAfterDocumentId = afterDocumentId
             requestedLimit = limit
             readFailure?.let { throw it }
-            return page
+            return pagesByParentDocumentId[parentDocumentId] ?: page
         }
+    }
+
+    private companion object {
+        const val DIRECTORY_MIME_TYPE = "vnd.android.document/directory"
     }
 }

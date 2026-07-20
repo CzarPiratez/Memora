@@ -12,6 +12,7 @@ interface SafDocumentTreeCatalog {
 
     suspend fun readChildMetadataPage(
         treeUri: String,
+        parentDocumentId: String?,
         afterDocumentId: String?,
         limit: Int,
     ): SafDocumentTreeMetadataPage
@@ -37,7 +38,7 @@ data class SafDocumentMetadata(
     }
 }
 
-/** A bounded immediate-child metadata page returned by one approved document tree. */
+/** A bounded immediate-child metadata page returned for one folder in an approved tree. */
 data class SafDocumentTreeMetadataPage(
     val documents: List<SafDocumentMetadata>,
     val hasMore: Boolean,
