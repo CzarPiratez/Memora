@@ -174,3 +174,38 @@ freshly verify the platform-held persisted grant and report revocation explicitl
 **Verification plan:** Unit-test deterministic source identity creation and
 source-ownership validation, then run an emulator Room test for approval persistence
 and idempotent replacement. No user folder or PDF is required.
+
+## ADR-011: SAF PDF discovery is metadata-only, page-bounded, and starts at the selected tree root
+
+**Status:** Accepted
+
+**Decision:** The first SAF discovery adapter will freshly compare the stored private
+tree reference against Android's persisted read grants before every query. It will
+query only immediate children of the selected tree root, request a provider-side page
+limit, consume at most one bounded metadata page, and return only documents whose
+declared MIME type is `application/pdf`. It will build source-neutral PDF Asset
+placeholders and an opaque source-owned cursor from document metadata. It will not
+open a document URI, read PDF bytes, inspect text, copy a file, index automatically,
+or schedule work.
+
+**Reason:** Android's child-document API returns immediate descendants. Beginning with
+one bounded root page lets Memora verify access, identity, cursor, and revocation
+semantics without disguising an unbounded recursive scan as a safe operation. The
+provider-side limit is requested and Memora also stops consuming rows after the
+bounded page even if a provider does not honor that hint.
+
+**Known gap and user impact:** Nested subfolders are not yet traversed by this
+incremental adapter; this is an implementation milestone, not completion of the PDF
+MVP. A later documented step must add resumable descendant traversal (or a supported
+provider subtree query) before Memora can claim that it discovers every PDF beneath a
+connected folder. Users can connect separate folders for separate locations today.
+
+**Access semantics:** A saved source whose exact persisted Android read grant is no
+longer present reports `AccessRevoked`, never an empty PDF page. A provider or cursor
+failure reports a retryable structured failure. Existing source content remains
+read-only in every outcome.
+
+**Verification plan:** Unit-test grant loss, source-owned cursor validation, bounded
+metadata-to-Asset mapping, non-PDF filtering, and provider failure handling; then
+run a read-only emulator test against the already user-approved tree. The test must
+not create, alter, open, or delete any document.

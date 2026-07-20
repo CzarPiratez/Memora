@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Verified bounded SAF PDF metadata discovery
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.
+- **Decision:** ADR-011 records the bounded immediate-child implementation boundary,
+  the explicit persisted-grant check, and the required future descendant-traversal
+  work. It is not a claim that all nested PDFs are already discoverable.
+- **Delivered:** A read-only SAF platform catalog and source adapter now verify the
+  exact retained Android read grant for each connected source, query one bounded page
+  of immediate-child metadata, emit declared PDFs as source-neutral Asset
+  placeholders, and produce a private source-owned checkpoint. Revocation and
+  provider errors are explicit outcomes rather than an empty folder.
+- **Privacy:** The adapter does not request a permission, open a document, read PDF
+  bytes or text, copy source data, persist a discovery page, start automatically, or
+  schedule background work.
+- **Verification:** On 2026-07-20, local `SafPdfDiscoverySourceTest` passed: 5 of 5
+  tests. Android-test compilation passed. The user then ran
+  `SafPdfDiscoverySourceIntegrationTest` on the Medium Phone emulator: 1 of 1 test
+  passed against the already approved folder.
+- **Known limitation:** It currently discovers immediate children only; resumable
+  nested-folder traversal, persistence, extraction, and background scheduling remain
+  future work.
+
 ### Verified user-approved SAF PDF-folder connection
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-16, P-17.

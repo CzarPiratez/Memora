@@ -40,7 +40,11 @@ hashed source identity and therefore independent indexing checkpoint. The Compos
 setup flow launches Android's folder picker only after an explanation, persists read
 access only when the user selects a folder, and saves the private reference through
 its ViewModel. On 2026-07-20 the user connected one emulator folder successfully; no
-PDF was opened or indexed.
+PDF was opened or indexed. A read-only SAF adapter now freshly verifies that exact
+persisted Android grant, then returns one bounded page of immediate-child PDF metadata
+as source-neutral Asset placeholders with a source-owned checkpoint. On 2026-07-20,
+the Medium Phone emulator ran that adapter successfully against the already approved
+folder. It did not open, copy, extract, or index a document.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -154,14 +158,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - On 2026-07-20 the user opened the live Android folder picker, selected an emulator
   folder, and observed `PDF folder connected. Memora has not opened or indexed any
   document yet.`
+- `SafPdfDiscoverySourceTest` passed locally on 2026-07-20: 5 of 5 tests verify
+  fresh-grant revocation, bounded metadata pages, PDF-only filtering, source-owned
+  checkpoint rejection, and retryable provider failure handling.
+- Android-test compilation passed on 2026-07-20 after the SAF adapter was added.
+- `SafPdfDiscoverySourceIntegrationTest` passed in Android Studio on the Medium Phone
+  emulator on 2026-07-20: 1 of 1 test queried the existing user-approved folder's
+  bounded metadata page. It did not open, modify, copy, extract, or index any PDF.
 
 ## Next approved engineering step
 
-Build the read-only SAF PDF discovery adapter. It must freshly verify the persisted
-tree grant, enumerate only a bounded page of PDF metadata from that approved source,
-return source-neutral Asset placeholders and a source-owned cursor, and surface
-revocation explicitly. Do not open PDF bytes, extract text, index automatically, or
-schedule background work.
+Bind the verified SAF PDF adapter to the existing checkpoint-driven discovery use
+case so one explicit foreground request can persist one bounded PDF placeholder page
+and its source-owned checkpoint atomically. Do not add automatic/background work,
+open PDF bytes, extract text, or change the current UI yet. The source must preserve
+explicit access-revoked and retryable-failure outcomes.
 
 ## Important open decision
 
