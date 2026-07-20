@@ -75,6 +75,14 @@ compilation passed on 2026-07-20. The user then reran
 passed after reconnecting the approved folder. That regression test verifies live
 Android access; deterministic local tests verify the nested-folder behavior because
 the emulator folder is not assumed to contain a nested PDF fixture.
+A Hilt ViewModel now restores the most recently approved PDF-folder source ID from
+Memora's private database, then waits for an explicit user request before it invokes
+the existing bounded PDF indexing use case. It exposes truthful in-progress,
+completed, retryable-failure, and revoked-connection states. Local ViewModel and
+presentation-copy tests passed on 2026-07-21. The user then ran the app on the Medium
+Phone emulator, restored the connected folder, explicitly started indexing, and saw
+the truthful completed `0 PDF items` result. No PDF was opened, copied, uploaded,
+edited, or deleted.
 
 ## Read in this order
 
@@ -208,10 +216,8 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Add an explicit, truthful foreground control for indexing a connected PDF folder, or
-begin the separately governed deterministic PDF extraction boundary. Choose one only
-after recording its requirements and verification plan; do not combine either with
-background work, model, cloud behaviour, or a UI redesign.
+Begin the separately governed deterministic PDF extraction boundary. Do not combine
+it with background work, model, cloud behaviour, or a UI redesign.
 
 ## Important open decision
 

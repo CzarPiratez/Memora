@@ -47,7 +47,9 @@ import com.memora.app.ui.setup.MediaStoreSetupViewModel
 import com.memora.app.ui.setup.DocumentTreeConnectionState
 import com.memora.app.ui.setup.DocumentTreeSetupUiState
 import com.memora.app.ui.setup.DocumentTreeSetupViewModel
+import com.memora.app.ui.setup.PdfFolderIndexingState
 import com.memora.app.ui.setup.completedIndexingSummary
+import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -74,6 +76,7 @@ class MainActivity : ComponentActivity() {
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
                             documentTreeSetupViewModel::onPersistableReadAccessFailed,
+                        onPdfIndexRequested = documentTreeSetupViewModel::onIndexRequested,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -90,6 +93,7 @@ fun MemoraApp(
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
+    onPdfIndexRequested: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -132,6 +136,7 @@ fun MemoraApp(
         DocumentTreeSetupScreen(
             setupUiState = documentTreeSetupUiState,
             onChooseFolder = { documentTreeLauncher.launch(null) },
+            onStartIndexing = onPdfIndexRequested,
             onBack = { isShowingDocumentTreeScreen = false },
             modifier = modifier,
         )
@@ -338,6 +343,7 @@ fun PrivacyScreen(
 fun DocumentTreeSetupScreen(
     setupUiState: DocumentTreeSetupUiState,
     onChooseFolder: () -> Unit,
+    onStartIndexing: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -385,6 +391,17 @@ fun DocumentTreeSetupScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         when (val connection = setupUiState.connection) {
+            DocumentTreeConnectionState.LOADING -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Checking your saved PDF folder connectionsâ€¦")
+                }
+            }
+
             DocumentTreeConnectionState.READY -> {
                 Button(
                     onClick = onChooseFolder,
@@ -405,11 +422,16 @@ fun DocumentTreeSetupScreen(
                 }
             }
 
-            DocumentTreeConnectionState.CONNECTED -> {
+            is DocumentTreeConnectionState.CONNECTED -> {
                 Text(
-                    text = "PDF folder connected. Memora has not opened or indexed any document yet.",
+                    text = "PDF folder connected. You decide when Memora reads one small, read-only page of PDF metadata.",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                PdfFolderIndexingControl(
+                    indexing = setupUiState.indexing,
+                    onStartIndexing = onStartIndexing,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
@@ -433,6 +455,65 @@ fun DocumentTreeSetupScreen(
                 ) {
                     Text("Choose a PDF folder")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PdfFolderIndexingControl(
+    indexing: PdfFolderIndexingState,
+    onStartIndexing: () -> Unit,
+) {
+    when (indexing) {
+        PdfFolderIndexingState.NOT_STARTED -> Button(
+            onClick = onStartIndexing,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Index this folder")
+        }
+
+        PdfFolderIndexingState.IN_PROGRESS -> Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Indexing one small, read-only page of PDF metadataâ€¦")
+        }
+
+        is PdfFolderIndexingState.COMPLETED -> {
+            Text(
+                text = completedPdfFolderIndexingSummary(
+                    discoveredAssetCount = indexing.discoveredAssetCount,
+                    hasMore = indexing.hasMore,
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (indexing.hasMore) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onStartIndexing,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Index next page")
+                }
+            }
+        }
+
+        is PdfFolderIndexingState.FAILED -> {
+            Text(
+                text = "Memora could not complete this PDF indexing step. ${indexing.message}",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Try again")
             }
         }
     }

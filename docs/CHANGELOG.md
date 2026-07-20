@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Verified explicit PDF-folder indexing control
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-16, P-17. This step does not
+  implement Local AI, extraction, or a cloud path.
+- **Decision:** ADR-014 restores the most recently approved private folder reference
+  into the setup screen but never scans it automatically. The user explicitly starts
+  one bounded metadata page and explicitly chooses any later page.
+- **Delivered:** A Hilt ViewModel owns restored connection, indexing, completed,
+  retryable-failure, and access-recovery state. Compose only renders that immutable
+  state and forwards actions; it does not access Room, SAF, or PDF content.
+- **Verification:** Local ViewModel and presentation-copy tests passed on 2026-07-21.
+  Android Hilt/test compilation passed. The user then launched the app on the Medium
+  Phone emulator, restored the connected folder, explicitly selected `Index this
+  folder`, and observed the truthful completed `0 PDF items` state.
+- **Known limitation:** This interim screen activates the most recently connected
+  folder. A future source-management experience must let people view/select all
+  independently connected folders. PDF extraction and background scheduling remain
+  intentionally out of scope.
+
 ### Verified SAF descendant traversal
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17; no Local-AI requirement is

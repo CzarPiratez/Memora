@@ -272,3 +272,42 @@ compatibility, bounded requests, grant loss, and failure handling; compile Andro
 tests; then rerun the existing read-only SAF adapter integration test on the approved
 emulator folder. No test creates, opens, modifies, copies, extracts, or deletes a
 source document.
+
+## ADR-014: PDF folder indexing is explicit and restores one recent connection
+
+**Status:** Accepted
+
+**Decision:** The PDF setup screen restores the most recently approved SAF folder
+reference from Memora's private database when the app starts. It exposes an explicit
+`Index this folder` action that invokes exactly one bounded metadata page through the
+existing application use case. If more metadata remains, the screen offers a separate
+`Index next page` action. No folder is scanned merely because the app launches or the
+connection is restored.
+
+**Reason:** A connected folder must remain usable after a restart, while the product's
+privacy promise requires the user—not the UI or application lifecycle—to start each
+foreground indexing step. The bounded next-page control makes incomplete discovery
+truthful and prevents an unbounded foreground scan.
+
+**Multiple connections:** Every approved folder remains independently stored and
+resumable. Until a dedicated source-management screen is designed, this setup screen
+uses the most recently approved folder as its active foreground source. It does not
+claim that all connected folders have been indexed; users can explicitly connect a
+different folder to make it active.
+
+**Privacy and scope:** Restoring a connection reads only Memora's private source ID
+and approval metadata. It does not query the folder or expose its URI. Indexing reads
+only one bounded page of already-approved metadata and retains all existing read-only
+SAF constraints. No PDF bytes/text, model, cloud path, background work, or source
+mutation is added.
+
+**Verification plan:** Unit-test restoration, no indexing before explicit action,
+successful bounded outcome, revoked-access recovery, provider-failure retry copy, and
+truthful completion copy; then launch the app on the emulator, connect or restore a
+folder, press the explicit action, and verify the visible outcome.
+
+**Verification:** On 2026-07-21, the focused local ViewModel and presentation-copy
+tests passed, Android Hilt/test compilation passed, and the user verified the visible
+flow on the Medium Phone emulator. A restored approved folder remained idle until the
+user selected `Index this folder`, then displayed a truthful completed `0 PDF items`
+outcome. No source document was opened or changed.

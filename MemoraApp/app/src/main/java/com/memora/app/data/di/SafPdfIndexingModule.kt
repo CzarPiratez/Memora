@@ -1,7 +1,9 @@
 package com.memora.app.data.di
 
 import android.content.Context
+import com.memora.app.application.documents.FindMostRecentPdfFolder
 import com.memora.app.application.documents.IndexSafPdfFolder
+import com.memora.app.application.documents.PdfFolderConnectionFinder
 import com.memora.app.application.documents.SafPdfFolderIndexer
 import com.memora.app.data.saf.ContentResolverSafDocumentTreeCatalog
 import com.memora.app.data.saf.SafDocumentTreeCatalog
@@ -18,6 +20,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class SafPdfIndexingBindings {
+    @Binds
+    @Singleton
+    abstract fun bindPdfFolderConnectionFinder(
+        implementation: FindMostRecentPdfFolder,
+    ): PdfFolderConnectionFinder
+
     @Binds
     @Singleton
     abstract fun bindSafPdfFolderIndexer(
