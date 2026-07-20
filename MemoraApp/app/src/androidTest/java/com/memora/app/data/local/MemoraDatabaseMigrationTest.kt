@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,10 @@ class MemoraDatabaseMigrationTest {
             context,
             MemoraDatabase::class.java,
             TEST_DATABASE_NAME,
-        ).addMigrations(MemoraDatabaseMigrations.MIGRATION_1_2).build()
+        ).addMigrations(
+            MemoraDatabaseMigrations.MIGRATION_1_2,
+            MemoraDatabaseMigrations.MIGRATION_2_3,
+        ).build()
 
         try {
             val preservedAsset = migratedDatabase.assetDao().find(
@@ -43,6 +47,7 @@ class MemoraDatabaseMigrationTest {
 
             assertEquals("lake.jpg", preservedAsset?.displayName)
             assertEquals(null, migratedDatabase.discoveryCheckpointDao().find("android-media-store-images"))
+            assertTrue(migratedDatabase.documentTreeApprovalDao().findAll().isEmpty())
         } finally {
             migratedDatabase.close()
         }

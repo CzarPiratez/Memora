@@ -148,3 +148,28 @@ control will be required before Android shows a reselection prompt.
 **Verification plan:** Unit-test cursor/row mapping and screenshot classification;
 then run an emulator integration test using only emulator-provided media. No user
 content is needed for automated tests.
+
+## ADR-010: Each approved SAF document tree is a distinct, private source
+
+**Status:** Accepted
+
+**Decision:** A user-approved Storage Access Framework document tree will be
+represented as one distinct Memora source. Its `SourceId` is derived from a SHA-256
+hash of the persisted tree URI, while Memora's private Room database retains the URI
+and approval timestamp needed by the future platform adapter. The Android platform,
+not Memora, remains the authority for whether the persisted URI permission is still
+valid.
+
+**Reason:** Different approved folders can be indexed, resumed, or revoked
+independently. A stable hashed identity prevents the raw folder URI from becoming a
+general source identifier or appearing in checkpoints, logs, or user-facing state.
+
+**Privacy and scope:** This foundation stores a private reference to a user-approved
+folder only. It does not launch Android's picker, enumerate documents, open PDF
+bytes, extract text, copy a file, request broad storage permission, schedule work,
+or enable manual per-file import. A later SAF adapter must freshly verify the
+platform-held persisted grant and report revocation explicitly.
+
+**Verification plan:** Unit-test deterministic source identity creation and
+source-ownership validation, then run an emulator Room test for approval persistence
+and idempotent replacement. No user folder or PDF is required.

@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Verified SAF PDF-folder approval foundation
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17.
+- **Decision:** ADR-010 establishes each approved SAF document tree as an
+  independently resumable source with a SHA-256-derived source ID. Room database
+  version 3 stores the private URI reference and approval time required by a later
+  platform adapter.
+- **Privacy:** This change does not launch Android's folder picker, enumerate a tree,
+  open a PDF, copy content, request broad storage access, or start background work.
+  The raw tree URI remains private database data and does not appear in source IDs.
+- **Verification:** On 2026-07-20, `SafDocumentTreeSourceTest` passed in Android
+  Studio: 3 of 3 tests. `RoomDocumentTreeApprovalRepositoryTest` then passed on the
+  Medium Phone emulator: 2 of 2 tests. `MemoraDatabaseMigrationTest` passed: 1 of 1
+  test verified the original Asset fixture survives the version-3 migration.
+- **Known limitation:** No Android picker, persisted URI grant, document enumeration,
+  or PDF discovery exists yet. Those require a later explicit, user-approved setup
+  action.
+
 ### Verified Compose setup and explicit MediaStore indexing control
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-16, P-17.

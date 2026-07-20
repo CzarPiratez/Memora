@@ -25,15 +25,19 @@ outcomes. A tested use case can now resume one bounded source-neutral discovery 
 from its saved source-owned checkpoint. A Hilt-bound application use case now binds
 the read-only MediaStore adapter to that flow for one explicit, bounded page and
 reports whether Android granted the full image library or selected photos. It has no
-UI caller yet, so the running app has not persisted a normal MediaStore discovery
-page. An emulator integration test has verified the same flow persists one real,
-bounded emulator page and checkpoint atomically into an isolated in-memory Room
-database. A Hilt ViewModel now exposes immutable setup/indexing state and accepts
+background caller yet, but the Compose setup screen can now invoke one explicit
+foreground page. An emulator integration test has verified the same flow persists
+one real, bounded emulator page and checkpoint atomically into an isolated in-memory
+Room database. A Hilt ViewModel now exposes immutable setup/indexing state and accepts
 permission results from the UI and is connected to the Compose setup screen. After a
 user grants access and explicitly chooses `Start indexing`, the app persists one
 bounded, read-only MediaStore metadata page and shows the truthful count and
 full-versus-selected-photo scope. On 2026-07-20 the Medium Phone emulator completed
 that flow with 0 permitted items; no image bytes were opened.
+A source-neutral document-tree approval contract and Room database version 3 now
+persist private SAF tree references. Each approved future folder has an independent,
+hashed source identity and therefore independent indexing checkpoint. No Android
+picker, real folder, or PDF has been opened yet.
 
 The visible prototype is not the final product contract. In particular, the prior
 idea of importing notes through Share is rejected as the primary workflow because it
@@ -129,13 +133,22 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   was removed; pure presentation copy is locally tested, and the visible flow is
   manually verified on the emulator. Revisit when the emulator image or Compose test
   tooling is compatible.
+- `SafDocumentTreeSourceTest` passed in Android Studio on 2026-07-20: 3 of 3 tests
+  passed. It verifies stable, distinct hashed source identities and keeps the raw
+  tree URI out of the source ID.
+- `RoomDocumentTreeApprovalRepositoryTest` passed on the Medium Phone emulator on
+  2026-07-20: 2 of 2 tests passed. It verifies temporary in-memory persistence of
+  independent document-tree approval records without accessing a real tree.
+- `MemoraDatabaseMigrationTest` passed on the Medium Phone emulator on 2026-07-20:
+  1 of 1 test passed after Room database version 3 added the document-tree approval
+  table without destructively resetting the version-1 Asset fixture.
 
 ## Next approved engineering step
 
-Build the PDF discovery foundation: define a source-neutral, persisted Storage Access
-Framework folder approval boundary and its source-owned checkpoint contract. Do not
-open PDF bytes, extract text, schedule background work, or offer per-file import. The
-user must explicitly approve a document location before any later discovery can run.
+Connect the PDF setup screen to Android's `ACTION_OPEN_DOCUMENT_TREE` picker. Explain
+the read-only PDF-folder scope before launching it, persist only the selected tree's
+read permission, then save its private approval record through a ViewModel. Do not
+enumerate documents, open PDF bytes, extract text, or schedule background work.
 
 ## Important open decision
 
