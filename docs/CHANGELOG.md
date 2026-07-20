@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Verified SAF PDF metadata page persistence
+
+- **Requirements:** P-03, P-04, P-05, P-14, P-15, P-17; A-01 and A-02 remain
+  unaffected because this has no model, cloud, or network path.
+- **Delivered:** `IndexSafPdfFolder` accepts one exact private approved-folder
+  source ID, constructs a source-neutral adapter through an injected factory, and
+  delegates one bounded result to the existing atomic discovery-page persistence
+  boundary. Its immutable outcome distinguishes unconnected source, required/revoked
+  access, retryable failure, and success.
+- **Architecture:** The application layer depends only on domain contracts. The
+  Android SAF catalog/factory is Hilt-bound in the data layer; no composable is
+  changed and no layer opens a PDF.
+- **Verification:** Local `IndexSafPdfFolderTest` and Android-test compilation passed
+  on 2026-07-20. The user then ran `IndexSafPdfFolderIntegrationTest` on the Medium
+  Phone emulator: 1 of 1 test passed against the already approved folder. It read one
+  bounded metadata page and wrote only its placeholders and checkpoint to an isolated
+  in-memory Room database.
+- **Known limitation:** This is one explicit immediate-child metadata page only.
+  Descendant traversal, PDF bytes/text extraction, background scheduling, and UI
+  initiation remain deliberately out of scope.
+
 ### Local-first engineering governance checkpoint
 
 - **Delivered:** Preserved immutable, versioned repository copies of the original

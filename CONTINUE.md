@@ -57,6 +57,17 @@ local-first and offline after a required on-device capability is installed. No m
 AI Pack, cloud service, vector index, OCR, extraction implementation, or WorkManager
 job exists yet. Existing source discovery remains compatible with this decision.
 
+The verified SAF PDF adapter is now bound behind a source-neutral factory to one
+explicit application use case. Given the private source ID of an already approved
+folder, it requests one bounded, metadata-only page through the existing checkpoint
+flow and atomically persists its PDF placeholders and source-owned checkpoint. It
+reports source-not-connected, access-required, access-revoked, and retryable failure
+outcomes without writing a page. Local `IndexSafPdfFolderTest` passed and the Android
+integration-test source compiled on 2026-07-20. The user then ran
+`IndexSafPdfFolderIntegrationTest` on the Medium Phone emulator: 1 of 1 test passed.
+The live test queried only the already approved folder's bounded PDF metadata page and
+persisted only its placeholders and checkpoint to an isolated in-memory Room database.
+
 ## Read in this order
 
 1. `AGENTS.md`
@@ -174,16 +185,19 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 - `SafPdfDiscoverySourceIntegrationTest` passed in Android Studio on the Medium Phone
   emulator on 2026-07-20: 1 of 1 test queried the existing user-approved folder's
   bounded metadata page. It did not open, modify, copy, extract, or index any PDF.
+- `IndexSafPdfFolderTest` passed locally on 2026-07-20. Android-test compilation also
+  passed. The user then ran `IndexSafPdfFolderIntegrationTest` on the Medium Phone
+  emulator: 1 of 1 test passed. It verifies one real, bounded, read-only SAF PDF
+  metadata page persists its placeholders and source-owned checkpoint atomically into
+  an isolated in-memory Room database, without opening, copying, extracting, changing,
+  or deleting a PDF.
 
 ## Next approved engineering step
 
-Bind the verified SAF PDF adapter to the existing checkpoint-driven discovery use
-case so one explicit foreground request can persist one bounded PDF placeholder page
-and its source-owned checkpoint atomically. Do not add automatic/background work,
-open PDF bytes, extract text, or change the current UI yet. The source must preserve
-explicit access-revoked and retryable-failure outcomes.
-This remains a discovery-only step; it must use the Local-AI change-control gate and
-must not introduce model or cloud behaviour.
+Add resumable descendant traversal (or a documented provider subtree strategy) before
+claiming that a connected folder discovers all PDFs below its root. Keep it to
+metadata-only discovery and source-owned checkpoints. Do not add PDF byte access,
+extraction, background work, model, cloud behaviour, or a UI redesign in that step.
 
 ## Important open decision
 

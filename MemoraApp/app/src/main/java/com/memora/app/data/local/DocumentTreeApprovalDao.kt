@@ -12,6 +12,15 @@ interface DocumentTreeApprovalDao {
     @Query(
         """
         SELECT * FROM document_tree_approvals
+        WHERE source_id = :sourceId
+        LIMIT 1
+        """,
+    )
+    suspend fun find(sourceId: String): DocumentTreeApprovalEntity?
+
+    @Query(
+        """
+        SELECT * FROM document_tree_approvals
         ORDER BY approved_at_epoch_millis ASC, source_id ASC
         """,
     )

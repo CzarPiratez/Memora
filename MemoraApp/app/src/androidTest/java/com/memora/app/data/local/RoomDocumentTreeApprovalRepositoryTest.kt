@@ -3,6 +3,7 @@ package com.memora.app.data.local
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.discovery.DocumentTreeSource
 import java.time.Instant
 import kotlinx.coroutines.runBlocking
@@ -61,5 +62,22 @@ class RoomDocumentTreeApprovalRepositoryTest {
         val approvals = repository.findAll()
         assertEquals(listOf(first, second), approvals)
         assertTrue(approvals.all { it.sourceId.value.startsWith("android-saf-document-tree:") })
+    }
+
+    @Test
+    fun findsOnlyTheExactApprovedSource() = runBlocking {
+        val first = DocumentTreeSource.approvalFor(
+            persistedTreeUri = "content://example/tree/first",
+            approvedAt = Instant.parse("2026-07-20T12:00:00Z"),
+        )
+        val second = DocumentTreeSource.approvalFor(
+            persistedTreeUri = "content://example/tree/second",
+            approvedAt = Instant.parse("2026-07-20T12:01:00Z"),
+        )
+        repository.save(first)
+        repository.save(second)
+
+        assertEquals(second, repository.find(second.sourceId))
+        assertEquals(null, repository.find(SourceId("android-saf-document-tree:missing")))
     }
 }

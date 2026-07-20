@@ -27,6 +27,10 @@ data class DocumentTreeApproval(
 interface DocumentTreeApprovalRepository {
     suspend fun save(approval: DocumentTreeApproval)
 
+    /** Finds one exact approved source without exposing or selecting its tree URI. */
+    suspend fun find(sourceId: SourceId): DocumentTreeApproval? = findAll()
+        .firstOrNull { approval -> approval.sourceId == sourceId }
+
     suspend fun findAll(): List<DocumentTreeApproval>
 }
 
