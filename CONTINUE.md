@@ -261,15 +261,24 @@ service, and it opens no real source.
 
 ## Next approved engineering step
 
-Add one synthetic-only end-to-end round-trip test that explicitly binds
-`AndroidIsolatedPdfParserConnection`, gives its `IsolatedPdfParserClient` only a
-repository-owned pipe descriptor, and verifies the existing private service returns
-a validated status-only result with caller-side descriptor closure. The test must
-not use a SAF URI, user PDF, path, source identity, Room, UI, WorkManager, or AI.
-It must not introduce page/text chunks or make real-source parsing available. A
-live in-flight parser-process-death check, bounded result protocol, offline check,
-fresh-grant verification, persistence, and user-visible recovery remain separate
-ADR-017 gates.
+The synthetic end-to-end transport test is verified. On 2026-07-22, the user ran
+`IsolatedPdfParserEndToEndIntegrationTest` on the Medium Phone emulator: **1 test
+passed**. It explicitly bound `AndroidIsolatedPdfParserConnection`, gave
+`IsolatedPdfParserClient` only a repository-owned pipe descriptor, and verified the
+private service returned a validated status-only result with caller-side descriptor
+closure. It used no SAF URI, user PDF, path, source identity, Room, UI, WorkManager,
+or AI.
+
+## Next approved engineering step
+
+Define and unit-test the versioned, bounded parser-result protocol before changing
+the isolated service to return page text. The contract must validate explicit maximum
+page count, page-text size, and total result size; reject unknown or malformed
+versions; and expose a retryable, content-free failure rather than a partial truth.
+It must use only synthetic strings in pure tests, with no Binder service change, PDF
+descriptor, SAF URI, user source, Room, UI, WorkManager, or AI. A live in-flight
+parser-process-death check, offline check, fresh-grant verification, source access,
+persistence, and user-visible recovery remain separate ADR-017 gates.
 
 ## Important open decision
 

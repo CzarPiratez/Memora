@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified isolated parser end-to-end transport
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** One Android test connects the existing private Binder adapter to the
+  existing ordinary-process client, then passes only a repository-owned pipe
+  descriptor through the isolated service. It asserts a validated status-only result
+  and ordinary-process descriptor closure.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserEndToEndIntegrationTest` on the Medium Phone emulator: 1 of 1
+  test passed. This does not enable SAF access, real-source parsing, text chunks,
+  Room persistence, UI, or AI.
+
 ### Verified isolated-parser client cancellation contract
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

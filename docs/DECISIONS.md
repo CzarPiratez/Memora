@@ -410,8 +410,10 @@ Cancellation stops Memora's local wait; it is not a claim that Android immediate
 terminates an isolated process. Measured resource budgets, an offline runtime check,
 live service-death recovery, a bounded result protocol, fresh-grant verification,
 atomic persistence design, and an explicit user-facing flow remain mandatory gates.
-The explicit private binding adapter is emulator-verified without parsing a
-descriptor through the client, so an end-to-end binding/client use case remains
-planned. No partial result becomes searchable. The full threat model, rejected
-alternatives, and implementation gates are in
+The explicit private binding adapter and ordinary-process client are now
+emulator-verified together through one repository-owned descriptor; this still does
+not enable a real source. A versioned, bounded page/text result protocol remains a
+mandatory gate before the service can return content. No partial result becomes
+searchable. The full threat model, rejected alternatives, and implementation gates
+are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.

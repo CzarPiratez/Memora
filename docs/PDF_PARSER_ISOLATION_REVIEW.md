@@ -256,3 +256,18 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** cancellation interrupts Memora's local wait; it is not a
   promise that Android immediately hard-kills a parser process. Live process death,
   bounded chunks, real source, and user-visible recovery remain separate gates.
+
+### Verified synthetic end-to-end transport
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** one Android integration test joins the existing private service binding
+  adapter to the ordinary-process status-only client. It supplies a repository-owned
+  pipe descriptor and validates only the isolated service's bounded status result.
+  It has no SAF URI, source identity, text output, Room, UI, WorkManager, AI, or
+  network API.
+- **Emulator verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserEndToEndIntegrationTest` on the Medium Phone emulator: 1 of 1
+  test passed. It proves the private bind, client validation, and caller-side
+  descriptor closure in one synthetic-only round trip.
+- **Known limitation:** this is not a real source, fresh-grant, bounded page/text
+  protocol, live process-death, offline, persistence, or user-visible recovery test.
