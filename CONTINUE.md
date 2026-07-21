@@ -228,14 +228,13 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Make the separate parser and fixture decision for the read-only local PDF platform
-adapter. It must document the candidate parser, local-only data flow, supported
-document/scan limitations, dependency/license implications, fixture corpus, failure
-and cancellation behavior, and emulator acceptance test before any source bytes are
-read. It must preserve P-07's full-text requirement without claiming unsupported
-scanned-document OCR coverage. Do not add a parser/model dependency, open a PDF,
-persist extraction records, schedule work, or change the UI until that decision is
-reviewed and accepted.
+Implement only the synthetic-fixture PDFBox-Android parser mapper described in
+`docs/PDF_EXTRACTION_IMPLEMENTATION_PLAN.md`. First add the pinned dependency with
+third-party notices, dependency/SBOM scan evidence, and synthetic repository-owned
+fixtures. Test complete/no-text/password/malformed parser outcomes locally and on the
+emulator without opening any user-approved SAF document. The isolated-process review
+must be accepted before a later step wires the parser to a real source URI. Make no
+UI, Room, WorkManager, or AI change in this implementation step.
 
 ## Important open decision
 

@@ -340,3 +340,37 @@ complete page coverage, explicit partial coverage, no-text-layer truthfulness, a
 recoverable failure construction. The next implementation step must select a local
 parser and fixture strategy under the dependency and privacy gates before source bytes
 are read.
+
+## ADR-016: Initial local PDF text parser and fixture strategy
+
+**Status:** Accepted design; implementation not started
+
+**Decision:** The first deterministic PDF extraction adapter will use the pinned
+PDFBox-Android `2.0.27.0` library behind `PdfDeterministicExtractor`, subject to the
+documented supply-chain, licensing, fixture, measured-resource, and emulator gates in
+`docs/PDF_EXTRACTION_IMPLEMENTATION_PLAN.md`. The dependency is not added by this ADR.
+
+**Reason:** Memora currently supports API 26. Android's framework exposes page-text
+content on API 35, with its compatible pre-V implementation covering API 30 through
+34. The current AndroidX PDF library is alpha and begins at API 28. Neither gives a
+single P-07 text extraction path across Memora's current Android support range.
+PDFBox-Android is local, Android-targeted, Apache-2.0 licensed for its main code, and
+supports deterministic metadata/text extraction.
+
+**Scope and truthfulness:** The selected parser must not make scanned or image-only
+PDFs appear text-searchable; it returns `NoExtractableText` until a separately
+governed local OCR capability exists. Password-protected, malformed, revoked, and
+resource-limited inputs are explicit outcomes. A complete result must represent every
+page. These are P-07 implementation constraints, not a reduction of P-07.
+
+**Privacy and security:** The future adapter freshly verifies the exact persisted
+SAF read grant, reads only locally, runs off the UI thread, and never mutates,
+copies, uploads, renames, moves, or deletes original content. The implementation must
+review an isolated-process strategy for untrusted PDF parsing before it enables real
+user documents.
+
+**Verification plan:** Add no code in this decision step. The implementation step
+must use synthetic, repository-owned PDF fixtures; prove mapper and failure paths with
+unit tests; prove the read-only Android path with an emulator integration test; prove
+offline runtime behaviour; and measure dependency/resource impact before feature
+completion.

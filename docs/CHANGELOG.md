@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Local PDF parser and fixture decision
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; scanned-PDF OCR remains a future
+  Local AI capability.
+- **Decision:** ADR-016 selects PDFBox-Android 2.0.27.0 as the planned local parser
+  behind the existing domain port, subject to explicit licensing, dependency,
+  supply-chain, fixture, isolated-process, resource-measurement, offline, and emulator
+  gates. The dependency has not been added.
+- **Truthfulness:** Text-layer PDFs can become complete page-level extraction records;
+  scanned/image-only PDFs remain `NoExtractableText` until a separately governed local
+  OCR capability is delivered. This records the P-07 gap rather than hiding it.
+- **Verification:** Governing-document/current-code review, official Android API and
+  compatibility review, and Git diff check. No source content, app behavior, or test
+  suite changed in this documentation-only decision.
+
 ### Deterministic PDF extraction contract
 
 - **Requirements:** P-05, P-07, P-14, P-15; this step does not implement Local AI.
