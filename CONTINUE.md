@@ -242,15 +242,24 @@ passed**. It bound the private, non-exported `android:isolatedProcess` service a
 parsed a repository-owned two-page PDF sent through a pipe, with no URI, path, SAF
 folder, real user PDF, Room record, or UI action.
 
-Extend only the synthetic isolated-service tests for the remaining deterministic
-parser outcomes: no extractable text, password-protected input, malformed input, an
-unsupported protocol version, and descriptor closure on both success and failure.
-Keep the service status-only; do not add page/text Binder output, a SAF URI reader,
-source access, UI behavior, Room persistence, WorkManager, or AI capability. Then run
-one focused emulator test. Service death/cancellation/timeout recovery, bounded
-page-chunk validation, offline/device measurements, fresh SAF-grant verification,
-atomic persistence, and an explicit visible progress/retry flow remain separate gates
-before any real user PDF can be opened.
+The expanded isolated-service test is verified. On 2026-07-22, the user ran
+`IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: **6 tests
+passed**. It verifies the private isolated manifest, selectable-text success,
+image-only/no-text truthfulness, password-protected output, malformed-input
+retryability, unsupported-protocol rejection, and caller-side descriptor cleanup after
+each request. It has no real PDF, folder, URI, source identity, Room, UI, WorkManager,
+or AI dependency.
+
+## Next approved engineering step
+
+Design and test a status-only ordinary-process client contract for the isolated
+service. It must map bind failure, Binder death, and a bounded timeout to a retryable
+non-text outcome and close its synthetic descriptor. It must not use SAF, open a real
+source, add page/text Binder output, source access, UI behavior, Room persistence,
+WorkManager, or AI capability. Bounded page-chunk validation, offline/device
+measurements, fresh SAF-grant verification, atomic persistence, and an explicit
+visible progress/retry flow remain separate gates before any real user PDF can be
+opened.
 
 ## Important open decision
 

@@ -77,22 +77,78 @@ class IsolatedPdfParserServiceIntegrationTest {
     }
 
     @Test
-    fun parses_a_synthetic_descriptor_without_a_source_location() {
-        val descriptor = descriptorFor(SyntheticPdfFixtures.twoPageSelectable())
+    fun parses_a_synthetic_descriptor_without_a_source_location_and_closes_it() {
+        val result = parseSynthetic(SyntheticPdfFixtures.twoPageSelectable())
 
-        val result = parser.parse(
-            descriptor.readEnd,
-            IsolatedPdfParserService.PROTOCOL_VERSION,
-        )
-        descriptor.writer.join(10_000)
-
-        assertFalse("The fixture writer should close its pipe end.", descriptor.writer.isAlive)
         assertTrue("The service must confirm that it runs isolated.", result.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED))
         assertEquals(
             IsolatedPdfParserService.OUTCOME_EXTRACTED,
             result.getString(IsolatedPdfParserService.KEY_OUTCOME),
         )
         assertEquals(2, result.getInt(IsolatedPdfParserService.KEY_PAGE_COUNT))
+    }
+
+    @Test
+    fun returns_explicit_no_text_for_an_image_only_synthetic_descriptor() {
+        val result = parseSynthetic(SyntheticPdfFixtures.imageOnly())
+
+        assertEquals(
+            IsolatedPdfParserService.OUTCOME_NO_EXTRACTABLE_TEXT,
+            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
+        )
+        assertEquals(1, result.getInt(IsolatedPdfParserService.KEY_PAGE_COUNT))
+    }
+
+    @Test
+    fun returns_password_protected_without_returning_source_content() {
+        val result = parseSynthetic(SyntheticPdfFixtures.passwordProtected())
+
+        assertEquals(
+            IsolatedPdfParserService.OUTCOME_PASSWORD_PROTECTED,
+            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
+        )
+        assertFalse(result.containsKey(IsolatedPdfParserService.KEY_PAGE_COUNT))
+    }
+
+    @Test
+    fun returns_a_retryable_failure_for_a_malformed_descriptor_and_closes_it() {
+        val result = parseSynthetic(SyntheticPdfFixtures.malformed())
+
+        assertEquals(
+            IsolatedPdfParserService.OUTCOME_FAILURE,
+            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
+        )
+        assertTrue(result.getBoolean(IsolatedPdfParserService.KEY_RETRYABLE))
+    }
+
+    @Test
+    fun rejects_an_unsupported_protocol_without_parsing_the_descriptor() {
+        val result = parseSynthetic(
+            source = SyntheticPdfFixtures.malformed(),
+            protocolVersion = IsolatedPdfParserService.PROTOCOL_VERSION + 1,
+        )
+
+        assertEquals(
+            IsolatedPdfParserService.OUTCOME_FAILURE,
+            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
+        )
+        assertFalse(result.getBoolean(IsolatedPdfParserService.KEY_RETRYABLE))
+        assertFalse(result.containsKey(IsolatedPdfParserService.KEY_PAGE_COUNT))
+    }
+
+    private fun parseSynthetic(
+        source: InputStream,
+        protocolVersion: Int = IsolatedPdfParserService.PROTOCOL_VERSION,
+    ): android.os.Bundle {
+        val descriptor = descriptorFor(source)
+
+        return try {
+            parser.parse(descriptor.readEnd, protocolVersion)
+        } finally {
+            descriptor.readEnd.close()
+            descriptor.writer.join(10_000)
+            assertFalse("The fixture writer should close its pipe end.", descriptor.writer.isAlive)
+        }
     }
 
     private fun descriptorFor(source: InputStream): DescriptorWithWriter {

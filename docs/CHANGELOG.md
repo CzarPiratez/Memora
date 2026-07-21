@@ -24,6 +24,19 @@
   reporting, chunk validation, source access, persistence, and visible
   progress/recovery are still required before real-source enablement.
 
+### Expanded isolated PDF parser safety cases
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** The synthetic-only service test now covers no extractable text,
+  password protection, malformed input, an unsupported protocol version, and
+  client-side descriptor cleanup after every Binder call. The worker now also closes
+  its received descriptor if submission or execution fails. Its result is still a
+  tiny status summary only: no source text, title, metadata, URI, path, or identity.
+- **Verification:** Android-test APK compilation passed on 2026-07-21. On
+  2026-07-22, the user ran the expanded class on the Medium Phone emulator: 6 of 6
+  tests passed. This does not verify service death, cancellation, timeout, output
+  chunking, offline operation, actual source access, persistence, or UI recovery.
+
 ### Local PDF parser and fixture decision
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; scanned-PDF OCR remains a future

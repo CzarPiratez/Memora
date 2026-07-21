@@ -140,8 +140,8 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   declares a private non-exported isolated parser service; SAF discovery is
   metadata-only; `PdfBoxPdfDocumentMapper` accepts only a supplied `InputStream`;
   the service accepts only a descriptor and fixed protocol version; Android synthetic
-  mapper tests previously passed 4 of 4; the service test passed 2 of 2 on the
-  Medium Phone emulator using a synthetic descriptor pipe.
+  mapper tests previously passed 4 of 4; the service test passed 6 of 6 on the
+  Medium Phone emulator using synthetic descriptor pipes.
 - **Open ADRs / platform limitations checked:** ADR-003 remains unrelated and open;
   image-only PDF OCR remains a Local AI follow-up; the current parser must not open a
   real source until this isolation design's gates are met.
@@ -165,19 +165,22 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Files/layers changed:** private AIDL contract, isolated Android service, parser
   split, manifest declaration, and a synthetic-only Android integration test.
 - **Automated verification and result:** `:app:assembleDebugAndroidTest` passed on
-  2026-07-21. The test APK compiles the AIDL boundary and test; it does not prove the
-  live isolated service execution.
-- **Emulator/manual verification and result:** on 2026-07-21, the user ran
-  `IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: 2 of 2
-  tests passed. It proved the no-export/isolated manifest configuration and a
-  two-page repository-owned synthetic descriptor parse.
-- **Failure/recovery paths verified:** the service maps interrupted/execution/runtime
-  failures to a non-text retryable summary and closes the received input stream in its
-  normal parse path. Service death, cancellation, timeout, malformed-output chunks,
-  and every error-path descriptor-closure case remain unverified and are not enabled
-  for real sources.
-- **Known limitation or follow-up:** no-text/password/malformed and unsupported-
-  protocol synthetic cases, exhaustive descriptor closure, service death,
+  2026-07-21. The expanded test APK compiles no-text, password, malformed,
+  unsupported-protocol, and descriptor-cleanup cases; it does not prove their live
+  isolated-service execution.
+- **Emulator/manual verification and result:** on 2026-07-22, the user ran
+  `IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: 6 of 6
+  tests passed. They prove no-export/isolated manifest configuration, a two-page
+  repository-owned synthetic descriptor parse, no-text and password outcomes,
+  malformed-input retryability, unsupported-protocol rejection, and caller-side
+  descriptor closure after each request.
+- **Failure/recovery paths verified:** no-text, password-protected, malformed, and
+  unsupported-protocol synthetic outcomes are explicit; the service closes its input
+  stream in the normal parse path and the test closes the caller-side descriptor after
+  every request. Service death, cancellation, timeout, malformed-output chunks, and
+  every error-path descriptor-closure case remain unverified and are not enabled for
+  real sources.
+- **Known limitation or follow-up:** exhaustive descriptor closure, service death,
   cancellation, timeout, bounded chunks, offline runtime verification, measured
   budgets, a real-source adapter, persistence, and UI remain separate steps.
 - **Documentation/traceability/ADR updates:** ADR-017 and the continuation record

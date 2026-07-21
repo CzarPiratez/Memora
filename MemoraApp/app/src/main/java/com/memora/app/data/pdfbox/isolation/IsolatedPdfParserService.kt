@@ -10,6 +10,7 @@ import android.os.Process
 import com.memora.app.data.pdfbox.PdfBoxPdfDocumentParser
 import com.memora.app.data.pdfbox.PdfDocumentParseResult
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import java.io.IOException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -35,22 +36,25 @@ class IsolatedPdfParserService : Service() {
             protocolVersion: Int,
         ): Bundle {
             if (protocolVersion != PROTOCOL_VERSION) {
-                source.close()
+                source.closeQuietly()
                 return protocolFailure()
             }
 
             return try {
-            worker.submit<Bundle> {
-                ParcelFileDescriptor.AutoCloseInputStream(source).use { input ->
-                    parser.parse(input).toWireSummary()
-                }
-            }.get()
+                worker.submit<Bundle> {
+                    ParcelFileDescriptor.AutoCloseInputStream(source).use { input ->
+                        parser.parse(input).toWireSummary()
+                    }
+                }.get()
             } catch (_: InterruptedException) {
                 Thread.currentThread().interrupt()
+                source.closeQuietly()
                 retryableFailure()
             } catch (_: ExecutionException) {
+                source.closeQuietly()
                 retryableFailure()
             } catch (_: RuntimeException) {
+                source.closeQuietly()
                 retryableFailure()
             }
         }
@@ -106,6 +110,14 @@ class IsolatedPdfParserService : Service() {
 
     private fun isRunningIsolated(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && Process.isIsolated()
+
+    private fun ParcelFileDescriptor.closeQuietly() {
+        try {
+            close()
+        } catch (_: IOException) {
+            // A duplicate descriptor may already have been closed by the stream owner.
+        }
+    }
 
     companion object {
         const val PROTOCOL_VERSION = 1
