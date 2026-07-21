@@ -379,3 +379,28 @@ truthful no-text handling, password-safe failure, and malformed-input failure us
 repository-owned synthetic streams. The tests neither use a SAF URI nor open a user
 document. An offline runtime check and an accepted isolated-process review remain
 required before any real-source adapter can be enabled.
+
+## ADR-017: Real PDF parsing requires a descriptor-only isolated service
+
+**Status:** Accepted architecture guardrail; implementation pending
+
+**Decision:** Before any real user PDF is parsed, Memora will use a private,
+non-exported Android service with `android:isolatedProcess="true"`. The ordinary app
+process alone verifies the exact persisted SAF read grant and supplies one duplicated,
+read-only `ParcelFileDescriptor` over a private Binder contract. The isolated parser
+receives no source URI, tree URI, path, source identity, Room access, Hilt graph,
+network permission, or UI capability. It returns only bounded deterministic parser
+facts; the ordinary process validates and constructs the domain record.
+
+**Reason:** PDFs are untrusted input. Android's PDF-renderer guidance recommends a
+separate isolated process for untrusted PDF handling, and the service manifest
+contract provides an isolated process with no permissions of its own. A single
+descriptor is the least-privilege bridge that preserves local, read-only processing.
+
+**Consequences:** This decision does not enable real-source parsing. Measured resource
+budgets, an offline runtime check, synthetic isolated-service tests, fresh-grant
+verification, atomic persistence design, and an explicit user-facing flow remain
+mandatory gates. Process death, incomplete chunks, cancellation, or timeouts remain
+retryable failures; no partial result becomes searchable. The full threat model,
+rejected alternatives, and implementation gates are in
+`docs/PDF_PARSER_ISOLATION_REVIEW.md`.

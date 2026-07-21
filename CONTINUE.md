@@ -236,11 +236,13 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Complete the isolated-process threat and resource review for untrusted PDF parsing.
-The reviewed parser, dependencies, and four synthetic emulator tests are now verified;
-the next step must decide and document the process/isolation strategy before a future
-adapter is permitted to open a user-approved SAF document. It must not add a SAF URI
-reader, UI behavior, Room persistence, WorkManager, or AI capability.
+Implement the isolated-service boundary using only synthetic repository-owned PDFs.
+ADR-017 and `docs/PDF_PARSER_ISOLATION_REVIEW.md` now require an explicit,
+non-exported `android:isolatedProcess` service that accepts one read-only
+`ParcelFileDescriptor` through a bounded private Binder contract. The implementation
+must prove service isolation, descriptor cleanup, no URI/path transfer, service-death
+recovery, and bounded-output handling before any real user PDF is opened. It must not
+add a SAF URI reader, UI behavior, Room persistence, WorkManager, or AI capability.
 
 ## Important open decision
 

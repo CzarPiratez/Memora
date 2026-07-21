@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### PDF parser isolation guardrail
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Decision:** ADR-017 requires all future real-PDF parsing to run in a private
+  Android isolated service. The normal app verifies one persisted SAF read grant and
+  passes one read-only descriptor; the parser service receives neither URI/path nor
+  broad source access.
+- **Delivered:** A threat model, minimal Binder boundary, rejection rationale,
+  resource/cancellation limitations, and explicit implementation gates are documented
+  in `PDF_PARSER_ISOLATION_REVIEW.md`. No service, source access, UI, Room change,
+  worker, AI capability, or network path has been added.
+- **Verification:** Governing-document/current-code review and official Android
+  isolated-service, file-descriptor, and untrusted-PDF guidance review completed.
+  Later synthetic isolated-service tests and offline emulator verification are required
+  before real-source enablement.
+
 ### Local PDF parser and fixture decision
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; scanned-PDF OCR remains a future
