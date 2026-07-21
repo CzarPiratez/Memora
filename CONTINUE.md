@@ -252,14 +252,12 @@ or AI dependency.
 
 ## Next approved engineering step
 
-Design the smallest Android binding-adapter contract for the already-private isolated
-parser service. It may manage only private service connection lifecycle and expose
-an `IsolatedPdfParserConnection`; it must not accept a URI, path, source identity,
-SAF capability, or open a descriptor. Test explicit bind failure and disconnection
-as retryable availability outcomes with no parser request. It must not add a
-page/text chunk protocol, real-source access, UI behavior, Room persistence,
-WorkManager, or AI. Live in-flight parser-process death and cancellation remain
-separate gates after the binding contract is proven.
+Design and test cancellation for a synthetic isolated-parser client request. An
+already-cancelled request and a cancellation while the client is waiting must both
+become explicit retryable content-free failures, cancel the client-side wait, and
+close the supplied synthetic descriptor. It must not claim to hard-kill the service,
+open a real source, add a page/text chunk protocol, UI behavior, Room persistence,
+WorkManager, or AI. Live in-flight parser-process death remains a separate gate.
 
 ## Important open decision
 

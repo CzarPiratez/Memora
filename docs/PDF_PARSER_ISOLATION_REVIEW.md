@@ -225,3 +225,19 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** this does not implement a live Android binding adapter,
   bounded page/text chunks, or prove a live service crash or cancellation. Those
   remain required before real-source use.
+
+### Verified private binding-adapter boundary
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** `AndroidIsolatedPdfParserConnection` manages only the lifecycle of the
+  existing private isolated Binder. It has no source descriptor, URI, path, source
+  identity, tree grant, parser-request, Room, UI, WorkManager, AI, or network API.
+- **Automated verification:** `:app:assembleDebugAndroidTest` passed on 2026-07-22
+  after a race-safe connection-state correction.
+- **Emulator verification:** on 2026-07-22, the user reran
+  `AndroidIsolatedPdfParserConnectionIntegrationTest` on the Medium Phone emulator:
+  3 of 3 tests passed. It proves a live explicit service bind, a bind failure, and an
+  explicit disconnect callback. No case called `parse` or opened a descriptor.
+- **Known limitation:** a live in-flight parser-process death, cancellation protocol,
+  bounded page/text chunk contract, real source, and user-visible recovery are still
+  separate ADR-017 gates.

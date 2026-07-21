@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified private parser-service binding contract
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A private Android binding adapter can expose only the existing
+  isolated parser Binder. It reports connecting, available, or retryable-unavailable
+  status and accepts no descriptor, URI, path, source identity, or parser request.
+- **Verification:** On 2026-07-22, the user ran
+  `AndroidIsolatedPdfParserConnectionIntegrationTest` on the Medium Phone emulator:
+  3 of 3 tests passed. It proves a live private binding, explicit bind failure, and
+  explicit disconnection callback without parser work.
+
 ### Verified malformed parser-response handling
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
