@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Deterministic PDF extraction contract
+
+- **Requirements:** P-05, P-07, P-14, P-15; this step does not implement Local AI.
+- **Decision:** ADR-015 defines a versioned record that ties deterministic PDF facts
+  to the exact source identity, fingerprint, and extraction schema. It distinguishes
+  complete, partial, and no-text-layer coverage rather than silently treating a PDF as
+  fully extracted.
+- **Delivered:** Pure Kotlin PDF request, record, coverage, and recoverable outcome
+  contracts, plus an inward-facing platform-extractor boundary. No data/platform
+  adapter exists yet.
+- **Privacy:** No document is opened, copied, uploaded, persisted, changed, or
+  deleted. No parser, model, cloud path, background work, or UI behavior is added.
+- **Verification:** On 2026-07-21, local Gradle passed `PdfExtractionTest`: 6 of 6
+  tests cover PDF-only input, source-version binding, complete-page coverage, partial
+  coverage, no-text truthfulness, and recoverable failure construction.
+  Android-facing verification is not required for this pure domain contract because
+  the app's runtime behavior is unchanged.
+- **Known limitation:** The local PDF parser, privacy-safe fixtures, Room persistence,
+  platform adapter, and emulator test remain separate steps.
+
 ### Verified explicit PDF-folder indexing control
 
 - **Requirements:** P-03, P-04, P-05, P-14, P-15, P-16, P-17. This step does not

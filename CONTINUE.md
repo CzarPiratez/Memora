@@ -84,6 +84,14 @@ Phone emulator, restored the connected folder, explicitly started indexing, and 
 the truthful completed `0 PDF items` result. No PDF was opened, copied, uploaded,
 edited, or deleted.
 
+A pure, source-neutral deterministic PDF extraction contract now binds every future
+extraction record to the Asset identity, immutable fingerprint, and schema version.
+It represents source-provided title, page count, metadata, and page-level text while
+making complete coverage, partial coverage, and no-text-layer outcomes distinct. It
+also reserves explicit access and retry outcomes for a later read-only platform
+adapter. No document was opened, no parser/model dependency was added, and no record
+is persisted yet.
+
 ## Read in this order
 
 1. `AGENTS.md`
@@ -213,11 +221,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
   The user then reran `SafPdfDiscoverySourceIntegrationTest` on the Medium Phone
   emulator: 1 of 1 test passed after reconnecting the approved folder. It confirms
   the changed adapter remains metadata-only under a live persisted Android grant.
+- On 2026-07-21, local Gradle ran `PdfExtractionTest`: 6 of 6 tests passed. It
+  verifies PDF-only requests, asset/fingerprint/schema binding, complete coverage,
+  partial coverage, no-text-layer truthfulness, and recoverable failure construction.
+  The app has no changed Android-facing behavior in this domain-only step.
 
 ## Next approved engineering step
 
-Begin the separately governed deterministic PDF extraction boundary. Do not combine
-it with background work, model, cloud behaviour, or a UI redesign.
+Make the separate parser and fixture decision for the read-only local PDF platform
+adapter. It must document the candidate parser, local-only data flow, supported
+document/scan limitations, dependency/license implications, fixture corpus, failure
+and cancellation behavior, and emulator acceptance test before any source bytes are
+read. It must preserve P-07's full-text requirement without claiming unsupported
+scanned-document OCR coverage. Do not add a parser/model dependency, open a PDF,
+persist extraction records, schedule work, or change the UI until that decision is
+reviewed and accepted.
 
 ## Important open decision
 

@@ -311,3 +311,32 @@ tests passed, Android Hilt/test compilation passed, and the user verified the vi
 flow on the Medium Phone emulator. A restored approved folder remained idle until the
 user selected `Index this folder`, then displayed a truthful completed `0 PDF items`
 outcome. No source document was opened or changed.
+
+## ADR-015: PDF extraction is versioned, local, and explicit about coverage
+
+**Status:** Accepted
+
+**Decision:** Deterministic PDF extraction begins with a source-neutral domain
+contract. Every record is bound to one Asset identity, immutable fingerprint, and
+extraction-schema version. It can contain source-provided title, page count, named
+metadata, and numbered page text. The contract distinguishes complete page coverage,
+partial coverage with an explicit reason, and a document with no extractable text.
+Access-required, access-revoked, and recoverable-failure outcomes are also explicit.
+
+**Reason:** The PRD requires PDFs to expose full text, page count, title, and
+available metadata. A future platform adapter must not confuse an interrupted read or
+a scanned/no-text-layer PDF with a complete record. Binding output to the exact source
+fingerprint prevents old extracted facts from being reused for a changed PDF.
+
+**Privacy and scope:** This contract does not open a PDF, add a parser or AI/model
+dependency, write a database record, schedule background work, or change the UI. A
+later Android adapter will freshly validate the existing SAF grant before reading only
+the approved document locally. It must never upload, mutate, move, delete, or treat
+the source document as Memora-owned. Parser selection, fixture corpus, persistence,
+and UI diagnostics remain separate, reviewable steps.
+
+**Verification plan:** Unit-test PDF-only input, Asset/fingerprint/schema binding,
+complete page coverage, explicit partial coverage, no-text-layer truthfulness, and
+recoverable failure construction. The next implementation step must select a local
+parser and fixture strategy under the dependency and privacy gates before source bytes
+are read.
