@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Verified ordinary-process parser recovery contract
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A private, synthetic-only client contract maps bind failure,
+  simulated Binder death, bounded timeout, interruption, and malformed transport
+  responses to content-free retryable results. It returns only a validated outcome,
+  retryability, and optional page count, and closes every supplied descriptor.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: 4 of 4
+  tests passed. This does not enable real PDF access, a live service connection,
+  real process-death testing, cancellation, chunking, offline checks, persistence,
+  or visible recovery UI.
+
 ### PDF parser isolation guardrail
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

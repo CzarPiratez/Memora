@@ -252,14 +252,15 @@ or AI dependency.
 
 ## Next approved engineering step
 
-Design and test a status-only ordinary-process client contract for the isolated
-service. It must map bind failure, Binder death, and a bounded timeout to a retryable
-non-text outcome and close its synthetic descriptor. It must not use SAF, open a real
-source, add page/text Binder output, source access, UI behavior, Room persistence,
-WorkManager, or AI capability. Bounded page-chunk validation, offline/device
-measurements, fresh SAF-grant verification, atomic persistence, and an explicit
-visible progress/retry flow remain separate gates before any real user PDF can be
-opened.
+Design and test synthetic malformed-response validation for the private
+ordinary-process parser client. It must reject an unknown outcome, a non-isolated
+response, and missing/invalid page-count data as retryable content-free failures,
+while closing every supplied descriptor. It must not add a page/text chunk protocol,
+SAF or other real-source access, UI behavior, Room persistence, WorkManager, or AI.
+After this narrow gate, live process-death/cancellation testing, bounded page-chunk
+validation, offline/device measurements, fresh SAF-grant verification, atomic
+persistence, and an explicit visible progress/retry flow still remain before any
+real user PDF can be opened.
 
 ## Important open decision
 

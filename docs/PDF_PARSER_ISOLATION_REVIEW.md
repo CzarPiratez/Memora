@@ -186,3 +186,27 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Documentation/traceability/ADR updates:** ADR-017 and the continuation record
   must reference this review in the same checkpoint.
 - **Git commit:** pending this documentation checkpoint.
+
+### Verified ordinary-process client recovery boundary
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** `IsolatedPdfParserClient` is a private, status-only ordinary-process
+  transport client. It accepts one already-opened descriptor and only returns a
+  validated outcome, retryability, and optional page count. It has no source URI,
+  path, source identity, source-access, text, Room, UI, WorkManager, AI, or network
+  API.
+- **Safety behavior:** bind failure, simulated `DeadObjectException`, timeout,
+  malformed response, interruption, and other transport failures become retryable
+  content-free failures. The client closes the supplied descriptor on every path.
+  The timeout reports recovery status and interrupts its client-side wait; it does
+  not claim to hard-kill a parser process.
+- **Automated verification:** `:app:assembleDebugAndroidTest` passed on 2026-07-22
+  using Android Studio's bundled JDK.
+- **Emulator verification:** on 2026-07-22, the user ran
+  `IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: 4 of 4
+  tests passed. They prove valid status mapping plus retryable recovery from a
+  synthetic bind failure, simulated Binder death, and a bounded timeout; each failure
+  case proves client-side descriptor closure.
+- **Known limitation:** this is not yet a live Android `ServiceConnection`, real
+  process-death test, cancellation protocol, page/text chunk contract, real-source
+  parser call, or user-visible retry flow. Those remain separate ADR-017 gates.
