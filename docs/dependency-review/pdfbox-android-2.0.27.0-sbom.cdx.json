@@ -1,0 +1,56 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.5.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:6cb84a56-6c9a-4e9f-b33d-fdb8f81bcd0c",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-07-21T00:00:00Z",
+    "component": {
+      "type": "application",
+      "name": "Memora Android",
+      "version": "1.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "group": "com.tom-roush",
+      "name": "pdfbox-android",
+      "version": "2.0.27.0",
+      "purl": "pkg:maven/com.tom-roush/pdfbox-android@2.0.27.0",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "group": "org.bouncycastle",
+      "name": "bcprov-jdk15to18",
+      "version": "1.84",
+      "purl": "pkg:maven/org.bouncycastle/bcprov-jdk15to18@1.84"
+    },
+    {
+      "type": "library",
+      "group": "org.bouncycastle",
+      "name": "bcpkix-jdk15to18",
+      "version": "1.84",
+      "purl": "pkg:maven/org.bouncycastle/bcpkix-jdk15to18@1.84"
+    },
+    {
+      "type": "library",
+      "group": "org.bouncycastle",
+      "name": "bcutil-jdk15to18",
+      "version": "1.84",
+      "purl": "pkg:maven/org.bouncycastle/bcutil-jdk15to18@1.84"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:maven/com.tom-roush/pdfbox-android@2.0.27.0",
+      "dependsOn": [
+        "pkg:maven/org.bouncycastle/bcprov-jdk15to18@1.84",
+        "pkg:maven/org.bouncycastle/bcpkix-jdk15to18@1.84",
+        "pkg:maven/org.bouncycastle/bcutil-jdk15to18@1.84"
+      ]
+    }
+  ]
+}

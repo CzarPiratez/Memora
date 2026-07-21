@@ -343,12 +343,15 @@ are read.
 
 ## ADR-016: Initial local PDF text parser and fixture strategy
 
-**Status:** Accepted design; implementation not started
+**Status:** Accepted; synthetic-fixture mapper verified
 
 **Decision:** The first deterministic PDF extraction adapter will use the pinned
 PDFBox-Android `2.0.27.0` library behind `PdfDeterministicExtractor`, subject to the
 documented supply-chain, licensing, fixture, measured-resource, and emulator gates in
-`docs/PDF_EXTRACTION_IMPLEMENTATION_PLAN.md`. The dependency is not added by this ADR.
+`docs/PDF_EXTRACTION_IMPLEMENTATION_PLAN.md`. Its declared Bouncy Castle `1.72`
+transitives are rejected by the documented OSV review; the provider, PKIX, and utility
+artifacts are pinned explicitly to `1.84`. This ADR does not authorize any real-source
+adapter, Hilt binding, or user-document opening.
 
 **Reason:** Memora currently supports API 26. Android's framework exposes page-text
 content on API 35, with its compatible pre-V implementation covering API 30 through
@@ -369,8 +372,10 @@ copies, uploads, renames, moves, or deletes original content. The implementation
 review an isolated-process strategy for untrusted PDF parsing before it enables real
 user documents.
 
-**Verification plan:** Add no code in this decision step. The implementation step
-must use synthetic, repository-owned PDF fixtures; prove mapper and failure paths with
-unit tests; prove the read-only Android path with an emulator integration test; prove
-offline runtime behaviour; and measure dependency/resource impact before feature
-completion.
+**Verification:** On 2026-07-21, the user ran
+`PdfBoxPdfDocumentMapperIntegrationTest` on the Medium Phone emulator: 4 of 4 tests
+passed. They prove complete selectable-text extraction with a represented blank page,
+truthful no-text handling, password-safe failure, and malformed-input failure using
+repository-owned synthetic streams. The tests neither use a SAF URI nor open a user
+document. An offline runtime check and an accepted isolated-process review remain
+required before any real-source adapter can be enabled.

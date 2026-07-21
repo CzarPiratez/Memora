@@ -1,7 +1,7 @@
 # Local PDF Extraction Decision and Acceptance Plan
 
-**Status:** Accepted design; no parser dependency or PDF-reading implementation has
-been added.  
+**Status:** Reviewed parser dependencies and synthetic-only mapper verified; no
+source-opening adapter is enabled.
 **Date:** 2026-07-21  
 **Requirements:** P-05, P-07, P-14, P-15, P-17; future OCR capability A-01, A-03,
 A-04, A-06.
@@ -14,9 +14,9 @@ behind the existing `PdfDeterministicExtractor` domain port. It will be a
 read-only, local data/platform adapter. It will not be exposed to the UI, domain,
 or application callers as a PDFBox type.
 
-This is a dependency decision and implementation plan only. The dependency is not
-yet present in the Gradle catalog, no PDF bytes are read, and no extraction record is
-persisted by this decision.
+This is a dependency decision and implementation plan only. The parser dependency is
+present in the Gradle catalog with reviewed, pinned transitive overrides. No user PDF
+bytes are read, and no extraction record is persisted by this decision.
 
 ## Why this path
 
@@ -84,7 +84,7 @@ review applies here.
 
 ## Dependency, licensing, and supply-chain gate
 
-Before the dependency is added, the implementation change must include:
+The dependency change must include:
 
 - the exact, pinned version in `libs.versions.toml`, with no dynamic version range;
 - a checked-in third-party notice and license inventory for PDFBox-Android and every
@@ -95,6 +95,31 @@ Before the dependency is added, the implementation change must include:
 - an offline runtime check proving no parser path contacts a network; and
 - a rollback plan: remove the Hilt binding and dependency while preserving any
   unprocessed Assets as retryable, never deleting originals.
+
+### 2026-07-21 dependency review result
+
+`pdfbox-android:2.0.27.0` declares Bouncy Castle `1.72` transitively. An OSV scan
+found advisories against `bcprov-jdk15to18:1.72` and
+`bcpkix-jdk15to18:1.72`; those versions are therefore prohibited. Memora pins the
+compatible Bouncy Castle provider, PKIX, and utility artifacts to `1.84` explicitly.
+The same OSV batch scan reported no advisories for those exact `1.84` coordinates at
+the time of review. The checked-in SBOM, notice inventory, and scan record are:
+
+- `docs/dependency-review/pdfbox-android-2.0.27.0-sbom.cdx.json`
+- `docs/dependency-review/pdfbox-android-2.0.27.0-vulnerability-review.md`
+- `docs/THIRD_PARTY_NOTICES.md`
+
+This is evidence at a point in time, not a permanent guarantee. The exact resolved
+dependency graph must be checked again in CI and before release.
+
+### Build-size measurement
+
+On the same checkout and Medium Phone development environment, `:app:assembleDebug`
+produced a debug APK of `12,423,988` bytes before this dependency set and
+`18,734,630` bytes after it: an increase of `6,310,642` bytes (about `6.02 MiB`).
+This is a development baseline, not a release-size promise. A release build and a
+representative-device memory/battery measurement remain required before real-source
+enablement.
 
 No hard page-count, file-size, time, RAM, or battery target is assumed here. The
 first real adapter must measure its fixture corpus on the representative Medium Phone
@@ -109,7 +134,7 @@ downloaded, or user-selected PDF is permitted in automated tests.
 | Fixture | Expected result |
 |---|---|
 | Two-page selectable-text PDF with title, author, and Unicode text | Exact title/metadata, page count `2`, and complete numbered page text. |
-| Blank/whitespace page PDF | Complete page coverage with an empty page-text record, not a missing page. |
+| Selectable-text PDF with a blank/whitespace page | Complete page coverage with an empty page-text record, not a missing page. |
 | Image-only/scanned-style PDF | `NoExtractableText`; no fabricated OCR text. |
 | Password-protected PDF | Explicit, non-sensitive recoverable failure; no password appears in logs or persistence. |
 | Malformed/truncated PDF | Explicit retryable/non-sensitive failure; no crash, source write, or partial false success. |
@@ -132,16 +157,18 @@ The first implementation must add:
   governance, continuation record, product contract, architecture, decisions,
   roadmap, traceability, and change-control template.
 - **Current-code evidence:** `PdfExtraction.kt` defines the pure domain port and
-  coverage model; SAF code currently performs metadata-only discovery and forbids
-  document opening; Gradle has no PDF parser dependency; `minSdk` is 26.
+  coverage model; `PdfBoxPdfDocumentMapper` maps only an already-supplied stream into
+  that contract; its Android integration tests use only repository-owned synthetic
+  streams. SAF code still performs metadata-only discovery and forbids document
+  opening. Gradle pins the reviewed parser and Bouncy Castle overrides; `minSdk` is
+  26.
 - **Open decisions/limitations:** ADR-003 (notes) remains unrelated and open. P-07
   requires an OCR follow-up for scanned PDFs. Android framework text APIs do not span
   the current minimum Android version.
-- **Smallest safe change:** document the parser/fixture plan and ADR only. No source
-  access, dependency, database migration, WorkManager, model, or UI change.
-- **Acceptance criteria:** the next code change adds a parser mapper tested only with
-  synthetic fixtures, plus a pinned/dependency-reviewed parser and explicit failures.
-  A later accepted isolated-process review is required before the parser can open a
-  real user source. No source mutation or network path is permitted.
-- **Verification:** documentation review and Git diff check only; there is no
-  Android-facing behavior to run in this decision step.
+- **Smallest safe change delivered:** a parser mapper tested only with synthetic
+  fixtures, plus pinned/dependency-reviewed parser dependencies and explicit failure
+  outcomes. No source access, database migration, WorkManager, model, or UI change.
+- **Acceptance result:** on 2026-07-21, the Medium Phone emulator passed
+  `PdfBoxPdfDocumentMapperIntegrationTest`: 4 of 4 tests. A later accepted
+  isolated-process review is still required before the parser can open a real user
+  source. No source mutation or network path is permitted.

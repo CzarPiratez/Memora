@@ -53,6 +53,12 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.hilt.android)
+    implementation(libs.pdfbox.android)
+    // Explicitly replace PDFBox-Android's vulnerable Bouncy Castle 1.72 transitives
+    // with the pinned versions reviewed in docs/dependency-review/.
+    implementation(libs.bouncycastle.provider)
+    implementation(libs.bouncycastle.pkix)
+    implementation(libs.bouncycastle.util)
     kapt(libs.room.compiler)
     kapt(libs.hilt.compiler)
     testImplementation(libs.junit)

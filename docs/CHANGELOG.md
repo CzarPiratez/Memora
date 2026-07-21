@@ -6,10 +6,21 @@
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; scanned-PDF OCR remains a future
   Local AI capability.
-- **Decision:** ADR-016 selects PDFBox-Android 2.0.27.0 as the planned local parser
-  behind the existing domain port, subject to explicit licensing, dependency,
-  supply-chain, fixture, isolated-process, resource-measurement, offline, and emulator
-  gates. The dependency has not been added.
+- **Decision:** ADR-016 selects PDFBox-Android 2.0.27.0 as the local parser behind
+  the existing domain port, subject to explicit licensing, dependency, supply-chain,
+  fixture, isolated-process, resource-measurement, offline, and emulator gates. Its
+  vulnerable declared Bouncy Castle 1.72 dependencies are explicitly overridden with
+  the reviewed 1.84 set.
+- **Delivered:** The data-layer mapper and generated synthetic-only Android test
+  fixtures exist. No SAF URI, connected folder, Room record, UI, worker, or real user
+  document is wired to the mapper.
+- **Verification:** Dependency graph, SBOM, OSV review, third-party notices, debug
+  APK build-size baseline (`12,423,988` to `18,734,630` bytes), and Android-test APK
+  compilation are complete. On 2026-07-21, a failed initial emulator run exposed
+  accidental leading patch markers in the repository-owned Base64 fixture payloads;
+  all four corrected payloads then passed independent Base64 validation. The user
+  reran `PdfBoxPdfDocumentMapperIntegrationTest` on the Medium Phone emulator: 4 of
+  4 tests passed. Command-line Android tools still could not see that emulator.
 - **Truthfulness:** Text-layer PDFs can become complete page-level extraction records;
   scanned/image-only PDFs remain `NoExtractableText` until a separately governed local
   OCR capability is delivered. This records the P-07 gap rather than hiding it.

@@ -89,8 +89,16 @@ extraction record to the Asset identity, immutable fingerprint, and schema versi
 It represents source-provided title, page count, metadata, and page-level text while
 making complete coverage, partial coverage, and no-text-layer outcomes distinct. It
 also reserves explicit access and retry outcomes for a later read-only platform
-adapter. No document was opened, no parser/model dependency was added, and no record
-is persisted yet.
+adapter. No user document was opened, no model dependency was added, and no record is
+persisted yet.
+
+The reviewed local PDFBox mapper now operates only on already-supplied synthetic
+repository-owned streams. On 2026-07-21, the user ran its Android integration test on
+the Medium Phone emulator: all 4 tests passed. They cover complete selectable-text
+extraction including a represented blank page, image-only no-text truthfulness,
+password protection, and malformed input. This mapper is not connected to a SAF URI,
+a real folder, Room persistence, UI, WorkManager, or an AI capability; no user PDF was
+opened or altered.
 
 ## Read in this order
 
@@ -228,13 +236,11 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Implement only the synthetic-fixture PDFBox-Android parser mapper described in
-`docs/PDF_EXTRACTION_IMPLEMENTATION_PLAN.md`. First add the pinned dependency with
-third-party notices, dependency/SBOM scan evidence, and synthetic repository-owned
-fixtures. Test complete/no-text/password/malformed parser outcomes locally and on the
-emulator without opening any user-approved SAF document. The isolated-process review
-must be accepted before a later step wires the parser to a real source URI. Make no
-UI, Room, WorkManager, or AI change in this implementation step.
+Complete the isolated-process threat and resource review for untrusted PDF parsing.
+The reviewed parser, dependencies, and four synthetic emulator tests are now verified;
+the next step must decide and document the process/isolation strategy before a future
+adapter is permitted to open a user-approved SAF document. It must not add a SAF URI
+reader, UI behavior, Room persistence, WorkManager, or AI capability.
 
 ## Important open decision
 
