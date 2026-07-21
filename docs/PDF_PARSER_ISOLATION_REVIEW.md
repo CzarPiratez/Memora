@@ -210,3 +210,18 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** this is not yet a live Android `ServiceConnection`, real
   process-death test, cancellation protocol, page/text chunk contract, real-source
   parser call, or user-visible retry flow. Those remain separate ADR-017 gates.
+
+### Verified malformed response handling
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** four additional repository-owned synthetic Binder responses exercise
+  the ordinary-process client's strict response validator. They contain no source
+  bytes, URI, path, title, metadata, page text, or source identity.
+- **Emulator verification:** on 2026-07-22, the user ran
+  `IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: 8 of 8
+  tests passed. The new cases are an unknown outcome, a false isolated claim, missing
+  page count, and a zero page count. Each became a retryable, content-free failure
+  and closed its descriptor.
+- **Known limitation:** this does not implement a live Android binding adapter,
+  bounded page/text chunks, or prove a live service crash or cancellation. Those
+  remain required before real-source use.

@@ -31,11 +31,13 @@ class IsolatedPdfParserClientIntegrationTest {
 
     @Test
     fun maps_a_valid_isolated_status_without_returning_content_and_closes_the_descriptor() {
-        val result = clientWith { _, _ -> extractedBundle(pageCount = 2) }.parse(descriptor())
+        val descriptor = descriptor()
+        val result = clientWith { _, _ -> extractedBundle(pageCount = 2) }.parse(descriptor)
 
         assertEquals(IsolatedPdfParserClientOutcome.EXTRACTED, result.outcome)
         assertFalse(result.retryable)
         assertEquals(2, result.pageCount)
+        assertDescriptorClosed(descriptor)
     }
 
     @Test
@@ -74,6 +76,58 @@ class IsolatedPdfParserClientIntegrationTest {
         val result = client.parse(source = descriptor, timeoutMillis = 100)
 
         assertTrue("The synthetic parser call should have started.", parserStarted.await(1, TimeUnit.SECONDS))
+        assertRetryableFailure(result)
+        assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun rejects_an_unknown_isolated_outcome_as_retryable_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val result = clientWith { _, _ ->
+            Bundle().apply {
+                putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
+                putString(IsolatedPdfParserService.KEY_OUTCOME, "unknown_outcome")
+            }
+        }.parse(descriptor)
+
+        assertRetryableFailure(result)
+        assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun rejects_a_non_isolated_response_as_retryable_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val result = clientWith { _, _ ->
+            Bundle().apply {
+                putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, false)
+                putString(IsolatedPdfParserService.KEY_OUTCOME, IsolatedPdfParserService.OUTCOME_EXTRACTED)
+                putInt(IsolatedPdfParserService.KEY_PAGE_COUNT, 2)
+            }
+        }.parse(descriptor)
+
+        assertRetryableFailure(result)
+        assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun rejects_a_page_outcome_without_a_page_count_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val result = clientWith { _, _ ->
+            Bundle().apply {
+                putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
+                putString(IsolatedPdfParserService.KEY_OUTCOME, IsolatedPdfParserService.OUTCOME_EXTRACTED)
+            }
+        }.parse(descriptor)
+
+        assertRetryableFailure(result)
+        assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun rejects_an_invalid_page_count_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val result = clientWith { _, _ -> extractedBundle(pageCount = 0) }.parse(descriptor)
+
         assertRetryableFailure(result)
         assertDescriptorClosed(descriptor)
     }

@@ -402,12 +402,12 @@ descriptor is the least-privilege bridge that preserves local, read-only process
 boundary now exist for repository-owned synthetic PDF bytes, but this does not enable
 real-source parsing. Android-test APK compilation passed and the Medium Phone
 emulator passed the initial two-test synthetic boundary check, the expanded six-test
-deterministic outcome suite, and a four-test ordinary-process client recovery suite.
-The client maps synthetic bind failure, simulated Binder death, and timeout to a
-content-free retryable failure and closes the supplied descriptor. Measured resource
-budgets, an offline runtime check, live service-death/cancellation recovery,
-malformed-response validation, fresh-grant verification, atomic persistence design,
-and an explicit user-facing flow remain mandatory gates. Process death, incomplete
-chunks, cancellation, or timeouts remain retryable failures; no partial result becomes
-searchable. The full threat model, rejected alternatives, and implementation gates are in
+deterministic outcome suite, and an eight-test ordinary-process client suite. The
+client maps synthetic bind failure, simulated Binder death, timeout, and malformed
+response data to a content-free retryable failure and closes the supplied descriptor.
+Measured resource budgets, an offline runtime check, a real binding adapter, live
+service-death/cancellation recovery, fresh-grant verification, atomic persistence
+design, and an explicit user-facing flow remain mandatory gates. Process death,
+incomplete chunks, cancellation, or timeouts remain retryable failures; no partial
+result becomes searchable. The full threat model, rejected alternatives, and implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.

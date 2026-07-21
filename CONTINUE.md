@@ -252,15 +252,14 @@ or AI dependency.
 
 ## Next approved engineering step
 
-Design and test synthetic malformed-response validation for the private
-ordinary-process parser client. It must reject an unknown outcome, a non-isolated
-response, and missing/invalid page-count data as retryable content-free failures,
-while closing every supplied descriptor. It must not add a page/text chunk protocol,
-SAF or other real-source access, UI behavior, Room persistence, WorkManager, or AI.
-After this narrow gate, live process-death/cancellation testing, bounded page-chunk
-validation, offline/device measurements, fresh SAF-grant verification, atomic
-persistence, and an explicit visible progress/retry flow still remain before any
-real user PDF can be opened.
+Design the smallest Android binding-adapter contract for the already-private isolated
+parser service. It may manage only private service connection lifecycle and expose
+an `IsolatedPdfParserConnection`; it must not accept a URI, path, source identity,
+SAF capability, or open a descriptor. Test explicit bind failure and disconnection
+as retryable availability outcomes with no parser request. It must not add a
+page/text chunk protocol, real-source access, UI behavior, Room persistence,
+WorkManager, or AI. Live in-flight parser-process death and cancellation remain
+separate gates after the binding contract is proven.
 
 ## Important open decision
 
