@@ -382,7 +382,8 @@ required before any real-source adapter can be enabled.
 
 ## ADR-017: Real PDF parsing requires a descriptor-only isolated service
 
-**Status:** Accepted architecture guardrail; implementation pending
+**Status:** Accepted architecture guardrail; synthetic boundary emulator-verified;
+real-source parsing remains disabled
 
 **Decision:** Before any real user PDF is parsed, Memora will use a private,
 non-exported Android service with `android:isolatedProcess="true"`. The ordinary app
@@ -397,8 +398,11 @@ separate isolated process for untrusted PDF handling, and the service manifest
 contract provides an isolated process with no permissions of its own. A single
 descriptor is the least-privilege bridge that preserves local, read-only processing.
 
-**Consequences:** This decision does not enable real-source parsing. Measured resource
-budgets, an offline runtime check, synthetic isolated-service tests, fresh-grant
+**Consequences:** The private service and fixed-version descriptor-only Binder
+boundary now exist for repository-owned synthetic PDF bytes, but this does not enable
+real-source parsing. Android-test APK compilation passed and the Medium Phone
+emulator passed the two-test synthetic boundary check. Measured resource budgets, an
+offline runtime check, broader synthetic isolated-service cases, fresh-grant
 verification, atomic persistence design, and an explicit user-facing flow remain
 mandatory gates. Process death, incomplete chunks, cancellation, or timeouts remain
 retryable failures; no partial result becomes searchable. The full threat model,

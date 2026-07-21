@@ -1,6 +1,7 @@
 # Local PDF Parser Isolation Review
 
-**Status:** Accepted architecture guardrail; implementation is not yet enabled
+**Status:** Accepted architecture guardrail; synthetic boundary emulator-verified;
+real-source parsing remains disabled
 **Date:** 2026-07-21
 **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06
 
@@ -19,7 +20,7 @@ contract. The ordinary process validates those facts against `PdfExtractionReque
 and constructs the domain `PdfExtractionRecord`; the isolated service does not access
 Room, Hilt bindings, the source repository, Compose UI, or the network.
 
-This decision authorizes design and later synthetic-service tests only. It does not
+This decision authorizes only the documented synthetic-service boundary. It does not
 authorize opening a real PDF, changing the visible app, persisting extraction output,
 or scheduling background parsing. Those require the acceptance gates below.
 
@@ -135,9 +136,12 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Source documents read:** product registry, Local AI Technical Specification,
   governance, continuation record, product contract, architecture, decisions,
   roadmap, traceability, PDF extraction plan, and change-control template.
-- **Current-code evidence inspected:** the manifest has no parser service and no
-  `INTERNET` permission; SAF discovery is metadata-only; `PdfBoxPdfDocumentMapper`
-  accepts only a supplied `InputStream`; Android synthetic mapper tests passed 4 of 4.
+- **Current-code evidence inspected:** the manifest has no `INTERNET` permission and
+  declares a private non-exported isolated parser service; SAF discovery is
+  metadata-only; `PdfBoxPdfDocumentMapper` accepts only a supplied `InputStream`;
+  the service accepts only a descriptor and fixed protocol version; Android synthetic
+  mapper tests previously passed 4 of 4; the service test passed 2 of 2 on the
+  Medium Phone emulator using a synthetic descriptor pipe.
 - **Open ADRs / platform limitations checked:** ADR-003 remains unrelated and open;
   image-only PDF OCR remains a Local AI follow-up; the current parser must not open a
   real source until this isolation design's gates are met.
@@ -158,17 +162,24 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 
 ### Delivery record
 
-- **Files/layers changed:** architecture and governance documentation only.
-- **Automated verification and result:** documentation link/diff review pending the
-  final checkpoint; no code or test changes are authorized.
-- **Emulator/manual verification and result:** not applicable; no Android behavior
-  changed.
-- **Failure/recovery paths verified:** design requires explicit retryable output for
-  service death, timeout, cancellation, and incomplete chunks; implementation is
-  pending.
-- **Known limitation or follow-up:** measured budgets, synthetic isolated-service
-  tests, offline runtime verification, a real-source adapter, persistence, and UI are
-  all still separate steps.
+- **Files/layers changed:** private AIDL contract, isolated Android service, parser
+  split, manifest declaration, and a synthetic-only Android integration test.
+- **Automated verification and result:** `:app:assembleDebugAndroidTest` passed on
+  2026-07-21. The test APK compiles the AIDL boundary and test; it does not prove the
+  live isolated service execution.
+- **Emulator/manual verification and result:** on 2026-07-21, the user ran
+  `IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: 2 of 2
+  tests passed. It proved the no-export/isolated manifest configuration and a
+  two-page repository-owned synthetic descriptor parse.
+- **Failure/recovery paths verified:** the service maps interrupted/execution/runtime
+  failures to a non-text retryable summary and closes the received input stream in its
+  normal parse path. Service death, cancellation, timeout, malformed-output chunks,
+  and every error-path descriptor-closure case remain unverified and are not enabled
+  for real sources.
+- **Known limitation or follow-up:** no-text/password/malformed and unsupported-
+  protocol synthetic cases, exhaustive descriptor closure, service death,
+  cancellation, timeout, bounded chunks, offline runtime verification, measured
+  budgets, a real-source adapter, persistence, and UI remain separate steps.
 - **Documentation/traceability/ADR updates:** ADR-017 and the continuation record
   must reference this review in the same checkpoint.
 - **Git commit:** pending this documentation checkpoint.

@@ -236,13 +236,21 @@ mapped to its requirements, acceptance criteria, risks, and verification plan.
 
 ## Next approved engineering step
 
-Implement the isolated-service boundary using only synthetic repository-owned PDFs.
-ADR-017 and `docs/PDF_PARSER_ISOLATION_REVIEW.md` now require an explicit,
-non-exported `android:isolatedProcess` service that accepts one read-only
-`ParcelFileDescriptor` through a bounded private Binder contract. The implementation
-must prove service isolation, descriptor cleanup, no URI/path transfer, service-death
-recovery, and bounded-output handling before any real user PDF is opened. It must not
-add a SAF URI reader, UI behavior, Room persistence, WorkManager, or AI capability.
+The synthetic isolated-service smoke test is verified. On 2026-07-21, the user ran
+`IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: **2 tests
+passed**. It bound the private, non-exported `android:isolatedProcess` service and
+parsed a repository-owned two-page PDF sent through a pipe, with no URI, path, SAF
+folder, real user PDF, Room record, or UI action.
+
+Extend only the synthetic isolated-service tests for the remaining deterministic
+parser outcomes: no extractable text, password-protected input, malformed input, an
+unsupported protocol version, and descriptor closure on both success and failure.
+Keep the service status-only; do not add page/text Binder output, a SAF URI reader,
+source access, UI behavior, Room persistence, WorkManager, or AI capability. Then run
+one focused emulator test. Service death/cancellation/timeout recovery, bounded
+page-chunk validation, offline/device measurements, fresh SAF-grant verification,
+atomic persistence, and an explicit visible progress/retry flow remain separate gates
+before any real user PDF can be opened.
 
 ## Important open decision
 

@@ -9,14 +9,20 @@
   Android isolated service. The normal app verifies one persisted SAF read grant and
   passes one read-only descriptor; the parser service receives neither URI/path nor
   broad source access.
-- **Delivered:** A threat model, minimal Binder boundary, rejection rationale,
-  resource/cancellation limitations, and explicit implementation gates are documented
-  in `PDF_PARSER_ISOLATION_REVIEW.md`. No service, source access, UI, Room change,
-  worker, AI capability, or network path has been added.
-- **Verification:** Governing-document/current-code review and official Android
-  isolated-service, file-descriptor, and untrusted-PDF guidance review completed.
-  Later synthetic isolated-service tests and offline emulator verification are required
-  before real-source enablement.
+- **Delivered:** The documented threat model is now represented by a private,
+  non-exported `android:isolatedProcess` service and a fixed-version descriptor-only
+  Binder interface. The service receives no URI, path, source identity, metadata,
+  extracted text, Room access, Hilt graph, UI, or network permission. It currently
+  accepts only a repository-owned synthetic descriptor and returns a small parser
+  status summary. No SAF source access, UI, Room change, worker, AI capability, or
+  real user document path has been added.
+- **Verification:** Android-test APK compilation passed on 2026-07-21. The user ran
+  `IsolatedPdfParserServiceIntegrationTest` on the Medium Phone emulator: 2 of 2
+  tests passed. They prove the private/isolated manifest configuration and a two-page
+  synthetic descriptor parse. Offline verification, no-text/password/malformed inputs,
+  descriptor cleanup under every failure, service death, cancellation, timeout
+  reporting, chunk validation, source access, persistence, and visible
+  progress/recovery are still required before real-source enablement.
 
 ### Local PDF parser and fixture decision
 
