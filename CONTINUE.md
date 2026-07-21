@@ -252,12 +252,24 @@ or AI dependency.
 
 ## Next approved engineering step
 
-Design and test cancellation for a synthetic isolated-parser client request. An
-already-cancelled request and a cancellation while the client is waiting must both
-become explicit retryable content-free failures, cancel the client-side wait, and
-close the supplied synthetic descriptor. It must not claim to hard-kill the service,
-open a real source, add a page/text chunk protocol, UI behavior, Room persistence,
-WorkManager, or AI. Live in-flight parser-process death remains a separate gate.
+The synthetic cancellation suite is verified. On 2026-07-22, the user ran
+`IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: **10 tests
+passed**. It proves that an already-cancelled request never reaches the parser and
+that cancelling while the ordinary process waits returns a content-free retryable
+failure and closes the descriptor. It does not claim to hard-kill the isolated
+service, and it opens no real source.
+
+## Next approved engineering step
+
+Add one synthetic-only end-to-end round-trip test that explicitly binds
+`AndroidIsolatedPdfParserConnection`, gives its `IsolatedPdfParserClient` only a
+repository-owned pipe descriptor, and verifies the existing private service returns
+a validated status-only result with caller-side descriptor closure. The test must
+not use a SAF URI, user PDF, path, source identity, Room, UI, WorkManager, or AI.
+It must not introduce page/text chunks or make real-source parsing available. A
+live in-flight parser-process-death check, bounded result protocol, offline check,
+fresh-grant verification, persistence, and user-visible recovery remain separate
+ADR-017 gates.
 
 ## Important open decision
 

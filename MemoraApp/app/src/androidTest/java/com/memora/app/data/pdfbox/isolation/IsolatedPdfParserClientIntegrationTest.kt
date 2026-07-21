@@ -1,10 +1,12 @@
 package com.memora.app.data.pdfbox.isolation
 
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -130,6 +132,52 @@ class IsolatedPdfParserClientIntegrationTest {
 
         assertRetryableFailure(result)
         assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun does_not_submit_an_already_cancelled_request_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val cancellationSignal = CancellationSignal().also(CancellationSignal::cancel)
+        var parserCalled = false
+        val result = clientWith { _, _ ->
+            parserCalled = true
+            extractedBundle(pageCount = 1)
+        }.parse(source = descriptor, cancellationSignal = cancellationSignal)
+
+        assertRetryableFailure(result)
+        assertFalse("An already cancelled request must not reach the parser.", parserCalled)
+        assertDescriptorClosed(descriptor)
+    }
+
+    @Test
+    fun cancels_a_waiting_request_as_retryable_and_closes_the_descriptor() {
+        val descriptor = descriptor()
+        val cancellationSignal = CancellationSignal()
+        val parserStarted = CountDownLatch(1)
+        val client = clientWith { _, _ ->
+            parserStarted.countDown()
+            CountDownLatch(1).await()
+            extractedBundle(pageCount = 1)
+        }
+        val caller = Executors.newSingleThreadExecutor()
+
+        try {
+            val pendingResult = caller.submit<IsolatedPdfParserClientResult> {
+                client.parse(
+                    source = descriptor,
+                    timeoutMillis = 5_000,
+                    cancellationSignal = cancellationSignal,
+                )
+            }
+
+            assertTrue("The synthetic parser request should have started.", parserStarted.await(1, TimeUnit.SECONDS))
+            cancellationSignal.cancel()
+
+            assertRetryableFailure(pendingResult.get(1, TimeUnit.SECONDS))
+            assertDescriptorClosed(descriptor)
+        } finally {
+            caller.shutdownNow()
+        }
     }
 
     private fun clientWith(

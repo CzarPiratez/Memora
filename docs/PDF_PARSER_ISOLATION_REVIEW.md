@@ -241,3 +241,18 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** a live in-flight parser-process death, cancellation protocol,
   bounded page/text chunk contract, real source, and user-visible recovery are still
   separate ADR-017 gates.
+
+### Verified synthetic client-cancellation recovery
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** `IsolatedPdfParserClient` receives only an Android cancellation signal
+  alongside its already-supplied synthetic descriptor. The cancellation path has no
+  source URI, path, source identity, text, Room, UI, WorkManager, AI, or network API.
+- **Emulator verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: 10 of 10
+  tests passed. It proves both pre-cancelled and waiting-request cancellation become
+  retryable content-free failures with descriptor closure. The pre-cancelled request
+  never reaches the parser.
+- **Known limitation:** cancellation interrupts Memora's local wait; it is not a
+  promise that Android immediately hard-kills a parser process. Live process death,
+  bounded chunks, real source, and user-visible recovery remain separate gates.

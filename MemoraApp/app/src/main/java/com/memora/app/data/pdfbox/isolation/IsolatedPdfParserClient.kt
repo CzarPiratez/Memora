@@ -1,11 +1,13 @@
 package com.memora.app.data.pdfbox.isolation
 
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import java.io.IOException
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -35,19 +37,52 @@ internal class IsolatedPdfParserClient(
     fun parse(
         source: ParcelFileDescriptor,
         timeoutMillis: Long = DEFAULT_TIMEOUT_MILLIS,
+        cancellationSignal: CancellationSignal? = null,
     ): IsolatedPdfParserClientResult {
         require(timeoutMillis > 0) { "The isolated parser timeout must be positive." }
 
+        val requestLock = Any()
         var request: Future<Bundle>? = null
+        var cancelled = false
+
+        fun cancelRequest() = synchronized(requestLock) {
+            request?.cancel(true)
+        }
 
         return try {
-            val parser = connection.acquire()
-            request = worker.submit<Bundle> {
-                parser.parse(source, IsolatedPdfParserService.PROTOCOL_VERSION)
+            if (cancellationSignal?.isCanceled == true) {
+                return retryableFailure()
             }
-            request.get(timeoutMillis, TimeUnit.MILLISECONDS).toClientResult()
+
+            cancellationSignal?.setOnCancelListener {
+                synchronized(requestLock) {
+                    cancelled = true
+                    request?.cancel(true)
+                }
+            }
+
+            val parser = connection.acquire()
+            val submittedRequest = synchronized(requestLock) {
+                if (cancelled || cancellationSignal?.isCanceled == true) {
+                    cancelled = true
+                    null
+                } else {
+                    worker.submit<Bundle> {
+                        parser.parse(source, IsolatedPdfParserService.PROTOCOL_VERSION)
+                    }.also { request = it }
+                }
+            }
+            if (submittedRequest == null) {
+                retryableFailure()
+            } else {
+                submittedRequest.get(timeoutMillis, TimeUnit.MILLISECONDS).toClientResult().takeUnless {
+                    cancellationSignal?.isCanceled == true
+                } ?: retryableFailure()
+            }
         } catch (_: TimeoutException) {
-            request?.cancel(true)
+            cancelRequest()
+            retryableFailure()
+        } catch (_: CancellationException) {
             retryableFailure()
         } catch (_: DeadObjectException) {
             retryableFailure()
@@ -58,12 +93,13 @@ internal class IsolatedPdfParserClient(
             retryableFailure()
         } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
-            request?.cancel(true)
+            cancelRequest()
             retryableFailure()
         } catch (_: RuntimeException) {
             // Binding and malformed-Bundle failures must never expose source details.
             retryableFailure()
         } finally {
+            cancellationSignal?.setOnCancelListener(null)
             source.closeQuietly()
         }
     }

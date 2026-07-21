@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified isolated-parser client cancellation contract
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** The synthetic ordinary-process client accepts an Android
+  `CancellationSignal`. Cancellation before submission prevents a parser call;
+  cancellation while waiting cancels the client-side future and returns a
+  content-free retryable result after descriptor closure.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserClientIntegrationTest` on the Medium Phone emulator: 10 of 10
+  tests passed. This does not claim to terminate a live isolated process or enable
+  real PDF access.
+
 ### Verified private parser-service binding contract
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
