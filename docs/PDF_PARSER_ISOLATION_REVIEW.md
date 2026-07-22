@@ -287,3 +287,17 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** measured production limits, a Binder codec, a live
   process-death test, offline verification, fresh-grant check, source access,
   persistence, and user-visible recovery remain separate ADR-017 gates.
+
+### Verified strict parser-result Bundle codec
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** a future-only Android `Bundle` codec accepts exactly the version-one
+  result and chunk keys/types, rejects unknown or missing fields, and delegates valid
+  candidates to the pure bounded-result validator. Every rejection carries no
+  candidate text. The current service remains unchanged and status-only.
+- **Emulator verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserResultBundleCodecIntegrationTest` on the Medium Phone emulator:
+  10 of 10 tests passed. Its Bundles contain synthetic test strings only; it binds no
+  service and opens no descriptor, URI, or source.
+- **Known limitation:** this is not a service codec rollout, real source, live
+  process-death, offline, persistence, or user-visible recovery test.

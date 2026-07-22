@@ -281,14 +281,25 @@ user source, Room, UI, WorkManager, or AI.
 
 ## Next approved engineering step
 
-Define and Android-test a strict future `Bundle` codec that translates the bounded
-wire fields into the already-verified pure result contract. It must reject unknown or
-missing fields and map every rejection to a content-free retryable status. It may use
-only synthetic fields and Android test `Bundle` objects; it must not change the
-isolated service, open a descriptor, access a SAF URI or user source, persist Room
-data, alter UI, schedule WorkManager, or invoke AI. A live in-flight parser-process-
-death check, offline check, fresh-grant verification, source access, persistence, and
-user-visible recovery remain separate ADR-017 gates.
+The strict future result codec is verified. On 2026-07-22, the user ran
+`IsolatedPdfParserResultBundleCodecIntegrationTest` on the Medium Phone emulator:
+**10 tests passed**. It translates exactly-versioned synthetic `Bundle` fields into
+the already-verified pure result contract, rejecting unknown, missing, malformed, and
+over-limit data without exposing candidate text. It does not change the isolated
+service, open a descriptor, access a SAF URI or user source, persist Room data, alter
+UI, schedule WorkManager, or invoke AI.
+
+## Next approved engineering step
+
+Create the synthetic-only benchmark plan and Android test harness required to choose
+measured parser-result limits before any status-only service is allowed to return
+page text. It must collect only aggregate fixture metrics—page count, text code-unit
+count, serialized result size, and elapsed local time—without logging text or opening
+a source URI. It must not alter the service protocol, source access, Room, UI,
+WorkManager, or AI. The result is a measurement baseline, not a production limit or
+user-facing performance promise. A live in-flight parser-process-death check, offline
+check, fresh-grant verification, source access, persistence, and user-visible
+recovery remain separate ADR-017 gates.
 
 ## Important open decision
 

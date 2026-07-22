@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified strict parser-result Bundle codec
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A future-only Android `Bundle` decoder accepts exactly the approved
+  version-one keys and field types, rejects unexpected or missing fields, then feeds
+  the existing bounded-result validator. It returns no candidate text when decoding
+  or validation fails.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserResultBundleCodecIntegrationTest` on the Medium Phone emulator:
+  10 of 10 tests passed. The live isolated service still returns status only and this
+  change opens no descriptor or source.
+
 ### Verified bounded parser-result contract
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
