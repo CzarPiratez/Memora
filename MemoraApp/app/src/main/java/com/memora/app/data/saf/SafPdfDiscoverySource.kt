@@ -13,6 +13,7 @@ import com.memora.app.domain.discovery.DiscoveryFailure
 import com.memora.app.domain.discovery.DiscoveryPage
 import com.memora.app.domain.discovery.DiscoveryRequest
 import com.memora.app.domain.discovery.DiscoveryResult
+import com.memora.app.domain.discovery.DocumentTreeAccessValidator
 import com.memora.app.domain.discovery.DocumentTreeApproval
 import com.memora.app.domain.discovery.SourceAccessState
 import java.time.Clock
@@ -30,6 +31,7 @@ import kotlinx.coroutines.withContext
  */
 class SafPdfDiscoverySource(
     private val approval: DocumentTreeApproval,
+    private val accessValidator: DocumentTreeAccessValidator,
     private val catalog: SafDocumentTreeCatalog,
     private val clock: Clock = Clock.systemUTC(),
 ) : AssetDiscoverySource {
@@ -41,13 +43,7 @@ class SafPdfDiscoverySource(
         supportsBackgroundIndexing = true,
     )
 
-    override suspend fun accessState(): SourceAccessState = if (
-        catalog.hasPersistedReadAccess(approval.treeUri)
-    ) {
-        SourceAccessState.GRANTED
-    } else {
-        SourceAccessState.ACCESS_REVOKED
-    }
+    override suspend fun accessState(): SourceAccessState = accessValidator.accessState(approval)
 
     override suspend fun discover(request: DiscoveryRequest): DiscoveryResult = withContext(Dispatchers.IO) {
         try {

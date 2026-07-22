@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Verified fresh SAF read-grant validation boundary
+
+- **Requirements:** P-03, P-05, P-07, P-14, P-15, P-17; Local AI principles A-01,
+  A-02, A-06.
+- **Delivered:** A source-neutral `DocumentTreeAccessValidator` now checks
+  Android's persisted permission list for the exact user-approved document-tree URI
+  and a retained read permission. The existing metadata-only SAF discovery adapter
+  depends on this new boundary; the metadata catalog no longer owns authorization.
+- **Verification:** Kotlin, unit-test, and Android-test compilation passed. The
+  focused matcher result contains **3 tests passed** for exact-tree acceptance and
+  different-tree/readless-grant rejection. On 2026-07-23, after explicitly
+  reconnecting an emulator Documents folder, the user ran
+  `SafPdfDiscoverySourceIntegrationTest` on the Medium Phone emulator:
+  **1 test passed**.
+- **Truthfulness:** The Android adapter reads only the retained grant list. It does
+  not query a provider, open a user document or descriptor, parse a PDF, persist an
+  extraction, call the isolated service, invoke AI, or access a network. This does
+  not enable real-source parsing.
+
 ### Verified live isolated PDF parser-process death recovery
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

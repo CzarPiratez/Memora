@@ -5,9 +5,11 @@ import com.memora.app.application.documents.FindMostRecentPdfFolder
 import com.memora.app.application.documents.IndexSafPdfFolder
 import com.memora.app.application.documents.PdfFolderConnectionFinder
 import com.memora.app.application.documents.SafPdfFolderIndexer
+import com.memora.app.data.saf.ContentResolverDocumentTreeAccessValidator
 import com.memora.app.data.saf.ContentResolverSafDocumentTreeCatalog
 import com.memora.app.data.saf.SafDocumentTreeCatalog
 import com.memora.app.data.saf.SafPdfDiscoverySourceFactory
+import com.memora.app.domain.discovery.DocumentTreeAccessValidator
 import com.memora.app.domain.discovery.PdfFolderDiscoverySourceFactory
 import dagger.Binds
 import dagger.Module
@@ -42,6 +44,12 @@ abstract class SafPdfIndexingBindings {
 @Module
 @InstallIn(SingletonComponent::class)
 object SafPdfIndexingDependencies {
+    @Provides
+    @Singleton
+    fun provideDocumentTreeAccessValidator(
+        @ApplicationContext context: Context,
+    ): DocumentTreeAccessValidator = ContentResolverDocumentTreeAccessValidator(context)
+
     @Provides
     @Singleton
     fun provideSafDocumentTreeCatalog(

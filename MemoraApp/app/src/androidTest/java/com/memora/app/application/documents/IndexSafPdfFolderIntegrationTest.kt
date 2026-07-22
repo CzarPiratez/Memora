@@ -11,6 +11,7 @@ import com.memora.app.data.local.MemoraDatabaseMigrations
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
+import com.memora.app.data.saf.ContentResolverDocumentTreeAccessValidator
 import com.memora.app.data.saf.ContentResolverSafDocumentTreeCatalog
 import com.memora.app.data.saf.SafPdfDiscoverySourceFactory
 import com.memora.app.domain.asset.IndexingStatus
@@ -66,9 +67,14 @@ class IndexSafPdfFolderIntegrationTest {
         }
         val indexer = IndexSafPdfFolder(
             approvalRepository = approvalRepository,
-            sourceFactory = SafPdfDiscoverySourceFactory(ContentResolverSafDocumentTreeCatalog(
-                InstrumentationRegistry.getInstrumentation().targetContext,
-            )),
+            sourceFactory = SafPdfDiscoverySourceFactory(
+                accessValidator = ContentResolverDocumentTreeAccessValidator(
+                    InstrumentationRegistry.getInstrumentation().targetContext,
+                ),
+                catalog = ContentResolverSafDocumentTreeCatalog(
+                    InstrumentationRegistry.getInstrumentation().targetContext,
+                ),
+            ),
             discoverSourcePage = DiscoverSourcePage(
                 checkpointRepository = RoomDiscoveryCheckpointRepository(
                     outputDatabase.discoveryCheckpointDao(),

@@ -408,8 +408,8 @@ Binder death, timeout, malformed response data, and cancellation before or while
 waiting to a content-free retryable failure and closes the supplied descriptor.
 Cancellation stops Memora's local wait; it is not a claim that Android immediately
 terminates an isolated process. Measured resource budgets, an offline runtime check,
-live service-death recovery, a bounded result protocol, fresh-grant verification,
-atomic persistence design, and an explicit user-facing flow remain mandatory gates.
+live service-death recovery, a bounded result protocol, atomic persistence design,
+and an explicit user-facing flow remain mandatory gates.
 The explicit private binding adapter and ordinary-process client are now
 emulator-verified together through one repository-owned descriptor; this still does
 not enable a real source. A versioned, bounded page/text result protocol remains a
@@ -434,8 +434,18 @@ The ordinary process converted the resulting Binder loss into a retryable,
 content-free failure, closed its descriptor, and marked the connection unavailable.
 This verifies live service-death recovery without changing the production Binder
 interface, service behavior, or app permissions. Representative resource budgets,
-fresh-grant validation, real-source access, atomic persistence, and visible recovery
-remain mandatory gates.
+real-source descriptor access, atomic persistence, and visible recovery remain
+mandatory gates.
+
+On 2026-07-23, the Medium Phone emulator passed the one-test fresh-SAF-grant
+regression after the user explicitly reconnected an emulator Documents folder. The
+new source-neutral `DocumentTreeAccessValidator` confirms the exact private tree
+reference still has an Android persisted read grant before discovery. Its Android
+adapter reads only the retained permission list; it does not contact a provider,
+open a document or descriptor, parse a PDF, persist an extraction, bind the parser,
+or access a network. The pure matcher also rejects a different tree and an exact
+tree lacking read permission. This closes the narrow fresh-grant validation gate
+only; it does not authorize real-source descriptor opening or parsing.
 
 For the required offline-runtime verification, the instrumentation test temporarily
 adopts Android's test-shell identity for the normal `ACCESS_NETWORK_STATE` permission

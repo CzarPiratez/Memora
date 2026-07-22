@@ -54,6 +54,9 @@ class SafPdfDiscoverySourceIntegrationTest {
         )
         val source = SafPdfDiscoverySource(
             approval = approval,
+            accessValidator = ContentResolverDocumentTreeAccessValidator(
+                InstrumentationRegistry.getInstrumentation().targetContext,
+            ),
             catalog = ContentResolverSafDocumentTreeCatalog(
                 InstrumentationRegistry.getInstrumentation().targetContext,
             ),

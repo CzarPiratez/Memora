@@ -8,8 +8,6 @@ package com.memora.app.data.saf
  * adapter and is intentionally opaque to the discovery domain.
  */
 interface SafDocumentTreeCatalog {
-    suspend fun hasPersistedReadAccess(treeUri: String): Boolean
-
     suspend fun readChildMetadataPage(
         treeUri: String,
         parentDocumentId: String?,

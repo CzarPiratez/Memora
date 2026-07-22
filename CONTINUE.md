@@ -358,12 +358,24 @@ app permission, or user source.
 
 ## Next approved engineering step
 
-Implement the source-neutral **fresh SAF read-grant validation boundary** that must
-run before any future ordinary process can duplicate/open a document descriptor for
-the isolated parser. First inspect the existing persisted tree-approval/revocation
-code and document the exact grant, identity, and failure contract. The smallest code
-change may not open a document, call the parser/service, index a user PDF, persist an
-extraction, or make real-source parsing eligible.
+The source-neutral fresh SAF read-grant boundary is verified. On 2026-07-23, the
+user reran `SafPdfDiscoverySourceIntegrationTest` on the Medium Phone emulator
+after explicitly reconnecting an emulator Documents folder: **1 test passed**. The
+new `DocumentTreeAccessValidator` checks only Android's persisted grant list for
+the exact private tree reference and retained read permission. The matcher’s 3
+focused local tests and Kotlin/unit-test/Android-test compilation passed. The gate
+does not query a provider, open a document or descriptor, parse a PDF, persist an
+extraction, call the service, invoke AI, or access a network.
+
+## Next approved engineering step
+
+Define and test the source-neutral **approved-PDF descriptor custody contract** for
+the future ordinary-process adapter. It must describe the exact Asset/source
+identity checks, mandatory fresh-grant position, descriptor owner/closure rules,
+and content-free revoked/mismatch failure before any parser call. The smallest code
+change must be pure/domain-only: it may not open a URI, create a descriptor, call the
+isolated parser, read a user PDF, persist extraction data, or make real-source
+parsing eligible.
 
 ## Important open decision
 

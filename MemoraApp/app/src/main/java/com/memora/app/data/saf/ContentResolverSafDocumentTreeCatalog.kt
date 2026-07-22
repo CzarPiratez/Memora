@@ -22,13 +22,6 @@ class ContentResolverSafDocumentTreeCatalog(
 ) : SafDocumentTreeCatalog {
     private val resolver: ContentResolver = context.applicationContext.contentResolver
 
-    override suspend fun hasPersistedReadAccess(treeUri: String): Boolean = withContext(Dispatchers.IO) {
-        val requestedUri = Uri.parse(treeUri)
-        resolver.persistedUriPermissions.any { permission ->
-            permission.uri == requestedUri && permission.isReadPermission
-        }
-    }
-
     override suspend fun readChildMetadataPage(
         treeUri: String,
         parentDocumentId: String?,

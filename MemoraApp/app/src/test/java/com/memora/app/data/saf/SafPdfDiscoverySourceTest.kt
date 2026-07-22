@@ -4,6 +4,7 @@ import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.discovery.DiscoveryCursor
 import com.memora.app.domain.discovery.DiscoveryRequest
 import com.memora.app.domain.discovery.DiscoveryResult
+import com.memora.app.domain.discovery.DocumentTreeAccessValidator
 import com.memora.app.domain.discovery.DocumentTreeSource
 import com.memora.app.domain.discovery.SourceAccessState
 import java.time.Clock
@@ -24,12 +25,19 @@ class SafPdfDiscoverySourceTest {
 
     @Test
     fun `revoked persisted grant is explicit and does not query metadata`() = runTest {
-        val catalog = FakeCatalog(hasAccess = false)
-        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val catalog = FakeCatalog()
+        val accessValidator = FakeAccessValidator(SourceAccessState.ACCESS_REVOKED)
+        val source = SafPdfDiscoverySource(
+            approval,
+            accessValidator,
+            catalog,
+            fixedClock,
+        )
 
         assertEquals(SourceAccessState.ACCESS_REVOKED, source.accessState())
         assertEquals(DiscoveryResult.AccessRevoked, source.discover(DiscoveryRequest()))
         assertEquals(0, catalog.readCalls)
+        assertEquals(2, accessValidator.calls)
     }
 
     @Test
@@ -43,7 +51,12 @@ class SafPdfDiscoverySourceTest {
                 hasMore = true,
             ),
         )
-        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val source = SafPdfDiscoverySource(
+            approval,
+            FakeAccessValidator(),
+            catalog,
+            fixedClock,
+        )
 
         val result = source.discover(DiscoveryRequest(batchSize = 2))
 
@@ -85,7 +98,12 @@ class SafPdfDiscoverySourceTest {
                 ),
             ),
         )
-        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val source = SafPdfDiscoverySource(
+            approval,
+            FakeAccessValidator(),
+            catalog,
+            fixedClock,
+        )
 
         val rootResult = source.discover(DiscoveryRequest(batchSize = 2)) as DiscoveryResult.Page
         assertEquals(listOf("root-pdf"), rootResult.value.assets.map { it.identity.sourceAssetKey.value })
@@ -112,7 +130,12 @@ class SafPdfDiscoverySourceTest {
                 hasMore = false,
             ),
         )
-        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val source = SafPdfDiscoverySource(
+            approval,
+            FakeAccessValidator(),
+            catalog,
+            fixedClock,
+        )
         val legacyCursor = DiscoveryCursor(
             sourceId = approval.sourceId,
             value = "saf-pdf-v1:b2xkZXI",
@@ -128,7 +151,12 @@ class SafPdfDiscoverySourceTest {
     @Test
     fun `rejects a cursor belonging to another source without querying metadata`() = runTest {
         val catalog = FakeCatalog()
-        val source = SafPdfDiscoverySource(approval, catalog, fixedClock)
+        val source = SafPdfDiscoverySource(
+            approval,
+            FakeAccessValidator(),
+            catalog,
+            fixedClock,
+        )
         val foreignCursor = SafPdfDiscoveryCheckpoint(
             sourceId = SourceId("android-saf-document-tree:other"),
             frames = listOf(
@@ -146,6 +174,7 @@ class SafPdfDiscoverySourceTest {
     fun `catalog failures stay retryable and never look like an empty folder`() = runTest {
         val source = SafPdfDiscoverySource(
             approval = approval,
+            accessValidator = FakeAccessValidator(),
             catalog = FakeCatalog(readFailure = IllegalStateException("provider unavailable")),
             clock = fixedClock,
         )
@@ -159,6 +188,7 @@ class SafPdfDiscoverySourceTest {
     fun `security loss during metadata query is reported as revoked`() = runTest {
         val source = SafPdfDiscoverySource(
             approval = approval,
+            accessValidator = FakeAccessValidator(),
             catalog = FakeCatalog(readFailure = SecurityException("grant removed")),
             clock = fixedClock,
         )
@@ -180,7 +210,6 @@ class SafPdfDiscoverySourceTest {
     )
 
     private class FakeCatalog(
-        private val hasAccess: Boolean = true,
         private val page: SafDocumentTreeMetadataPage = SafDocumentTreeMetadataPage(emptyList(), false),
         private val pagesByParentDocumentId: Map<String?, SafDocumentTreeMetadataPage> = emptyMap(),
         private val readFailure: Exception? = null,
@@ -189,8 +218,6 @@ class SafPdfDiscoverySourceTest {
         val requestedParentDocumentIds = mutableListOf<String?>()
         var requestedAfterDocumentId: String? = null
         var requestedLimit: Int? = null
-
-        override suspend fun hasPersistedReadAccess(treeUri: String): Boolean = hasAccess
 
         override suspend fun readChildMetadataPage(
             treeUri: String,
@@ -204,6 +231,17 @@ class SafPdfDiscoverySourceTest {
             requestedLimit = limit
             readFailure?.let { throw it }
             return pagesByParentDocumentId[parentDocumentId] ?: page
+        }
+    }
+
+    private class FakeAccessValidator(
+        private val state: SourceAccessState = SourceAccessState.GRANTED,
+    ) : DocumentTreeAccessValidator {
+        var calls: Int = 0
+
+        override suspend fun accessState(approval: com.memora.app.domain.discovery.DocumentTreeApproval): SourceAccessState {
+            calls += 1
+            return state
         }
     }
 

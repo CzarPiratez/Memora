@@ -34,6 +34,18 @@ interface DocumentTreeApprovalRepository {
     suspend fun findAll(): List<DocumentTreeApproval>
 }
 
+/**
+ * Checks whether Android still grants read access to one exact user-approved
+ * document tree.
+ *
+ * This boundary does not list documents, open a document descriptor, or parse any
+ * source content. Discovery and future extraction adapters must use it immediately
+ * before their respective source operation.
+ */
+interface DocumentTreeAccessValidator {
+    suspend fun accessState(approval: DocumentTreeApproval): SourceAccessState
+}
+
 /** Creates a stable private identity for one Android SAF document-tree reference. */
 object DocumentTreeSource {
     private const val SOURCE_ID_PREFIX = "android-saf-document-tree:"
