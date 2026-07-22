@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Canonical SAF PDF target boundary
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A SAF data/platform factory now derives an internal future opening
+  target from the approved tree plus opaque source document ID. It does not trust a
+  stored location as opening authority and rejects non-PDF, source-mismatch, invalid
+  tree, and foreign-provider cases before any platform I/O.
+- **Verification:** On 2026-07-23, the user ran
+  `SafPdfCanonicalDocumentTargetFactoryIntegrationTest` on the Medium Phone emulator:
+  **5 tests passed**.
+- **Truthfulness:** The test uses five synthetic URI-only cases. This component
+  performs no grant validation, provider query, descriptor open, parser call, source
+  read, persistence, UI, WorkManager, AI, or network operation.
+
 ### Approved Android PDF descriptor-broker design
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

@@ -410,6 +410,14 @@ tree-derived target construction, read-only opening, descriptor ownership/closur
 and safe denial paths. It must not touch user PDFs, UI, WorkManager, Room extraction
 persistence, semantic understanding, AI, or the network.
 
+The first canonical-target component is verified. On 2026-07-23, the user ran
+`SafPdfCanonicalDocumentTargetFactoryIntegrationTest` on the Medium Phone emulator:
+**5 tests passed**. It accepts a PDF only from the exact approved source, derives its
+internal Android target from the approved tree plus opaque source document ID, and
+rejects raw foreign locations without opening them. The test has five synthetic-only
+cases and does not include a provider fixture, retained-grant sequencing, descriptor
+opening, parser invocation, persistence, or visible app behavior.
+
 ## Important open decision
 
 The PRD requires automatic indexing of existing notes but also excludes user accounts

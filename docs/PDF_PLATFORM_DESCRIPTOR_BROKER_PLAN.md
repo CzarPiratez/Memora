@@ -176,6 +176,23 @@ Room extraction persistence, semantic understanding, or real user documents. It
 must pass the targeted unit and emulator tests above, add no permission or dependency,
 and leave the running app's visible behavior unchanged.
 
+## Delivery checkpoint: canonical target boundary
+
+The first broker component is now implemented as
+`SafPdfCanonicalDocumentTargetFactory` in the SAF data/platform layer. It constructs
+an internal target exclusively from the approved tree URI and opaque
+`SourceAssetKey`; it never uses the stored `AssetLocation` as an opening target. It
+rejects non-PDF Assets, source mismatch, invalid/non-content tree approval, and a
+location from another provider. It does not query a provider, validate a grant, open
+a descriptor, read a source, call the parser, persist data, or change UI.
+
+`SafPdfCanonicalDocumentTargetFactoryIntegrationTest` contains five Android tests
+for these rules. They use only synthetic URI strings and no document provider; the
+test-only provider fixture and all descriptor-opening behavior remain the next
+separate slice. On 2026-07-23, the user ran this test on the Medium Phone emulator:
+**5 tests passed**. It did not request permission or open a provider, descriptor,
+document, parser, database, UI, worker, AI capability, or network connection.
+
 ## Pre-work record
 
 - **Governing sources checked:** product registry, Local AI technical specification,
