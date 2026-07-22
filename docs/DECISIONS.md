@@ -427,6 +427,16 @@ return page text. The full threat model, rejected alternatives, and
 implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.
 
+On 2026-07-23, the Medium Phone emulator passed the one-test live isolated-process
+death harness. It retained a synthetic-only in-flight pipe request, identified exactly
+one isolated-UID process, and used the instrumentation shell to crash that PID alone.
+The ordinary process converted the resulting Binder loss into a retryable,
+content-free failure, closed its descriptor, and marked the connection unavailable.
+This verifies live service-death recovery without changing the production Binder
+interface, service behavior, or app permissions. Representative resource budgets,
+fresh-grant validation, real-source access, atomic persistence, and visible recovery
+remain mandatory gates.
+
 For the required offline-runtime verification, the instrumentation test temporarily
 adopts Android's test-shell identity for the normal `ACCESS_NETWORK_STATE` permission
 only while it inspects the emulator's current network capabilities. It drops that

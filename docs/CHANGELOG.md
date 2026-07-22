@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Verified live isolated PDF parser-process death recovery
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A test-only harness binds the existing private isolated parser service,
+  holds a synthetic pipe request open, identifies exactly one package-matching process
+  with an isolated UID, then induces an Android `am crash <pid>` for that PID alone.
+  It adds no production service behavior, permission, Binder method, or debug kill
+  switch.
+- **Verification:** On 2026-07-23, the user ran
+  `LiveIsolatedPdfParserProcessDeathIntegrationTest` on the Medium Phone emulator:
+  **1 test passed**. The ordinary process returned a retryable content-free failure,
+  closed its supplied descriptor, and marked the Binder connection unavailable.
+- **Truthfulness:** This proves a narrow synthetic live-death recovery path only. It
+  does not authorize real-source access or prove grant validation, result transport,
+  resource limits, persistence, reconnection scheduling, or recovery UI.
+
 ### Verified offline synthetic PDF parser runtime
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

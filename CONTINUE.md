@@ -347,12 +347,23 @@ request. This verifies only the narrow parser offline-runtime gate.
 
 ## Next approved engineering step
 
-Perform the governed feasibility review for a **live in-flight isolated-parser process
-death** test. Inspect the existing private service, Binder connection, and Android
-instrumentation constraints; record a safe, test-only mechanism and acceptance
-criteria before implementing it. Do not add a production kill switch, open a user PDF,
-alter real-source access, persist data, or claim that the existing simulated Binder
-death test proves live process-death recovery.
+The live isolated-parser process-death harness is verified. On 2026-07-23, the user
+ran `LiveIsolatedPdfParserProcessDeathIntegrationTest` on the Medium Phone emulator:
+**1 test passed**. It retained a test-only synthetic pipe request in flight, refused
+to proceed until Android exposed exactly one package-matching process with an isolated
+UID, and used test-shell `am crash <pid>` for that PID alone. The ordinary process
+returned a retryable content-free failure, closed its descriptor, and marked the
+connection unavailable. It changed no production Binder method, service behavior,
+app permission, or user source.
+
+## Next approved engineering step
+
+Implement the source-neutral **fresh SAF read-grant validation boundary** that must
+run before any future ordinary process can duplicate/open a document descriptor for
+the isolated parser. First inspect the existing persisted tree-approval/revocation
+code and document the exact grant, identity, and failure contract. The smallest code
+change may not open a document, call the parser/service, index a user PDF, persist an
+extraction, or make real-source parsing eligible.
 
 ## Important open decision
 

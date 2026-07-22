@@ -317,3 +317,21 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   input/output/timeout policy or measure large documents, memory, battery, thermal,
   process-isolation overhead, offline behavior, real source access, persistence, or
   user-visible recovery.
+
+### Verified live isolated parser-process death recovery
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** The repository contains a test-only live-death harness that binds the
+  existing private isolated parser service, holds a synthetic pipe request open, and
+  uses Android's instrumentation shell to crash only a uniquely identified
+  isolated-UID PID. It adds no production AIDL method, Intent action, debug Binder
+  call, or kill switch.
+- **Emulator verification:** On 2026-07-23, the user ran
+  `LiveIsolatedPdfParserProcessDeathIntegrationTest` on the Medium Phone emulator:
+  1 of 1 test passed. It confirmed a retryable, content-free ordinary-process result,
+  supplied-descriptor closure, and unavailable connection after the live isolated
+  service process died.
+- **Known limitation:** This is a synthetic-only death-recovery test. It does not
+  prove fresh SAF grant validation, real-source safety, bounded page-text transport,
+  production resource limits, persistence, reconnection scheduling, or visible user
+  recovery.
