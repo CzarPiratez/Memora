@@ -420,7 +420,9 @@ malformed result. On 2026-07-22, the user verified all ten contract tests in And
 Studio. It does not alter the current status-only Binder service. No partial result
 becomes searchable. A strict Android Bundle codec now feeds the same validator and
 has been emulator-verified with synthetic fields only; it is not wired into the
-service. Measured limit selection remains mandatory before any service change that
-could return page text. The full threat model, rejected alternatives, and
+service. An initial synthetic-only Android benchmark baseline now records aggregate
+two-page and no-text fixture measurements, but establishes no production limit.
+Measured limit selection remains mandatory before any service change that could
+return page text. The full threat model, rejected alternatives, and
 implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.

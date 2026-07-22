@@ -301,3 +301,19 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   service and opens no descriptor, URI, or source.
 - **Known limitation:** this is not a service codec rollout, real source, live
   process-death, offline, persistence, or user-visible recovery test.
+
+### Verified initial synthetic measurement baseline
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** a test-only Android harness parses only repository-owned in-memory PDF
+  fixtures after PDFBox runtime initialization, then measures aggregate page count,
+  UTF-16 text length, future-result Bundle size, and local elapsed time. It logs no
+  source text or metadata and does not bind the service or access a descriptor, URI,
+  SAF grant, Room, UI, WorkManager, AI, or network.
+- **Emulator verification:** On 2026-07-22, the connected Medium Phone emulator ran
+  `PdfParserSyntheticBenchmarkIntegrationTest`: 2 of 2 tests passed. The recorded
+  values are in `docs/PDF_PARSER_BENCHMARK_PLAN.md`.
+- **Known limitation:** the tiny fixture baseline does not establish a production
+  input/output/timeout policy or measure large documents, memory, battery, thermal,
+  process-isolation overhead, offline behavior, real source access, persistence, or
+  user-visible recovery.

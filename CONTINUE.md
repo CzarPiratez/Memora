@@ -291,15 +291,29 @@ UI, schedule WorkManager, or invoke AI.
 
 ## Next approved engineering step
 
-Create the synthetic-only benchmark plan and Android test harness required to choose
-measured parser-result limits before any status-only service is allowed to return
-page text. It must collect only aggregate fixture metrics—page count, text code-unit
-count, serialized result size, and elapsed local time—without logging text or opening
-a source URI. It must not alter the service protocol, source access, Room, UI,
-WorkManager, or AI. The result is a measurement baseline, not a production limit or
-user-facing performance promise. A live in-flight parser-process-death check, offline
-check, fresh-grant verification, source access, persistence, and user-visible
+The synthetic-only benchmark plan and Android harness are verified. On 2026-07-22,
+`PdfParserSyntheticBenchmarkIntegrationTest` completed on the connected Medium Phone
+emulator: **2 tests passed**. It measured repository fixtures after one warm-up and
+five runs, logging only page count, text code-unit count, serialized future-result
+size, and parser elapsed time. The initial values are recorded in
+`docs/PDF_PARSER_BENCHMARK_PLAN.md`. It logged no text and opened no descriptor, URI,
+SAF or user source. It did not alter the service protocol, source access, Room, UI,
+WorkManager, or AI. This is a measurement baseline, not a production limit or
+user-facing performance promise. A live in-flight parser-process-death check,
+offline check, fresh-grant verification, source access, persistence, and user-visible
 recovery remain separate ADR-017 gates.
+
+## Next approved engineering step
+
+Create a test-only, deterministic synthetic PDF corpus generator and extend the
+benchmark harness with progressively larger text/page cases. It must remain
+repository-owned and in-memory, measure only aggregate fixture and parser-result
+metrics, and record no production limits. It must not bind or change the isolated
+service, open a descriptor/URI/SAF or user source, persist Room data, alter UI,
+schedule WorkManager, or invoke AI. The expanded corpus will support a later,
+evidence-backed input/output policy; it will not by itself close ADR-017's memory,
+battery, thermal, offline, live-process-death, fresh-grant, persistence, or recovery
+gates.
 
 ## Important open decision
 

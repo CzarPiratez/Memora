@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified synthetic PDF parser measurement baseline
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A test-only benchmark plan and Android harness measure aggregate
+  fixture page count, extracted-text UTF-16 code units, future-result Bundle size,
+  and local parser elapsed-time range after a warm-up and five measured runs. They
+  contain no user source access, source text logging, service binding, Room, UI,
+  WorkManager, or AI change.
+- **Verification:** On 2026-07-22, the connected Medium Phone emulator ran
+  `PdfParserSyntheticBenchmarkIntegrationTest`: 2 of 2 tests passed. The documented
+  synthetic baseline is evidence for the harness only, not a production policy.
+
 ### Verified strict parser-result Bundle codec
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
