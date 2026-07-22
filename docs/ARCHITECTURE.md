@@ -92,7 +92,8 @@ that a MediaStore URI, a document URI, and a provider note ID behave the same wa
 4. Extract deterministic facts.
 5. Create a placeholder Memory record with recoverable indexing status.
 6. Run semantic understanding in a bounded worker.
-7. Validate structured output before replacing the placeholder with a searchable Memory.
+7. Validate structured output before creating a searchable, stable-identity Memory
+   revision from the placeholder.
 8. Persist compatible embeddings, evidence, model/extraction versions, and diagnostics
    atomically so the result can be retrieved, explained, or safely retried.
 

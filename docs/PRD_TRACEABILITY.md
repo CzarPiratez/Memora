@@ -35,6 +35,9 @@ the behavior described here.
 | E-01 | Future Event/Knowledge Memories add evidence-backed links without replacing Asset Memories | Domain, application, recall | Contract tests prove source/evidence provenance, reversibility, and non-destructive links | Accepted future architecture; not MVP |
 | E-02 | Future links and derived memories remain explainable with evidence, provenance, matching factors, and calibrated uncertainty | Domain, recall, UI | Explain-mode tests reject unsupported links/explanations | Accepted future architecture; not MVP |
 | E-03 | Future personalization is local, opt-in, reversible, and distinct from raw Memory meaning | Recall, product/privacy | Feedback lifecycle and ranking tests; user-control review | Planned future architecture; not MVP |
+| E-04 | Every Memory has stable identity and traceable revisions; source/model changes do not silently rewrite its history | Domain, data, application | Contract, migration, and revision-history tests | Accepted architecture; planned implementation |
+| E-05 | Every user-visible result has a truthful integrity state and “Why this result?” trust view | Domain, application, recall UI | State-transition and evidence/limitation presentation tests | Accepted architecture; planned implementation |
+| E-06 | Confidence is calibrated and evaluated; overconfident errors are measured and rejected as a quality regression | Evaluation, understanding, recall | Fixture corpus with calibration and false-confidence reports | Accepted architecture; planned implementation |
 
 ## Definition of traceable delivery
 

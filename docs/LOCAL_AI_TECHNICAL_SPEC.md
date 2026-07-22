@@ -1,6 +1,6 @@
 # Memora Local AI Technical Specification
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Accepted engineering authority  
 **Companion to:** `docs/product-source/Memora.docx`  
 **Source basis:** `docs/product-source/Addendum 1.docx` and
@@ -9,6 +9,10 @@
 ## 1. Binding principle
 
 Memora remembers on the user's phone, not in the cloud.
+
+**Truth before intelligence:** Memora must never fabricate certainty to appear
+intelligent. No evidence means no assertion; uncalibrated confidence means no precise
+confidence claim.
 
 Everything required to create, store, retrieve, rank, and explain a Memory must
 run locally after the required on-device capability is installed. Cloud features,
@@ -28,6 +32,10 @@ or evidence-backed explanation rule.
 - **Memory draft:** a private, recoverable intermediate record; it is not searchable.
 - **Memory:** the validated, searchable semantic representation derived from one
   Asset version. It never owns or replaces the original Asset.
+- **Memory identity:** a stable Memora-owned identifier for the same conceptual
+  Memory. It survives valid reprocessing and revision.
+- **Memory revision:** one immutable, provenance-bearing derived representation of a
+  Memory identity. It records why it superseded a prior revision.
 - **Evidence:** a source-derived fact or bounded extracted passage that supports a
   Memory field or an explanation.
 - **AI Pack:** a locally installed, independently versioned set of model assets and
@@ -121,12 +129,21 @@ or source adapter directly.
 
 Every searchable Memory must record:
 
+- stable Memory identity and immutable revision identity;
 - source-neutral Asset identity and immutable fingerprint;
 - extraction schema/version and evidence provenance;
 - understanding schema and capability/model version(s);
 - structured attributes, summary, anchors, and uncertainty/failure state;
 - compatible embedding version and index state;
 - timestamps required for retry, reindex, and explanation.
+
+The model must preserve prior revision provenance and a supersession reason. A new
+extractor, model, embedding, or summary cannot silently overwrite history.
+
+The internal integrity state is one of: `AWAITING_PERMISSION`, `QUEUED`, `INDEXING`,
+`READY`, `STALE_REINDEX_REQUIRED`, `SOURCE_UNAVAILABLE`, `FAILED_SAFELY`, or
+`REMOVED`. State transitions are explicit, recoverable where appropriate, and must
+not make incomplete or failed derived content searchable.
 
 An Asset is not marked searchable until its Memory passes structural validation and
 its supporting evidence is persisted atomically. A malformed model output is a
@@ -146,9 +163,13 @@ per-result generative reasoning. A lightweight local query encoder or determinis
 intent classifier is allowed when needed for semantic retrieval; it must be bounded,
 version-compatible with stored vectors, and work without network access.
 
-Explain Mode uses the stored Memory and its evidence. It never fabricates a reason,
-and it never needs to reopen the original Asset for ordinary recall. If an original
-is unavailable after access revocation, existing explanations must say so truthfully.
+The user-facing name is **Why this result?**; Explain Mode remains the internal
+product/engineering term. It uses the stored Memory and its evidence to present the
+available matching cues, bounded evidence, safe provenance, uncertainty, freshness,
+source availability, and material limitations. It never fabricates a reason, calls a
+result an unsupported “answer,” or needs to reopen the original Asset for ordinary
+recall. If an original is unavailable after access revocation, existing explanations
+must say so truthfully.
 
 ## 10. Offline and availability contract
 
@@ -177,6 +198,20 @@ Every implementation must define:
 - accessible loading, paused, failure, retry, and completed states;
 - polished, recognition-first language that never exposes raw implementation jargon
   where a user needs an understandable choice.
+
+Any capability that displays confidence must additionally define a private,
+representative evaluation corpus and track recall quality, unsupported-claim rate,
+false-link rate where applicable, explanation coverage, calibration, and
+overconfident-error rate. Evidence classes express support/provenance, not an
+automatic truth guarantee:
+
+- **Direct:** a bounded source-derived fact, such as permitted metadata, OCR, PDF
+  text, note text, or EXIF;
+- **Validated observation:** a bounded local model observation with provenance;
+- **Retrieval signal:** similarity or ranking information that may propose a candidate
+  but cannot prove a claim;
+- **Hypothesis:** a clearly tentative possible relationship that needs more evidence
+  or user confirmation.
 
 ## 12. Explicit prohibitions
 
@@ -258,4 +293,4 @@ the user-facing meaning of a completed Memory.
 This section is an architecture target only. It does not enable event detection,
 timelines, personalization, WhatsApp, audio, or any other PRD-excluded MVP feature.
 Its full behavior and staged adoption are governed by
-`docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` and ADR-018.
+`docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md`, ADR-018, and ADR-019.

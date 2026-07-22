@@ -46,11 +46,14 @@ fixtures, and extraction diagnostics.
 
 **Goal:** Convert extracted facts to validated semantic memories.
 
-**Deliverables:** Memory schema, local intelligence interfaces, AI Pack/model registry,
-validated output, retry policy, model-version policy, and privacy disclosure.
+**Deliverables:** Memory schema with stable identity and traceable revisions, local
+intelligence interfaces, AI Pack/model registry, validated output, integrity-state
+policy, retry policy, model-version policy, evidence-class policy, calibrated-
+confidence evaluation plan, and privacy disclosure.
 
 **Exit gate:** malformed output cannot corrupt the repository; every indexed memory
-contains traceable evidence.
+contains traceable evidence, a stable identity, a truthful integrity state, and no
+unsupported confidence claim.
 
 ## Phase 4 - Recall and explanation
 

@@ -1,7 +1,7 @@
-# Experience Memory Amendment v1
+# Experience Memory Amendment v1.1
 
 **Status:** Accepted product-direction amendment; staged beyond the current MVP  
-**Decision:** ADR-018  
+**Decisions:** ADR-018 and ADR-019
 **Governing baseline:** `docs/product-source/Memora.docx` and accepted local-AI
 addenda registered in `docs/PRODUCT_SOURCE_REGISTRY.md`
 
@@ -31,6 +31,11 @@ An Asset Memory is the validated semantic representation of one version of one
 permitted Asset: a photo, screenshot, PDF, or later approved note. It contains
 source-derived evidence, searchable anchors, a concise evidence-cited summary, and
 version/provenance data. It never owns or replaces the original Asset.
+
+An Asset Memory has a stable **Memory ID**. Its source fingerprint, evidence,
+summary, embedding, confidence, and explanation belong to immutable, traceable
+revisions. A valid improvement creates a new revision with a supersession reason; it
+does not silently rewrite the Memory's history or break references to it.
 
 ### 2.2 Link — future correlation primitive
 
@@ -85,7 +90,8 @@ they are available.
 
 ## 4. Explain and Trust contract
 
-Explain Mode is a first-class product surface, not decorative copy. For every search
+**Why this result?** is the user-facing trust surface (Explain Mode is the internal
+term). It is a first-class product surface, not decorative copy. For every search
 result and every future relationship, it must provide the truthful subset that is
 available:
 
@@ -99,9 +105,43 @@ available:
    a memory has been superseded.
 
 It must never fabricate support, overstate a proposed relationship, reopen a source
-for ordinary recall, or present hidden model reasoning as factual explanation.
+for ordinary recall, present hidden model reasoning as factual explanation, or call a
+retrieval result an unsupported chatbot “answer.”
 
-## 5. Embeddings and learning
+## 5. Truth before intelligence and evidence classes
+
+**Truth before intelligence** is a binding rule: Memora must never fabricate
+certainty to appear intelligent. No evidence means no assertion; uncalibrated
+confidence means no precise confidence claim.
+
+Evidence classes describe support and provenance, not automatic truth:
+
+| Class | Meaning | Can it independently justify a durable claim? |
+|---|---|---|
+| Direct | A bounded source-derived fact: permitted metadata, OCR, PDF/note text, or EXIF | Yes, subject to provenance and validation |
+| Validated observation | A bounded, provenance-cited local model observation | Only after its validator accepts it |
+| Retrieval signal | Similarity, embedding, or ranking information | No; candidate generation only |
+| Hypothesis | A tentative possible relationship | No; needs further evidence or user confirmation |
+
+## 6. Memory integrity states
+
+The internal lifecycle is precise and durable:
+
+```text
+AWAITING_PERMISSION -> QUEUED -> INDEXING -> READY
+                         |            |
+                         v            v
+                SOURCE_UNAVAILABLE  FAILED_SAFELY
+
+READY -> STALE_REINDEX_REQUIRED -> QUEUED
+READY -> REMOVED
+```
+
+The UI may use calm language such as “Needs attention,” but it must show the actual
+cause and safe recovery action. Incomplete, stale, unavailable, or failed derived
+content must never appear as a fully ready Memory.
+
+## 7. Embeddings and learning
 
 Embeddings are a versioned retrieval mechanism. They can help discover candidates but
 do not define meaning, create truth, or justify a durable memory/link by themselves.
@@ -111,7 +151,13 @@ selecting, correcting, or dismissing a result. It must be opt-in, inspectable,
 reversible, retained separately from source content and semantic evidence, and unable
 to silently alter a Memory's facts. It is not part of the current MVP.
 
-## 6. Delivery sequence
+## 8. Quality and delivery sequence
+
+Before a capability displays confidence or produces a future link, the team must use
+a representative private evaluation corpus and measure recall quality,
+unsupported-claim rate, explanation coverage, calibration, false-link rate where
+applicable, and overconfident-error rate. A confidently wrong output is a more severe
+failure than a plainly uncertain wrong candidate.
 
 1. Finish the reliable Asset-Memory MVP: permissioned discovery, deterministic
    extraction, validated local understanding, persistence, natural-language recall,
@@ -125,7 +171,7 @@ to silently alter a Memory's facts. It is not part of the current MVP.
 5. Add Knowledge Memory and optional local personalization only after their privacy,
    retention, quality, and user-control contracts are accepted.
 
-## 7. Non-goals and guardrails
+## 9. Non-goals and guardrails
 
 - This amendment does not add WhatsApp, Gmail, Calendar, audio, video, automatic
   timelines, cloud sync, accounts, collaboration, phone-wide chat, or any other
@@ -137,7 +183,7 @@ to silently alter a Memory's facts. It is not part of the current MVP.
 - It does not claim that a correlation, Event Memory, Knowledge Memory, or feedback
   loop exists in current code.
 
-## 8. Current implementation status
+## 10. Current implementation status
 
 Current code has a one-Asset `Memory` domain contract with evidence-cited summaries
 and anchors. It does not yet persist Memories, run Memory Builder/local AI, retrieve
@@ -145,9 +191,9 @@ by semantic recall, render Explain Mode, or implement links, Event Memories,
 Knowledge Memories, timelines, or personalization. This amendment is therefore a
 directional and behavioral contract, not a completion claim.
 
-## 9. Change-control record
+## 11. Change-control record
 
-- **Requirement IDs:** P-01, P-02, P-09–P-13, P-18, A-01–A-05; E-01–E-03.
+- **Requirement IDs:** P-01, P-02, P-09–P-13, P-18, A-01–A-05; E-01–E-06.
 - **Source documents read:** `AGENTS.md`, product-source registry, Local-AI
   specification, governance, `CONTINUE.md`, product contract, architecture, ADRs,
   roadmap, traceability, and current `Memory.kt` domain contract.

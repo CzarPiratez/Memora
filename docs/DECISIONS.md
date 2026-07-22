@@ -494,3 +494,35 @@ future design requirement, not a current behavior.
 data/platform`. The product capability map is now Acquisition -> Understanding ->
 Memory -> Retrieval and Trust -> Experience. Future implementation begins with
 behavioral contracts and pure tests before storage, AI, or UI work.
+
+## ADR-019: Truth before intelligence; stable memory identity and trust evaluation
+
+**Status:** Accepted product and engineering rule
+
+**Decision:** Memora adopts “truth before intelligence” as a binding rule: no
+evidence means no assertion, and uncalibrated confidence means no precise confidence
+claim. Every future Memory receives a stable Memora-owned identity and immutable,
+traceable revisions. Source fingerprints, summaries, embeddings, observations,
+confidence, and explanations may improve only through a documented revision; they do
+not silently rewrite the Memory's history.
+
+**Integrity:** Future persistence and UI must distinguish awaiting permission,
+queued, indexing, ready, stale/re-index-required, source unavailable, failed safely,
+and removed. “Needs attention” may be a friendly UI summary, never a loss of the
+underlying actionable state.
+
+**Trust surface:** The user-facing label is “Why this result?” rather than a promise
+of generic AI explanation. It presents the available matching cues, evidence, safe
+source provenance, uncertainty, freshness, availability, and limitations. Search
+returns evidence-backed results, not unsupported chatbot answers.
+
+**Quality:** Evidence is classified as direct, validated observation, retrieval
+signal, or hypothesis. These classes describe provenance/support, not guaranteed
+truth. Any future confidence display needs a representative evaluation corpus and
+must measure calibration and overconfident errors alongside recall quality,
+false-link rate, and explanation coverage.
+
+**Consequences:** This decision adds no source, permission, model, storage schema,
+UI, network path, or current-MVP feature. It adds E-04 through E-06 to the
+traceability matrix. The next implementation of Memory persistence/creation must
+start with a small pure identity/revision/integrity-state contract and tests.

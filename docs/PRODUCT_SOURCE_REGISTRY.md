@@ -27,7 +27,7 @@ documents or expanding the current MVP source scope:
 
 | Amendment | Authority | Scope |
 |---|---|---|
-| `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | User-approved product direction; ADR-018 | Evidence-first Asset Memories are the MVP foundation. Event, Knowledge, and relationship memories are a future, staged evolution. |
+| `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | User-approved product direction; ADR-018 and ADR-019 | Evidence-first Asset Memories are the MVP foundation. Event, Knowledge, and relationship memories are a future, staged evolution governed by truth before intelligence. |
 
 An internal amendment may not silently enable a source, permission, cloud path, or
 feature excluded by the immutable PRD. Such a change still requires an explicit

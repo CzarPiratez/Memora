@@ -53,8 +53,22 @@ responsible for incremental indexing.
 - Natural-language queries use remembered cues such as person, place, object, time,
   purpose, and topic.
 - Results are ranked from stored semantic evidence, not filename matching alone.
-- Explain Mode states the evidence that made a result match.
+- The user-facing trust surface is **Why this result?** (internally, Explain Mode).
+  It states the matching cues, evidence, safe source/provenance, uncertainty, source
+  availability, and material limitations of the result.
 - Search never fabricates facts that are absent from the memory record.
+- A user sees an evidence-backed result, not an unsupported chatbot answer.
+
+## Memory integrity contract
+
+Every Memory has a stable identity. Its source fingerprint, evidence, summary,
+embedding, confidence, and explanation may evolve through traceable revisions; the
+identity never changes merely because the implementation improves.
+
+The system must distinguish truthful internal states: `AWAITING_PERMISSION`,
+`QUEUED`, `INDEXING`, `READY`, `STALE_REINDEX_REQUIRED`, `SOURCE_UNAVAILABLE`,
+`FAILED_SAFELY`, and `REMOVED`. The UI may present a calm, plain-language umbrella
+such as “Needs attention,” but must not conceal the actionable reason.
 
 ## Privacy contract
 

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Frozen trust, identity, and quality rules
+
+- **Requirements:** P-09–P-13, A-01–A-05, E-04–E-06.
+- **Delivered:** ADR-019 and Experience Memory Amendment v1.1 establish stable
+  Memory identity/revisions, “truth before intelligence,” explicit integrity states,
+  user-facing `Why this result?`, evidence-support classes, and calibration/
+  overconfident-error evaluation requirements.
+- **Truthfulness:** Documentation only. The current one-Asset `Memory` code does not
+  yet implement Memory IDs, revisions, persistence, state presentation, confidence,
+  evaluation, or `Why this result?` UI.
+- **Verification:** Cross-reference review completed against the governing product
+  documents, current Memory contract, architecture, ADRs, roadmap, and traceability.
+
 ### Governed Experience Memory direction and behavioral boundary
 
 - **Requirements:** P-01, P-02, P-09 through P-13, P-18; A-01 through A-05; future

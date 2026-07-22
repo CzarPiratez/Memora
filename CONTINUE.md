@@ -124,6 +124,11 @@ The immediate work remains the reliable Asset-Memory MVP. Do not redesign this
 direction casually. Define and test behavior before future correlation, graph, or AI
 implementation, and do not represent future capabilities as already shipped.
 
+ADR-019 strengthens this freeze with stable Memory identity/revisions, the “truth
+before intelligence” rule, explicit integrity states, user-facing `Why this result?`,
+evidence-strength classes, and false-confidence evaluation. Treat these as binding
+acceptance criteria for all future Memory, recall, explanation, and AI work.
+
 ## Last verified behavior
 
 - Gradle sync completed in Android Studio.
