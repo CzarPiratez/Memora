@@ -271,3 +271,19 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   descriptor closure in one synthetic-only round trip.
 - **Known limitation:** this is not a real source, fresh-grant, bounded page/text
   protocol, live process-death, offline, persistence, or user-visible recovery test.
+
+### Verified bounded parser-result contract
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** a pure Kotlin validator defines a future versioned page-text result
+  shape, complete page/chunk coverage, and injected maximum values for page count,
+  chunks per page, page-text UTF-16 code units, and total-text UTF-16 code units.
+  It rejects malformed data without returning candidate text. It has no Android,
+  Binder, descriptor, source, Room, UI, WorkManager, AI, or network dependency.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserResultContractTest` in Android Studio: 10 of 10 tests passed.
+  The current private service remains status-only; this contract does not enable a
+  source or text output.
+- **Known limitation:** measured production limits, a Binder codec, a live
+  process-death test, offline verification, fresh-grant check, source access,
+  persistence, and user-visible recovery remain separate ADR-017 gates.

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Verified bounded parser-result contract
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A pure validator now defines the future versioned page-text result
+  shape. It requires complete page/chunk coverage and an injected, explicit limit for
+  page count, chunks per page, page-text UTF-16 code units, and total-text UTF-16
+  code units. Rejection exposes no candidate content; a later transport must map it
+  to a retryable content-free outcome.
+- **Verification:** On 2026-07-22, the user ran
+  `IsolatedPdfParserResultContractTest` in Android Studio: 10 of 10 tests passed.
+  The current Binder service still returns status only; this change opens no
+  descriptor or source and enables no PDF content return.
+
 ### Verified isolated parser end-to-end transport
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

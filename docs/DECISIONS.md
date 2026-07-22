@@ -413,7 +413,11 @@ atomic persistence design, and an explicit user-facing flow remain mandatory gat
 The explicit private binding adapter and ordinary-process client are now
 emulator-verified together through one repository-owned descriptor; this still does
 not enable a real source. A versioned, bounded page/text result protocol remains a
-mandatory gate before the service can return content. No partial result becomes
-searchable. The full threat model, rejected alternatives, and implementation gates
-are in
+mandatory gate before the service can return content. Its first pure validation
+contract accepts injected limits rather than unmeasured production constants, requires
+complete page/chunk coverage, and emits no candidate content when it rejects a
+malformed result. On 2026-07-22, the user verified all ten contract tests in Android
+Studio. It does not alter the current status-only Binder service. No partial result
+becomes searchable. The full threat model, rejected alternatives, and
+implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.

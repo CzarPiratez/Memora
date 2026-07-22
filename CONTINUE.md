@@ -271,14 +271,24 @@ or AI.
 
 ## Next approved engineering step
 
-Define and unit-test the versioned, bounded parser-result protocol before changing
-the isolated service to return page text. The contract must validate explicit maximum
-page count, page-text size, and total result size; reject unknown or malformed
-versions; and expose a retryable, content-free failure rather than a partial truth.
-It must use only synthetic strings in pure tests, with no Binder service change, PDF
-descriptor, SAF URI, user source, Room, UI, WorkManager, or AI. A live in-flight
-parser-process-death check, offline check, fresh-grant verification, source access,
-persistence, and user-visible recovery remain separate ADR-017 gates.
+The pure bounded-result contract is verified. On 2026-07-22, the user ran
+`IsolatedPdfParserResultContractTest` in Android Studio: **10 tests passed**. It
+verifies the future page-text response contract: known schema version, complete page
+coverage, final chunk sequence, injected maximum page/chunk/page-text/total-text
+limits, no-text truthfulness, and content-free rejection of malformed data. It uses
+only synthetic strings and has no Binder service change, PDF descriptor, SAF URI,
+user source, Room, UI, WorkManager, or AI.
+
+## Next approved engineering step
+
+Define and Android-test a strict future `Bundle` codec that translates the bounded
+wire fields into the already-verified pure result contract. It must reject unknown or
+missing fields and map every rejection to a content-free retryable status. It may use
+only synthetic fields and Android test `Bundle` objects; it must not change the
+isolated service, open a descriptor, access a SAF URI or user source, persist Room
+data, alter UI, schedule WorkManager, or invoke AI. A live in-flight parser-process-
+death check, offline check, fresh-grant verification, source access, persistence, and
+user-visible recovery remain separate ADR-017 gates.
 
 ## Important open decision
 
