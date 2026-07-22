@@ -455,3 +455,42 @@ test-APK manifests remain unchanged: neither declares `ACCESS_NETWORK_STATE` nor
 `INTERNET`. The test has no network client and makes no network request. This is
 preferable to a manually supplied “offline” flag, which would not prove the runtime
 condition, or adding network-state visibility to either shipped package.
+
+## ADR-018: Memora evolves through evidence-backed linking, not destructive grouping
+
+**Status:** Accepted product-direction architecture; future phases only
+
+**Decision:** Memora's long-term destination is Personal Knowledge Infrastructure,
+not a conventional file browser or a static embedding index. The MVP foundation is an
+evidence-backed **Asset Memory** derived from one Asset version. Future Event Memories
+and Knowledge Memories may reference Asset Memories only through versioned,
+evidence-backed links. They must not replace, delete, or silently merge the underlying
+Asset Memories or original user sources.
+
+**Reason:** People recall events, projects, decisions, relationships, and other
+meaningful context—not merely individual files. At the same time, false associations
+are harmful in a personal retrieval product. "Linking" preserves provenance and makes
+uncertainty visible; "grouping" implies a certainty and ownership that Memora cannot
+honestly claim.
+
+**Trust contract:** Every future link or derived memory must expose, in appropriate
+user-facing form, its supporting evidence, source/provenance, matching factors, and
+calibrated confidence or uncertainty. Explain Mode may never fabricate a relationship
+or disclose invented model reasoning. Embeddings are candidate-retrieval aids, never
+sufficient evidence for a durable relationship.
+
+**Memory evolution:** A derived Memory may gain a newer version when permitted new
+evidence, a changed source, or an approved schema/model change justifies it. The prior
+provenance and reason for supersession remain recoverable. A model update cannot
+silently rewrite a user's completed Memory.
+
+**Scope boundary:** This direction does not alter the current PRD MVP or P-18.
+WhatsApp, audio, automatic experience detection/timeline generation, and broad
+cross-source fusion are not now enabled. Future source access still needs its own
+approved provider/privacy contract. Local, opt-in, reversible personalization is a
+future design requirement, not a current behavior.
+
+**Consequences:** The technical architecture remains `UI -> application -> domain ->
+data/platform`. The product capability map is now Acquisition -> Understanding ->
+Memory -> Retrieval and Trust -> Experience. Future implementation begins with
+behavioral contracts and pure tests before storage, AI, or UI work.

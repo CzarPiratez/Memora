@@ -19,6 +19,20 @@ an untracked desktop file.
    implementation-facing interpretation; it must not weaken Addendum 1.
 4. When an ambiguity remains, stop, record an ADR, and ask for a product decision.
 
+## Governed internal amendments
+
+The following repository-owned amendment is an accepted product-direction decision.
+It clarifies Memora's long-term architecture without rewriting the immutable source
+documents or expanding the current MVP source scope:
+
+| Amendment | Authority | Scope |
+|---|---|---|
+| `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | User-approved product direction; ADR-018 | Evidence-first Asset Memories are the MVP foundation. Event, Knowledge, and relationship memories are a future, staged evolution. |
+
+An internal amendment may not silently enable a source, permission, cloud path, or
+feature excluded by the immutable PRD. Such a change still requires an explicit
+product decision and a recorded ADR.
+
 ## Immutable source copies
 
 | Source document | Repository copy | SHA-256 |

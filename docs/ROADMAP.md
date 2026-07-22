@@ -71,6 +71,25 @@ evidence rather than invented text.
 
 **Exit gate:** notes are re-indexed incrementally without manual per-note sharing.
 
+## Post-MVP evolution - evidence-linked memory system
+
+**Goal:** Build on a proven Asset-Memory retrieval foundation without losing source
+provenance or making unsupported claims about a person's life or knowledge.
+
+**Deliverables:** a versioned link model; deterministic and semantic candidate
+generation; validated correlation decisions; Event Memory and Knowledge Memory
+contracts; Memory Evolution/supersession policy; evidence-backed trust cards; and a
+local, opt-in, reversible ranking-feedback design.
+
+**Exit gate:** every proposed relationship is separately explainable, reversible, and
+bounded by evidence. Asset Memories remain independently retrievable. No link or
+derived memory is created solely from an embedding, and no excluded source is silently
+introduced.
+
+**Not a current-MVP gate:** this phase does not delay completion of the PRD MVP. It
+does not make WhatsApp, audio, automatic timelines, or other P-18 exclusions current
+features.
+
 ## Mandatory quality gates for every phase
 
 - The mandatory pre-work gate in `docs/GOVERNANCE.md` is completed before work starts.

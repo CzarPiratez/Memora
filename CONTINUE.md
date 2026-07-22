@@ -115,6 +115,15 @@ opened or altered.
 No implementation begins until this read gate is complete and the next change is
 mapped to its requirements, acceptance criteria, risks, and verification plan.
 
+## Frozen product-direction concepts
+
+ADR-018 and `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` now freeze the following
+direction: offline-first; Asset Memories; evidence-first construction; Memory
+Builder; Explain/Trust; a future Memory Graph; and future Event/Knowledge Memories.
+The immediate work remains the reliable Asset-Memory MVP. Do not redesign this
+direction casually. Define and test behavior before future correlation, graph, or AI
+implementation, and do not represent future capabilities as already shipped.
+
 ## Last verified behavior
 
 - Gradle sync completed in Android Studio.

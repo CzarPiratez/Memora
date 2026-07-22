@@ -1,6 +1,6 @@
 # Memora Local AI Technical Specification
 
-**Version:** 1.0  
+**Version:** 1.1
 **Status:** Accepted engineering authority  
 **Companion to:** `docs/product-source/Memora.docx`  
 **Source basis:** `docs/product-source/Addendum 1.docx` and
@@ -210,3 +210,52 @@ Before every meaningful delivery step, the engineer must consult
 traceability matrix. The delivery record must name the exact requirement IDs,
 current-code evidence, decision/conflict check, acceptance criteria, and verification
 result. No work proceeds from conversational memory alone.
+
+## 15. Evidence-first memory evolution (accepted future direction)
+
+The current unit of indexing is an **Asset Memory**: one validated, searchable
+semantic representation of one Asset version. It is the durable foundation and is
+never deleted or overwritten merely because later correlation finds a possible
+relationship.
+
+After Asset Memory creation, a separately governed local correlation capability may
+propose an evidence-backed **link**. A link is not a claim that all linked items are
+one thing. It records its relationship type, supporting evidence, confidence or
+uncertainty, provenance/version, and lifecycle state. A link may be rejected, expire,
+or be superseded without harming its member Asset Memories.
+
+Future memory levels are additive:
+
+```text
+Asset Memory -> evidence-backed links -> Event Memory -> Knowledge Memory
+```
+
+- **Event Memory:** a tentative or confirmed representation of an occurrence such as
+  a dinner, trip, meeting, or purchase. It references member Asset Memories and
+  links; it never owns, replaces, or silently merges original Assets or their
+  Asset Memories.
+- **Knowledge Memory:** an evolving, evidence-backed representation of a subject such
+  as a project, decision, idea, person, or place. It is not a generic chatbot answer
+  or an untraceable summary.
+
+Every relationship, Event Memory, and Knowledge Memory must remain explainable from
+stored evidence. It must answer, in user-facing language: what evidence supports the
+link, where that evidence came from, why it was considered relevant, and how certain
+Memora is. "Reasoning" means inspectable matching factors and citations, not invented
+facts or an unsupported disclosure of model-private reasoning.
+
+Embeddings remain a versioned retrieval aid. They may suggest candidates but cannot,
+on their own, create a durable link, Event Memory, Knowledge Memory, or explanation.
+The Memory Builder is the authoritative validation boundary for memory construction;
+future correlation/linking must use an equally validated boundary.
+
+Memory is evolutionary, not immutable. A new evidence-backed version can supersede a
+prior derived representation when new permitted evidence, a source change, or an
+approved schema/model upgrade justifies it. Prior provenance, the supersession reason,
+and user control must remain recoverable. A model update alone may not silently change
+the user-facing meaning of a completed Memory.
+
+This section is an architecture target only. It does not enable event detection,
+timelines, personalization, WhatsApp, audio, or any other PRD-excluded MVP feature.
+Its full behavior and staged adoption are governed by
+`docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` and ADR-018.

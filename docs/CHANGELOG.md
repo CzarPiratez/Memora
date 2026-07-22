@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Governed Experience Memory direction and behavioral boundary
+
+- **Requirements:** P-01, P-02, P-09 through P-13, P-18; A-01 through A-05; future
+  architecture IDs E-01 through E-03.
+- **Delivered:** User-approved `EXPERIENCE_MEMORY_AMENDMENT_V1`, ADR-018, an updated
+  Local-AI specification, product capability map, roadmap, and traceability entries.
+  They establish Personal Knowledge Infrastructure as Memora's long-term direction:
+  Asset Memories remain the MVP foundation; future Event and Knowledge Memories use
+  evidence-backed links rather than destructive grouping.
+- **Truthfulness:** This is governance and behavioral specification only. It adds no
+  source access, AI dependency, model, event detection, timeline, WhatsApp/audio
+  access, storage schema, UI, or background work. P-18 exclusions remain in force.
+- **Verification:** Documentation cross-reference review against the product source
+  registry, Local-AI specification, product contract, architecture, ADRs, roadmap,
+  traceability matrix, and current one-Asset `Memory` domain contract.
+
 ### Verified fresh SAF read-grant validation boundary
 
 - **Requirements:** P-03, P-05, P-07, P-14, P-15, P-17; Local AI principles A-01,

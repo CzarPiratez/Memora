@@ -32,6 +32,9 @@ the behavior described here.
 | A-05 | Local search ranks stored evidence and provides factual explanation | Recall engine, Room/vector index | Offline semantic recall and evidence-citation tests | Planned |
 | A-06 | Indexing is bounded, battery-aware, cancellable, and truthful under constraints | WorkManager, UI | Constraint, cancellation, retry, and paused-state tests | Planned |
 | A-07 | AI Pack installation/update is explicit, integrity-checked, version-compatible, and does not upload user data | Platform/data, product UI | Offline/install/failure/rollback and disclosure tests | Planned |
+| E-01 | Future Event/Knowledge Memories add evidence-backed links without replacing Asset Memories | Domain, application, recall | Contract tests prove source/evidence provenance, reversibility, and non-destructive links | Accepted future architecture; not MVP |
+| E-02 | Future links and derived memories remain explainable with evidence, provenance, matching factors, and calibrated uncertainty | Domain, recall, UI | Explain-mode tests reject unsupported links/explanations | Accepted future architecture; not MVP |
+| E-03 | Future personalization is local, opt-in, reversible, and distinct from raw Memory meaning | Recall, product/privacy | Feedback lifecycle and ranking tests; user-control review | Planned future architecture; not MVP |
 
 ## Definition of traceable delivery
 

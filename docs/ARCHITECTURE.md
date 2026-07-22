@@ -5,6 +5,29 @@
 Android owns original files and source content. Memora owns only source references,
 deterministic extraction, semantic memory records, and indexing state.
 
+## Product capability map
+
+This map describes what Memora becomes for a person. It is not a replacement for the
+technical layers below, which continue to enforce dependency direction and Android
+safety.
+
+```text
+Acquisition -> Understanding -> Memory -> Retrieval and Trust -> Experience
+```
+
+- **Acquisition:** permissioned, read-only source discovery.
+- **Understanding:** deterministic extraction followed by bounded local intelligence.
+- **Memory:** Asset Memories, evidence, anchors, and—only in future governed phases—
+  evidence-backed links, Event Memories, and Knowledge Memories.
+- **Retrieval and Trust:** recall from stored evidence, evidence-based ranking, and
+  Explain Mode with source, matching factors, and calibrated uncertainty.
+- **Experience:** the calm, recognition-first user experience that helps a person
+  recall without hiding uncertainty or implementation limitations.
+
+The current MVP implements the Asset-Memory foundation only. Event/Knowledge Memory
+and cross-asset links are future architecture, governed by ADR-018 and
+`docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md`.
+
 ```mermaid
 flowchart LR
     A[Platform source adapters] --> B[Asset discovery]

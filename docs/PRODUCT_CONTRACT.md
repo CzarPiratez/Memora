@@ -13,6 +13,20 @@ Every discovered item becomes an Asset. Every indexed Asset becomes a Memory wit
 durable semantic attributes that can be searched later without repeatedly re-reading
 the original source.
 
+## Long-term product direction; current MVP boundary
+
+Memora's approved north star is **Personal Knowledge Infrastructure**: a private,
+local-first system that can help a person recall evidence-backed Asset Memories and,
+in later governed phases, cautiously link them into Event and Knowledge Memories.
+The Android application is one shell for that memory engine; it does not replace the
+engine's evidence, privacy, or source-access boundaries.
+
+The current MVP remains deliberately narrower. It builds reliable Asset Memories from
+the approved source types first. Event Memories, relationship graphs, timelines,
+personalization, and cross-asset correlation are not claimed as current behavior.
+They must follow the behavioral and trust constraints in
+`docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` before they can be implemented.
+
 ## MVP asset types
 
 | Asset type | Required outcome | Primary access model |
@@ -60,6 +74,10 @@ responsible for incremental indexing.
 WhatsApp, Gmail, Calendar, videos, audio, experience detection, timeline, cloud sync,
 user accounts, collaboration, manual tags, folders, saved searches, and phone-wide
 chat are out of scope unless the user explicitly changes the product contract.
+
+The future architecture may define how evidence-backed linking would work if an
+approved source later becomes available. It does not make WhatsApp, audio, automatic
+timeline generation, or any other excluded source/capability part of this MVP.
 
 ## Platform constraint requiring a decision
 
