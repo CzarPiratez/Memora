@@ -394,13 +394,21 @@ real-source parsing eligible.
 
 ## Next approved engineering step
 
-Before implementing any descriptor-opening adapter, specify and review its Android
-platform custody boundary: exact approval lookup, fresh persisted-grant validation
-immediately before use, proof that the requested document belongs to that approved
-tree, one read-only descriptor open, duplication only to the isolated parser, and
-closure/cleanup on every ordinary-process and service path. This remains a separate
-ADR-017 gate; no user document may be opened until the boundary has its own test plan
-and user-approved implementation step.
+The Android platform custody boundary is now specified in
+`docs/PDF_PLATFORM_DESCRIPTOR_BROKER_PLAN.md`. It makes the broker use the approved
+tree plus opaque source document ID rather than a raw stored location, requires two
+fresh retained-grant checks, uses Android subtree membership validation, permits only
+one `"r"` descriptor followed by one duplicate to the private parser client, and
+defines closure/failure tests. This is a design and acceptance plan only: no
+descriptor-opening code exists and no document has been opened.
+
+## Next approved engineering step
+
+Implement the broker only against a test-only, repository-owned synthetic Android
+DocumentsProvider fixture. The first code change must test exact grant sequencing,
+tree-derived target construction, read-only opening, descriptor ownership/closure,
+and safe denial paths. It must not touch user PDFs, UI, WorkManager, Room extraction
+persistence, semantic understanding, AI, or the network.
 
 ## Important open decision
 

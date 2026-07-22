@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Approved Android PDF descriptor-broker design
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** The platform custody plan defines exact SAF approval/grant ordering,
+  opaque document-ID handling, Android subtree membership checks, read-only descriptor
+  ownership, duplicate transfer to the isolated parser, and a synthetic-fixture test
+  matrix.
+- **Truthfulness:** Documentation and review only. No descriptor-opening code, source
+  read, PDF parse, UI, persistence, WorkManager job, AI capability, permission,
+  dependency, or network path was added. Real user-source parsing remains disabled
+  under ADR-017.
+
 ### Verified approved PDF descriptor-custody gate
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
