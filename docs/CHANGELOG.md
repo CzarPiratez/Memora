@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Verified offline synthetic PDF parser runtime
+
+- **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.
+- **Delivered:** A synthetic-only Android test now confirms that the release app
+  requests no `INTERNET` permission, then permits the existing local PDF parser to
+  run only after Android reports the emulator has no Internet-capable or validated
+  network. It obtains network-state visibility through a temporary test-shell identity
+  and drops that identity before parsing; neither app manifest gains a network
+  permission or a network client.
+- **Verification:** On 2026-07-22, the user ran
+  `PdfParserOfflineRuntimeIntegrationTest` on the offline Medium Phone emulator:
+  **2 tests passed**. It parsed only a repository-owned fixture and accessed no user
+  source, descriptor, URI, SAF tree, Room data, service, UI, WorkManager, AI, or
+  network.
+- **Truthfulness:** This closes only the deterministic parser's narrow offline runtime
+  check. It does not authorize real-source parsing or prove future source access,
+  isolated-service behavior, persistence, or semantic understanding offline.
+
 ### Verified many-page synthetic PDF parser baseline
 
 - **Requirements:** P-07, P-14, P-15, P-17; Local AI principles A-01, A-02, A-06.

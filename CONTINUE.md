@@ -333,13 +333,26 @@ and offline benchmark evidence remains separately required.
 
 ## Next approved engineering step
 
-Add a synthetic-only offline-verification harness for the existing deterministic PDF
-parser. It must make the existing no-`INTERNET` manifest guarantee explicit and provide
-a repeatable Medium Phone procedure that runs the parser only after the emulator's
-network has been disabled. It must not open a user PDF, bind or change the isolated
-service, use a descriptor/URI/SAF source, persist Room data, alter UI, schedule
-WorkManager, invoke AI, add a dependency, or claim that a test on a connected emulator
-proves offline behavior.
+The synthetic-only offline verification harness is verified. On 2026-07-22, the user
+ran `PdfParserOfflineRuntimeIntegrationTest` after disabling network access on the
+Medium Phone emulator: **2 tests passed**. It confirmed that the installed release
+app requests no `INTERNET` permission and that the existing deterministic parser runs
+only after Android reports no Internet-capable or validated network. The test
+temporarily adopted and dropped Android's test-shell `ACCESS_NETWORK_STATE` identity
+solely to inspect that condition; both manifests remain without
+`ACCESS_NETWORK_STATE` or `INTERNET`. It opened only a repository-owned synthetic PDF
+and did not bind or change the isolated service, use a descriptor/URI/SAF source,
+persist Room data, alter UI, schedule WorkManager, invoke AI, or make a network
+request. This verifies only the narrow parser offline-runtime gate.
+
+## Next approved engineering step
+
+Perform the governed feasibility review for a **live in-flight isolated-parser process
+death** test. Inspect the existing private service, Binder connection, and Android
+instrumentation constraints; record a safe, test-only mechanism and acceptance
+criteria before implementing it. Do not add a production kill switch, open a user PDF,
+alter real-source access, persist data, or claim that the existing simulated Binder
+death test proves live process-death recovery.
 
 ## Important open decision
 

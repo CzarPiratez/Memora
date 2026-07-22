@@ -426,3 +426,12 @@ Measured limit selection remains mandatory before any service change that could
 return page text. The full threat model, rejected alternatives, and
 implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.
+
+For the required offline-runtime verification, the instrumentation test temporarily
+adopts Android's test-shell identity for the normal `ACCESS_NETWORK_STATE` permission
+only while it inspects the emulator's current network capabilities. It drops that
+identity before parsing the repository-owned synthetic fixture. The production and
+test-APK manifests remain unchanged: neither declares `ACCESS_NETWORK_STATE` nor
+`INTERNET`. The test has no network client and makes no network request. This is
+preferable to a manually supplied “offline” flag, which would not prove the runtime
+condition, or adding network-state visibility to either shipped package.

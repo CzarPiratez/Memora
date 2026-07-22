@@ -93,6 +93,63 @@ The separate ADR-017 gates for live in-flight process death, offline runtime,
 fresh-grant validation, real source access, atomic persistence, and user-visible
 pause/retry/recovery remain open.
 
+## Offline-runtime verification harness
+
+The prepared Android instrumentation class
+`PdfParserOfflineRuntimeIntegrationTest` closes the narrow “offline runtime” evidence
+gap without broadening the production application. It has exactly two checks:
+
+1. It inspects the installed **release-app** manifest and fails if that manifest
+   requests `android.permission.INTERNET`.
+2. It asks Android whether the **emulator** has an Internet-capable or validated
+   network. Only when neither capability is present does it parse the existing
+   repository-owned two-page synthetic fixture and assert its page/text facts.
+
+The production and test-APK manifests are not changed for this test and declare
+neither `INTERNET` nor `ACCESS_NETWORK_STATE`. The instrumentation test temporarily
+adopts Android's test-shell identity for `ACCESS_NETWORK_STATE` solely while it reads
+the emulator's connectivity capabilities, then drops it before parsing. That gives
+neither the test nor the app Internet access, and the harness has no network client.
+This avoids a less trustworthy user-supplied “offline” flag and avoids expanding
+either installed package's capabilities.
+
+The harness does not open a user PDF, read a descriptor/URI/SAF source, bind or change
+the isolated service, persist data, touch Room/UI/WorkManager, invoke AI, or log PDF
+text or source metadata. If the emulator is connected, it fails **before** invoking
+the parser and gives an explicit instruction; that is deliberate, because a passing
+test on a connected emulator would not constitute offline evidence.
+
+### How to verify offline runtime
+
+1. In the Medium Phone emulator, open Android Quick Settings by dragging down from
+   the top of the phone screen. Turn off **Wi-Fi** and, if it is available, **mobile
+   data**. Wait until the status bar no longer shows an active connection.
+2. In Android Studio, open `PdfParserOfflineRuntimeIntegrationTest` and click the
+   green arrow beside the class name, then choose **Run**.
+3. Confirm **2 tests passed**. The parser test is not allowed to run until Android
+   reports the offline precondition.
+4. Restore Wi-Fi/mobile data afterwards for normal emulator use.
+
+This is a controlled synthetic-only runtime check, not a claim that the full product
+is complete offline. No real user PDF becomes eligible for parsing until all remaining
+ADR-017 gates and the representative measurement policy are accepted.
+
+## Verified offline-runtime evidence
+
+On 2026-07-22, the Medium Phone emulator ran
+`PdfParserOfflineRuntimeIntegrationTest` with Wi-Fi/mobile connectivity disabled:
+**2 of 2 tests passed**. The first test confirmed that the installed release app does
+not request `android.permission.INTERNET`. The second used Android's temporary
+test-shell network-state identity to confirm that no Internet-capable or validated
+network was present, dropped that identity, and then parsed only the repository-owned
+two-page synthetic fixture successfully.
+
+No real PDF, descriptor, URI, SAF source, Room data, service request, UI action,
+WorkManager work, AI call, or network request occurred. This confirms the narrow
+offline-runtime gate for the existing deterministic parser; it does not establish
+offline behavior for future real-source access, isolated-service parsing, persistence,
+or semantic understanding.
+
 ## Verified initial emulator baseline
 
 On 2026-07-22, `PdfParserSyntheticBenchmarkIntegrationTest` completed on the
@@ -147,9 +204,11 @@ behavior.
 - **Open decisions and platform limitations:** ADR-003 is unrelated and remains
   open. No measured production limit exists. Image-only PDF OCR remains a separate
   local-AI capability.
-- **Smallest safe change:** document this measurement plan and add a synthetic-only
-  Android harness. No service, source, Room, UI, WorkManager, AI, dependency, or
-  manifest change is permitted.
+- **Smallest safe change:** document this measurement plan and add synthetic-only
+  Android harnesses. The offline harness temporarily adopts and drops Android's
+  test-shell `ACCESS_NETWORK_STATE` identity so it can reject a connected emulator;
+  both manifests, the service, source access, Room, UI, WorkManager, AI, and
+  dependency graph remain unchanged.
 - **Acceptance criteria:** the harness reports only the defined aggregate metrics,
   verifies stable non-timing facts over repeated runs, and passes on the Medium Phone
   emulator without access to any user source.
@@ -157,4 +216,5 @@ behavior.
   2 of 2 tests, then the latest expanded 3 of 3 tests on 2026-07-22. Both runs emitted
   only the aggregate metrics recorded above; the latest expanded run materialized
   inputs before timing and verified progressive input/text/result-size growth through
-  a 32-page, 65,536-code-unit fixture.
+  a 32-page, 65,536-code-unit fixture. The Medium Phone emulator then completed the
+  dedicated offline harness with 2 of 2 tests passing after its network was disabled.
