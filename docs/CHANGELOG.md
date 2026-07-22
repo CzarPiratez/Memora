@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Verified approved PDF descriptor-custody gate
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A pure domain contract now binds a future PDF extraction request to
+  the exact approved source ID and a freshly observed source-access state. Its only
+  successful output contains the immutable Asset identity and fingerprint; it cannot
+  carry a URI, descriptor, stream, source content, or parser handle inward.
+- **Verification:** On 2026-07-23, focused Gradle and the user's Android Studio run
+  both reported `ApprovedPdfDescriptorCustodyContractTest`: **5 tests passed**.
+  The tests cover authorization plus mismatch, access-required, access-revoked, and
+  source-unavailable denials.
+- **Truthfulness:** No Android source, document, descriptor, parser, Room state, UI,
+  worker, AI capability, network, or dependency was accessed or changed. This does
+  not enable real-source PDF parsing; ADR-017's platform descriptor-broker gates
+  remain required.
+
 ### Frozen trust, identity, and quality rules
 
 - **Requirements:** P-09–P-13, A-01–A-05, E-04–E-06.

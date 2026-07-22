@@ -383,13 +383,24 @@ extraction, call the service, invoke AI, or access a network.
 
 ## Next approved engineering step
 
-Define and test the source-neutral **approved-PDF descriptor custody contract** for
-the future ordinary-process adapter. It must describe the exact Asset/source
-identity checks, mandatory fresh-grant position, descriptor owner/closure rules,
-and content-free revoked/mismatch failure before any parser call. The smallest code
-change must be pure/domain-only: it may not open a URI, create a descriptor, call the
-isolated parser, read a user PDF, persist extraction data, or make real-source
-parsing eligible.
+The source-neutral **approved-PDF descriptor custody contract** is verified. On
+2026-07-23, `ApprovedPdfDescriptorCustodyContractTest` passed in Android Studio:
+**5 tests passed**. The pure domain gate binds the future request Asset to the exact
+approved source and a just-observed read-grant state, returns only immutable identity
+and fingerprint facts when authorized, and denies mismatch, required, revoked, and
+unavailable access without retaining a URI, descriptor, stream, or content. It opens
+no URI, calls no parser, reads no user PDF, persists no extraction, and does not make
+real-source parsing eligible.
+
+## Next approved engineering step
+
+Before implementing any descriptor-opening adapter, specify and review its Android
+platform custody boundary: exact approval lookup, fresh persisted-grant validation
+immediately before use, proof that the requested document belongs to that approved
+tree, one read-only descriptor open, duplication only to the isolated parser, and
+closure/cleanup on every ordinary-process and service path. This remains a separate
+ADR-017 gate; no user document may be opened until the boundary has its own test plan
+and user-approved implementation step.
 
 ## Important open decision
 
