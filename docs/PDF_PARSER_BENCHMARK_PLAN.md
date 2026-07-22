@@ -1,7 +1,7 @@
 # Synthetic PDF Parser Benchmark Plan
 
-**Status:** Initial and expanded emulator baselines captured; not a production-limit
-decision.
+**Status:** Initial, expanded, and many-page emulator baselines captured; not a
+production-limit decision.
 **Date:** 2026-07-22  
 **Requirements:** P-07, P-14, P-15, P-17; Local-AI principles A-01, A-02, A-06.
 
@@ -46,6 +46,7 @@ passing benchmark does not enable page-text transport.
 | `generated_text_small` | Generated in memory: one page with 1,024 ASCII UTF-16 code units | One page and at least 1,024 extracted text code units. |
 | `generated_text_medium` | Generated in memory: four pages with 2,048 ASCII UTF-16 code units per page | Four pages and at least 8,192 extracted text code units. |
 | `generated_text_larger` | Generated in memory: eight pages with 4,096 ASCII UTF-16 code units per page | Eight pages and at least 32,768 extracted text code units. |
+| `generated_text_many_pages` | Generated in memory: 32 pages with 2,048 ASCII UTF-16 code units per page | 32 pages and at least 65,536 extracted text code units. |
 
 The generated fixtures are materialized before parser timing begins. They prove a
 repeatable progression of input/result sizes without timing Base64 decoding or PDF
@@ -74,7 +75,7 @@ not an SLA.
 2. In Android Studio, open `PdfParserSyntheticBenchmarkIntegrationTest`.
 3. Click the green arrow beside the class name, then choose **Run**.
 4. Confirm that **3 tests passed**.
-5. Open **Logcat**, filter for `MemoraPdfBenchmark`, and send the five aggregate log
+5. Open **Logcat**, filter for `MemoraPdfBenchmark`, and send the six aggregate log
    lines to the engineering record. Do not share any raw PDF content because the
    harness is designed not to emit it.
 
@@ -112,23 +113,27 @@ into a production cap, an SLA, or user-facing copy.
 
 On 2026-07-22, the connected Medium Phone emulator ran the updated
 `PdfParserSyntheticBenchmarkIntegrationTest`: **3 of 3 tests passed**. This capture
-materialized each test fixture before timing parser work and emitted five
+materialized each test fixture before timing parser work and emitted six
 aggregate-only Logcat lines:
 
 | Fixture | Runs | Input PDF bytes | Pages | Text code units | Result Bundle bytes | Parser elapsed time (min / median / max) |
 |---|---:|---:|---:|---:|---:|---:|
-| `two_page_selectable` | 5 | 23,102 | 2 | 94 | 804 | 49 / 64 / 71 ms |
-| `image_only` | 5 | 3,302 | 1 | 0 | 308 | 4 / 10 / 31 ms |
-| `generated_text_small` | 5 | 873 | 1 | 1,024 | 2,500 | 40 / 42 / 55 ms |
-| `generated_text_medium` | 5 | 2,216 | 4 | 8,192 | 17,328 | 193 / 285 / 480 ms |
-| `generated_text_larger` | 5 | 4,106 | 8 | 32,768 | 67,136 | 551 / 819 / 1,085 ms |
+| `two_page_selectable` | 5 | 23,102 | 2 | 94 | 804 | 35 / 41 / 130 ms |
+| `image_only` | 5 | 3,302 | 1 | 0 | 308 | 5 / 6 / 14 ms |
+| `generated_text_small` | 5 | 873 | 1 | 1,024 | 2,500 | 58 / 79 / 89 ms |
+| `generated_text_medium` | 5 | 2,216 | 4 | 8,192 | 17,328 | 377 / 492 / 679 ms |
+| `generated_text_larger` | 5 | 4,106 | 8 | 32,768 | 67,136 | 493 / 547 / 1,139 ms |
+| `generated_text_many_pages` | 5 | 14,814 | 32 | 65,536 | 136,608 | 981 / 1,692 / 2,067 ms |
 
-The generated PDFs are test fixtures, not user content; their 1/4/8-page and
+The generated PDFs are test fixtures, not user content; their 1/4/8/32-page and
 1,024/2,048/4,096-code-unit shapes are test cases rather than proposed production
 caps. The earlier two-fixture baseline used a different timing method and has no
 input-byte figures, so it must not be numerically compared with this capture. Neither
 capture establishes memory, battery, thermal, process-isolation, offline, or
-production-limit evidence.
+production-limit evidence. The many-page generator also guarantees a non-whitespace
+final character on each synthetic page because deterministic extraction trims source
+text; this keeps the intended fixture text length stable without changing parser
+behavior.
 
 ## Change-control record
 
@@ -149,6 +154,7 @@ production-limit evidence.
   verifies stable non-timing facts over repeated runs, and passes on the Medium Phone
   emulator without access to any user source.
 - **Verification result:** the connected Medium Phone emulator completed the initial
-  2 of 2 tests, then the expanded 3 of 3 tests on 2026-07-22. Both runs emitted only
-  the aggregate metrics recorded above; the expanded run materialized inputs before
-  timing and verified progressive input/text/result-size growth.
+  2 of 2 tests, then the latest expanded 3 of 3 tests on 2026-07-22. Both runs emitted
+  only the aggregate metrics recorded above; the latest expanded run materialized
+  inputs before timing and verified progressive input/text/result-size growth through
+  a 32-page, 65,536-code-unit fixture.

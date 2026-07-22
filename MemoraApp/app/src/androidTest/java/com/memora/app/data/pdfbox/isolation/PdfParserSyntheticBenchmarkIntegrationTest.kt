@@ -70,7 +70,11 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
             val summary = measureFixture(fixture)
 
             assertEquals(fixture.expectedPageCount, summary.pageCount)
-            assertTrue(summary.textCodeUnits >= fixture.minimumExpectedTextCodeUnits)
+            assertTrue(
+                "${fixture.id} must expose at least ${fixture.minimumExpectedTextCodeUnits} " +
+                    "text code units, but the parser returned ${summary.textCodeUnits}.",
+                summary.textCodeUnits >= fixture.minimumExpectedTextCodeUnits,
+            )
             assertTrue(summary.inputPdfBytes > 0)
             assertTrue(summary.serializedResultBytes > 0)
             emitAggregate(summary)

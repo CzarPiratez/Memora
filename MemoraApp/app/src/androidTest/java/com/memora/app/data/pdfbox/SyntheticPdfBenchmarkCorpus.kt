@@ -29,6 +29,11 @@ internal object SyntheticPdfBenchmarkCorpus {
             pageCount = 8,
             textCodeUnitsPerPage = 4_096,
         ),
+        createTextFixture(
+            id = "generated_text_many_pages",
+            pageCount = 32,
+            textCodeUnitsPerPage = 2_048,
+        ),
     )
 
     private fun createTextFixture(
@@ -68,10 +73,12 @@ internal object SyntheticPdfBenchmarkCorpus {
 
     private fun pageText(pageNumber: Int, requestedCodeUnits: Int): String {
         val prefix = "page-$pageNumber:"
+        val finalPayloadOffset = requestedCodeUnits - prefix.length - 1
         return buildString(requestedCodeUnits) {
             append(prefix)
             repeat(requestedCodeUnits - prefix.length) { offset ->
-                append(PAYLOAD_ALPHABET[(pageNumber + offset) % PAYLOAD_ALPHABET.length])
+                val character = PAYLOAD_ALPHABET[(pageNumber + offset) % PAYLOAD_ALPHABET.length]
+                append(if (offset == finalPayloadOffset && character.isWhitespace()) 'x' else character)
             }
         }
     }

@@ -320,14 +320,26 @@ persistence, or recovery gates.
 
 ## Next approved engineering step
 
-Design the next privacy-safe representative benchmark corpus and measurement method
-before choosing any production parser policy. It must extend the evidence to
-many-page, blank/no-text, password-protected, malformed, cancellation, timeout,
-memory-pressure, battery/thermal, and offline cases while maintaining the existing
-strict boundary: no real user PDF, SAF URI, source identity, Room persistence,
-service protocol change, UI change, WorkManager, AI, network, or claimed production
-limit. Record the proposal in `docs/PDF_PARSER_BENCHMARK_PLAN.md` and then implement
-only the smallest approved synthetic test fixture or harness change.
+The many-page corpus addition is verified. On 2026-07-22, the user reran
+`PdfParserSyntheticBenchmarkIntegrationTest` on the Medium Phone emulator: **3 tests
+passed**. It now includes a repository-owned, in-memory 32-page PDF with 2,048
+deterministic ASCII code-units per page. Its parser result contained 65,536 text
+code-units, and its measured aggregate values are recorded in
+`docs/PDF_PARSER_BENCHMARK_PLAN.md`. It did not open a user PDF, bind or change the
+isolated service, use a descriptor/URI/SAF source, persist Room data, alter UI,
+schedule WorkManager, invoke AI, use network, or claim a production limit. The
+remaining blank/no-text, password, malformed, cancellation, timeout, device-health,
+and offline benchmark evidence remains separately required.
+
+## Next approved engineering step
+
+Add a synthetic-only offline-verification harness for the existing deterministic PDF
+parser. It must make the existing no-`INTERNET` manifest guarantee explicit and provide
+a repeatable Medium Phone procedure that runs the parser only after the emulator's
+network has been disabled. It must not open a user PDF, bind or change the isolated
+service, use a descriptor/URI/SAF source, persist Room data, alter UI, schedule
+WorkManager, invoke AI, add a dependency, or claim that a test on a connected emulator
+proves offline behavior.
 
 ## Important open decision
 
