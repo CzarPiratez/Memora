@@ -404,11 +404,12 @@ descriptor-opening code exists and no document has been opened.
 
 ## Next approved engineering step
 
-Implement the broker only against a test-only, repository-owned synthetic Android
-DocumentsProvider fixture. The first code change must test exact grant sequencing,
-tree-derived target construction, read-only opening, descriptor ownership/closure,
-and safe denial paths. It must not touch user PDFs, UI, WorkManager, Room extraction
-persistence, semantic understanding, AI, or the network.
+Implement the broker only against a repository-owned synthetic Android
+DocumentsProvider fixture in the debug source set. The first code change must test
+exact grant sequencing, tree-derived target construction, read-only opening,
+descriptor ownership/closure, and safe denial paths. It must not touch user PDFs,
+UI, WorkManager, Room extraction persistence, semantic understanding, AI, or the
+network.
 
 The first canonical-target component is verified. On 2026-07-23, the user ran
 `SafPdfCanonicalDocumentTargetFactoryIntegrationTest` on the Medium Phone emulator:
@@ -417,6 +418,24 @@ internal Android target from the approved tree plus opaque source document ID, a
 rejects raw foreign locations without opening them. The test has five synthetic-only
 cases and does not include a provider fixture, retained-grant sequencing, descriptor
 opening, parser invocation, persistence, or visible app behavior.
+
+The synthetic descriptor broker is verified. On 2026-07-23,
+`SafPdfDescriptorBrokerIntegrationTest` completed on the Medium Phone emulator:
+**6 tests passed**. It uses a debug-only (release-excluded) provider with one
+pipe-backed repository fixture. The broker verifies exact approval, rechecks the
+grant immediately before opening, verifies API 29+ tree membership, permits only a
+read-only descriptor, duplicates and owns cleanup of the consumer descriptor, and
+denies every tested unsafe path without opening. It has no Hilt, UI, user source,
+account, parser, Room persistence, worker, AI, or network path.
+
+## Next approved engineering step
+
+Connect the verified broker only to the already-tested isolated parser client through
+one repository-owned synthetic descriptor. The narrow integration must verify that a
+fresh approved-grant gate, canonical target, read-only descriptor, duplicate/closure,
+and content-free retryable failure all remain intact across the broker-to-parser
+boundary. It must not use a real folder or user PDF, invoke the UI, schedule work,
+persist extraction output, or create a Memory.
 
 ## Important open decision
 

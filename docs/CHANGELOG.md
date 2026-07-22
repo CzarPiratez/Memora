@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Verified synthetic SAF PDF descriptor broker
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** An unbound data/platform broker, Android tree-membership/read-only
+  adapter, and debug-only synthetic DocumentsProvider fixture, excluded from release
+  builds. The broker owns original/duplicate descriptor closure and has no UI, Hilt,
+  Room, worker, parser, AI, or network binding. API 26-28 returns an explicit safe
+  unsupported-platform result and opens nothing.
+- **Verification:** On 2026-07-23,
+  `SafPdfDescriptorBrokerIntegrationTest` completed on the Medium Phone emulator:
+  **6 tests passed**.
+- **Truthfulness:** The test uses only a pipe-backed repository fixture. It does not
+  request or use a real persisted user grant, and it does not make a user PDF
+  eligible for opening or parsing.
+
 ### Canonical SAF PDF target boundary
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

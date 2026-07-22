@@ -83,10 +83,11 @@ service. No original content is read until step 9.
 8. On API 29+, construct the tree-root document URI from the approved tree and ask
    `DocumentsContract.isChildDocument` whether the canonical target is a descendant.
    A `false`, `SecurityException`, `IllegalArgumentException`, or provider failure
-   denies the attempt. On API 26-28, no string-based substitute is allowed: the
-   tree-derived URI itself is the sole accepted subtree capability, and a targeted
-   metadata revalidation must succeed before opening. This support difference must
-   be shown in the capability matrix and user-safe fallback state.
+   denies the attempt. The first broker implementation returns an explicit
+   `UnsupportedPlatform` result on API 26-28; it does not attempt a string-based or
+   metadata fallback. A future targeted metadata-revalidation fallback needs its own
+   acceptance corpus before it can open anything on those releases. This support
+   difference must be shown in the capability matrix and user-safe fallback state.
 9. Freshly inspect the retained read grant one last time, then open the canonical
    target once with `contentResolver.openFileDescriptor(target, "r", signal)`.
    `null`, cancellation, security, not-found, and provider errors are mapped to a
@@ -150,7 +151,9 @@ contains a synthetic PDF and records only operation categories, never document t
    those checks causes no parser submission.
 3. **Tree-membership test:** API 29+ must exercise false and true
    `isChildDocument` results. API 26-28 must prove no heuristic or raw location URI
-   is used and must exercise the required targeted metadata revalidation fallback.
+   is used and that the first implementation returns `UnsupportedPlatform` without
+   opening a descriptor. Any later metadata-revalidation fallback needs separate
+   tests before it can be enabled.
 4. **Read-only/open test:** the test provider observes only `"r"`; no output,
    mutation, copy, or folder enumeration call is permitted from the broker.
 5. **Descriptor ownership tests:** verify original closure after successful `dup`,
@@ -192,6 +195,27 @@ test-only provider fixture and all descriptor-opening behavior remain the next
 separate slice. On 2026-07-23, the user ran this test on the Medium Phone emulator:
 **5 tests passed**. It did not request permission or open a provider, descriptor,
 document, parser, database, UI, worker, AI capability, or network connection.
+
+## Delivery checkpoint: verified synthetic descriptor broker
+
+An unbound `SafPdfDescriptorBroker`, its `ContentResolver` platform adapter, and a
+debug-only synthetic `DocumentsProvider` are now implemented. The debug provider is
+excluded from release builds. The broker looks up the exact approval, checks access
+twice, uses the existing pure custody gate and canonical target, verifies Android
+tree membership on API 29+, opens only `"r"`, duplicates the descriptor once, and
+closes the original before the data-layer consumer receives the duplicate. The
+consumer's descriptor is closed by the broker on every exit. API 26-28 returns a
+safe unsupported-platform result and opens nothing.
+
+The test fixture exposes one pipe-backed repository-owned synthetic PDF and rejects
+all modes except `"r"`. The six Android tests cover successful synthetic handoff,
+original/duplicate descriptor closure, denial before target/platform access,
+revocation immediately before open, membership rejection without opening, and
+foreign-source denial. The broker is not bound to Hilt, UI, WorkManager, Room
+extraction persistence, semantic understanding, or the isolated parser client. On
+2026-07-23, the focused test was run on the Medium Phone emulator: **6 tests
+passed**. No user document is eligible to be opened or parsed, and the fixture
+source appears only in the debug build.
 
 ## Pre-work record
 
