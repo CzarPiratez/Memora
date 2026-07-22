@@ -1,6 +1,7 @@
 # SAF PDF Platform Descriptor Broker Plan
 
-**Status:** Design and acceptance plan; no descriptor-opening code is enabled.
+**Status:** Synthetic-only descriptor broker and broker-to-parser handoff verified;
+real user-source parsing remains disabled.
 **Date:** 2026-07-23
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
 **Governing guardrail:** ADR-017 and `docs/PDF_PARSER_ISOLATION_REVIEW.md`.
@@ -13,10 +14,12 @@ adapter, not a UI, application, domain, Room, WorkManager, or parser-service
 responsibility.
 
 The broker's single responsibility is to convert an already validated
-`PdfExtractionRequest` into one duplicated, read-only descriptor for the existing
-private isolated parser client. It must never expose that descriptor, a URI, a path,
-or a tree reference above the data/platform boundary. It must never copy, move,
-rename, modify, upload, or retain the original document.
+`PdfExtractionRequest` into one borrowed, read-only descriptor for a narrowly scoped
+data-layer consumer. A dedicated ownership adapter may duplicate that borrowed handle
+once to transfer ownership to the existing private isolated parser client. Neither
+component may expose a descriptor, URI, path, or tree reference above the
+data/platform boundary. Neither may copy, move, rename, modify, upload, or retain the
+original document.
 
 No implementation is authorized by this plan alone. It provides the precise design,
 test corpus, failure behavior, and review gates required before a separate,
@@ -94,12 +97,16 @@ service. No original content is read until step 9.
    bounded safe outcome. The broker never calls a write mode, `openOutputStream`,
    copy/move/delete/rename API, or `openInputStream`.
 10. Duplicate the caller-owned descriptor exactly once with `descriptor.dup()`. If
-    duplication fails, close the original and return a retryable safe failure.
-11. Close the original descriptor immediately after successful duplication. Pass only
-    the duplicate to `IsolatedPdfParserClient`, which already owns and closes every
-    supplied descriptor on completion, cancellation, timeout, malformed response,
-    Binder death, and binding failure. The isolated service closes its received
-    Binder descriptor through `AutoCloseInputStream`.
+    duplication fails, close the original and return a retryable safe failure. The
+    broker owns that duplicate for the duration of its data-layer consumer callback.
+11. Close the original descriptor immediately after successful duplication. A parser
+    ownership adapter must duplicate the broker-owned handle once more before calling
+    `IsolatedPdfParserClient`; the client owns and closes that transferred duplicate on
+    completion, cancellation, timeout, malformed response, Binder death, and binding
+    failure. The broker closes its own borrowed duplicate when the callback returns.
+    The isolated service closes its received Binder descriptor through
+    `AutoCloseInputStream`. This explicit second duplication avoids ambiguous
+    double-ownership between the broker and the client.
 12. Validate the parser result against the request and bounded result contract. Only a
     later application/persistence step may create a `PdfExtractionRecord`; no
     partial, failed, stale, or unavailable attempt becomes searchable.
@@ -110,7 +117,8 @@ service. No original content is read until step 9.
 private Room approval + request Asset
   -> ordinary-process SAF broker: exact approval, grant, canonical tree target
   -> one read-only original descriptor (broker-owned)
-  -> one duplicated descriptor (parser-client-owned)
+  -> one duplicate borrowed by broker consumer (broker-owned)
+  -> one ownership-transfer duplicate (parser-client-owned)
   -> private Binder transfer (isolated-service-owned received descriptor)
   -> bounded parse result only
 ```
@@ -216,6 +224,26 @@ extraction persistence, semantic understanding, or the isolated parser client. O
 2026-07-23, the focused test was run on the Medium Phone emulator: **6 tests
 passed**. No user document is eligible to be opened or parsed, and the fixture
 source appears only in the debug build.
+
+## Delivery checkpoint: synthetic broker-to-isolated-parser handoff
+
+`ParseApprovedPdfWithIsolatedParser` is an unbound application coordinator that
+connects the existing custody broker to a `BorrowedPdfDescriptorParser` port without
+exposing a descriptor outside the data/platform boundary. Its Android implementation,
+`IsolatedPdfParserDescriptorHandoff`, duplicates the broker's borrowed descriptor
+before transferring ownership to `IsolatedPdfParserClient`. The broker then closes its
+own duplicate; the client closes its transferred duplicate. This preserves explicit
+resource ownership on every success and failure path.
+
+The debug-only provider now serves one valid, repository-owned one-page selectable
+PDF. `ParseApprovedPdfWithIsolatedParserIntegrationTest` uses that fixture only. On
+2026-07-23, it passed **3 tests** on the Medium Phone emulator: the exact
+approval/grant/canonical-target/read-only path reaches the private isolated service;
+revocation immediately before opening submits no descriptor to the parser; and a
+content-free retryable parser failure is never represented as extraction. The new
+coordinator has no Hilt binding, UI caller, WorkManager job, Room extraction write,
+semantic-understanding/AI call, network path, or real user source. Its result is
+status-only and is not searchable.
 
 ## Pre-work record
 

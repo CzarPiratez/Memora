@@ -6,6 +6,7 @@ import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsProvider
+import android.util.Base64
 import java.io.IOException
 import java.io.OutputStream
 import kotlin.concurrent.thread
@@ -110,11 +111,23 @@ class SyntheticPdfDocumentsProvider : DocumentsProvider() {
         const val PDF_DOCUMENT_ID = "synthetic-report"
         const val PDF_MIME_TYPE = "application/pdf"
         const val FIXTURE_MODIFIED_AT = 1_735_689_600_000L
-        val SYNTHETIC_PDF = byteArrayOf(
-            37, 80, 68, 70, 45, 49, 46, 52, 10,
-            37, 32, 77, 101, 109, 111, 114, 97, 32, 115, 121, 110, 116,
-            104, 101, 116, 105, 99, 32, 102, 105, 120, 116, 117, 114, 101, 10,
-            37, 37, 69, 79, 70, 10,
+        /**
+         * A one-page, selectable-text, repository-owned PDF. The provider has no real source
+         * access and this small fixture is available only from the debug source set.
+         */
+        val SYNTHETIC_PDF = Base64.decode(
+            "JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4K" +
+                "ZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4K" +
+                "ZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAg" +
+                "MCA2MTIgNzkyXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA0IDAgUiA+PiA+PiAvQ29udGVu" +
+                "dHMgNSAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUx" +
+                "IC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDYgPj4K" +
+                "c3RyZWFtCkJUIC9GMSAxMiBUZiA3MiA3MjAgVGQgKE1lbW9yYSBmaXh0dXJlKSBUaiBFVAplbmRz" +
+                "dHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxNSAwMDAw" +
+                "MCBuIAowMDAwMDAwMDY0IDAwMDAwIG4gCjAwMDAwMDAxMjEgMDAwMDAgbiAKMDAwMDAwMDI0NyAw" +
+                "MDAwMCBuIAowMDAwMDAwMzE3IDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAg" +
+                "UiA+PgpzdGFydHhyZWYKNDEyCiUlRU9GCg==",
+            Base64.NO_WRAP,
         )
     }
 }

@@ -430,12 +430,26 @@ account, parser, Room persistence, worker, AI, or network path.
 
 ## Next approved engineering step
 
-Connect the verified broker only to the already-tested isolated parser client through
-one repository-owned synthetic descriptor. The narrow integration must verify that a
-fresh approved-grant gate, canonical target, read-only descriptor, duplicate/closure,
-and content-free retryable failure all remain intact across the broker-to-parser
-boundary. It must not use a real folder or user PDF, invoke the UI, schedule work,
-persist extraction output, or create a Memory.
+The synthetic broker-to-parser handoff is verified. On 2026-07-23,
+`ParseApprovedPdfWithIsolatedParserIntegrationTest` completed on the Medium Phone
+emulator: **3 tests passed**. The debug-only fixture is a valid repository-owned,
+one-page selectable-text PDF. The unbound coordinator first applies exact approval,
+fresh-grant, canonical-target, subtree-membership, and read-only descriptor custody;
+an ownership adapter then duplicates the broker-borrowed descriptor before the
+existing isolated parser client takes and closes its transferred handle. The test also
+proves last-moment grant revocation reaches no parser and that retryable parser status
+cannot become an extraction result. It has no real folder or user PDF, UI,
+WorkManager, Room extraction persistence, semantic understanding/AI, or network
+path; its status-only result is not searchable.
+
+## Next approved engineering step
+
+Upgrade the isolated parser's synthetic-only status protocol to its already-tested
+strict bounded page/chunk result codec. The change must remain behind the private
+isolated service and repository-owned synthetic descriptors, prove complete page
+coverage and content-free rejection on malformed/over-limit output, and leave the
+broker-to-parser coordinator unbound from UI, WorkManager, Room persistence,
+understanding/AI, and real user sources.
 
 ## Important open decision
 

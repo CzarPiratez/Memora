@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Verified synthetic approved-PDF parser handoff
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** An unbound application coordinator now connects the approved SAF
+  custody broker to the private isolated parser only through a dedicated descriptor
+  ownership adapter. The broker retains and closes its borrowed duplicate; the adapter
+  duplicates it before transferring ownership to the existing parser client, which
+  closes its own handle. The debug-only fixture was upgraded to a valid one-page,
+  repository-owned selectable-text PDF.
+- **Verification:** On 2026-07-23,
+  `ParseApprovedPdfWithIsolatedParserIntegrationTest` completed on the Medium Phone
+  emulator: **3 tests passed**. It proves the synthetic approved path reaches the
+  private parser, a grant revoked immediately before opening prevents parser
+  submission, and a retryable parser status is not presented as extraction.
+- **Truthfulness:** The result is content-free and not persisted or searchable. This
+  does not open a real user PDF or add UI, Hilt, WorkManager, Room extraction,
+  semantic understanding/AI, or network behavior.
+
 ### Verified synthetic SAF PDF descriptor broker
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
