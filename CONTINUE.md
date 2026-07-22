@@ -305,15 +305,29 @@ recovery remain separate ADR-017 gates.
 
 ## Next approved engineering step
 
-Create a test-only, deterministic synthetic PDF corpus generator and extend the
-benchmark harness with progressively larger text/page cases. It must remain
-repository-owned and in-memory, measure only aggregate fixture and parser-result
-metrics, and record no production limits. It must not bind or change the isolated
-service, open a descriptor/URI/SAF or user source, persist Room data, alter UI,
-schedule WorkManager, or invoke AI. The expanded corpus will support a later,
-evidence-backed input/output policy; it will not by itself close ADR-017's memory,
-battery, thermal, offline, live-process-death, fresh-grant, persistence, or recovery
-gates.
+The expanded synthetic PDF corpus is verified. On 2026-07-22, the user ran
+`PdfParserSyntheticBenchmarkIntegrationTest` on the Medium Phone emulator: **3 tests
+passed**. The corpus deterministically generated only three repository-owned PDFs in
+memory: one 1,024-code-unit page, four 2,048-code-unit pages, and eight
+4,096-code-unit pages. The benchmark materialized every fixture before timing parser
+work, emitted only aggregate input-byte/page/text/result-size/elapsed-time metrics,
+and verified the expected growth relationship. Recorded measurements are in
+`docs/PDF_PARSER_BENCHMARK_PLAN.md`. It did not bind or change the isolated service,
+open a descriptor/URI/SAF or user source, persist Room data, alter UI, schedule
+WorkManager, or invoke AI. These test shapes are not production limits and do not
+close ADR-017's memory, battery, thermal, offline, live-process-death, fresh-grant,
+persistence, or recovery gates.
+
+## Next approved engineering step
+
+Design the next privacy-safe representative benchmark corpus and measurement method
+before choosing any production parser policy. It must extend the evidence to
+many-page, blank/no-text, password-protected, malformed, cancellation, timeout,
+memory-pressure, battery/thermal, and offline cases while maintaining the existing
+strict boundary: no real user PDF, SAF URI, source identity, Room persistence,
+service protocol change, UI change, WorkManager, AI, network, or claimed production
+limit. Record the proposal in `docs/PDF_PARSER_BENCHMARK_PLAN.md` and then implement
+only the smallest approved synthetic test fixture or harness change.
 
 ## Important open decision
 

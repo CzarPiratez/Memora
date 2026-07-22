@@ -8,9 +8,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.memora.app.data.pdfbox.PdfBoxPdfDocumentParser
 import com.memora.app.data.pdfbox.PdfDocumentParseResult
+import com.memora.app.data.pdfbox.SyntheticPdfBenchmarkCorpus
+import com.memora.app.data.pdfbox.SyntheticPdfBenchmarkFixture
 import com.memora.app.data.pdfbox.SyntheticPdfFixtures
 import com.memora.app.domain.extraction.PdfTextCoverage
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import java.io.ByteArrayInputStream
 import java.io.InputStream
 import org.junit.Before
 import org.junit.Assert.assertEquals
@@ -60,9 +63,49 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
         emitAggregate(summary)
     }
 
+    @Test
+    fun measures_progressively_larger_generated_text_fixtures_without_logging_text() {
+        val summaries = SyntheticPdfBenchmarkCorpus.progressivelyLargerTextFixtures().map {
+            fixture ->
+            val summary = measureFixture(fixture)
+
+            assertEquals(fixture.expectedPageCount, summary.pageCount)
+            assertTrue(summary.textCodeUnits >= fixture.minimumExpectedTextCodeUnits)
+            assertTrue(summary.inputPdfBytes > 0)
+            assertTrue(summary.serializedResultBytes > 0)
+            emitAggregate(summary)
+            summary
+        }
+
+        assertTrue(
+            summaries.zipWithNext().all { (smaller, larger) ->
+                smaller.inputPdfBytes < larger.inputPdfBytes &&
+                    smaller.textCodeUnits < larger.textCodeUnits &&
+                    smaller.serializedResultBytes < larger.serializedResultBytes
+            },
+        )
+    }
+
     private fun measureFixture(
         fixtureId: String,
         fixture: () -> InputStream,
+    ): PdfParserBenchmarkSummary = measurePreparedFixture(
+        PreparedPdfBenchmarkFixture(
+            id = fixtureId,
+            bytes = fixture().use { input -> input.readBytes() },
+        ),
+    )
+
+    private fun measureFixture(fixture: SyntheticPdfBenchmarkFixture): PdfParserBenchmarkSummary =
+        measurePreparedFixture(
+            PreparedPdfBenchmarkFixture(
+                id = fixture.id,
+                bytes = fixture.bytes,
+            ),
+        )
+
+    private fun measurePreparedFixture(
+        fixture: PreparedPdfBenchmarkFixture,
     ): PdfParserBenchmarkSummary {
         measureOnce(fixture) // Warm-up is deliberately not reported.
         val samples = List(MEASURED_RUN_COUNT) { measureOnce(fixture) }
@@ -74,8 +117,9 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
 
         val elapsedMillis = samples.map { it.parseElapsedNanos / NANOS_PER_MILLISECOND }.sorted()
         return PdfParserBenchmarkSummary(
-            fixtureId = fixtureId,
+            fixtureId = fixture.id,
             measuredRunCount = MEASURED_RUN_COUNT,
+            inputPdfBytes = fixture.bytes.size,
             pageCount = first.pageCount,
             textCodeUnits = first.textCodeUnits,
             serializedResultBytes = first.serializedResultBytes,
@@ -85,9 +129,9 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
         )
     }
 
-    private fun measureOnce(fixture: () -> InputStream): PdfParserBenchmarkSample {
+    private fun measureOnce(fixture: PreparedPdfBenchmarkFixture): PdfParserBenchmarkSample {
         val startedAtNanos = SystemClock.elapsedRealtimeNanos()
-        val parsed = PdfBoxPdfDocumentParser().parse(fixture())
+        val parsed = PdfBoxPdfDocumentParser().parse(ByteArrayInputStream(fixture.bytes))
         val elapsedNanos = SystemClock.elapsedRealtimeNanos() - startedAtNanos
         val result = parsed as? PdfDocumentParseResult.Parsed
             ?: throw AssertionError("The repository-owned benchmark fixture must parse successfully.")
@@ -141,6 +185,7 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
         Log.i(
             BENCHMARK_LOG_TAG,
             "fixture=${summary.fixtureId}; runs=${summary.measuredRunCount}; " +
+                "input_pdf_bytes=${summary.inputPdfBytes}; " +
                 "page_count=${summary.pageCount}; text_code_units=${summary.textCodeUnits}; " +
                 "result_bundle_bytes=${summary.serializedResultBytes}; " +
                 "parse_elapsed_ms_min=${summary.parseElapsedMinimumMillis}; " +
@@ -156,9 +201,15 @@ class PdfParserSyntheticBenchmarkIntegrationTest {
         val parseElapsedNanos: Long,
     )
 
+    private data class PreparedPdfBenchmarkFixture(
+        val id: String,
+        val bytes: ByteArray,
+    )
+
     private data class PdfParserBenchmarkSummary(
         val fixtureId: String,
         val measuredRunCount: Int,
+        val inputPdfBytes: Int,
         val pageCount: Int,
         val textCodeUnits: Long,
         val serializedResultBytes: Int,

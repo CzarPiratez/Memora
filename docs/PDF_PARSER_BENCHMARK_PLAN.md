@@ -1,6 +1,7 @@
 # Synthetic PDF Parser Benchmark Plan
 
-**Status:** Initial emulator baseline captured; not a production-limit decision.  
+**Status:** Initial and expanded emulator baselines captured; not a production-limit
+decision.
 **Date:** 2026-07-22  
 **Requirements:** P-07, P-14, P-15, P-17; Local-AI principles A-01, A-02, A-06.
 
@@ -21,7 +22,8 @@ quality metrics.
 
 The Android instrumentation harness:
 
-- reads only repository-owned, Base64-encoded synthetic `InputStream` fixtures;
+- reads only repository-owned synthetic fixtures: existing Base64 fixtures plus
+  deterministic PDFs generated entirely in memory for the test;
 - invokes the existing deterministic PDF parser in the test process;
 - constructs an in-memory, future version-one result `Bundle` solely to measure its
   serialized size;
@@ -41,9 +43,14 @@ passing benchmark does not enable page-text transport.
 |---|---|---|
 | `two_page_selectable` | Existing two-page selectable-text test PDF | Two pages and a non-zero text code-unit count. |
 | `image_only` | Existing image-only test PDF | One page and zero extracted text code units. |
+| `generated_text_small` | Generated in memory: one page with 1,024 ASCII UTF-16 code units | One page and at least 1,024 extracted text code units. |
+| `generated_text_medium` | Generated in memory: four pages with 2,048 ASCII UTF-16 code units per page | Four pages and at least 8,192 extracted text code units. |
+| `generated_text_larger` | Generated in memory: eight pages with 4,096 ASCII UTF-16 code units per page | Eight pages and at least 32,768 extracted text code units. |
 
-These tiny fixtures prove the measurement path and no-text handling. They are not a
-representative corpus, and they cannot justify production limits by themselves.
+The generated fixtures are materialized before parser timing begins. They prove a
+repeatable progression of input/result sizes without timing Base64 decoding or PDF
+generation. They are still not a representative corpus and cannot justify production
+limits by themselves.
 
 ## Measurements
 
@@ -51,6 +58,7 @@ After one unreported warm-up, each fixture is parsed five times on the emulator.
 harness emits one aggregate-only Logcat line containing:
 
 - fixture ID and measured-run count;
+- in-memory input PDF byte count;
 - page count;
 - extracted text length in UTF-16 code units;
 - serialized byte count of the in-memory future result `Bundle`; and
@@ -65,8 +73,8 @@ not an SLA.
 1. Start the Medium Phone emulator and keep it otherwise idle.
 2. In Android Studio, open `PdfParserSyntheticBenchmarkIntegrationTest`.
 3. Click the green arrow beside the class name, then choose **Run**.
-4. Confirm that **2 tests passed**.
-5. Open **Logcat**, filter for `MemoraPdfBenchmark`, and send the two aggregate log
+4. Confirm that **3 tests passed**.
+5. Open **Logcat**, filter for `MemoraPdfBenchmark`, and send the five aggregate log
    lines to the engineering record. Do not share any raw PDF content because the
    harness is designed not to emit it.
 
@@ -100,6 +108,28 @@ measure file-size limits, larger/many-page documents, memory, battery, thermal
 impact, process-isolation overhead, or offline behavior. It must not be converted
 into a production cap, an SLA, or user-facing copy.
 
+## Verified expanded emulator baseline
+
+On 2026-07-22, the connected Medium Phone emulator ran the updated
+`PdfParserSyntheticBenchmarkIntegrationTest`: **3 of 3 tests passed**. This capture
+materialized each test fixture before timing parser work and emitted five
+aggregate-only Logcat lines:
+
+| Fixture | Runs | Input PDF bytes | Pages | Text code units | Result Bundle bytes | Parser elapsed time (min / median / max) |
+|---|---:|---:|---:|---:|---:|---:|
+| `two_page_selectable` | 5 | 23,102 | 2 | 94 | 804 | 49 / 64 / 71 ms |
+| `image_only` | 5 | 3,302 | 1 | 0 | 308 | 4 / 10 / 31 ms |
+| `generated_text_small` | 5 | 873 | 1 | 1,024 | 2,500 | 40 / 42 / 55 ms |
+| `generated_text_medium` | 5 | 2,216 | 4 | 8,192 | 17,328 | 193 / 285 / 480 ms |
+| `generated_text_larger` | 5 | 4,106 | 8 | 32,768 | 67,136 | 551 / 819 / 1,085 ms |
+
+The generated PDFs are test fixtures, not user content; their 1/4/8-page and
+1,024/2,048/4,096-code-unit shapes are test cases rather than proposed production
+caps. The earlier two-fixture baseline used a different timing method and has no
+input-byte figures, so it must not be numerically compared with this capture. Neither
+capture establishes memory, battery, thermal, process-isolation, offline, or
+production-limit evidence.
+
 ## Change-control record
 
 - **Source documents read:** product registry, Local AI Technical Specification,
@@ -118,5 +148,7 @@ into a production cap, an SLA, or user-facing copy.
 - **Acceptance criteria:** the harness reports only the defined aggregate metrics,
   verifies stable non-timing facts over repeated runs, and passes on the Medium Phone
   emulator without access to any user source.
-- **Verification result:** the connected Medium Phone emulator completed 2 of 2
-  tests on 2026-07-22 and emitted only the aggregate metrics recorded above.
+- **Verification result:** the connected Medium Phone emulator completed the initial
+  2 of 2 tests, then the expanded 3 of 3 tests on 2026-07-22. Both runs emitted only
+  the aggregate metrics recorded above; the expanded run materialized inputs before
+  timing and verified progressive input/text/result-size growth.
