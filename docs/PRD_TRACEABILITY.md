@@ -67,6 +67,17 @@ identity/fingerprint/schema version. The private-parser Medium Phone regression 
 passed **20 of 20** Android tests. This does not persist or search extraction data,
 open a source, expose UI, add WorkManager or AI, or enable user-source parsing.
 
+### P-07 checkpoint correction — approved parser/extraction assembly
+
+On 2026-07-23, an application-level synthetic consistency gate passed **6 of 6**
+local unit tests. It combines a content-free approved parser status with an in-memory
+extraction outcome only when Asset identity/fingerprint/schema, page count, and
+coverage agree; otherwise it produces an explicit non-extraction outcome. The
+existing approved synthetic descriptor handoff also passed **3 of 3** Medium Phone
+emulator tests after the parser-status port refactor. This does not transfer page text
+from the service, persist data, or enable source access, retrieval, UI, WorkManager,
+AI, or real-source parsing.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

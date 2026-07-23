@@ -274,6 +274,22 @@ synthetic limits are not production resource budgets. Fresh real-source grant
 validation, measured limits, streaming, atomic persistence, recovery UI, and all
 remaining ADR-017 gates are still required.
 
+## Delivery checkpoint: approved parser-status and extraction assembly
+
+`ParseApprovedPdfWithIsolatedParser` now implements a narrow application parser-status
+port. `AssembleApprovedPdfExtraction` uses that port before consulting a separate,
+synthetic in-memory extraction-result provider. It accepts a record only when its
+Asset identity, fingerprint, and schema match the original request and its coverage
+and page count match the content-free parser status. A mismatch is explicit and not
+treated as extraction; transport failures never call the extraction provider.
+
+On 2026-07-23, the pure application suite passed **6 tests** and the existing
+approved synthetic broker-to-parser integration test passed **3 tests** on the Medium
+Phone emulator. This does not create a broker-to-text pipeline: the in-memory provider
+has no descriptor or source capability, and no extraction is stored or searchable.
+Real-source parsing, streaming, persistence, and all remaining ADR-017 gates are
+unchanged.
+
 ## Pre-work record
 
 - **Governing sources checked:** product registry, Local AI technical specification,

@@ -478,15 +478,30 @@ coverage, invent metadata/title/text, write Room, expose UI/search, schedule
 WorkManager, invoke semantic understanding/AI, use network, or enable a real user
 PDF. It remains a synthetic-only proof of the next inward architecture boundary.
 
+## Verified engineering checkpoint
+
+The synthetic approved-parser and extraction assembly is verified. On 2026-07-23,
+`AssembleApprovedPdfExtractionTest` passed **6 of 6** local unit tests. It invokes a
+parser-status port before an in-memory extraction provider, calls the provider only
+after successful parser status, and accepts a record only when Asset identity,
+fingerprint, schema, page count, and coverage agree. Transport failure, protected
+status, access state, cancellation, extraction failure, and inconsistent record all
+remain separate outcomes. The existing approved synthetic descriptor handoff also
+passed **3 of 3** emulator tests on the Medium Phone after the port refactor.
+
+The provider is synthetic and in-memory. This does not establish a live page-text
+transfer from the private service, source opening, persistence, retrieval, UI,
+WorkManager, semantic understanding/AI, or network operation. It cannot enable real
+user PDFs and does not weaken ADR-017.
+
 ## Next approved engineering step
 
-Design and test the explicit, in-memory application outcome that combines an approved
-synthetic descriptor handoff with the validated domain extraction result without
-persisting it. It must keep a parser transport failure distinct from a successful
-extraction, preserve exact Asset identity/fingerprint/schema binding, and remain
-unbound from Room, UI, WorkManager, search, semantic understanding/AI, and real user
-sources. Do not add a real-source descriptor path or persistence before ADR-017's
-remaining streaming and measured-budget gates are complete.
+Define a pure, content-free extraction persistence contract and lifecycle states for
+the future atomic write of a successfully assembled PDF extraction. The step must not
+add Room entities/migrations or write extracted text. It must specify exactly what
+identity, fingerprint, schema, coverage, integrity, and retry facts will be persisted
+later, with tests proving a failed/inconsistent/partial result is ineligible. Keep it
+unbound from UI, WorkManager, search, semantic understanding/AI, and real sources.
 
 ## Important open decision
 

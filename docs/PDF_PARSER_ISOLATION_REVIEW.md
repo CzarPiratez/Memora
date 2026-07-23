@@ -346,6 +346,24 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   streaming, Room persistence, semantic understanding/AI, retrieval, or recovery UI.
   It cannot weaken any remaining ADR-017 gate.
 
+### Verified approved-parser and in-memory extraction assembly
+
+- **Requirement IDs:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** `AssembleApprovedPdfExtraction` invokes an approved parser-status port
+  before it invokes a synthetic in-memory extraction-result provider. It accepts a
+  record only if its Asset identity, fingerprint, schema, page count, and
+  complete/no-text coverage exactly agree with the request and parser status. A
+  mismatch remains an explicit non-extraction outcome; parser transport and
+  post-parser extraction failures are deliberately distinct.
+- **Verification:** On 2026-07-23, `AssembleApprovedPdfExtractionTest` passed
+  **6 of 6** local unit tests. The existing approved descriptor-to-private-parser
+  integration test passed **3 of 3** on the Medium Phone emulator after the parser
+  status port was introduced.
+- **Known limitation:** The provider is synthetic and in-memory. The assembly neither
+  proves a page-text transfer from the isolated process nor opens/persists a source.
+  It has no Room, UI, WorkManager, understanding/AI, retrieval, or network path and
+  cannot enable real-source parsing.
+
 ### Verified initial synthetic measurement baseline
 
 - **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

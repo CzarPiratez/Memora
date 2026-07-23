@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Verified approved-parser and in-memory extraction assembly
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A small application consistency gate now joins an approved parser
+  status with an already-created in-memory extraction outcome. It calls the synthetic
+  extraction provider only after a successful parser status, requires exact Asset
+  identity/fingerprint/schema binding plus matching page count and coverage, and
+  rejects an inconsistent record. Parser transport failures remain distinct from
+  post-parser extraction failures.
+- **Verification:** On 2026-07-23, `AssembleApprovedPdfExtractionTest` passed
+  **6 of 6** local unit tests. `ParseApprovedPdfWithIsolatedParserIntegrationTest`
+  also passed **3 of 3** on the Medium Phone emulator.
+- **Truthfulness:** The assembly has no descriptor/source/text transport API and
+  writes no Room data. Its provider is synthetic and in-memory; this does not prove
+  that page text has crossed the private service boundary or enable real-source
+  parsing, search, UI, WorkManager, AI, or network.
+
 ### Verified validated-parser-result to domain-extraction handoff
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

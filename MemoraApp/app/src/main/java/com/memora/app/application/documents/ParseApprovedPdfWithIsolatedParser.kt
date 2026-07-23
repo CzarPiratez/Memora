@@ -18,10 +18,10 @@ import com.memora.app.domain.extraction.PdfExtractionRequest
 internal class ParseApprovedPdfWithIsolatedParser(
     private val descriptorBroker: SafPdfDescriptorBroker,
     private val parser: BorrowedPdfDescriptorParser,
-) {
-    suspend fun execute(
+) : ApprovedPdfParsingPort {
+    override suspend fun execute(
         request: PdfExtractionRequest,
-        cancellationSignal: CancellationSignal? = null,
+        cancellationSignal: CancellationSignal?,
     ): ApprovedPdfParsingOutcome = when (
         val brokerResult = descriptorBroker.withReadOnlyDescriptor(request, cancellationSignal) {
             parser.parseBorrowed(it, cancellationSignal)
@@ -39,6 +39,9 @@ internal class ParseApprovedPdfWithIsolatedParser(
         SafPdfDescriptorBrokerResult.Cancelled -> ApprovedPdfParsingOutcome.Cancelled
         SafPdfDescriptorBrokerResult.RetryableFailure -> ApprovedPdfParsingOutcome.RetryableFailure
     }
+
+    suspend fun execute(request: PdfExtractionRequest): ApprovedPdfParsingOutcome =
+        execute(request, cancellationSignal = null)
 
     private fun IsolatedPdfParserClientResult.toOutcome(): ApprovedPdfParsingOutcome = when (outcome) {
         IsolatedPdfParserClientOutcome.EXTRACTED -> pageOutcome { pageCount ->
@@ -62,6 +65,20 @@ internal class ParseApprovedPdfWithIsolatedParser(
     } else {
         ApprovedPdfParsingOutcome.RetryableFailure
     }
+}
+
+/**
+ * Application port for one approved PDF handoff.
+ *
+ * Its production implementation retains the established broker and isolated-parser
+ * boundaries. It deliberately returns a content-free status; it cannot expose a source
+ * handle, URI, or page text.
+ */
+internal fun interface ApprovedPdfParsingPort {
+    suspend fun execute(
+        request: PdfExtractionRequest,
+        cancellationSignal: CancellationSignal?,
+    ): ApprovedPdfParsingOutcome
 }
 
 /** Content-free outcome for a future persistence boundary; no result here is searchable yet. */

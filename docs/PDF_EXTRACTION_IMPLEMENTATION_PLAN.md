@@ -189,3 +189,21 @@ it searchable. `ValidatedIsolatedPdfResultToExtractionMapperTest` passed **4 of 
 local unit tests; the related private-parser emulator regression passed **20 of 20**
 focused Android tests on the Medium Phone. This is not real-source parsing or
 persistence; ADR-017 remains in force.
+
+## Delivery checkpoint: approved parser and extraction outcome assembly
+
+On 2026-07-23, `AssembleApprovedPdfExtraction` was added as an application-level
+consistency gate. It invokes an approved parser-status port first; only `Extracted`
+or `NoExtractableText` outcomes may invoke the in-memory extraction-result provider.
+It then requires the extraction record to match the request's Asset identity,
+fingerprint, and schema, and to agree on page count and complete/no-text coverage.
+Any disagreement is an explicit `InconsistentExtraction`, never a usable record.
+
+Transport failures, protected PDFs, access outcomes, cancellation, and post-parser
+extraction failures remain separate outcomes. The provider is synthetic-only and
+receives no descriptor, URI, path, source content, Room handle, UI, worker, AI, or
+network capability. It does not establish that the isolated service has delivered
+page text to this layer; that future transport/persistence work remains separately
+gated. `AssembleApprovedPdfExtractionTest` passed **6 of 6** local unit tests. The
+existing `ParseApprovedPdfWithIsolatedParserIntegrationTest` passed **3 of 3** on the
+Medium Phone emulator after the port refactor.
