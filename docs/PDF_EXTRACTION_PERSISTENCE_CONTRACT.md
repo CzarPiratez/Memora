@@ -54,6 +54,20 @@ transaction, or return exactly one explicit outcome: `Persisted`,
 `RetryableFailure`, `StaleReindexRequired`, or `FailedSafely`. No Room adapter exists
 at this point, so none of these outcomes has been produced by real storage.
 
+## Application coordination boundary
+
+`PersistApprovedPdfExtraction` is the pure application coordinator for the port. It
+accepts a persistence decision and an optional in-memory record. It calls the port
+only after an `EligibleForAtomicWrite` decision successfully creates a typed write
+request. `NotEligible`, missing record, or record/fact mismatch never reaches the
+port. The coordinator maps each port result one-for-one to an application outcome:
+persisted, retryable failure, stale-reindex-required, or failed safely. It preserves
+the lifecycle/retry instruction for an ineligible decision rather than inventing a
+success state.
+
+This coordinator has no bound production port and performs no write itself. Its tests
+use a recording fake only.
+
 ## Ineligible lifecycle and recovery facts
 
 All other outcomes return `NotEligible` with the request's content-free key plus an
@@ -114,12 +128,14 @@ not yet a Room table, an `IndexingState` transition, a worker schedule, or UI co
 - **Automated verification and result:** on 2026-07-23,
   `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** and
   `PdfExtractionPersistencePortContractTest` passed **5 of 5** local unit tests.
+  `PersistApprovedPdfExtractionTest` then passed **7 of 7** local unit tests.
 - **Emulator/manual verification and result:** not applicable: no Android framework
   type, emulator source, or UI is involved.
 - **Failure/recovery paths verified:** partial coverage, inconsistent assembly,
   mismatched fingerprint, access revocation, retryable parser failure, and
   non-retryable extraction failure are all ineligible; only complete and no-text
-  records are eligible.
+  records are eligible. The coordinator also verifies an ineligible, missing, or
+  mismatched input never invokes the port.
 - **Known limitation or follow-up:** there is no source-content transport, actual
   repository implementation or transaction, Room migration, retry scheduler, search, UI,
   semantic understanding/AI, or real-source PDF capability. ADR-017 remains binding.

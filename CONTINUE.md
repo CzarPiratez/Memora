@@ -516,14 +516,23 @@ coverage. Its only future outcomes are persisted, retryable, stale-reindex, or s
 failure. No repository implementation, Room schema/migration/write, source access,
 text transport, UI, worker, semantic understanding/AI, or network behavior was added.
 
+The pure application persistence coordinator is verified. On 2026-07-23,
+`PersistApprovedPdfExtractionTest` passed **7 of 7** local unit tests. It invokes the
+future port only for a valid eligible decision and matching record, maps every
+persisted/retryable/stale/safe-failure port result explicitly, and proves ineligible,
+missing, and mismatched input never calls the port. The tests use a fake port only;
+no repository implementation, Room schema/migration/write, source access, parser
+transport, UI, worker, semantic understanding/AI, or network behavior was added.
+
 ## Next approved engineering step
 
-Define a pure application coordinator for the new atomic persistence port. It must
-invoke the port only for an eligible decision, map every explicit port result to a
-truthful application outcome, and never call the port for an ineligible or internally
-inconsistent request. Use a fake port in unit tests only. Do not add a data adapter,
-Room entity/migration/write, source access, text transport, UI, WorkManager, search,
-semantic understanding/AI, or a real-source capability.
+Create the data-persistence design record before any Room implementation. It must
+define normalized storage, atomicity, page-text retention, migration/rollback,
+encryption/backup implications, deletion and source-revocation behavior, bounded
+write limits, and the evidence needed to enable it. Cross-check ADR-017 and ADR-019.
+Do not implement Room entities/migrations or any write path until that review is
+accepted; do not add source access, text transport, UI, WorkManager, search, semantic
+understanding/AI, or a real-source capability.
 
 ## Important open decision
 

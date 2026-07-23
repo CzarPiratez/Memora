@@ -96,6 +96,14 @@ complete-or-no-text coverage match. It has explicit persisted, retryable, stale,
 safe-failure outcomes but no data implementation, Room write, source access, UI,
 WorkManager, AI, or real-source parsing.
 
+### P-07 checkpoint correction â€” persistence-port application coordinator
+
+On 2026-07-23, `PersistApprovedPdfExtractionTest` passed **7 of 7** local unit tests.
+It invokes the future persistence port only for a valid eligible decision/record pair,
+maps persisted/retryable/stale/safe-failure outcomes explicitly, and proves
+ineligible, missing, and mismatched input never reaches the port. It uses a fake port
+only and adds no Room write, source access, UI, WorkManager, AI, or real-source parsing.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

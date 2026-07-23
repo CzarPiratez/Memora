@@ -239,3 +239,15 @@ This is not a data adapter: it has no Room implementation, transaction, text wri
 source opening, parser transport, UI, worker, AI, or network behavior.
 `PdfExtractionPersistencePortContractTest` passed **5 of 5** local unit tests; the
 related eligibility regression remained **8 of 8**.
+
+## Delivery checkpoint: persistence-port application coordinator
+
+On 2026-07-23, `PersistApprovedPdfExtraction` was added as the application boundary
+above the domain port. It calls the port only if an eligible decision and matching
+in-memory record create a valid typed request. It maps persisted, retryable, stale,
+and safe-failure port results without collapsing them. Ineligible, missing, and
+mismatched input returns before the port is called.
+
+The focused suite uses a recording fake port and passed **7 of 7** local unit tests.
+This adds no production persistence implementation, Room transaction, source access,
+parser transport, UI, worker, AI, or network behavior.

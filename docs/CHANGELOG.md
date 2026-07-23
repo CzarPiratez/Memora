@@ -31,6 +31,18 @@
   access, descriptor or parser transport, UI, WorkManager, AI, or network behavior
   was added.
 
+### Verified PDF extraction persistence coordinator
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A pure application coordinator invokes the future persistence port
+  only for an eligible, matching record. It preserves all four explicit port outcomes
+  and prevents ineligible, missing, or mismatched record input from reaching the port.
+- **Verification:** On 2026-07-23, `PersistApprovedPdfExtractionTest` passed
+  **7 of 7** local unit tests.
+- **Truthfulness:** The test uses only a fake port. No repository implementation,
+  Room schema/migration/write, source access, parser/text transport, UI, WorkManager,
+  semantic understanding/AI, or network behavior was added.
+
 ### Verified approved-parser and in-memory extraction assembly
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
