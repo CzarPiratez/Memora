@@ -524,15 +524,22 @@ missing, and mismatched input never calls the port. The tests use a fake port on
 no repository implementation, Room schema/migration/write, source access, parser
 transport, UI, worker, semantic understanding/AI, or network behavior was added.
 
-## Next approved engineering step
+## Next approval required
 
-Create the data-persistence design record before any Room implementation. It must
-define normalized storage, atomicity, page-text retention, migration/rollback,
-encryption/backup implications, deletion and source-revocation behavior, bounded
-write limits, and the evidence needed to enable it. Cross-check ADR-017 and ADR-019.
-Do not implement Room entities/migrations or any write path until that review is
-accepted; do not add source access, text transport, UI, WorkManager, search, semantic
-understanding/AI, or a real-source capability.
+The data-persistence review is complete in
+`docs/PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`; proposed ADR-020 blocks content
+persistence. It found that Android backup is presently enabled with template backup
+rules, and that no database-encryption, superseded-record retention, or source-
+revocation deletion policy has yet been accepted.
+
+Before any Room entity, migration, repository binding, or write path, obtain an
+explicit product decision on the recommended privacy posture: disable backup/device
+transfer for Memora private data and adopt a reviewed Keystore-protected encrypted
+database design, with user-controlled derived-data clearing and truthful
+source-unavailable behavior after revocation. Record the accepted choices in ADR-020,
+then implement those privacy foundations as a separately tested step. Do not add
+source access, text transport, UI, WorkManager, search, semantic understanding/AI,
+or a real-source capability.
 
 ## Important open decision
 

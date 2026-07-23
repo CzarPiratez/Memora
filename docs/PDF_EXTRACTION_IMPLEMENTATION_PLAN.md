@@ -251,3 +251,18 @@ mismatched input returns before the port is called.
 The focused suite uses a recording fake port and passed **7 of 7** local unit tests.
 This adds no production persistence implementation, Room transaction, source access,
 parser transport, UI, worker, AI, or network behavior.
+
+## Delivery checkpoint: data-persistence design review
+
+On 2026-07-24, the required design record for any future derived PDF content storage
+was added in `PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`. It specifies the proposed
+normalized header/page/metadata model, immutable provenance key, atomicity,
+idempotency, deletion and source-revocation rules, migration/rollback guardrails,
+backup/encryption review, bounded-write evidence, and implementation gates.
+
+The review found that the manifest currently allows Android backup while both backup
+XML files remain template defaults. Proposed ADR-020 therefore blocks Room content
+persistence until the user accepts the proposed data-handling decisions and the
+separate privacy/security work is completed. This is documentation only: no Room
+schema, data write, manifest change, source access, parser transport, UI, worker, AI,
+or real-source parsing was added.

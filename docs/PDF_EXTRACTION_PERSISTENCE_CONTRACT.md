@@ -4,6 +4,11 @@
 persistence implementation exists.
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
 
+The mandatory data-persistence design review is recorded in
+[`PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`](PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md).
+It is proposed and blocking: this contract does not authorize a Room entity,
+migration, repository binding, or write until that review's decisions are accepted.
+
 ## Purpose
 
 Before Memora can persist a deterministic PDF extraction, it needs an explicit rule

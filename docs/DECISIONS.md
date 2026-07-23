@@ -536,3 +536,24 @@ false-link rate, and explanation coverage.
 UI, network path, or current-MVP feature. It adds E-04 through E-06 to the
 traceability matrix. The next implementation of Memory persistence/creation must
 start with a small pure identity/revision/integrity-state contract and tests.
+
+## ADR-020: PDF extraction content persistence is blocked pending privacy review
+
+**Status:** Proposed and blocking; no implementation authorized
+
+**Decision:** Before Memora writes derived PDF text or metadata to Room, it must
+accept the design in `docs/PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`. The review
+requires an explicit backup/device-transfer policy, an explicit database-encryption
+threat model, deletion and source-revocation behavior, a superseded-record retention
+decision, measured resource limits, an additive migration/rollback plan, and atomic
+write/deletion verification. The current default Android backup resources do not
+satisfy this review.
+
+**Reason:** Derived page text is sensitive user content. The existing typed
+persistence-port contract protects identity/fingerprint/schema/coverage correctness,
+but cannot decide how sensitive local content is protected, retained, migrated, or
+removed.
+
+**Consequences:** No Room entity, migration, DAO, repository binding, write path,
+source-content transport, search, UI, worker, AI, or real-source parsing is enabled
+by this ADR. ADR-017 remains independently binding for real user PDFs.
