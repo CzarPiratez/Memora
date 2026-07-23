@@ -380,6 +380,21 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   process-isolation overhead, offline behavior, real source access, persistence, or
   user-visible recovery.
 
+### Verified content-free persistence eligibility
+
+- **Scope:** `PrepareApprovedPdfExtractionPersistence` accepts only a request and
+  the assembled in-memory outcome. It returns content-free future persistence facts
+  for complete/no-text records, or an explicit lifecycle/retry decision for every
+  other outcome.
+- **Safety:** A partial, inconsistent, or mismatched record cannot become eligible.
+  The output contains identity/fingerprint/schema/page-count/coverage/integrity and
+  retry facts only; it excludes text, metadata, title, URI, descriptor, and source.
+- **Verification:** `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8**
+  local unit tests on 2026-07-23.
+- **Known limitation:** No record is written, no parser content is released, and no
+  real source, Room database, UI, WorkManager, semantic understanding/AI, or network
+  operation is enabled. ADR-017 remains the real-source gate.
+
 ### Verified live isolated parser-process death recovery
 
 - **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

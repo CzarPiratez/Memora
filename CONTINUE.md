@@ -496,12 +496,26 @@ user PDFs and does not weaken ADR-017.
 
 ## Next approved engineering step
 
-Define a pure, content-free extraction persistence contract and lifecycle states for
-the future atomic write of a successfully assembled PDF extraction. The step must not
-add Room entities/migrations or write extracted text. It must specify exactly what
-identity, fingerprint, schema, coverage, integrity, and retry facts will be persisted
-later, with tests proving a failed/inconsistent/partial result is ineligible. Keep it
-unbound from UI, WorkManager, search, semantic understanding/AI, and real sources.
+The pure content-free extraction persistence contract is verified. On 2026-07-23,
+`PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** local unit tests. It
+accepts a request and the already assembled in-memory PDF extraction outcome, then
+permits only a matching complete or explicit no-text record to become eligible for a
+future atomic write. Its facts contain only identity, fingerprint, schema, positive
+page count, coverage, verified integrity, lifecycle, and retry direction. Partial,
+inconsistent, mismatched, failed, access-blocked, unavailable, and retryable outcomes
+are ineligible with a truthful recovery state. No Room entity/migration/write, source
+access, text transport, UI, worker, semantic understanding/AI, or network behavior
+was added.
+
+## Next approved engineering step
+
+Define the pure atomic persistence-port contract that a future data repository must
+implement for an eligible PDF extraction: it must require the validated
+content-bearing record and its matching content-free facts together, expose explicit
+write/retry outcomes, and make it impossible to request a write for an ineligible
+decision. Add only pure contract tests. Do not add Room entities/migrations, a data
+adapter, source access, text transport, UI, WorkManager, search, semantic
+understanding/AI, or a real-source capability.
 
 ## Important open decision
 

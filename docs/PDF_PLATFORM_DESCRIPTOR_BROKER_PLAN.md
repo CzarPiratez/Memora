@@ -290,6 +290,17 @@ has no descriptor or source capability, and no extraction is stored or searchabl
 Real-source parsing, streaming, persistence, and all remaining ADR-017 gates are
 unchanged.
 
+## Delivery checkpoint: content-free persistence decision
+
+`PrepareApprovedPdfExtractionPersistence` now defines what a future broker-to-store
+handoff may retain after the approved parser/extraction assembly. It never receives a
+descriptor, URI, source reference, or parser payload. Its eligible output is limited
+to the request's identity/fingerprint/schema binding, verified positive page count,
+complete/no-text coverage, integrity, lifecycle, and retry facts. Partial,
+inconsistent, failed, and unavailable outcomes remain non-writeable with an explicit
+recovery directive. Eight focused local unit tests passed; no broker behavior or
+real-source access changed.
+
 ## Pre-work record
 
 - **Governing sources checked:** product registry, Local AI technical specification,

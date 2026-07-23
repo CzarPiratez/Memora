@@ -207,3 +207,21 @@ page text to this layer; that future transport/persistence work remains separate
 gated. `AssembleApprovedPdfExtractionTest` passed **6 of 6** local unit tests. The
 existing `ParseApprovedPdfWithIsolatedParserIntegrationTest` passed **3 of 3** on the
 Medium Phone emulator after the port refactor.
+
+## Delivery checkpoint: content-free persistence eligibility
+
+On 2026-07-23, `PrepareApprovedPdfExtractionPersistence` added the pure decision
+that must precede any future atomic persistence of a successfully assembled PDF
+extraction. It accepts the existing request and assembly outcome, then emits either
+metadata-only facts eligible for a future write or an explicit ineligible lifecycle
+and retry directive. Eligible facts retain identity, fingerprint, schema version,
+positive page count, complete/no-text coverage, verified integrity, and a no-retry
+ready state. They carry no PDF text, title, metadata, URI, source location, or parser
+result.
+
+Partial coverage, inconsistent outcome, changed fingerprint, access loss, source
+failure, cancellation, and parser/extraction failure remain ineligible and have
+explicit recovery instructions. No Room entity, migration, record write, source
+access, parser transport, UI, worker, AI, or network behavior was added.
+`PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** local unit tests.
+The complete contract is recorded in `PDF_EXTRACTION_PERSISTENCE_CONTRACT.md`.

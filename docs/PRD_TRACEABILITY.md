@@ -78,6 +78,15 @@ emulator tests after the parser-status port refactor. This does not transfer pag
 from the service, persist data, or enable source access, retrieval, UI, WorkManager,
 AI, or real-source parsing.
 
+### P-07 checkpoint correction â€” content-free persistence eligibility
+
+On 2026-07-23, `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8**
+local unit tests. It permits only exact identity/fingerprint/schema-bound complete or
+explicit no-text records to become eligible for a future atomic write, yielding only
+content-free page-count, coverage, integrity, lifecycle, and retry facts. Partial,
+inconsistent, failed, and access-blocked outcomes are explicitly ineligible. This
+adds no Room write, source access, UI, WorkManager, AI, or real-source parsing.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

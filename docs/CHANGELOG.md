@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Verified content-free PDF extraction persistence eligibility
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A pure application policy now permits only an identity/fingerprint/
+  schema-matching complete or explicit no-text extraction record to become eligible
+  for a future atomic persistence transaction. Eligible facts are content-free:
+  identity, fingerprint, schema, page count, coverage, integrity, lifecycle, and
+  retry directive. Partial, inconsistent, failed, access-blocked, source-unavailable,
+  and retryable outcomes stay explicitly ineligible.
+- **Verification:** On 2026-07-23, `PrepareApprovedPdfExtractionPersistenceTest`
+  passed **8 of 8** local unit tests.
+- **Truthfulness:** This adds no Room entity, migration, or write; no source access,
+  descriptor or parser-text transport, UI, WorkManager, semantic understanding/AI,
+  or network path. It does not enable a real user PDF.
+
 ### Verified approved-parser and in-memory extraction assembly
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
