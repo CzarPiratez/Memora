@@ -172,3 +172,20 @@ The first implementation must add:
   `PdfBoxPdfDocumentMapperIntegrationTest`: 4 of 4 tests. A later accepted
   isolated-process review is still required before the parser can open a real user
   source. No source mutation or network path is permitted.
+
+## Delivery checkpoint: validated isolated-parser result to domain extraction
+
+On 2026-07-23, `ValidatedIsolatedPdfResultToExtractionMapper` was added as a
+synthetic-only, in-memory data-to-domain handoff. It accepts only the already
+validated isolated-parser transport type; it does not decode a Binder bundle, open a
+descriptor, or access a source. For an extracted result, it deterministically sorts
+page chunks by page number and chunk index, rejoins them into complete page text, and
+creates a `PdfExtractionRecord` bound to the supplied `PdfExtractionRequest`.
+
+No-text, password-protected, and failure outcomes remain explicit. The handoff does
+not invent page text, metadata, title, partial coverage, or a source result that was
+not present in the validated transport. It does not write that record to Room or make
+it searchable. `ValidatedIsolatedPdfResultToExtractionMapperTest` passed **4 of 4**
+local unit tests; the related private-parser emulator regression passed **20 of 20**
+focused Android tests on the Medium Phone. This is not real-source parsing or
+persistence; ADR-017 remains in force.

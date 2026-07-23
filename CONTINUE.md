@@ -462,15 +462,31 @@ UI behavior, WorkManager, semantic understanding/AI, or network. It is not the
 required real-source session/chunk streaming protocol, and its limits are not
 production budgets. ADR-017 still blocks real-user PDF parsing.
 
+## Verified engineering checkpoint
+
+The synthetic typed parser-to-domain handoff is verified. On 2026-07-23,
+`ValidatedIsolatedPdfResultToExtractionMapperTest` passed **4 of 4** local unit
+tests. It accepts only an already validated bounded parser result and creates the
+existing in-memory `PdfExtractionOutcome`: complete chunks are sorted/rejoined per
+page, no-text remains explicit, and protected/failed outcomes remain content-free
+domain failures. The supplied Asset identity/fingerprint and schema version bind any
+created record. The Medium Phone emulator also reran the related private-parser
+regression: **20 of 20** Android tests passed.
+
+This mapper does not decode Binder data, open a descriptor or source, create partial
+coverage, invent metadata/title/text, write Room, expose UI/search, schedule
+WorkManager, invoke semantic understanding/AI, use network, or enable a real user
+PDF. It remains a synthetic-only proof of the next inward architecture boundary.
+
 ## Next approved engineering step
 
-Create a small, synthetic-only typed handoff that maps an already validated bounded
-parser result into the existing domain PDF-extraction shape in memory. Keep the
-isolated-service client content-free, preserve no-text/partial/failure truthfulness,
-and add pure/application tests. It must not open a source, bind to Room, UI,
-WorkManager, search, semantic understanding/AI, or any real user source. The purpose
-is to verify the next architectural boundary before any persistence design is
-considered.
+Design and test the explicit, in-memory application outcome that combines an approved
+synthetic descriptor handoff with the validated domain extraction result without
+persisting it. It must keep a parser transport failure distinct from a successful
+extraction, preserve exact Asset identity/fingerprint/schema binding, and remain
+unbound from Room, UI, WorkManager, search, semantic understanding/AI, and real user
+sources. Do not add a real-source descriptor path or persistence before ADR-017's
+remaining streaming and measured-budget gates are complete.
 
 ## Important open decision
 

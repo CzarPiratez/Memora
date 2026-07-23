@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Verified validated-parser-result to domain-extraction handoff
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A small, synthetic-only data-to-domain mapper now accepts only an
+  already validated isolated-parser result. It deterministically rejoins ordered
+  chunks into complete page records, preserves explicit no-extractable-text, and maps
+  protected or failed parser outcomes to truthful domain failures. It creates only an
+  in-memory `PdfExtractionRecord` bound to the supplied Asset identity/fingerprint.
+- **Verification:** On 2026-07-23, `ValidatedIsolatedPdfResultToExtractionMapperTest`
+  passed **4 of 4** local unit tests. The existing private-parser emulator regression
+  also passed **20 of 20** focused Android tests on the Medium Phone.
+- **Truthfulness:** This mapper does not decode Binder data, open a descriptor or
+  source, write Room, start WorkManager, invoke understanding/AI, expose UI, search,
+  or use network. It has no partial-result transport and cannot enable real-source
+  parsing or persistence.
+
 ### Verified bounded synthetic isolated-parser result transport
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

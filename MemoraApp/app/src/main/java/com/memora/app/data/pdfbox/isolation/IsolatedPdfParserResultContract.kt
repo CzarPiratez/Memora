@@ -3,9 +3,10 @@ package com.memora.app.data.pdfbox.isolation
 /**
  * Pure, future-facing validator for bounded page-text data returned by the isolated parser.
  *
- * The current Binder service still returns status only. This contract has no Android, Binder,
- * descriptor, source, Room, UI, WorkManager, or AI dependency. Its limits are injected because
- * production values require a separately measured and approved device policy.
+ * The private synthetic service uses this contract before it emits a bounded envelope. This
+ * contract itself has no Android, Binder, descriptor, source, Room, UI, WorkManager, or AI
+ * dependency. Its limits are injected because production values require a separately measured
+ * and approved device policy.
  */
 internal object IsolatedPdfParserResultContract {
     const val SUPPORTED_SCHEMA_VERSION = 1
@@ -118,7 +119,7 @@ internal data class IsolatedPdfParserResultLimits(
     }
 }
 
-/** Future transport shape only; no Binder codec or service behavior is changed in this step. */
+/** Versioned deterministic transport shape; real-source streaming remains a separate ADR-017 gate. */
 internal data class IsolatedPdfParserWireResult(
     val schemaVersion: Int,
     val outcome: IsolatedPdfParserWireOutcome,

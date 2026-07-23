@@ -57,6 +57,16 @@ single bounded Binder envelope is not the mandatory real-source session/chunk
 streaming design, and the limits are not production budgets. ADR-017 keeps real
 source parsing disabled.
 
+### P-07 checkpoint correction — validated domain handoff
+
+On 2026-07-23, a synthetic-only mapper from an already validated isolated-parser
+result to the existing in-memory `PdfExtractionOutcome` passed **4 of 4** local unit
+tests. It deterministically rejoins complete chunks, retains explicit no-text and
+failure truthfulness, and binds an extracted record to the supplied Asset
+identity/fingerprint/schema version. The private-parser Medium Phone regression also
+passed **20 of 20** Android tests. This does not persist or search extraction data,
+open a source, expose UI, add WorkManager or AI, or enable user-source parsing.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

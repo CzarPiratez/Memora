@@ -328,6 +328,24 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
   custody, streaming, measured memory/battery/thermal behavior, atomic persistence,
   and visible recovery remain mandatory ADR-017 gates.
 
+### Verified validated-result to domain-extraction handoff
+
+- **Requirement IDs:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** A synthetic-only mapper now accepts the already validated transport
+  result type and produces only the existing in-memory `PdfExtractionOutcome`. It
+  sorts and rejoins complete chunks per page, preserves no-text coverage, and maps
+  protected or failed outcomes to non-content domain failures. It does not decode
+  Binder data, open a descriptor or source, store an extraction, or expose page text
+  to UI or search.
+- **Verification:** On 2026-07-23,
+  `ValidatedIsolatedPdfResultToExtractionMapperTest` passed **4 of 4** local unit
+  tests. The private parser's focused Medium Phone emulator regression passed
+  **20 of 20** Android tests.
+- **Known limitation:** This is an in-memory mapping proof only. It does not add a
+  partial-result transport, source metadata/title transport, a real source, session
+  streaming, Room persistence, semantic understanding/AI, retrieval, or recovery UI.
+  It cannot weaken any remaining ADR-017 gate.
+
 ### Verified initial synthetic measurement baseline
 
 - **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

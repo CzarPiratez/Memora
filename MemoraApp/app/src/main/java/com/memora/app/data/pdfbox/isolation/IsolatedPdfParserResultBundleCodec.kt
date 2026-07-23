@@ -3,11 +3,11 @@ package com.memora.app.data.pdfbox.isolation
 import android.os.Bundle
 
 /**
- * Strict future decoder for isolated-parser page-text results.
+ * Strict decoder and encoder for bounded synthetic isolated-parser page-text results.
  *
- * This codec is deliberately not connected to the current status-only Binder service. It accepts
- * only the exact version-one field set, converts it into the pure result contract, and returns no
- * candidate content for unknown, missing, mistyped, or over-limit data.
+ * It accepts only the exact version-one field set, converts it into the pure result contract,
+ * and returns no candidate content for unknown, missing, mistyped, or over-limit data. The
+ * ordinary-process client validates and discards chunks at this checkpoint.
  */
 @Suppress("DEPRECATION") // API 26-compatible exact runtime type checks are required at this boundary.
 internal object IsolatedPdfParserResultBundleCodec {
