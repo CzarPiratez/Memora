@@ -9,6 +9,7 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import com.memora.app.data.pdfbox.PdfBoxPdfDocumentParser
 import com.memora.app.data.pdfbox.PdfDocumentParseResult
+import com.memora.app.domain.extraction.PdfTextCoverage
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import java.io.IOException
 import java.util.concurrent.ExecutionException
@@ -19,9 +20,9 @@ import java.util.concurrent.Executors
  * Private worker for parsing one descriptor in Android's isolated-process sandbox.
  *
  * Its Binder contract deliberately has no URI, path, source identity, text, metadata,
- * Room, Hilt, or UI parameter. This first boundary exercise returns only a bounded
- * parser-status summary; later work must add an independently reviewed page-chunk
- * protocol before any real source can be enabled.
+ * Room, Hilt, or UI parameter. It returns only a versioned, bounded, validated result
+ * envelope. The ordinary-process client validates that envelope and currently discards all
+ * chunks after deriving a status summary; no extraction is persisted in this checkpoint.
  */
 class IsolatedPdfParserService : Service() {
     private val worker: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
@@ -43,7 +44,7 @@ class IsolatedPdfParserService : Service() {
             return try {
                 worker.submit<Bundle> {
                     ParcelFileDescriptor.AutoCloseInputStream(source).use { input ->
-                        parser.parse(input).toWireSummary()
+                        parser.parse(input).toWireEnvelope()
                     }
                 }.get()
             } catch (_: InterruptedException) {
@@ -72,40 +73,102 @@ class IsolatedPdfParserService : Service() {
         super.onDestroy()
     }
 
-    private fun PdfDocumentParseResult.toWireSummary(): Bundle = Bundle().apply {
-        putBoolean(KEY_IS_ISOLATED, isRunningIsolated())
-        when (this@toWireSummary) {
+    private fun PdfDocumentParseResult.toWireEnvelope(): Bundle = when (this) {
             is PdfDocumentParseResult.Parsed -> {
-                putString(
-                    KEY_OUTCOME,
-                    if (textCoverage is com.memora.app.domain.extraction.PdfTextCoverage.NoExtractableText) {
-                        OUTCOME_NO_EXTRACTABLE_TEXT
-                    } else {
-                        OUTCOME_EXTRACTED
-                    },
-                )
-                putInt(KEY_PAGE_COUNT, pageCount)
+                if (textCoverage == PdfTextCoverage.NoExtractableText) {
+                    envelope(
+                        IsolatedPdfParserWireResult(
+                            schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                            outcome = IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT,
+                            retryable = false,
+                            pageCount = pageCount,
+                        ),
+                    )
+                } else {
+                    envelope(
+                        IsolatedPdfParserWireResult(
+                            schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                            outcome = IsolatedPdfParserWireOutcome.EXTRACTED,
+                            retryable = false,
+                            pageCount = pageCount,
+                            chunks = pages.flatMap { page -> page.text.toChunks(page.pageNumber) },
+                        ),
+                    )
+                }
             }
 
-            PdfDocumentParseResult.PasswordProtected -> putString(KEY_OUTCOME, OUTCOME_PASSWORD_PROTECTED)
+            PdfDocumentParseResult.PasswordProtected -> envelope(
+                IsolatedPdfParserWireResult(
+                    schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                    outcome = IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED,
+                    retryable = false,
+                ),
+            )
 
             is PdfDocumentParseResult.Failed -> {
-                putString(KEY_OUTCOME, OUTCOME_FAILURE)
-                putBoolean(KEY_RETRYABLE, retryable)
+                envelope(
+                    IsolatedPdfParserWireResult(
+                        schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                        outcome = IsolatedPdfParserWireOutcome.FAILURE,
+                        retryable = retryable,
+                    ),
+                )
             }
+        }
+
+    private fun String.toChunks(pageNumber: Int): List<IsolatedPdfParserPageTextChunk> {
+        if (isEmpty()) {
+            return listOf(IsolatedPdfParserPageTextChunk(pageNumber, 0, true, ""))
+        }
+
+        val chunks = mutableListOf<IsolatedPdfParserPageTextChunk>()
+        var start = 0
+        while (start < length) {
+            var end = minOf(start + IsolatedPdfParserSyntheticResultPolicy.MAXIMUM_CHUNK_TEXT_CODE_UNITS, length)
+            if (end < length && this[end - 1].isHighSurrogate() && this[end].isLowSurrogate()) {
+                end -= 1
+            }
+            chunks += IsolatedPdfParserPageTextChunk(
+                pageNumber = pageNumber,
+                chunkIndex = chunks.size,
+                isFinalChunk = end == length,
+                text = substring(start, end),
+            )
+            start = end
+        }
+        return chunks
+    }
+
+    private fun envelope(candidate: IsolatedPdfParserWireResult): Bundle {
+        val boundedResult = IsolatedPdfParserResultBundleCodec.encode(
+            candidate,
+            IsolatedPdfParserSyntheticResultPolicy.limits,
+        ) ?: return retryableFailure()
+        return Bundle().apply {
+            putBoolean(KEY_IS_ISOLATED, isRunningIsolated())
+            putBundle(KEY_BOUNDED_RESULT, boundedResult)
         }
     }
 
-    private fun retryableFailure(): Bundle = Bundle().apply {
-        putBoolean(KEY_IS_ISOLATED, isRunningIsolated())
-        putString(KEY_OUTCOME, OUTCOME_FAILURE)
-        putBoolean(KEY_RETRYABLE, true)
-    }
+    private fun retryableFailure(): Bundle = envelopeFailure(retryable = true)
 
-    private fun protocolFailure(): Bundle = Bundle().apply {
+    private fun protocolFailure(): Bundle = envelopeFailure(retryable = false)
+
+    private fun envelopeFailure(retryable: Boolean): Bundle = Bundle().apply {
         putBoolean(KEY_IS_ISOLATED, isRunningIsolated())
-        putString(KEY_OUTCOME, OUTCOME_FAILURE)
-        putBoolean(KEY_RETRYABLE, false)
+        putBundle(
+            KEY_BOUNDED_RESULT,
+            checkNotNull(
+                IsolatedPdfParserResultBundleCodec.encode(
+                    IsolatedPdfParserWireResult(
+                        schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                        outcome = IsolatedPdfParserWireOutcome.FAILURE,
+                        retryable = retryable,
+                    ),
+                    IsolatedPdfParserSyntheticResultPolicy.limits,
+                ),
+            ),
+        )
     }
 
     private fun isRunningIsolated(): Boolean =
@@ -120,15 +183,8 @@ class IsolatedPdfParserService : Service() {
     }
 
     companion object {
-        const val PROTOCOL_VERSION = 1
+        const val PROTOCOL_VERSION = 2
         const val KEY_IS_ISOLATED = "is_isolated"
-        const val KEY_OUTCOME = "outcome"
-        const val KEY_PAGE_COUNT = "page_count"
-        const val KEY_RETRYABLE = "retryable"
-
-        const val OUTCOME_EXTRACTED = "extracted"
-        const val OUTCOME_NO_EXTRACTABLE_TEXT = "no_extractable_text"
-        const val OUTCOME_PASSWORD_PROTECTED = "password_protected"
-        const val OUTCOME_FAILURE = "failure"
+        const val KEY_BOUNDED_RESULT = "bounded_result"
     }
 }

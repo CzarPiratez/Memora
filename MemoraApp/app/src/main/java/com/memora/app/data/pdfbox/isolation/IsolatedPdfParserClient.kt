@@ -17,10 +17,10 @@ import java.util.concurrent.TimeoutException
 /**
  * Private ordinary-process boundary for one already-opened synthetic PDF descriptor.
  *
- * This class deliberately has no URI, path, source identity, text, Room, UI, or source
- * access API. A later platform adapter must validate a user-approved grant before it can
- * supply any real descriptor. Until every ADR-017 release gate is complete, this client is
- * exercised only with repository-owned synthetic descriptors.
+ * This class deliberately has no URI, path, source identity, Room, UI, or source-access API.
+ * It validates the private service's bounded result envelope, then discards all page text and
+ * returns a content-free status summary. A later, separately governed persistence boundary may
+ * receive validated deterministic text; until then this client is synthetic-fixture-only.
  */
 internal class IsolatedPdfParserClient(
     private val connection: IsolatedPdfParserConnection,
@@ -109,55 +109,49 @@ internal class IsolatedPdfParserClient(
     }
 
     private fun Bundle.toClientResult(): IsolatedPdfParserClientResult {
-        if (!getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED)) {
+        if (
+            !getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED) ||
+            keySet() != setOf(
+                IsolatedPdfParserService.KEY_IS_ISOLATED,
+                IsolatedPdfParserService.KEY_BOUNDED_RESULT,
+            )
+        ) {
             return retryableFailure()
         }
-
-        return when (getString(IsolatedPdfParserService.KEY_OUTCOME)) {
-            IsolatedPdfParserService.OUTCOME_EXTRACTED -> pageOutcome(
-                IsolatedPdfParserClientOutcome.EXTRACTED,
+        val boundedResult = getBundle(IsolatedPdfParserService.KEY_BOUNDED_RESULT)
+            ?: return retryableFailure()
+        return when (
+            val validation = IsolatedPdfParserResultBundleCodec.decode(
+                boundedResult,
+                IsolatedPdfParserSyntheticResultPolicy.limits,
             )
-
-            IsolatedPdfParserService.OUTCOME_NO_EXTRACTABLE_TEXT -> pageOutcome(
-                IsolatedPdfParserClientOutcome.NO_EXTRACTABLE_TEXT,
-            )
-
-            IsolatedPdfParserService.OUTCOME_PASSWORD_PROTECTED -> IsolatedPdfParserClientResult(
-                outcome = IsolatedPdfParserClientOutcome.PASSWORD_PROTECTED,
-                retryable = false,
-            )
-
-            IsolatedPdfParserService.OUTCOME_FAILURE -> IsolatedPdfParserClientResult(
-                outcome = IsolatedPdfParserClientOutcome.FAILURE,
-                // A missing retryability field is a malformed response, not a permanent result.
-                retryable = if (containsKey(IsolatedPdfParserService.KEY_RETRYABLE)) {
-                    getBoolean(IsolatedPdfParserService.KEY_RETRYABLE)
-                } else {
-                    true
-                },
-            )
-
-            else -> retryableFailure()
+        ) {
+            is IsolatedPdfParserWireResultValidation.Valid -> validation.result.toClientSummary()
+            IsolatedPdfParserWireResultValidation.Rejected -> retryableFailure()
         }
     }
 
-    private fun Bundle.pageOutcome(
-        outcome: IsolatedPdfParserClientOutcome,
-    ): IsolatedPdfParserClientResult {
-        if (!containsKey(IsolatedPdfParserService.KEY_PAGE_COUNT)) {
-            return retryableFailure()
+    private fun IsolatedPdfParserWireResult.toClientSummary(): IsolatedPdfParserClientResult = when (outcome) {
+        IsolatedPdfParserWireOutcome.EXTRACTED -> pageSummary(IsolatedPdfParserClientOutcome.EXTRACTED)
+        IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT -> {
+            pageSummary(IsolatedPdfParserClientOutcome.NO_EXTRACTABLE_TEXT)
         }
+        IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED -> IsolatedPdfParserClientResult(
+            outcome = IsolatedPdfParserClientOutcome.PASSWORD_PROTECTED,
+            retryable = false,
+        )
+        IsolatedPdfParserWireOutcome.FAILURE -> IsolatedPdfParserClientResult(
+            outcome = IsolatedPdfParserClientOutcome.FAILURE,
+            retryable = retryable,
+        )
+    }
 
-        val pageCount = getInt(IsolatedPdfParserService.KEY_PAGE_COUNT)
-        return if (pageCount > 0) {
-            IsolatedPdfParserClientResult(
-                outcome = outcome,
-                retryable = false,
-                pageCount = pageCount,
-            )
-        } else {
-            retryableFailure()
-        }
+    private fun IsolatedPdfParserWireResult.pageSummary(
+        outcome: IsolatedPdfParserClientOutcome,
+    ): IsolatedPdfParserClientResult = if (!retryable && pageCount != null && pageCount > 0) {
+        IsolatedPdfParserClientResult(outcome = outcome, retryable = false, pageCount = pageCount)
+    } else {
+        retryableFailure()
     }
 
     private fun retryableFailure(): IsolatedPdfParserClientResult = IsolatedPdfParserClientResult(

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -81,44 +82,45 @@ class IsolatedPdfParserServiceIntegrationTest {
         val result = parseSynthetic(SyntheticPdfFixtures.twoPageSelectable())
 
         assertTrue("The service must confirm that it runs isolated.", result.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED))
-        assertEquals(
-            IsolatedPdfParserService.OUTCOME_EXTRACTED,
-            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
-        )
-        assertEquals(2, result.getInt(IsolatedPdfParserService.KEY_PAGE_COUNT))
+        val decoded = decodedResult(result)
+
+        assertEquals(IsolatedPdfParserWireOutcome.EXTRACTED, decoded.outcome)
+        assertEquals(2, decoded.pageCount)
+        assertEquals(setOf(1, 2), decoded.chunks.map(IsolatedPdfParserPageTextChunk::pageNumber).toSet())
+        assertTrue(decoded.chunks.all(IsolatedPdfParserPageTextChunk::isFinalChunk))
     }
 
     @Test
     fun returns_explicit_no_text_for_an_image_only_synthetic_descriptor() {
         val result = parseSynthetic(SyntheticPdfFixtures.imageOnly())
 
-        assertEquals(
-            IsolatedPdfParserService.OUTCOME_NO_EXTRACTABLE_TEXT,
-            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
-        )
-        assertEquals(1, result.getInt(IsolatedPdfParserService.KEY_PAGE_COUNT))
+        val decoded = decodedResult(result)
+
+        assertEquals(IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT, decoded.outcome)
+        assertEquals(1, decoded.pageCount)
+        assertTrue(decoded.chunks.isEmpty())
     }
 
     @Test
     fun returns_password_protected_without_returning_source_content() {
         val result = parseSynthetic(SyntheticPdfFixtures.passwordProtected())
 
-        assertEquals(
-            IsolatedPdfParserService.OUTCOME_PASSWORD_PROTECTED,
-            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
-        )
-        assertFalse(result.containsKey(IsolatedPdfParserService.KEY_PAGE_COUNT))
+        val decoded = decodedResult(result)
+
+        assertEquals(IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED, decoded.outcome)
+        assertEquals(null, decoded.pageCount)
+        assertTrue(decoded.chunks.isEmpty())
     }
 
     @Test
     fun returns_a_retryable_failure_for_a_malformed_descriptor_and_closes_it() {
         val result = parseSynthetic(SyntheticPdfFixtures.malformed())
 
-        assertEquals(
-            IsolatedPdfParserService.OUTCOME_FAILURE,
-            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
-        )
-        assertTrue(result.getBoolean(IsolatedPdfParserService.KEY_RETRYABLE))
+        val decoded = decodedResult(result)
+
+        assertEquals(IsolatedPdfParserWireOutcome.FAILURE, decoded.outcome)
+        assertTrue(decoded.retryable)
+        assertTrue(decoded.chunks.isEmpty())
     }
 
     @Test
@@ -128,12 +130,32 @@ class IsolatedPdfParserServiceIntegrationTest {
             protocolVersion = IsolatedPdfParserService.PROTOCOL_VERSION + 1,
         )
 
+        val decoded = decodedResult(result)
+
+        assertEquals(IsolatedPdfParserWireOutcome.FAILURE, decoded.outcome)
+        assertFalse(decoded.retryable)
+        assertEquals(null, decoded.pageCount)
+        assertTrue(decoded.chunks.isEmpty())
+    }
+
+    private fun decodedResult(result: Bundle): IsolatedPdfParserWireResult {
+        assertTrue("The service must confirm that it runs isolated.", result.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED))
         assertEquals(
-            IsolatedPdfParserService.OUTCOME_FAILURE,
-            result.getString(IsolatedPdfParserService.KEY_OUTCOME),
+            setOf(IsolatedPdfParserService.KEY_IS_ISOLATED, IsolatedPdfParserService.KEY_BOUNDED_RESULT),
+            result.keySet(),
         )
-        assertFalse(result.getBoolean(IsolatedPdfParserService.KEY_RETRYABLE))
-        assertFalse(result.containsKey(IsolatedPdfParserService.KEY_PAGE_COUNT))
+        val payload = requireNotNull(result.getBundle(IsolatedPdfParserService.KEY_BOUNDED_RESULT))
+        return when (
+            val validation = IsolatedPdfParserResultBundleCodec.decode(
+                payload,
+                IsolatedPdfParserSyntheticResultPolicy.limits,
+            )
+        ) {
+            is IsolatedPdfParserWireResultValidation.Valid -> validation.result
+            IsolatedPdfParserWireResultValidation.Rejected -> throw AssertionError(
+                "The private service must return an exact bounded result envelope.",
+            )
+        }
     }
 
     private fun parseSynthetic(

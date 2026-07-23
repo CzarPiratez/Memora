@@ -245,6 +245,35 @@ coordinator has no Hilt binding, UI caller, WorkManager job, Room extraction wri
 semantic-understanding/AI call, network path, or real user source. Its result is
 status-only and is not searchable.
 
+## Delivery checkpoint: bounded synthetic parser-result transport
+
+The private isolated parser now uses protocol version 2 for repository-owned
+synthetic descriptors. It transforms deterministic parser facts into the existing
+strict page/chunk result codec, whose exact fields and complete page coverage are
+validated before the Binder response leaves the isolated process. The synthetic-only
+policy is deliberately fixed for this test boundary: at most 32 pages, four chunks
+per page, 8,192 UTF-16 code-units per page, 65,536 in total, and 2,048 per chunk.
+
+`IsolatedPdfParserClient` checks the isolated marker, exact outer-envelope shape, and
+the strict inner result. It then deliberately discards every text chunk and returns
+only the existing content-free outcome, retryability, and page count. This does not
+create an extraction record, write Room, call understanding/AI, alter UI, schedule
+WorkManager, use a real user source, or use network.
+
+On 2026-07-23, the Medium Phone emulator completed **20 focused tests** across
+`IsolatedPdfParserServiceIntegrationTest`,
+`IsolatedPdfParserClientIntegrationTest`,
+`IsolatedPdfParserEndToEndIntegrationTest`, and
+`ParseApprovedPdfWithIsolatedParserIntegrationTest`. The cases cover complete
+synthetic page coverage, malformed and over-limit content-free rejection, protocol
+failure mapping, descriptor closure, and the approved synthetic broker handoff.
+
+This is not a real-source approval. The one bounded synthetic Binder response is not
+the future session/chunk streaming protocol required for user PDFs, and these
+synthetic limits are not production resource budgets. Fresh real-source grant
+validation, measured limits, streaming, atomic persistence, recovery UI, and all
+remaining ADR-017 gates are still required.
+
 ## Pre-work record
 
 - **Governing sources checked:** product registry, Local AI technical specification,

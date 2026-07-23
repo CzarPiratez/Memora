@@ -88,7 +88,18 @@ class IsolatedPdfParserClientIntegrationTest {
         val result = clientWith { _, _ ->
             Bundle().apply {
                 putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
-                putString(IsolatedPdfParserService.KEY_OUTCOME, "unknown_outcome")
+                putBundle(
+                    IsolatedPdfParserService.KEY_BOUNDED_RESULT,
+                    Bundle().apply {
+                        putInt(IsolatedPdfParserResultBundleCodec.KEY_SCHEMA_VERSION, 1)
+                        putString(IsolatedPdfParserResultBundleCodec.KEY_OUTCOME, "unknown_outcome")
+                        putBoolean(IsolatedPdfParserResultBundleCodec.KEY_RETRYABLE, false)
+                        putParcelableArrayList(
+                            IsolatedPdfParserResultBundleCodec.KEY_CHUNKS,
+                            arrayListOf(),
+                        )
+                    },
+                )
             }
         }.parse(descriptor)
 
@@ -100,10 +111,8 @@ class IsolatedPdfParserClientIntegrationTest {
     fun rejects_a_non_isolated_response_as_retryable_and_closes_the_descriptor() {
         val descriptor = descriptor()
         val result = clientWith { _, _ ->
-            Bundle().apply {
+            extractedBundle(pageCount = 2).apply {
                 putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, false)
-                putString(IsolatedPdfParserService.KEY_OUTCOME, IsolatedPdfParserService.OUTCOME_EXTRACTED)
-                putInt(IsolatedPdfParserService.KEY_PAGE_COUNT, 2)
             }
         }.parse(descriptor)
 
@@ -117,7 +126,18 @@ class IsolatedPdfParserClientIntegrationTest {
         val result = clientWith { _, _ ->
             Bundle().apply {
                 putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
-                putString(IsolatedPdfParserService.KEY_OUTCOME, IsolatedPdfParserService.OUTCOME_EXTRACTED)
+                putBundle(
+                    IsolatedPdfParserService.KEY_BOUNDED_RESULT,
+                    Bundle().apply {
+                        putInt(IsolatedPdfParserResultBundleCodec.KEY_SCHEMA_VERSION, 1)
+                        putString(IsolatedPdfParserResultBundleCodec.KEY_OUTCOME, "extracted")
+                        putBoolean(IsolatedPdfParserResultBundleCodec.KEY_RETRYABLE, false)
+                        putParcelableArrayList(
+                            IsolatedPdfParserResultBundleCodec.KEY_CHUNKS,
+                            arrayListOf(),
+                        )
+                    },
+                )
             }
         }.parse(descriptor)
 
@@ -128,7 +148,24 @@ class IsolatedPdfParserClientIntegrationTest {
     @Test
     fun rejects_an_invalid_page_count_and_closes_the_descriptor() {
         val descriptor = descriptor()
-        val result = clientWith { _, _ -> extractedBundle(pageCount = 0) }.parse(descriptor)
+        val result = clientWith { _, _ ->
+            Bundle().apply {
+                putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
+                putBundle(
+                    IsolatedPdfParserService.KEY_BOUNDED_RESULT,
+                    Bundle().apply {
+                        putInt(IsolatedPdfParserResultBundleCodec.KEY_SCHEMA_VERSION, 1)
+                        putString(IsolatedPdfParserResultBundleCodec.KEY_OUTCOME, "extracted")
+                        putBoolean(IsolatedPdfParserResultBundleCodec.KEY_RETRYABLE, false)
+                        putInt(IsolatedPdfParserResultBundleCodec.KEY_PAGE_COUNT, 0)
+                        putParcelableArrayList(
+                            IsolatedPdfParserResultBundleCodec.KEY_CHUNKS,
+                            arrayListOf(),
+                        )
+                    },
+                )
+            }
+        }.parse(descriptor)
 
         assertRetryableFailure(result)
         assertDescriptorClosed(descriptor)
@@ -202,8 +239,23 @@ class IsolatedPdfParserClientIntegrationTest {
 
     private fun extractedBundle(pageCount: Int): Bundle = Bundle().apply {
         putBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED, true)
-        putString(IsolatedPdfParserService.KEY_OUTCOME, IsolatedPdfParserService.OUTCOME_EXTRACTED)
-        putInt(IsolatedPdfParserService.KEY_PAGE_COUNT, pageCount)
+        putBundle(
+            IsolatedPdfParserService.KEY_BOUNDED_RESULT,
+            requireNotNull(
+                IsolatedPdfParserResultBundleCodec.encode(
+                    IsolatedPdfParserWireResult(
+                        schemaVersion = IsolatedPdfParserResultContract.SUPPORTED_SCHEMA_VERSION,
+                        outcome = IsolatedPdfParserWireOutcome.EXTRACTED,
+                        retryable = false,
+                        pageCount = pageCount,
+                        chunks = (1..pageCount.coerceAtLeast(0)).map { pageNumber ->
+                            IsolatedPdfParserPageTextChunk(pageNumber, 0, true, "fixture")
+                        },
+                    ),
+                    IsolatedPdfParserSyntheticResultPolicy.limits,
+                ),
+            ),
+        )
     }
 
     private fun assertRetryableFailure(result: IsolatedPdfParserClientResult) {

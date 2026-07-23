@@ -41,6 +41,22 @@ the behavior described here.
 
 ## Definition of traceable delivery
 
+### P-07 checkpoint correction — bounded synthetic parser transport
+
+On 2026-07-23, protocol version 2 of the private isolated parser service became
+emulator-verified through **20 focused tests** across the service, client,
+end-to-end-transport, and approved-broker-handoff integration suites. It validates a
+strict bounded page/chunk envelope for repository-owned synthetic descriptors, while
+the ordinary-process client intentionally discards every chunk and exposes only a
+content-free status summary. The temporary synthetic policy is 32 pages, four chunks
+per page, 8,192 UTF-16 code-units per page, 65,536 total, and 2,048 per chunk.
+
+This checkpoint is not completion of P-07. It enables no real user PDF, extraction
+persistence, search, UI, WorkManager, semantic understanding/AI, or network. Its
+single bounded Binder envelope is not the mandatory real-source session/chunk
+streaming design, and the limits are not production budgets. ADR-017 keeps real
+source parsing disabled.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

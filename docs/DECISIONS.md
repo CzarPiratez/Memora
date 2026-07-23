@@ -417,13 +417,23 @@ mandatory gate before the service can return content. Its first pure validation
 contract accepts injected limits rather than unmeasured production constants, requires
 complete page/chunk coverage, and emits no candidate content when it rejects a
 malformed result. On 2026-07-22, the user verified all ten contract tests in Android
-Studio. It does not alter the current status-only Binder service. No partial result
-becomes searchable. A strict Android Bundle codec now feeds the same validator and
-has been emulator-verified with synthetic fields only; it is not wired into the
-service. An initial synthetic-only Android benchmark baseline now records aggregate
-two-page and no-text fixture measurements, but establishes no production limit.
-Measured limit selection remains mandatory before any service change that could
-return page text. The full threat model, rejected alternatives, and
+Studio. No partial result becomes searchable. A strict Android Bundle codec now feeds
+the same validator.
+
+On 2026-07-23, that codec became protocol version 2 of the private isolated service
+for repository-owned synthetic descriptors only. The service emits a strictly
+validated, bounded page/chunk envelope and the ordinary-process client validates it
+before discarding every chunk and returning its existing content-free status summary.
+The temporary synthetic policy is 32 pages, four chunks per page, 8,192 UTF-16
+code-units per page, 65,536 total, and 2,048 per chunk. Twenty focused emulator tests
+passed across the service, client, end-to-end transport, and approved-broker handoff.
+Those limits are not measured production policy. One bounded Binder response is also
+not the required real-source session/chunk streaming protocol; that remains a
+mandatory ADR-017 gate before any user PDF can return text. No result is persisted,
+searchable, or exposed to UI. An initial synthetic-only Android benchmark baseline
+records aggregate two-page and no-text fixture measurements, but establishes no
+production limit. Measured limit selection remains mandatory before any service
+change that could return user-source page text. The full threat model, rejected alternatives, and
 implementation gates are in
 `docs/PDF_PARSER_ISOLATION_REVIEW.md`.
 

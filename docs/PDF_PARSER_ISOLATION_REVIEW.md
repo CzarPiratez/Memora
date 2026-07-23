@@ -302,6 +302,32 @@ silently fall back to filename search, upload the PDF, or copy it elsewhere.
 - **Known limitation:** this is not a service codec rollout, real source, live
   process-death, offline, persistence, or user-visible recovery test.
 
+### Verified bounded synthetic parser-result transport
+
+- **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Scope:** Protocol version 2 of the existing private isolated service now emits
+  the existing strict `Bundle` page/chunk codec for repository-owned synthetic
+  descriptors. It validates complete page coverage before returning, with a temporary
+  synthetic-only maximum of 32 pages, four chunks per page, 8,192 UTF-16 code-units
+  per page, 65,536 total, and 2,048 per chunk. The ordinary-process client validates
+  the exact outer and inner envelope, then deliberately discards all chunks and keeps
+  its content-free status-only public result.
+- **Verification:** On 2026-07-23, the Medium Phone emulator passed **20 focused
+  tests** across `IsolatedPdfParserServiceIntegrationTest`,
+  `IsolatedPdfParserClientIntegrationTest`,
+  `IsolatedPdfParserEndToEndIntegrationTest`, and
+  `ParseApprovedPdfWithIsolatedParserIntegrationTest`. They cover service output,
+  malformed/over-limit rejection without exposing candidate text, client validation,
+  descriptor closure, and the approved synthetic broker-to-parser handoff.
+- **Truthfulness:** No user PDF, SAF URI, source identity, Room record, UI,
+  WorkManager job, semantic-understanding/AI operation, or network path is enabled.
+  The chunks are not persisted or searchable.
+- **Known limitation:** This one bounded synthetic Binder envelope does **not** meet
+  the required real-source session/chunk streaming design. The numbers above are not
+  measured production budgets. Fresh grant validation, real-source descriptor
+  custody, streaming, measured memory/battery/thermal behavior, atomic persistence,
+  and visible recovery remain mandatory ADR-017 gates.
+
 ### Verified initial synthetic measurement baseline
 
 - **Requirement IDs:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

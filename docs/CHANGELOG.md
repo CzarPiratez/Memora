@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Verified bounded synthetic isolated-parser result transport
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** The existing private isolated parser now uses protocol version 2 to
+  return a strict, bounded page/chunk envelope for repository-owned synthetic
+  descriptors. The ordinary-process client validates the exact envelope and then
+  deliberately discards chunks, retaining its content-free status summary. The
+  temporary synthetic limits are 32 pages, four chunks per page, 8,192 UTF-16
+  code-units per page, 65,536 total, and 2,048 per chunk.
+- **Verification:** On 2026-07-23, the Medium Phone emulator passed **20 focused
+  tests** across the service, client, end-to-end transport, and approved-broker
+  handoff integration suites.
+- **Truthfulness:** This does not enable a user source, extraction persistence,
+  search, UI, WorkManager, understanding/AI, or network. The single bounded
+  synthetic response is not the future real-source session/chunk streaming protocol;
+  its limits are not production budgets.
+
 ### Verified synthetic approved-PDF parser handoff
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

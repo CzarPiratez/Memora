@@ -34,6 +34,15 @@ internal object IsolatedPdfParserResultBundleCodec {
         IsolatedPdfParserWireResultValidation.Rejected
     }
 
+    /** Serializes only a candidate that has already passed the complete bounded-result contract. */
+    fun encode(
+        candidate: IsolatedPdfParserWireResult,
+        limits: IsolatedPdfParserResultLimits,
+    ): Bundle? = when (val validation = IsolatedPdfParserResultContract.validate(candidate, limits)) {
+        is IsolatedPdfParserWireResultValidation.Valid -> validation.result.toBundle()
+        IsolatedPdfParserWireResultValidation.Rejected -> null
+    }
+
     private fun Bundle.toCandidateOrNull(): IsolatedPdfParserWireResult? {
         if (!keySet().all(allowedTopLevelKeys::contains) || !keySet().containsAll(requiredTopLevelKeys)) {
             return null
@@ -69,12 +78,39 @@ internal object IsolatedPdfParserResultBundleCodec {
         }
     }
 
+    private fun IsolatedPdfParserWireResult.toBundle(): Bundle = Bundle().apply {
+        putInt(KEY_SCHEMA_VERSION, schemaVersion)
+        putString(KEY_OUTCOME, outcome.toWireValue())
+        putBoolean(KEY_RETRYABLE, retryable)
+        pageCount?.let { putInt(KEY_PAGE_COUNT, it) }
+        putParcelableArrayList(
+            KEY_CHUNKS,
+            ArrayList(
+                chunks.map { chunk ->
+                    Bundle().apply {
+                        putInt(KEY_CHUNK_PAGE_NUMBER, chunk.pageNumber)
+                        putInt(KEY_CHUNK_INDEX, chunk.chunkIndex)
+                        putBoolean(KEY_CHUNK_IS_FINAL, chunk.isFinalChunk)
+                        putString(KEY_CHUNK_TEXT, chunk.text)
+                    }
+                },
+            ),
+        )
+    }
+
     private fun String.toWireOutcomeOrNull(): IsolatedPdfParserWireOutcome? = when (this) {
         OUTCOME_EXTRACTED -> IsolatedPdfParserWireOutcome.EXTRACTED
         OUTCOME_NO_EXTRACTABLE_TEXT -> IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT
         OUTCOME_PASSWORD_PROTECTED -> IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED
         OUTCOME_FAILURE -> IsolatedPdfParserWireOutcome.FAILURE
         else -> null
+    }
+
+    private fun IsolatedPdfParserWireOutcome.toWireValue(): String = when (this) {
+        IsolatedPdfParserWireOutcome.EXTRACTED -> OUTCOME_EXTRACTED
+        IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT -> OUTCOME_NO_EXTRACTABLE_TEXT
+        IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED -> OUTCOME_PASSWORD_PROTECTED
+        IsolatedPdfParserWireOutcome.FAILURE -> OUTCOME_FAILURE
     }
 
     private val requiredTopLevelKeys = setOf(

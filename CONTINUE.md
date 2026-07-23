@@ -442,14 +442,35 @@ cannot become an extraction result. It has no real folder or user PDF, UI,
 WorkManager, Room extraction persistence, semantic understanding/AI, or network
 path; its status-only result is not searchable.
 
+## Verified engineering checkpoint
+
+The synthetic parser-result transport is verified. On 2026-07-23, the Medium Phone
+emulator completed **20 focused tests** across
+`IsolatedPdfParserServiceIntegrationTest`,
+`IsolatedPdfParserClientIntegrationTest`,
+`IsolatedPdfParserEndToEndIntegrationTest`, and
+`ParseApprovedPdfWithIsolatedParserIntegrationTest`. Protocol version 2 of the
+private isolated service returns a strict bounded page/chunk envelope for
+repository-owned synthetic descriptors. It validates complete page coverage; the
+ordinary-process client validates the envelope and then discards every chunk, keeping
+only its content-free status result. The temporary synthetic limits are 32 pages,
+four chunks per page, 8,192 UTF-16 code-units per page, 65,536 total, and 2,048 per
+chunk.
+
+This does not enable a user source, source identity, Room extraction record, search,
+UI behavior, WorkManager, semantic understanding/AI, or network. It is not the
+required real-source session/chunk streaming protocol, and its limits are not
+production budgets. ADR-017 still blocks real-user PDF parsing.
+
 ## Next approved engineering step
 
-Upgrade the isolated parser's synthetic-only status protocol to its already-tested
-strict bounded page/chunk result codec. The change must remain behind the private
-isolated service and repository-owned synthetic descriptors, prove complete page
-coverage and content-free rejection on malformed/over-limit output, and leave the
-broker-to-parser coordinator unbound from UI, WorkManager, Room persistence,
-understanding/AI, and real user sources.
+Create a small, synthetic-only typed handoff that maps an already validated bounded
+parser result into the existing domain PDF-extraction shape in memory. Keep the
+isolated-service client content-free, preserve no-text/partial/failure truthfulness,
+and add pure/application tests. It must not open a source, bind to Room, UI,
+WorkManager, search, semantic understanding/AI, or any real user source. The purpose
+is to verify the next architectural boundary before any persistence design is
+considered.
 
 ## Important open decision
 
