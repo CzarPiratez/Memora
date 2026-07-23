@@ -558,3 +558,32 @@ removed.
 separate privacy foundation. No Room entity, migration, DAO, repository binding,
 write path, source-content transport, search, UI, worker, AI, or real-source parsing
 is enabled by this ADR. ADR-017 remains independently binding for real user PDFs.
+
+## ADR-021: Proposed encrypted database direction protects Memora-owned data at rest
+
+**Status:** Proposed - requires product-owner approval before any dependency or code
+change
+
+**Decision:** The recommended direction is SQLCipher for Android integrated through
+Room's open-helper factory, with a randomly generated database passphrase wrapped by
+a non-exportable, versioned Android Keystore AES-GCM key. The initial default does
+not require biometric authentication for every database use. It remains local-only
+and backup/device-transfer exclusion remains binding.
+
+**Reason:** App-private storage and Android Keystore alone do not encrypt Room's
+database. Custom column encryption risks exposing SQLite indexes, journals, and
+metadata while creating fragile query/migration behavior. A whole-database cipher plus
+Keystore-protected secret is the narrowest supported path that meets the accepted
+local, privacy-first direction without cloud escrow or a user password.
+
+**Required safeguards:** Before implementation, accept the full dependency licence
+and provenance review, instrument key lifecycle/tamper/loss tests, design a
+plaintext-to-encrypted copy-and-validate conversion for the current database, define
+crash recovery and user-confirmed derived-data clearing, and measure supported
+device/ABI behavior. No destructive migration, silent reset, cloud recovery, source
+mutation, or content logging is allowed.
+
+**Consequences:** This is a decision record, not an implementation authorization.
+`ENCRYPTED_DATABASE_DECISION.md` is the binding detailed design. No SQLCipher
+dependency, Room change, source access, PDF content persistence, search, AI, UI, or
+worker is enabled by this ADR. ADR-017 and ADR-020 remain independently binding.

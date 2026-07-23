@@ -531,13 +531,21 @@ is verified: the debug app assembled and installed on the Medium Phone, and its
 installed manifest plus packaged resources confirm that all Memora-private data is
 excluded from legacy backup and Android 12+ cloud/device-transfer paths.
 
-Next, prepare the detailed encrypted-database decision record.
-It must compare approved Android-compatible options, dependency licensing and
-provenance, Keystore key creation/invalidation/rotation/recovery, migration and
-rollback, device-lock behavior, diagnostics, and tests. Do not add the dependency,
-Room entities/migrations, a repository write, source access, text transport, UI,
-WorkManager, search, semantic understanding/AI, or a real-source capability in that
-decision step.
+The detailed encrypted-database decision record is prepared in
+`docs/ENCRYPTED_DATABASE_DECISION.md`; ADR-021 is deliberately **proposed**, not
+implemented. It recommends SQLCipher for Android with a randomly generated database
+passphrase wrapped by a versioned Android Keystore AES-GCM key. It defines dependency
+licensing/provenance, key creation/invalidation/rotation/recovery, non-destructive
+conversion, device-unlock behavior, diagnostics, and test/release gates.
+
+## Next approved engineering step
+
+Ask the product owner to approve or reject ADR-021's exact SQLCipher-plus-Keystore
+direction. Until approval, do not add any SQLCipher dependency, Room entity/migration,
+repository write, source access, text transport, UI, WorkManager, search, semantic
+understanding/AI, or real-source capability. If approved, the next work is a separate
+dependency/provenance review and synthetic-only encrypted-database proof-of-concept
+plan; it is not PDF content persistence.
 
 ## Important open decision
 

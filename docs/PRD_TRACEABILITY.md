@@ -117,6 +117,20 @@ manifest and packaged XML resources verified this configuration. P-07 persistenc
 remains planned: no Room content write, real-source parsing, or searchable stored PDF
 text is enabled.
 
+### Proposed encrypted-database direction
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Decision:** ADR-021 proposes a SQLCipher-for-Android plus Android-Keystore
+  wrapped database-secret design. It specifies local-only key/recovery behavior,
+  whole-database encryption, non-destructive conversion, and a user-confirmed
+  derived-data reset if key recovery is impossible.
+- **Scope:** Documentation only. No encryption dependency, database conversion, Room
+  entity/migration, content write, source access, retrieval, explanation, AI, worker,
+  or UI has been added.
+- **Approval gate:** The product owner must approve the exact direction; then a
+  separate supply-chain and proof-of-concept step must pass before any release or
+  PDF-text persistence claim.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

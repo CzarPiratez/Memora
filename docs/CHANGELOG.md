@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Proposed encrypted-database decision record
+
+- **Delivered:** Added the SQLCipher-for-Android plus Android-Keystore recommendation,
+  option comparison, licensing/provenance gate, key lifecycle, recovery,
+  non-destructive conversion, diagnostics, and test/release requirements.
+- **Status:** ADR-021 is **proposed**. No dependency, database migration, Room schema,
+  source access, content persistence, UI, worker, AI, or network behavior changed.
+
 ### Accepted local-data backup and transfer exclusion
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

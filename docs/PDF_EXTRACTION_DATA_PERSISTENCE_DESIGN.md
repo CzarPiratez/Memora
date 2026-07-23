@@ -117,8 +117,11 @@ enabled, Memora must explicitly accept one of these models:
 2. **Lower-complexity baseline:** device-protected internal storage only, with an
    explicit threat-model acceptance of what it does and does not protect.
 
-No model is silently assumed. The accepted encryption direction still needs a detailed
-ADR and supply-chain/security review before it adds a dependency or code.
+No model is silently assumed. The proposed detailed direction is now recorded in
+[`ENCRYPTED_DATABASE_DECISION.md`](ENCRYPTED_DATABASE_DECISION.md), including its
+unaccepted dependency, Keystore, migration, recovery, and test gates. It still needs
+product-owner approval and supply-chain/security proof before it adds a dependency or
+code.
 
 ## Migration, rollback, and bounded writes
 
