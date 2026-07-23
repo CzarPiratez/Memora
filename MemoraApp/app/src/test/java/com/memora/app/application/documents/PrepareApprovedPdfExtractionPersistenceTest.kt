@@ -8,10 +8,16 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.extraction.ExtractionSchemaVersion
+import com.memora.app.domain.extraction.PdfExtractionIntegrity
+import com.memora.app.domain.extraction.PdfExtractionPersistenceDecision
+import com.memora.app.domain.extraction.PdfExtractionPersistenceKey
+import com.memora.app.domain.extraction.PdfExtractionPersistenceLifecycle
 import com.memora.app.domain.extraction.PdfExtractionRecord
 import com.memora.app.domain.extraction.PdfExtractionRequest
+import com.memora.app.domain.extraction.PdfExtractionRetryDirective
 import com.memora.app.domain.extraction.PdfPageText
 import com.memora.app.domain.extraction.PdfTextCoverage
+import com.memora.app.domain.extraction.PersistablePdfTextCoverage
 import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

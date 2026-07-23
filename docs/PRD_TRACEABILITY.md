@@ -87,6 +87,15 @@ content-free page-count, coverage, integrity, lifecycle, and retry facts. Partia
 inconsistent, failed, and access-blocked outcomes are explicitly ineligible. This
 adds no Room write, source access, UI, WorkManager, AI, or real-source parsing.
 
+### P-07 checkpoint correction â€” atomic persistence-port contract
+
+On 2026-07-23, `PdfExtractionPersistencePortContractTest` passed **5 of 5** local
+unit tests. The future repository port receives only a typed request constructed from
+an eligible decision and a record whose identity/fingerprint/schema/page-count/
+complete-or-no-text coverage match. It has explicit persisted, retryable, stale, and
+safe-failure outcomes but no data implementation, Room write, source access, UI,
+WorkManager, AI, or real-source parsing.
+
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as
 out of scope or record an explicit product decision before implementation.

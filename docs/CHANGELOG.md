@@ -17,6 +17,20 @@
   descriptor or parser-text transport, UI, WorkManager, semantic understanding/AI,
   or network path. It does not enable a real user PDF.
 
+### Verified atomic PDF extraction persistence port
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** A domain-layer repository port now accepts only a typed request
+  built from an `EligibleForAtomicWrite` decision and its matching extraction record.
+  The factory rejects mismatched identity, fingerprint, schema, page count, and
+  partial/wrong coverage before a repository can receive a request. The port has
+  explicit persisted, retryable, stale-reindex, and safe-failure outcomes.
+- **Verification:** On 2026-07-23, `PdfExtractionPersistencePortContractTest` passed
+  **5 of 5** local unit tests; the prerequisite eligibility suite remained **8 of 8**.
+- **Truthfulness:** No repository implementation, Room schema/migration/write, source
+  access, descriptor or parser transport, UI, WorkManager, AI, or network behavior
+  was added.
+
 ### Verified approved-parser and in-memory extraction assembly
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

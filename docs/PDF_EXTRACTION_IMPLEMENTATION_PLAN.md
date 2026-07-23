@@ -225,3 +225,17 @@ explicit recovery instructions. No Room entity, migration, record write, source
 access, parser transport, UI, worker, AI, or network behavior was added.
 `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** local unit tests.
 The complete contract is recorded in `PDF_EXTRACTION_PERSISTENCE_CONTRACT.md`.
+
+## Delivery checkpoint: atomic persistence-port contract
+
+On 2026-07-23, the generic persistence facts were promoted into the domain layer and
+`PdfExtractionPersistencePort` was added as the only future repository boundary.
+It accepts a private-constructor write request made solely from an eligible decision
+and the corresponding record. The request factory rechecks identity, fingerprint,
+schema, page count, and complete/no-text coverage before the port sees it. Explicit
+outcomes distinguish persisted, retryable failure, stale reindexing, and safe failure.
+
+This is not a data adapter: it has no Room implementation, transaction, text write,
+source opening, parser transport, UI, worker, AI, or network behavior.
+`PdfExtractionPersistencePortContractTest` passed **5 of 5** local unit tests; the
+related eligibility regression remained **8 of 8**.

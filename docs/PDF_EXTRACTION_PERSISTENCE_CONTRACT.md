@@ -1,7 +1,7 @@
 # PDF Extraction Persistence Contract
 
-**Status:** Implemented as a pure, content-free eligibility contract; no persistence
-implementation exists.
+**Status:** Pure eligibility and repository-port contracts are implemented; no
+persistence implementation exists.
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
 
 ## Purpose
@@ -34,6 +34,25 @@ When a real persistence implementation is separately approved, it must write the
 already validated content-bearing record and these facts atomically under the same
 identity/fingerprint/schema key. This contract does not define the Room schema or
 authorize that implementation.
+
+## Atomic repository port
+
+`PdfExtractionPersistencePort` is a domain-layer contract for the future data
+repository. It accepts only `PdfExtractionPersistenceWriteRequest`, whose constructor
+is private. The only factory accepts a typed `EligibleForAtomicWrite` decision plus
+the content-bearing `PdfExtractionRecord` and revalidates all of the following before
+the port can receive a request:
+
+- Asset identity, immutable fingerprint, and extraction schema match the facts;
+- positive page count matches the facts; and
+- coverage is exactly complete or explicit no-extractable-text, and agrees with the
+  facts.
+
+An ordinary `PdfExtractionPersistenceDecision` or `NotEligible` decision cannot be
+given to the port. A future repository must write the record and facts in one
+transaction, or return exactly one explicit outcome: `Persisted`,
+`RetryableFailure`, `StaleReindexRequired`, or `FailedSafely`. No Room adapter exists
+at this point, so none of these outcomes has been produced by real storage.
 
 ## Ineligible lifecycle and recovery facts
 
@@ -70,26 +89,31 @@ not yet a Room table, an `IndexingState` transition, a worker schedule, or UI co
 - **Privacy, source-access, dependency, offline, and data-retention impact:** pure
   Kotlin only; no Android API, source, descriptor, URI, parser transport, Room,
   WorkManager, UI, AI, network, dependency, or retained user content.
-- **Smallest safe change:** a metadata-only eligibility/lifecycle contract and local
-  tests; no schema, repository, migration, or write path.
+- **Smallest safe change:** metadata-only eligibility/lifecycle and atomic-port
+  contracts with local tests; no schema, repository implementation, migration, or
+  write path.
 - **Acceptance criteria:** only matching complete/no-text records become eligible;
   partial, inconsistent, failed, access-blocked, and retryable outcomes are
   ineligible with explicit lifecycle/retry facts; the eligible facts expose no
   content or source location.
 - **Test and emulator verification plan:** run
-  `PrepareApprovedPdfExtractionPersistenceTest` locally. It should report **8 tests
-  passed**. No emulator test is needed because this change has no Android behavior.
+  `PrepareApprovedPdfExtractionPersistenceTest` and
+  `PdfExtractionPersistencePortContractTest` locally. They should report **8** and
+  **5 tests passed**. No emulator test is needed because this change has no Android
+  behavior.
 - **User-visible quality/accessibility review plan:** no user-visible behavior is
   added. Future UI may summarize these states only after its accessibility and plain-
   language copy are separately designed and tested.
 
 ## Delivery record
 
-- **Files/layers changed:** one pure application contract, eight local unit tests,
-  and this documentation. No domain model, platform adapter, parser protocol,
-  database, UI, worker, model, or dependency changed.
+- **Files/layers changed:** a pure application eligibility policy, pure domain
+  persistence-port contract, thirteen local unit tests, and this documentation. No
+  platform adapter, parser protocol, database, UI, worker, model, or dependency
+  changed.
 - **Automated verification and result:** on 2026-07-23,
-  `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** local unit tests.
+  `PrepareApprovedPdfExtractionPersistenceTest` passed **8 of 8** and
+  `PdfExtractionPersistencePortContractTest` passed **5 of 5** local unit tests.
 - **Emulator/manual verification and result:** not applicable: no Android framework
   type, emulator source, or UI is involved.
 - **Failure/recovery paths verified:** partial coverage, inconsistent assembly,
@@ -97,7 +121,7 @@ not yet a Room table, an `IndexingState` transition, a worker schedule, or UI co
   non-retryable extraction failure are all ineligible; only complete and no-text
   records are eligible.
 - **Known limitation or follow-up:** there is no source-content transport, actual
-  persistence, atomic transaction, Room migration, retry scheduler, search, UI,
+  repository implementation or transaction, Room migration, retry scheduler, search, UI,
   semantic understanding/AI, or real-source PDF capability. ADR-017 remains binding.
 - **Documentation/traceability/ADR updates:** continuation record, change log, PDF
   plan/review, and P-07 traceability are updated. No new ADR is needed because this

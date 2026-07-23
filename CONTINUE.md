@@ -507,15 +507,23 @@ are ineligible with a truthful recovery state. No Room entity/migration/write, s
 access, text transport, UI, worker, semantic understanding/AI, or network behavior
 was added.
 
+The pure atomic persistence-port contract is also verified. On 2026-07-23,
+`PdfExtractionPersistencePortContractTest` passed **5 of 5** local unit tests, and
+the prerequisite eligibility suite remained **8 of 8**. The domain port accepts only
+a private-constructor request created from `EligibleForAtomicWrite` plus a matching
+record; it rechecks identity, fingerprint, schema, page count, and complete/no-text
+coverage. Its only future outcomes are persisted, retryable, stale-reindex, or safe
+failure. No repository implementation, Room schema/migration/write, source access,
+text transport, UI, worker, semantic understanding/AI, or network behavior was added.
+
 ## Next approved engineering step
 
-Define the pure atomic persistence-port contract that a future data repository must
-implement for an eligible PDF extraction: it must require the validated
-content-bearing record and its matching content-free facts together, expose explicit
-write/retry outcomes, and make it impossible to request a write for an ineligible
-decision. Add only pure contract tests. Do not add Room entities/migrations, a data
-adapter, source access, text transport, UI, WorkManager, search, semantic
-understanding/AI, or a real-source capability.
+Define a pure application coordinator for the new atomic persistence port. It must
+invoke the port only for an eligible decision, map every explicit port result to a
+truthful application outcome, and never call the port for an ineligible or internally
+inconsistent request. Use a fake port in unit tests only. Do not add a data adapter,
+Room entity/migration/write, source access, text transport, UI, WorkManager, search,
+semantic understanding/AI, or a real-source capability.
 
 ## Important open decision
 
