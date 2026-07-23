@@ -260,9 +260,12 @@ normalized header/page/metadata model, immutable provenance key, atomicity,
 idempotency, deletion and source-revocation rules, migration/rollback guardrails,
 backup/encryption review, bounded-write evidence, and implementation gates.
 
-The review found that the manifest currently allows Android backup while both backup
-XML files remain template defaults. Proposed ADR-020 therefore blocks Room content
-persistence until the user accepts the proposed data-handling decisions and the
-separate privacy/security work is completed. This is documentation only: no Room
-schema, data write, manifest change, source access, parser transport, UI, worker, AI,
-or real-source parsing was added.
+The user accepted ADR-020's local-only backup/transfer posture. The separate privacy
+foundation now sets `allowBackup=false` and explicitly excludes every Memora-private
+data domain from legacy backup plus Android 12+ cloud backup and device-to-device
+transfer. On 2026-07-24, the debug app assembled and installed on the Medium Phone;
+the installed manifest and packaged XML rules confirmed the exclusions. This does not
+yet authorize Room content persistence: the encrypted
+database design, retention decision, resource evidence, and storage tests remain
+separate gates. No source access, parser transport, UI, worker, AI, or real-source
+parsing was added.

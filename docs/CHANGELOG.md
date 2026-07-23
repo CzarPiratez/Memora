@@ -2,19 +2,23 @@
 
 ## Unreleased
 
-### Proposed PDF extraction data-persistence design gate
+### Accepted local-data backup and transfer exclusion
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
-- **Delivered:** A blocking design record now defines the future normalized PDF
-  extraction header/page/metadata model, immutable identity, atomicity, retention,
-  deletion, revocation, migration/rollback, resource-budget, and verification rules.
-- **Privacy finding:** The current manifest permits Android backup and its backup XML
-  rules are templates. Proposed ADR-020 blocks storing derived PDF text until backup,
-  encryption, retention, and source-revocation decisions are accepted.
-- **Verification:** Documentation review only; no executable behavior changed.
-- **Truthfulness:** No Room schema/migration/write, manifest change, source access,
-  parser transport, UI, worker, AI, network, search, or real-source PDF capability
-  was added.
+- **Delivered:** The accepted ADR-020 privacy posture now excludes all Memora-private
+  databases, preferences, files, external app data, and app-root data from legacy
+  Android backup plus Android 12+ cloud backup and device-to-device transfer.
+  `allowBackup=false` is included as defence in depth. The design record remains the
+  gate for future PDF extraction persistence.
+- **Reason:** Android documents that `allowBackup=false` alone cannot reliably block
+  device-to-device transfer on every manufacturer, so explicit exclusions are used
+  for both transfer paths.
+- **Verification:** On 2026-07-24, `:app:assembleDebug :app:installDebug` succeeded
+  on the Medium Phone emulator. Package flags confirmed backup is disabled; packaged
+  resources confirmed exclusions for all five private-data domains on both legacy and
+  Android 12+ cloud/device-transfer paths.
+- **Truthfulness:** This adds no Room schema/migration/write, source access, parser
+  transport, UI, worker, AI, network, search, or real-source PDF capability.
 
 ### Verified content-free PDF extraction persistence eligibility
 

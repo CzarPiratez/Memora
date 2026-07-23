@@ -539,21 +539,22 @@ start with a small pure identity/revision/integrity-state contract and tests.
 
 ## ADR-020: PDF extraction content persistence is blocked pending privacy review
 
-**Status:** Proposed and blocking; no implementation authorized
+**Status:** Accepted privacy posture; content persistence remains blocked
 
-**Decision:** Before Memora writes derived PDF text or metadata to Room, it must
-accept the design in `docs/PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`. The review
-requires an explicit backup/device-transfer policy, an explicit database-encryption
-threat model, deletion and source-revocation behavior, a superseded-record retention
-decision, measured resource limits, an additive migration/rollback plan, and atomic
-write/deletion verification. The current default Android backup resources do not
-satisfy this review.
+**Decision:** The user accepted Memora's privacy posture: exclude private app data
+from cloud backup and device-to-device transfer; use `allowBackup=false` as defence in
+depth; plan a Keystore-protected encrypted database; let people clear derived data;
+and keep retained derivations truthful when source access is revoked. Before Memora
+writes PDF text or metadata to Room, the detailed encryption design, superseded-record
+retention decision, measured resource limits, additive migration/rollback plan, and
+atomic write/deletion verification must still be accepted.
 
 **Reason:** Derived page text is sensitive user content. The existing typed
 persistence-port contract protects identity/fingerprint/schema/coverage correctness,
 but cannot decide how sensitive local content is protected, retained, migrated, or
 removed.
 
-**Consequences:** No Room entity, migration, DAO, repository binding, write path,
-source-content transport, search, UI, worker, AI, or real-source parsing is enabled
-by this ADR. ADR-017 remains independently binding for real user PDFs.
+**Consequences:** The backup/device-transfer configuration is implemented as a
+separate privacy foundation. No Room entity, migration, DAO, repository binding,
+write path, source-content transport, search, UI, worker, AI, or real-source parsing
+is enabled by this ADR. ADR-017 remains independently binding for real user PDFs.

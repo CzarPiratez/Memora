@@ -104,15 +104,18 @@ maps persisted/retryable/stale/safe-failure outcomes explicitly, and proves
 ineligible, missing, and mismatched input never reaches the port. It uses a fake port
 only and adds no Room write, source access, UI, WorkManager, AI, or real-source parsing.
 
-### P-07 checkpoint correction — data-persistence design gate
+### P-07 checkpoint correction — data-persistence privacy gate
 
-On 2026-07-24, `PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md` and proposed ADR-020
+On 2026-07-24, `PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md` and accepted ADR-020
 recorded the mandatory gate before derived PDF page text or metadata can enter Room.
-The record defines normalization, provenance identity, atomicity, deletion/revocation,
-migration/rollback, encryption/backup, bounded-resource, and verification
-requirements. It found that the current manifest backup configuration is still the
-Android Studio template default. This is documentation only; P-07 persistence remains
-planned and neither real-source parsing nor searchable stored PDF text is enabled.
+The user accepted local-only backup/transfer exclusion, a future Keystore-protected
+encrypted-database direction, user-controlled derived-data clearing, and truthful
+source-unavailable behavior. The manifest and both Android backup rule formats now
+exclude all Memora-private data from cloud backup and device-to-device transfer.
+On 2026-07-24, the app assembled and installed on the Medium Phone; its installed
+manifest and packaged XML resources verified this configuration. P-07 persistence
+remains planned: no Room content write, real-source parsing, or searchable stored PDF
+text is enabled.
 
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as

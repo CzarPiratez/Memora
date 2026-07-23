@@ -524,22 +524,20 @@ missing, and mismatched input never calls the port. The tests use a fake port on
 no repository implementation, Room schema/migration/write, source access, parser
 transport, UI, worker, semantic understanding/AI, or network behavior was added.
 
-## Next approval required
+## Next approved engineering step
 
-The data-persistence review is complete in
-`docs/PDF_EXTRACTION_DATA_PERSISTENCE_DESIGN.md`; proposed ADR-020 blocks content
-persistence. It found that Android backup is presently enabled with template backup
-rules, and that no database-encryption, superseded-record retention, or source-
-revocation deletion policy has yet been accepted.
+The user accepted ADR-020's privacy posture. The backup/device-transfer foundation
+is verified: the debug app assembled and installed on the Medium Phone, and its
+installed manifest plus packaged resources confirm that all Memora-private data is
+excluded from legacy backup and Android 12+ cloud/device-transfer paths.
 
-Before any Room entity, migration, repository binding, or write path, obtain an
-explicit product decision on the recommended privacy posture: disable backup/device
-transfer for Memora private data and adopt a reviewed Keystore-protected encrypted
-database design, with user-controlled derived-data clearing and truthful
-source-unavailable behavior after revocation. Record the accepted choices in ADR-020,
-then implement those privacy foundations as a separately tested step. Do not add
-source access, text transport, UI, WorkManager, search, semantic understanding/AI,
-or a real-source capability.
+Next, prepare the detailed encrypted-database decision record.
+It must compare approved Android-compatible options, dependency licensing and
+provenance, Keystore key creation/invalidation/rotation/recovery, migration and
+rollback, device-lock behavior, diagnostics, and tests. Do not add the dependency,
+Room entities/migrations, a repository write, source access, text transport, UI,
+WorkManager, search, semantic understanding/AI, or a real-source capability in that
+decision step.
 
 ## Important open decision
 

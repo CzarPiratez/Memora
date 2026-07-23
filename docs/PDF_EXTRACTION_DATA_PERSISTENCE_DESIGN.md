@@ -1,7 +1,7 @@
 # PDF Extraction Data-Persistence Design
 
-**Status:** Proposed and blocking. This is a review record, not authorization to
-write PDF extraction content.
+**Status:** Privacy posture accepted; persistence implementation remains blocked.
+This is not authorization to write PDF extraction content.
 
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
 
@@ -90,31 +90,35 @@ explicit deletion policy.
 
 ## Backup and encryption review
 
-The manifest currently has `android:allowBackup="true"`, and both referenced XML
-rule files are Android Studio template defaults. New PDF page text could therefore
-inherit an unreviewed backup/device-transfer policy. This conflicts with the product
-contract: backup and sync are optional future enhancements needing consent and their
-own data-handling decision.
+At this review's start, the manifest had `android:allowBackup="true"` and both
+referenced XML rule files were Android Studio template defaults. New PDF page text
+would then have inherited an unreviewed backup/device-transfer policy. This conflicts
+with the product contract: backup and sync are optional future enhancements needing
+consent and their own data-handling decision.
 
-**Proposed MVP policy:** before derived PDF text is persisted, disable Android backup
-and device-transfer backup for Memora private databases and preferences. There is no
-approved backup/sync feature, and restoring source approvals or derived text to a
-different device cannot safely restore Android source grants. This requires a separate
-reviewed manifest/resource change and emulator verification; this record changes none.
+**Accepted MVP policy:** Memora private databases, preferences, files, external app
+data, and app-root data are excluded from cloud backup and device-to-device transfer.
+`android:allowBackup="false"` is set as defence in depth, but Android documents that
+some manufacturers can still perform device-to-device transfer; explicit exclusions
+in both `data-extraction-rules` and legacy `full-backup-content` rules are therefore
+also required. There is no approved backup/sync feature, and restoring source
+approvals or derived text to another device cannot safely restore Android source
+grants. This policy is now implemented and verified on the emulator.
 
 Android app-private storage benefits from device protection, but that is not an
 app-level database-encryption design. Before persistent source-derived text is
 enabled, Memora must explicitly accept one of these models:
 
-1. **Recommended enterprise MVP:** an approved encrypted database design with a
+1. **Accepted enterprise direction, design still required:** an encrypted database
+   design with a
    locally generated secret protected by Android Keystore, including invalidation,
    rotation, recovery, lock-screen behavior, dependency licensing, migration, and
    testing; or
 2. **Lower-complexity baseline:** device-protected internal storage only, with an
    explicit threat-model acceptance of what it does and does not protect.
 
-No model is silently assumed. The recommended option needs an ADR and supply-chain /
-security review before it adds a dependency or code.
+No model is silently assumed. The accepted encryption direction still needs a detailed
+ADR and supply-chain/security review before it adds a dependency or code.
 
 ## Migration, rollback, and bounded writes
 
@@ -139,10 +143,10 @@ deterministic overflow outcome. An overflow retains no partial ready record and 
 
 Before a production Room adapter is authorized, all of the following are required:
 
-1. User acceptance of backup, encryption, retention, and source-revocation policy;
-   the superseded-record policy becomes an ADR.
-2. An ADR and security review for encryption/backup, including dependency provenance
-   if an encrypted database library is selected.
+1. The superseded-record retention policy becomes an ADR; the accepted backup and
+   encryption direction remains subject to the detailed reviews below.
+2. An ADR and security review for the encrypted-database design, including dependency
+   provenance, KeyStore lifecycle, recovery, and rollback.
 3. Concrete normalized Room schema, exported schema JSON, additive migration,
    foreign-key/cascade design, and repository boundary review.
 4. Tests for atomic success, duplicate idempotency, validation/transaction failure,
@@ -163,7 +167,9 @@ Before a production Room adapter is authorized, all of the following are require
   contract, implementation plan, traceability, manifest, and backup XML rules.
 - **Affected layers:** documentation and future data boundary only; no executable
   Android, domain, application, data, or UI behavior changes.
-- **Verification:** documentation review only. No test needs rerunning because no
-  Android behavior changed.
+- **Verification:** on 2026-07-24, `:app:assembleDebug :app:installDebug` succeeded
+  on the Medium Phone emulator. The installed package does not have Android's
+  allow-backup flag, and the packaged Android 12+ and legacy XML resources each
+  contain exclusions for database, shared preference, file, external, and root data.
 - **Known limitation:** PDF text remains in-memory only in synthetic contracts; it is
   neither persisted, searchable, visible to users, nor available for real PDFs.
