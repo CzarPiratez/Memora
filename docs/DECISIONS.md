@@ -561,8 +561,10 @@ is enabled by this ADR. ADR-017 remains independently binding for real user PDFs
 
 ## ADR-021: Encrypted database direction protects Memora-owned data at rest
 
-**Status:** Accepted direction; synthetic proof-of-concept authorized by plan only.
-Production conversion and PDF content persistence remain blocked.
+**Status:** Accepted. Production encrypted open, conversion journal, BSD notices, and
+user-confirmed clear derived data have landed. Remaining release proofs:
+**live** process-death (real kill/crash), low-storage interruption, and physical-device
+`arm64-v8a` verification. PDF content persistence remains blocked (ADR-020 / ADR-017).
 
 **Decision:** Use SQLCipher for Android integrated through Room's open-helper factory,
 with a randomly generated database passphrase wrapped by a non-exportable, versioned
@@ -586,17 +588,16 @@ Keystore-protected secret is the narrowest supported path that meets the accepte
 local, privacy-first direction without cloud escrow or a user password.
 
 **Required safeguards:** The dependency licence/provenance review in
-`docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` is accepted for PoC use of
-`net.zetetic:sqlcipher-android:4.17.0`. Before production adoption, instrument key
-lifecycle/tamper/loss tests, complete the synthetic PoC in
-`docs/ENCRYPTED_DATABASE_POC_PLAN.md`, design a plaintext-to-encrypted
-copy-and-validate conversion for the current database, define crash recovery and
-user-confirmed derived-data clearing, ship required BSD attribution notices, and
-measure supported device/ABI behavior. No destructive migration, silent reset, cloud
-recovery, source mutation, or content logging is allowed.
+`docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` is accepted for
+`net.zetetic:sqlcipher-android:4.17.0`. Production path uses Keystore lifecycle tests,
+plaintext-to-encrypted copy-and-validate conversion, crash-resume (simulated covered;
+live kill still open), user-confirmed derived-data clearing, and BSD attribution
+notices. Physical-device/ABI proof and low-storage denial remain open. No destructive
+migration, silent reset, cloud recovery, source mutation, or content logging is
+allowed.
 
-**Consequences:** Acceptance authorizes only the synthetic encrypted-database
-proof-of-concept plan. It does not by itself add a production SQLCipher dependency,
-convert `memora.db`, enable PDF content persistence, search, AI, UI, or workers.
-`ENCRYPTED_DATABASE_DECISION.md` remains the binding detailed design. ADR-017 and
-ADR-020 remain independently binding.
+**Consequences:** Production Room opens encrypted `memora.db` through
+`MemoraEncryptedDatabaseOpener` / `MemoraDatabaseHandle`. This does **not** authorize
+PDF content persistence, WorkManager indexing, search, AI, or network. ADR-017 and
+ADR-020 remain independently binding. `ENCRYPTED_DATABASE_DECISION.md` remains the
+binding detailed design.

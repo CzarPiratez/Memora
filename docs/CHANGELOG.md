@@ -2,7 +2,18 @@
 
 ## Unreleased
 
-### Verified conversion process-death resume
+### Corrected process-death proof status (honesty)
+
+- **Requirements:** P-05, P-14, P-15, P-17; governance truthfulness.
+- **Delivered:** Documentation and ADR-021 status corrected so simulated prepare-stop
+  resume is not claimed as the rollout **live crash/kill** gate. Pre-work record for
+  the live-kill slice added in
+  `docs/CHANGE_CONTROL_LIVE_CONVERSION_PROCESS_DEATH.md`.
+- **Verification:** Documentation cross-check only; no production behavior change.
+- **Truthfulness:** Live process-death, low-storage, and physical-device proofs remain
+  open. PDF content persistence remains blocked.
+
+### Verified simulated conversion process-death resume
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
 - **Delivered:** `MemoraEncryptedDatabaseOpener` resume for interrupted `ROWS_COPIED`
@@ -11,6 +22,8 @@
   resumes with `open()`.
 - **Verification:** On 2026-07-24, Medium Phone emulator
   `ConversionProcessDeathResumeIntegrationTest`: **4 of 4 passed**.
+- **Limitation:** This is **simulated** interrupt/resume only. The rollout **live
+  crash/kill** process-death gate remains open.
 - **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
 
 ### Verified Clear Memora derived data and rebuild recovery UX

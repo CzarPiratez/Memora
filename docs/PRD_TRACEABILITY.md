@@ -149,8 +149,8 @@ text is enabled.
   Memora-owned DB/wrapper/journal state, reopens a fresh encrypted empty index, and
   shows ADR-021 rebuild copy only (`ClearMemoraDerivedDataIntegrationTest` 1/1).
 - **Process-death resume (2026-07-24):** `ConversionProcessDeathResumeIntegrationTest`
-  **4 of 4** proves `ROWS_COPIED` / `SWITCH_PENDING` / mid-finalize resume completes
-  exactly once with fixture rows preserved.
+  **4 of 4** proves **simulated** `ROWS_COPIED` / `SWITCH_PENDING` / mid-finalize
+  resume. Rollout **live crash/kill** process-death gate remains open.
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

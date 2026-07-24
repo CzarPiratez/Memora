@@ -650,21 +650,28 @@ was added.
 
 ## Verified engineering checkpoint
 
-Conversion process-death resume is verified. On 2026-07-24,
+Conversion **simulated** process-death resume is verified. On 2026-07-24,
 `ConversionProcessDeathResumeIntegrationTest` completed on the Medium Phone emulator:
-**4 of 4 passed**. It proves resume after simulated death at `ROWS_COPIED` (plaintext
-retained, incomplete candidate dropped, conversion completes once), clean
-`SWITCH_PENDING`, mid-finalize after plaintext retained, and mid-finalize after
-encrypted candidate promotion onto `memora.db`. `MemoraEncryptedDatabaseOpener`
-finalize now handles those interrupted file layouts. No PDF content persistence,
-WorkManager, AI, or network path was added.
+**4 of 4 passed**. It proves resume after **instrumentation-stopped** conversion at
+`ROWS_COPIED` (plaintext retained, incomplete candidate dropped, conversion completes
+once), clean `SWITCH_PENDING`, mid-finalize after plaintext retained, and mid-finalize
+after encrypted candidate promotion onto `memora.db`. `MemoraEncryptedDatabaseOpener`
+finalize handles those interrupted file layouts.
+
+This does **not** yet satisfy the rollout's **live crash/kill** process-death gate.
+No PDF content persistence, WorkManager, AI, or network path was added.
 
 ## Next approved engineering step
 
-Keep PDF text persistence blocked (ADR-017 / ADR-020). Optionally prove low-storage
-failure and physical-device (`arm64-v8a`) conversion from
-`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`. Do not schedule WorkManager, invoke
-AI, or use the network.
+Keep PDF text persistence blocked (ADR-017 / ADR-020). Close the remaining encrypted-
+database release proofs in this order:
+
+1. **Live process-death** — real process kill/crash while `ROWS_COPIED` or
+   `SWITCH_PENDING`, then resume (not only prepare-stop simulation).
+2. Low-storage / interruption denial leaves plaintext intact.
+3. Physical-device `arm64-v8a` conversion proof.
+
+Do not schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision
 
