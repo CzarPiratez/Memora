@@ -154,6 +154,8 @@ text is enabled.
 - **Low-storage / interruption (2026-07-24):**
   `ConversionLowStorageDenialIntegrationTest` **2 of 2** closes rollout proof #4
   (plaintext retained; `FAILED_SAFE` / `CONVERSION_VALIDATION_FAILED`; retry ok).
+- **Physical arm64 device (2026-07-25):** Galaxy A15 5G (`SM-A156E`) suites **13 of
+  13** close rollout proof #6 (native load, reopen, wrong-passphrase, conversion).
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

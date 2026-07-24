@@ -45,7 +45,7 @@ class EncryptedDatabasePocIntegrationTest {
     }
 
     @Test
-    fun native_sqlcipher_library_loads_on_emulator() {
+    fun native_sqlcipher_library_loads_on_device() {
         EncryptedPocDatabaseFactory.loadNativeLibrary()
     }
 

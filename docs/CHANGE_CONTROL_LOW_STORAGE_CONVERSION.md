@@ -35,5 +35,6 @@
   `ConversionLowStorageDenialIntegrationTest` **2 of 2 passed** (storage denial +
   IO interruption; both leave plaintext fixtures intact and succeed on retry).
 - **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
-- **Remaining after this slice:** Physical-device `arm64-v8a` conversion proof (and
-  other non-#4 rollout items still open in the conversion rollout doc).
+- **Remaining after this slice:** Physical-device `arm64-v8a` conversion proof later
+  verified separately; other non-#4/#6 rollout items still open in the conversion
+  rollout doc.

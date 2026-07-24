@@ -678,16 +678,23 @@ leave plaintext `memora.db` standard-SQLite-readable with fixture rows, journal
 candidate; a later open with storage allowed completes conversion. No PDF content
 persistence, WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+Physical-device `arm64-v8a` encrypted conversion proof is verified. On 2026-07-25,
+Samsung Galaxy A15 5G (`SM-A156E`, ABI `arm64-v8a`, Android 16) ran
+`EncryptedDatabasePocIntegrationTest`, `ProductionNamedConversionIntegrationTest`,
+and `MemoraEncryptedDatabaseOpenerIntegrationTest`: **13 of 13 passed** (native
+SQLCipher load, create/reopen, wrong-passphrase denial, production-named and
+production-opener conversion). Standard SQLite probes now copy before open so OEM
+cleanup cannot delete live encrypted files. No PDF content persistence, WorkManager,
+AI, or network path was added.
+
 ## Next approved engineering step
 
 Keep PDF text persistence blocked (ADR-017 / ADR-020). Remaining encrypted-database
-release proof that needs the owner's hardware:
-
-1. Physical-device `arm64-v8a` conversion proof (native load, conversion, reopen,
-   wrong-passphrase denial).
-
-Other rollout checklist items (device unlock, recovery copy review, performance
-budget, etc.) remain listed in `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`.
+rollout checklist items (not hardware-blocked) are listed in
+`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`, including device unlock /
+credential-encrypted storage, recovery copy review, and performance/battery budget.
 Do not schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision

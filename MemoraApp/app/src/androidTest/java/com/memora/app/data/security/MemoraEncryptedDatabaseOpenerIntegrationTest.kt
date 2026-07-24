@@ -1,7 +1,6 @@
 package com.memora.app.data.security
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -143,26 +142,8 @@ class MemoraEncryptedDatabaseOpenerIntegrationTest {
         assertTrue(probeStandardSqlite(ProductionDatabaseIdentity.DATABASE_NAME))
     }
 
-    private fun probeStandardSqlite(databaseName: String): Boolean {
-        val file = context.getDatabasePath(databaseName)
-        if (!file.exists()) {
-            return false
-        }
-        return try {
-            SQLiteDatabase.openDatabase(
-                file.path,
-                null,
-                SQLiteDatabase.OPEN_READONLY,
-            ).use { database ->
-                database.rawQuery("SELECT 1", null).use { cursor ->
-                    cursor.moveToFirst()
-                }
-            }
-            true
-        } catch (_: Exception) {
-            false
-        }
-    }
+    private fun probeStandardSqlite(databaseName: String): Boolean =
+        StandardSqliteDatabaseProbe.canOpenWithoutPassphrase(context.getDatabasePath(databaseName))
 
     companion object {
         private const val FIXTURE_MARKER = "memora-opener-fixture-marker-v1"

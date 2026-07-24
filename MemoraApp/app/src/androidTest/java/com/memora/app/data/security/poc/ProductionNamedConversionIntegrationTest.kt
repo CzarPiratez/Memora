@@ -1,7 +1,6 @@
 package com.memora.app.data.security.poc
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.memora.app.data.di.PersistenceModule
@@ -12,6 +11,7 @@ import com.memora.app.data.security.DatabaseEncryptionConversionJournal
 import com.memora.app.data.security.DatabaseEncryptionConversionPhase
 import com.memora.app.data.security.DatabaseSecretFailureCategory
 import com.memora.app.data.security.KeystoreDatabasePassphraseStore
+import com.memora.app.data.security.StandardSqliteDatabaseProbe
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -209,24 +209,6 @@ class ProductionNamedConversionIntegrationTest {
         }
     }
 
-    private fun probeStandardSqlite(databaseName: String): Boolean {
-        val file = context.getDatabasePath(databaseName)
-        if (!file.exists()) {
-            return false
-        }
-        return try {
-            SQLiteDatabase.openDatabase(
-                file.path,
-                null,
-                SQLiteDatabase.OPEN_READONLY,
-            ).use { database ->
-                database.rawQuery("SELECT 1", null).use { cursor ->
-                    cursor.moveToFirst()
-                }
-            }
-            true
-        } catch (_: Exception) {
-            false
-        }
-    }
+    private fun probeStandardSqlite(databaseName: String): Boolean =
+        StandardSqliteDatabaseProbe.canOpenWithoutPassphrase(context.getDatabasePath(databaseName))
 }

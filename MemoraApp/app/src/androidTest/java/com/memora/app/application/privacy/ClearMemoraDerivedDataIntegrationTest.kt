@@ -1,7 +1,6 @@
 package com.memora.app.application.privacy
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.memora.app.data.local.AssetEntity
@@ -12,6 +11,7 @@ import com.memora.app.data.security.DatabaseEncryptionConversionPhase
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.data.security.ProductionDatabaseTestCleanup
+import com.memora.app.data.security.StandardSqliteDatabaseProbe
 import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -117,24 +117,6 @@ class ClearMemoraDerivedDataIntegrationTest {
         )
     }
 
-    private fun probeStandardSqlite(databaseName: String): Boolean {
-        val file = context.getDatabasePath(databaseName)
-        if (!file.exists()) {
-            return false
-        }
-        return try {
-            SQLiteDatabase.openDatabase(
-                file.path,
-                null,
-                SQLiteDatabase.OPEN_READONLY,
-            ).use { database ->
-                database.rawQuery("SELECT 1", null).use { cursor ->
-                    cursor.moveToFirst()
-                }
-            }
-            true
-        } catch (_: Exception) {
-            false
-        }
-    }
+    private fun probeStandardSqlite(databaseName: String): Boolean =
+        StandardSqliteDatabaseProbe.canOpenWithoutPassphrase(context.getDatabasePath(databaseName))
 }

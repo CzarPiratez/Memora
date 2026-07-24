@@ -60,8 +60,10 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    preflight denial + mid-conversion IO failure; plaintext retained; retry succeeds).
 5. **Device unlock / credential-encrypted storage:** after reboot, deferred open until
    user unlock; no second database, no destructive reset.
-6. **Physical device:** at least one `arm64-v8a` device proves native load, conversion,
-   reopen, and wrong-passphrase denial.
+6. **Physical device:** ~~at least one `arm64-v8a` device proves native load, conversion,
+   reopen, and wrong-passphrase denial.~~
+   **done 2026-07-25** (Galaxy A15 5G `SM-A156E` / `arm64-v8a`: PoC + production-named
+   + production opener suites **13/13**).
 7. **BSD attribution UI/docs:** user-accessible Open-source notices include the
    required Zetetic copyright, licence text, and disclaimer before any store or
    sideload release that ships SQLCipher.
@@ -236,7 +238,7 @@ release:
 4. ~~ship notices surface before any release that includes the native library;~~
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Remaining proof needing hardware: physical-device `arm64-v8a` conversion. Simulated
+Hardware `arm64-v8a` conversion proof is done (Galaxy A15 5G, 2026-07-25). Simulated
 and **live** process-death resume, clear-derived-data, and low-storage /
 interruption denial are done (2026-07-24). Device-unlock, recovery-copy review,
 and performance budget remain on the checklist above. PDF content persistence stays
@@ -248,15 +250,15 @@ blocked until its own privacy/resource gates pass.
 - **Sources read:** product registry, Local AI Technical Specification, governance,
   CONTINUE, product contract, architecture, decisions, encrypted-database decision,
   provenance review, PoC plan, conversion harness results, PRD traceability.
-- **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
+- **Current-code evidence (updated 2026-07-25):** `PersistenceModule` opens encrypted
   `memora.db` via `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener`; notices UI
   and Clear Memora index recovery UX ship; opener, clear, simulated + **live**
-  process-death, and low-storage / interruption denial instrumentation cover the path.
+  process-death, low-storage denial, and physical `arm64-v8a` instrumentation cover
+  the path. Standard SQLite probes copy before open.
 - **Affected layers:** data/security, DI, welcome UI notices/clear, debug live-death
-  worker, documentation.
+  worker, androidTest probe harness, documentation.
 - **Verification:** opener + clear + simulated + live process-death + low-storage
-  denial instrumentation; notices text committed under version control from Zetetic
-  Community Edition licence URL.
-- **Known limitation:** physical-device proof remains open; other checklist items
-  (device unlock, recovery copy review, performance budget) remain; PDF content
-  persistence remains blocked.
+  denial + Galaxy A15 arm64 suites; notices text committed under version control from
+  Zetetic Community Edition licence URL.
+- **Known limitation:** device unlock, recovery copy review, and performance budget
+  remain on the checklist; PDF content persistence remains blocked.

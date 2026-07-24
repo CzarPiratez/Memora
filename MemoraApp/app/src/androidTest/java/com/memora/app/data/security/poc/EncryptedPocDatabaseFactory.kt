@@ -6,6 +6,7 @@ import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.security.DatabaseSecretFailureCategory
 import com.memora.app.data.security.KeystoreDatabasePassphraseStore
 import com.memora.app.data.security.PassphraseUnwrapResult
+import com.memora.app.data.security.StandardSqliteDatabaseProbe
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import java.io.File
 
@@ -110,20 +111,7 @@ object EncryptedPocDatabaseFactory {
             )
         }
         val lengthBefore = file.length()
-        val opened = try {
-            android.database.sqlite.SQLiteDatabase.openDatabase(
-                file.path,
-                null,
-                android.database.sqlite.SQLiteDatabase.OPEN_READONLY,
-            ).use { database ->
-                database.rawQuery("SELECT 1", null).use { cursor ->
-                    cursor.moveToFirst()
-                }
-            }
-            true
-        } catch (_: Exception) {
-            false
-        }
+        val opened = StandardSqliteDatabaseProbe.canOpenWithoutPassphrase(file)
         val after = databaseFile(context)
         return StandardSqliteProbeResult(
             openedWithoutPassphrase = opened,
