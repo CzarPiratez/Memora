@@ -564,9 +564,10 @@ is enabled by this ADR. ADR-017 remains independently binding for real user PDFs
 **Status:** Accepted. Production encrypted open, conversion journal, BSD notices,
 user-confirmed clear derived data, **live** conversion process-death resume,
 low-storage / interruption denial, physical-device `arm64-v8a` conversion,
-device-unlock deferred open, and recovery/unlock copy guards have landed.
-Remaining release checklist item: performance/battery budget. PDF content
-persistence remains blocked (ADR-020 / ADR-017).
+device-unlock deferred open, recovery/unlock copy guards, and conversion
+performance/battery provisional budgets have landed. Encrypted-database conversion
+rollout proofs #1–#10 are complete for the current bar. PDF content persistence
+remains blocked (ADR-020 / ADR-017).
 
 **Decision:** Use SQLCipher for Android integrated through Room's open-helper factory,
 with a randomly generated database passphrase wrapped by a non-exportable, versioned
@@ -595,8 +596,8 @@ local, privacy-first direction without cloud escrow or a user password.
 plaintext-to-encrypted copy-and-validate conversion, crash-resume (simulated + live
 kill covered), low-storage / interruption denial, physical-device `arm64-v8a`
 verification, device-unlock deferred open, user-confirmed derived-data clearing,
-recovery/unlock plain-language copy guards, and BSD attribution notices.
-Performance budget remains open. No destructive migration, silent reset, cloud
+recovery/unlock plain-language copy guards, BSD attribution notices, and content-
+free conversion performance budgets. No destructive migration, silent reset, cloud
 recovery, source mutation, or content logging is allowed.
 
 **Consequences:** Production Room opens encrypted `memora.db` through

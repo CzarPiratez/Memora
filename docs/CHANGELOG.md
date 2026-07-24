@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified encrypted conversion performance budget
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Content-free conversion timing buckets and provisional ceilings for
+  synthetic schema-v3 sizes (`ConversionElapsedBuckets`,
+  `ConversionPerformanceBenchmarkIntegrationTest`,
+  `docs/ENCRYPTED_DATABASE_CONVERSION_BENCHMARK_PLAN.md`).
+- **Verification:** On 2026-07-25, unit **1 of 1** and Medium Phone emulator **4 of
+  4** under ceilings (largest measured ~7.3s for 5_000 assets).
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+  Emulator battery deltas are informational only.
+
 ### Verified device-unlock deferred open and recovery copy guards
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

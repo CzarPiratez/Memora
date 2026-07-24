@@ -73,8 +73,10 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    rebuild message only.~~
    **done 2026-07-25** (ADR-021 rebuild + unlock strings; `ClearMemoraDerivedDataCopyTest`
    jargon guards 2/2).
-9. **Performance/battery budget:** content-free timing buckets for conversion of
-   representative schema-v3 sizes; set limits before PDF text persistence begins.
+9. **Performance/battery budget:** ~~content-free timing buckets for conversion of
+   representative schema-v3 sizes; set limits before PDF text persistence begins.~~
+   **done 2026-07-25** (`ConversionPerformanceBenchmarkIntegrationTest` 4/4;
+   provisional ceilings in `docs/ENCRYPTED_DATABASE_CONVERSION_BENCHMARK_PLAN.md`).
 10. **Clear-derived-data:** ~~user-confirmed clear removes only Memora-owned encrypted
     data and wrapper/journal state; originals and Android grants remain untouched.~~
     **done 2026-07-24** (`ClearMemoraDerivedData` + welcome confirm UI;
@@ -242,11 +244,10 @@ release:
 4. ~~ship notices surface before any release that includes the native library;~~
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Hardware `arm64-v8a` conversion proof is done (Galaxy A15 5G, 2026-07-25). Simulated
-and **live** process-death resume, clear-derived-data, low-storage / interruption
-denial, device-unlock deferred open, BSD notices, and recovery/unlock copy review
-are done. Performance budget remains on the checklist above. PDF content persistence
-stays blocked until its own privacy/resource gates pass.
+Encrypted-database conversion rollout proofs #1–#10 are complete for the current
+acceptance bar (including Galaxy A15 arm64, device-unlock deferral, and conversion
+performance budgets on 2026-07-25). PDF content persistence stays blocked until its
+own privacy/resource gates pass.
 
 ## Pre-work and delivery record
 
@@ -257,12 +258,12 @@ stays blocked until its own privacy/resource gates pass.
 - **Current-code evidence (updated 2026-07-25):** `PersistenceModule` opens encrypted
   `memora.db` via lazy `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener` with
   unlock gate; notices UI, Clear Memora index, and calm unlock UI ship; opener, clear,
-  simulated + **live** process-death, low-storage denial, physical `arm64-v8a`, and
-  device-unlock deferred instrumentation cover the path.
-- **Affected layers:** data/security, DI, welcome/unlock UI, androidTest probe harness,
+  simulated + **live** process-death, low-storage denial, physical `arm64-v8a`,
+  device-unlock deferred open, and conversion performance budget instrumentation
+  cover the path.
+- **Affected layers:** data/security, DI, welcome/unlock UI, androidTest harnesses,
   documentation.
 - **Verification:** opener + clear + simulated + live process-death + low-storage
-  denial + Galaxy A15 arm64 + device-unlock suites; notices text committed under
-  version control from Zetetic Community Edition licence URL.
-- **Known limitation:** performance/battery budget remains; PDF content persistence
-  remains blocked.
+  denial + Galaxy A15 arm64 + device-unlock + conversion performance suites; notices
+  text committed under version control from Zetetic Community Edition licence URL.
+- **Known limitation:** PDF content persistence remains blocked (ADR-017 / ADR-020).

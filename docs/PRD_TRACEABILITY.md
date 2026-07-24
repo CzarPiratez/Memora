@@ -159,6 +159,10 @@ text is enabled.
 - **Device unlock + recovery copy (2026-07-25):** deferred open without mutation
   (`DeviceUnlockDeferredOpenIntegrationTest` 2/2); unlock UI; rebuild/unlock jargon
   guards close proofs #5 and #8. BSD notices already closed proof #7 (2026-07-24).
+- **Conversion performance budget (2026-07-25):**
+  `ConversionPerformanceBenchmarkIntegrationTest` **4 of 4** closes proof #9 with
+  provisional ceilings recorded in
+  `docs/ENCRYPTED_DATABASE_CONVERSION_BENCHMARK_PLAN.md`.
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

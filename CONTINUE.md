@@ -699,12 +699,23 @@ unlock copy; rebuild + unlock strings have unit jargon guards
 (`ClearMemoraDerivedDataCopyTest` **2 of 2**). No PDF content persistence,
 WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+Encrypted conversion performance/battery budget is verified. On 2026-07-25,
+`ConversionPerformanceBenchmarkIntegrationTest` completed on the Medium Phone
+emulator: **4 of 4 passed** under provisional ceilings (empty / 100 / 1_000 /
+5_000 synthetic schema-v3 rows). Aggregate Logcat tag `MemoraConversionBenchmark`
+records content-free timing buckets and optional charge-counter deltas. Plan:
+`docs/ENCRYPTED_DATABASE_CONVERSION_BENCHMARK_PLAN.md`. No PDF content persistence,
+WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
-Keep PDF text persistence blocked (ADR-017 / ADR-020). Remaining encrypted-database
-rollout checklist item:
-
-1. Performance/battery budget for representative schema-v3 conversion sizes.
+Encrypted-database conversion rollout proofs #1–#10 are complete for the current
+acceptance bar. Keep PDF text persistence blocked until ADR-017 / ADR-020 privacy
+and resource gates for real-user PDFs pass. Do not schedule WorkManager, invoke AI,
+or use the network. Choose the next product slice from `docs/ROADMAP.md` only after
+those PDF gates, or resolve ADR-003 for notes.
 
 Do not schedule WorkManager, invoke AI, or use the network.
 
