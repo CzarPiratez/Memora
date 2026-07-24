@@ -204,18 +204,23 @@ notices is a release blocker even if encryption works.
 
 ## Explicit non-goals of this document
 
-- Changing `PersistenceModule` now
-- Promoting SQLCipher to `implementation` now
+- Changing `PersistenceModule` encrypted open in this documentation step
 - Enabling PDF extraction Room entities or searchable stored text
 - Enabling WorkManager, AI, network, or cloud key escrow
 - Claiming FIPS, commercial SQLCipher, or enterprise SLA coverage
 
+Note (2026-07-24): Slice 1 promoted SQLCipher to the production classpath while
+keeping plaintext `PersistenceModule` open. Encrypted open and notices UI remain
+later gates.
+
 ## Next approved engineering step after this document
 
-Implement only the **production-named synthetic conversion + PersistenceModule switch
-design in code behind tests**, in the smallest safe sequence:
+Implement production-named synthetic conversion against disposable files, then wire
+`PersistenceModule` encrypted open + conversion journal, and ship notices before
+release:
 
-1. promote SQLCipher with re-verified provenance for the switch change set;
+1. ~~promote SQLCipher with re-verified provenance for the switch change set;~~
+   **done 2026-07-24 (classpath only; plaintext open retained)**
 2. production-named instrumentation conversion against disposable files;
 3. wire `PersistenceModule` to encrypted open + conversion journal;
 4. ship notices surface before any release that includes the native library.

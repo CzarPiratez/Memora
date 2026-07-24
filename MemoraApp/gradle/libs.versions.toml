@@ -13,7 +13,8 @@ room = "2.8.4"
 hilt = "2.60.1"
 pdfboxAndroid = "2.0.27.0"
 bouncyCastle = "1.84"
-# Reviewed in docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md for synthetic PoC only.
+# Synthetic encrypted-database PoC and future PersistenceModule switch.
+# Reviewed in docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md.
 sqlcipherAndroid = "4.17.0"
 androidxSqlite = "2.6.2"
 
@@ -46,7 +47,8 @@ pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref
 bouncycastle-provider = { group = "org.bouncycastle", name = "bcprov-jdk15to18", version.ref = "bouncyCastle" }
 bouncycastle-pkix = { group = "org.bouncycastle", name = "bcpkix-jdk15to18", version.ref = "bouncyCastle" }
 bouncycastle-util = { group = "org.bouncycastle", name = "bcutil-jdk15to18", version.ref = "bouncyCastle" }
-# Synthetic encrypted-database PoC only. Do not wire into production PersistenceModule yet.
+# Production classpath candidate for encrypted Room open. Do not wire into
+# PersistenceModule until the conversion/switch gate.
 sqlcipher-android = { group = "net.zetetic", name = "sqlcipher-android", version.ref = "sqlcipherAndroid" }
 androidx-sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "androidxSqlite" }
 

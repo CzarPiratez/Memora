@@ -1,12 +1,14 @@
 # SQLCipher Dependency and Provenance Review
 
-**Status:** Accepted for a synthetic-only proof-of-concept. This does **not** authorize
-production adoption, a release dependency pin, or PDF content persistence.
+**Status:** Accepted for production classpath promotion (Slice 1). PersistenceModule
+still opens plaintext `memora.db`. This does **not** authorize the encrypted open
+switch, PDF content persistence, or a store release without BSD notices.
 
 **Date:** 2026-07-24  
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.  
 **Governing decisions:** ADR-020 (accepted privacy posture), ADR-021 (accepted
-encrypted-database direction), `docs/ENCRYPTED_DATABASE_DECISION.md`.
+encrypted-database direction), `docs/ENCRYPTED_DATABASE_DECISION.md`,
+`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`.
 
 ## Purpose and boundary
 
@@ -16,16 +18,23 @@ licence, ABI, and API-floor questions before any Gradle dependency is added.
 
 It does **not**:
 
-- add SQLCipher to the **production** application runtime classpath;
-- convert `memora.db`;
-- change `PersistenceModule`, Room schema, or Hilt bindings;
+- convert `memora.db` or change `PersistenceModule` encrypted open;
 - open a user source, transport page text, schedule WorkManager, invoke AI, or use
   the network;
-- claim a permanent vulnerability guarantee or enterprise SLA.
+- claim a permanent vulnerability guarantee or enterprise SLA;
+- satisfy the BSD notices release gate by itself.
 
-PoC note (2026-07-24): the reviewed coordinate was later added as
-`androidTestImplementation` only for `EncryptedDatabasePocIntegrationTest`. Production
-`PersistenceModule` remains plaintext.
+Classpath note (2026-07-24, Slice 1): the reviewed coordinate is promoted to
+`implementation` in `MemoraApp/app/build.gradle.kts`. Production
+`PersistenceModule` remains plaintext until the conversion/switch gate.
+
+## Provenance re-check (2026-07-24, Slice 1)
+
+| Check | Result |
+|---|---|
+| AAR SHA-256 | Unchanged: `44fc40c33d1de597c8339072a71fa0ff20e12d01ab352d6abe4ad5df668ead94` |
+| OSV `net.zetetic:sqlcipher-android:4.17.0` | Empty vulnerability set (`{}`) |
+| Decision | Promote to production classpath; do not switch Room open helper yet |
 
 ## Candidate artifact
 
@@ -121,21 +130,20 @@ and vendor advisories before any production pin or release that ships the librar
 | Hand-written cipher layer or reflection into SQLite internals | Unsupported, untestable against ADR-021 proofs. |
 | Cloud key escrow / user password / biometric-every-open default | Conflicts with accepted frictionless local-only recovery model. |
 
-## Acceptance for PoC only
+## Acceptance for classpath promotion (Slice 1)
 
-This review **accepts** `net.zetetic:sqlcipher-android:4.17.0` as the candidate for
-the synthetic encrypted-database proof-of-concept defined in
-`docs/ENCRYPTED_DATABASE_POC_PLAN.md`, provided that PoC:
+This review **accepts** `net.zetetic:sqlcipher-android:4.17.0` on the production
+runtime classpath, provided that:
 
-1. pins the dependency only in the scoped PoC/test path described by that plan until
-   a later production-adoption gate;
-2. verifies AAR hashes at download time;
-3. records resolved `androidx.sqlite` / Room versions;
-4. proves create/open/reject-wrong-passphrase behavior offline on the emulator;
-5. adds no PDF content entity, source access, UI encryption setup screen, WorkManager,
-   AI, or network path;
-6. schedules the BSD attribution notice work before any release that ships the
-   library to users.
+1. `PersistenceModule` continues to open plaintext `memora.db` until the conversion
+   switch gate;
+2. AAR hashes are re-verified at promotion time (done 2026-07-24);
+3. resolved `androidx.sqlite` / Room versions remain recorded;
+4. synthetic PoC/conversion instrumentation suites remain green;
+5. no PDF content entity, source access, UI encryption setup screen, WorkManager, AI,
+   or network path is added by the promotion;
+6. BSD attribution notices ship before any store or sideload release that includes
+   the native library.
 
 ## Pre-work and delivery record
 

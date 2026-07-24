@@ -69,9 +69,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.room.testing)
-    // Synthetic encrypted-database PoC only. Production PersistenceModule stays plaintext.
-    androidTestImplementation(libs.sqlcipher.android)
-    androidTestImplementation(libs.androidx.sqlite)
+    // Production classpath for future PersistenceModule switch (Slice 1).
+    // PersistenceModule still opens plaintext memora.db until the conversion gate.
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.sqlite)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

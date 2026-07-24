@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Promoted SQLCipher to production classpath (Slice 1)
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Re-verified `net.zetetic:sqlcipher-android:4.17.0` AAR SHA-256 and
+  OSV (empty advisories), then moved SQLCipher and `androidx.sqlite:2.6.2` to
+  `implementation`. Provenance review updated for classpath promotion.
+- **Verification:** On 2026-07-24, `:app:assembleDebug` succeeded; emulator
+  `EncryptedDatabasePocIntegrationTest` **7/7** and
+  `PlaintextToEncryptedConversionIntegrationTest` **5/5**.
+- **Truthfulness:** `PersistenceModule` still opens plaintext `memora.db`. No
+  encrypted open switch, PDF content write, notices UI, WorkManager, AI, or network
+  path was added. BSD notices remain required before any release that ships the
+  library.
+
 ### Accepted encrypted-database production conversion rollout plan
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
@@ -11,7 +25,7 @@
   proofs.
 - **Status:** Design gate only. Production `memora.db` remains plaintext; no
   SQLCipher promotion, Room conversion switch, PDF content write, UI, worker, AI, or
-  network behavior changed.
+  network behavior changed at the documentation gate.
 - **Verification:** Documentation cross-check against verified synthetic PoC and
   conversion harness results on 2026-07-24.
 

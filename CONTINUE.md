@@ -594,14 +594,26 @@ release checklist, and remaining physical-device/process-death/notices proofs.
 No production database opening, SQLCipher promotion, PDF content write, UI,
 WorkManager, AI, or network path was changed.
 
+## Verified engineering checkpoint
+
+SQLCipher production classpath promotion (Slice 1) is verified. On 2026-07-24,
+Maven Central AAR SHA-256 still matched
+`44fc40c33d1de597c8339072a71fa0ff20e12d01ab352d6abe4ad5df668ead94`, OSV returned
+no advisories for `net.zetetic:sqlcipher-android:4.17.0`, and the coordinate was
+moved to `implementation` with `androidx.sqlite:sqlite:2.6.2`.
+`:app:assembleDebug` succeeded. Emulator re-ran
+`EncryptedDatabasePocIntegrationTest` (**7/7**) and
+`PlaintextToEncryptedConversionIntegrationTest` (**5/5**). Production
+`PersistenceModule` still opens plaintext `memora.db` without
+`openHelperFactory`. BSD notices remain a release gate; PDF content persistence
+remains blocked.
+
 ## Next approved engineering step
 
-Promote SQLCipher for the production switch change set only after re-verifying AAR
-hashes and advisories, then implement production-named synthetic conversion against
-disposable files and wire `PersistenceModule` encrypted open behind the rollout
-journal. Ship the Open-source notices surface before any release that includes the
-native library. Do not enable PDF text persistence, alter setup/indexing UX for
-encryption, schedule WorkManager, invoke AI, or use the network.
+Implement production-named synthetic conversion against disposable files that use
+the real `memora.db` naming strategy inside instrumentation only. Do not switch
+live `PersistenceModule` encrypted open yet, enable PDF text persistence, alter
+setup UI for encryption, schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision
 
