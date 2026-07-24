@@ -17,6 +17,9 @@ import java.io.File
  * with copy-and-validate rename finalize before repository traffic is served.
  */
 object MemoraEncryptedDatabaseOpener {
+    @Volatile
+    private var testStopAfterPhase: DatabaseEncryptionConversionPhase? = null
+
     fun open(context: Context): MemoraDatabase {
         val appContext = context.applicationContext
         System.loadLibrary("sqlcipher")
@@ -37,6 +40,43 @@ object MemoraEncryptedDatabaseOpener {
                 databaseName = ProductionDatabaseIdentity.DATABASE_NAME,
             )
         }
+    }
+
+    /**
+     * Runs conversion prepare only, stopping after [phase] is persisted.
+     * Simulates process death before a later open() resume. Instrumentation only.
+     */
+    fun prepareConversionStoppingAfterPhaseForTest(
+        context: Context,
+        phase: DatabaseEncryptionConversionPhase,
+    ) {
+        testStopAfterPhase = phase
+        try {
+            val appContext = context.applicationContext
+            System.loadLibrary("sqlcipher")
+            val passphraseStore = KeystoreDatabasePassphraseStore(
+                context = appContext,
+                keyAlias = ProductionDatabaseIdentity.KEY_ALIAS,
+                wrapperFileName = ProductionDatabaseIdentity.WRAPPER_FILE,
+            )
+            val journal = DatabaseEncryptionConversionJournal(
+                context = appContext,
+                journalFileName = ProductionDatabaseIdentity.JOURNAL_FILE,
+            )
+            runBlocking(Dispatchers.IO) {
+                prepareEncryptedDatabase(appContext, passphraseStore, journal)
+            }
+        } finally {
+            testStopAfterPhase = null
+        }
+    }
+
+    private fun shouldStopAfter(phase: DatabaseEncryptionConversionPhase): Boolean {
+        if (testStopAfterPhase != phase) {
+            return false
+        }
+        testStopAfterPhase = null
+        return true
     }
 
     private suspend fun prepareEncryptedDatabase(
@@ -146,6 +186,9 @@ object MemoraEncryptedDatabaseOpener {
                         schemaVersion = ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION,
                     ),
                 )
+                if (shouldStopAfter(DatabaseEncryptionConversionPhase.ROWS_COPIED)) {
+                    return
+                }
                 if (!validateAgainstSnapshot(encrypted, snapshot)) {
                     encrypted.close()
                     deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
@@ -163,10 +206,15 @@ object MemoraEncryptedDatabaseOpener {
                 deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
                 markFailed(journal)
                 throw error
+            } finally {
+                runCatching { encrypted.close() }
             }
-            encrypted.close()
         } finally {
             plaintext.close()
+        }
+
+        if (journal.read().phase == DatabaseEncryptionConversionPhase.ROWS_COPIED) {
+            return
         }
 
         // Process-boundary style reopen before rename.
@@ -194,6 +242,9 @@ object MemoraEncryptedDatabaseOpener {
                     schemaVersion = ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION,
                 ),
             )
+            if (shouldStopAfter(DatabaseEncryptionConversionPhase.SWITCH_PENDING)) {
+                return
+            }
         } finally {
             reopened.close()
         }
@@ -209,23 +260,60 @@ object MemoraEncryptedDatabaseOpener {
         val production = ProductionDatabaseIdentity.DATABASE_NAME
         val candidate = ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME
         val retained = ProductionDatabaseIdentity.PLAINTEXT_RETAINED_NAME
-        if (!databaseFile(context, candidate).exists() || !databaseFile(context, production).exists()) {
-            markFailed(journal)
-            error("Conversion finalize is missing plaintext or encrypted candidate files.")
+        val productionFile = databaseFile(context, production)
+        val candidateExists = databaseFile(context, candidate).exists()
+        val retainedExists = databaseFile(context, retained).exists()
+        val productionExists = productionFile.exists()
+
+        when {
+            // Clean SWITCH_PENDING: plaintext still authoritative, candidate ready.
+            candidateExists && productionExists && isPlaintextReadable(productionFile) -> {
+                deleteDatabaseFiles(context, retained)
+                if (!renameDatabaseFiles(context, production, retained)) {
+                    markFailed(journal)
+                    error("Unable to retain plaintext during encrypted finalize.")
+                }
+                if (!renameDatabaseFiles(context, candidate, production)) {
+                    renameDatabaseFiles(context, retained, production)
+                    markFailed(journal)
+                    error("Unable to promote encrypted candidate to memora.db.")
+                }
+                completeAfterEncryptedPromotion(context, passphraseStore, journal)
+            }
+
+            // Death after moving plaintext aside: retained + candidate, production gone.
+            candidateExists && retainedExists && !productionExists -> {
+                if (!renameDatabaseFiles(context, candidate, production)) {
+                    markFailed(journal)
+                    error("Unable to promote encrypted candidate after interrupted finalize.")
+                }
+                completeAfterEncryptedPromotion(context, passphraseStore, journal)
+            }
+
+            // Death after promoting encrypted candidate onto memora.db.
+            productionExists && !candidateExists && !isPlaintextReadable(productionFile) -> {
+                completeAfterEncryptedPromotion(context, passphraseStore, journal)
+            }
+
+            else -> {
+                markFailed(journal)
+                error("Conversion finalize is missing plaintext or encrypted candidate files.")
+            }
         }
-        deleteDatabaseFiles(context, retained)
-        if (!renameDatabaseFiles(context, production, retained)) {
-            markFailed(journal)
-            error("Unable to retain plaintext during encrypted finalize.")
-        }
-        if (!renameDatabaseFiles(context, candidate, production)) {
-            renameDatabaseFiles(context, retained, production)
-            markFailed(journal)
-            error("Unable to promote encrypted candidate to memora.db.")
-        }
-        val verify = openEncrypted(context, passphraseStore, production)
+    }
+
+    private fun completeAfterEncryptedPromotion(
+        context: Context,
+        passphraseStore: KeystoreDatabasePassphraseStore,
+        journal: DatabaseEncryptionConversionJournal,
+    ) {
+        val verify = openEncrypted(
+            context,
+            passphraseStore,
+            ProductionDatabaseIdentity.DATABASE_NAME,
+        )
         verify.close()
-        deleteDatabaseFiles(context, retained)
+        deleteDatabaseFiles(context, ProductionDatabaseIdentity.PLAINTEXT_RETAINED_NAME)
         journal.write(
             DatabaseEncryptionConversionRecord(
                 phase = DatabaseEncryptionConversionPhase.COMPLETED,

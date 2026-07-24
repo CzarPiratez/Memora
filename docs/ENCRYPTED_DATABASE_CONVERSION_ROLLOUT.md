@@ -48,8 +48,10 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    disposable instrumentation databases that use the real production file naming
    strategy (`memora.db` / encrypted candidate / retained plaintext sidecar), still
    without changing the live Hilt provider default until its own step.
-3. **Live process-death:** crash or kill while `ROWS_COPIED` or `SWITCH_PENDING` and
-   prove resume preserves plaintext or completes exactly once.
+3. **Live process-death:** ~~crash or kill while `ROWS_COPIED` or `SWITCH_PENDING` and
+   prove resume preserves plaintext or completes exactly once.~~
+   **done 2026-07-24** (`ConversionProcessDeathResumeIntegrationTest` 4/4; opener
+   finalize resume for mid-rename layouts).
 4. **Low-storage / interruption:** conversion denial leaves plaintext intact and
    exposes `CONVERSION_VALIDATION_FAILED` (content-free).
 5. **Device unlock / credential-encrypted storage:** after reboot, deferred open until
@@ -230,10 +232,9 @@ release:
 4. ~~ship notices surface before any release that includes the native library;~~
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Remaining optional proofs: physical-device conversion, process-death during
-`SWITCH_PENDING`, and low-storage failure. Clear-derived-data is done
-(2026-07-24). PDF content persistence stays blocked until its own privacy/resource
-gates pass.
+Remaining optional proofs: physical-device conversion and low-storage failure.
+Process-death resume and clear-derived-data are done (2026-07-24). PDF content
+persistence stays blocked until its own privacy/resource gates pass.
 
 ## Pre-work and delivery record
 
@@ -243,10 +244,10 @@ gates pass.
   provenance review, PoC plan, conversion harness results, PRD traceability.
 - **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
   `memora.db` via `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener`; notices UI
-  and Clear Memora index recovery UX ship; opener and clear instrumentation cover the
-  path.
+  and Clear Memora index recovery UX ship; opener, clear, and process-death resume
+  instrumentation cover the path.
 - **Affected layers:** data/security, DI, welcome UI notices/clear, documentation.
-- **Verification:** opener + clear instrumentation; notices text committed under
-  version control from Zetetic Community Edition licence URL.
-- **Known limitation:** physical-device, process-death, and low-storage proofs remain
-  open; PDF content persistence remains blocked.
+- **Verification:** opener + clear + process-death instrumentation; notices text
+  committed under version control from Zetetic Community Edition licence URL.
+- **Known limitation:** physical-device and low-storage proofs remain open; PDF content
+  persistence remains blocked.

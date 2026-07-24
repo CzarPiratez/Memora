@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified conversion process-death resume
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** `MemoraEncryptedDatabaseOpener` resume for interrupted `ROWS_COPIED`
+  and `SWITCH_PENDING`, including mid-finalize layouts (plaintext retained; candidate
+  already promoted). Instrumentation simulates death via prepare-stop hooks then
+  resumes with `open()`.
+- **Verification:** On 2026-07-24, Medium Phone emulator
+  `ConversionProcessDeathResumeIntegrationTest`: **4 of 4 passed**.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+
 ### Verified Clear Memora derived data and rebuild recovery UX
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

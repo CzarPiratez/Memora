@@ -648,12 +648,23 @@ unit copy guard `ClearMemoraDerivedDataCopyTest` passed. Persistable URI grant c
 is unchanged by clear. No PDF content persistence, WorkManager, AI, or network path
 was added.
 
+## Verified engineering checkpoint
+
+Conversion process-death resume is verified. On 2026-07-24,
+`ConversionProcessDeathResumeIntegrationTest` completed on the Medium Phone emulator:
+**4 of 4 passed**. It proves resume after simulated death at `ROWS_COPIED` (plaintext
+retained, incomplete candidate dropped, conversion completes once), clean
+`SWITCH_PENDING`, mid-finalize after plaintext retained, and mid-finalize after
+encrypted candidate promotion onto `memora.db`. `MemoraEncryptedDatabaseOpener`
+finalize now handles those interrupted file layouts. No PDF content persistence,
+WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
-Keep PDF text persistence blocked (ADR-017 / ADR-020). Optionally prove physical-
-device conversion, process-death during SWITCH_PENDING, and low-storage failure
-paths from `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`. Do not schedule
-WorkManager, invoke AI, or use the network.
+Keep PDF text persistence blocked (ADR-017 / ADR-020). Optionally prove low-storage
+failure and physical-device (`arm64-v8a`) conversion from
+`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`. Do not schedule WorkManager, invoke
+AI, or use the network.
 
 ## Important open decision
 
