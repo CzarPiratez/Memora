@@ -608,12 +608,25 @@ moved to `implementation` with `androidx.sqlite:sqlite:2.6.2`.
 `openHelperFactory`. BSD notices remain a release gate; PDF content persistence
 remains blocked.
 
+## Verified engineering checkpoint
+
+Production-named disposable conversion is verified. On 2026-07-24,
+`ProductionNamedConversionIntegrationTest` completed on the Medium Phone emulator:
+**3 tests passed**. It converts schema-v3 fixtures from disposable `memora.db` into
+`memora.db.encrypted_candidate`, renames the encrypted file onto `memora.db` only
+after validated reopen, rejects standard SQLite against the production name, keeps
+plaintext on validation failure, and deletes disposable files in tearDown so live
+`PersistenceModule` is not left on an encrypted file. No PersistenceModule encrypted
+open switch, PDF content write, notices UI, WorkManager, AI, or network path was
+added.
+
 ## Next approved engineering step
 
-Implement production-named synthetic conversion against disposable files that use
-the real `memora.db` naming strategy inside instrumentation only. Do not switch
-live `PersistenceModule` encrypted open yet, enable PDF text persistence, alter
-setup UI for encryption, schedule WorkManager, invoke AI, or use the network.
+Wire `PersistenceModule` to encrypted open plus the conversion journal for real app
+startup, using the production-named algorithm already proven in instrumentation.
+Ship the Open-source notices surface before any release that includes the native
+library. Do not enable PDF text persistence, alter setup UI for encryption,
+schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision
 

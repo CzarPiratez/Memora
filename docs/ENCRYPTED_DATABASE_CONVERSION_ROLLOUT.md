@@ -221,7 +221,8 @@ release:
 
 1. ~~promote SQLCipher with re-verified provenance for the switch change set;~~
    **done 2026-07-24 (classpath only; plaintext open retained)**
-2. production-named instrumentation conversion against disposable files;
+2. ~~production-named instrumentation conversion against disposable files;~~
+   **done 2026-07-24 (`ProductionNamedConversionIntegrationTest` 3/3)**
 3. wire `PersistenceModule` to encrypted open + conversion journal;
 4. ship notices surface before any release that includes the native library.
 

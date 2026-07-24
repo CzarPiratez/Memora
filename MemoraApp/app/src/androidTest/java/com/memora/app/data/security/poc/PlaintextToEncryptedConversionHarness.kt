@@ -165,6 +165,67 @@ class PlaintextToEncryptedConversionHarness(
         )
     }
 
+    /**
+     * Production naming finalize: keep [PRODUCTION_DATABASE_NAME] as the durable file
+     * name by renaming the encrypted candidate onto it after moving plaintext aside.
+     * Instrumentation must delete these disposable files in tearDown so the live
+     * plaintext [PersistenceModule] path is not left encrypted.
+     */
+    fun finalizeByRenamingEncryptedToProductionName(): ConversionHarnessResult {
+        val record = journal.read()
+        if (record.phase != DatabaseEncryptionConversionPhase.SWITCH_PENDING) {
+            return ConversionHarnessResult.Denied(
+                DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED,
+            )
+        }
+        if (plaintextDatabaseName != PRODUCTION_DATABASE_NAME) {
+            return failSafe(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
+        }
+        if (!databaseFile(encryptedDatabaseName).exists() ||
+            !databaseFile(plaintextDatabaseName).exists()
+        ) {
+            return failSafe(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
+        }
+
+        deleteDatabaseFiles(PRODUCTION_PLAINTEXT_RETAINED_NAME)
+        if (!renameDatabaseFiles(plaintextDatabaseName, PRODUCTION_PLAINTEXT_RETAINED_NAME)) {
+            return failSafe(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
+        }
+        if (!renameDatabaseFiles(encryptedDatabaseName, PRODUCTION_DATABASE_NAME)) {
+            // Best-effort restore of plaintext identity.
+            renameDatabaseFiles(PRODUCTION_PLAINTEXT_RETAINED_NAME, PRODUCTION_DATABASE_NAME)
+            return failSafe(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
+        }
+
+        val reopened = openEncryptedDatabase(PRODUCTION_DATABASE_NAME)
+        when (reopened) {
+            is EncryptedPocOpenResult.Opened -> reopened.database.close()
+            is EncryptedPocOpenResult.Denied -> {
+                renameDatabaseFiles(PRODUCTION_DATABASE_NAME, encryptedDatabaseName)
+                renameDatabaseFiles(PRODUCTION_PLAINTEXT_RETAINED_NAME, PRODUCTION_DATABASE_NAME)
+                return failSafe(reopened.category)
+            }
+        }
+
+        deleteDatabaseFiles(PRODUCTION_PLAINTEXT_RETAINED_NAME)
+        if (databaseFile(PRODUCTION_PLAINTEXT_RETAINED_NAME).exists() ||
+            databaseFile(encryptedDatabaseName).exists()
+        ) {
+            return failSafe(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
+        }
+
+        journal.write(
+            DatabaseEncryptionConversionRecord(
+                phase = DatabaseEncryptionConversionPhase.COMPLETED,
+                schemaVersion = EXPECTED_SCHEMA_VERSION,
+            ),
+        )
+        return ConversionHarnessResult.Completed(
+            encryptedDatabaseName = PRODUCTION_DATABASE_NAME,
+            plaintextDeleted = !databaseFile(PRODUCTION_PLAINTEXT_RETAINED_NAME).exists(),
+        )
+    }
+
     fun markInterruptedAfterRowsCopiedForTest() {
         journal.write(
             DatabaseEncryptionConversionRecord(
@@ -183,13 +244,22 @@ class PlaintextToEncryptedConversionHarness(
 
     fun reopenEncrypted(): EncryptedPocOpenResult = openEncryptedWithStore()
 
+    fun reopenEncryptedAtProductionName(): EncryptedPocOpenResult =
+        openEncryptedDatabase(PRODUCTION_DATABASE_NAME)
+
     fun plaintextExists(): Boolean = databaseFile(plaintextDatabaseName).exists()
 
     fun encryptedExists(): Boolean = databaseFile(encryptedDatabaseName).exists()
 
+    fun productionDatabaseExists(): Boolean =
+        databaseFile(PRODUCTION_DATABASE_NAME).exists()
+
     fun deleteAllHarnessFiles() {
         deleteDatabaseFiles(plaintextDatabaseName)
         deleteDatabaseFiles(encryptedDatabaseName)
+        deleteDatabaseFiles(PRODUCTION_DATABASE_NAME)
+        deleteDatabaseFiles(PRODUCTION_PLAINTEXT_RETAINED_NAME)
+        deleteDatabaseFiles(PRODUCTION_ENCRYPTED_CANDIDATE_NAME)
     }
 
     private fun cleanupIncompleteEncryptedCandidateIfNeeded() {
@@ -231,17 +301,32 @@ class PlaintextToEncryptedConversionHarness(
             is PassphraseUnwrapResult.Unwrapped -> unwrapped.passphrase
             is PassphraseUnwrapResult.Denied -> return EncryptedPocOpenResult.Denied(unwrapped.category)
         }
-        return openEncrypted(passphrase)
+        return openEncryptedDatabase(encryptedDatabaseName, passphrase)
     }
 
-    private fun openEncrypted(passphrase: ByteArray): EncryptedPocOpenResult {
+    private fun openEncrypted(passphrase: ByteArray): EncryptedPocOpenResult =
+        openEncryptedDatabase(encryptedDatabaseName, passphrase)
+
+    private fun openEncryptedDatabase(databaseName: String): EncryptedPocOpenResult {
+        val unwrapped = passphraseStore.unwrapExistingPassphrase()
+        val passphrase = when (unwrapped) {
+            is PassphraseUnwrapResult.Unwrapped -> unwrapped.passphrase
+            is PassphraseUnwrapResult.Denied -> return EncryptedPocOpenResult.Denied(unwrapped.category)
+        }
+        return openEncryptedDatabase(databaseName, passphrase)
+    }
+
+    private fun openEncryptedDatabase(
+        databaseName: String,
+        passphrase: ByteArray,
+    ): EncryptedPocOpenResult {
         return try {
             EncryptedPocDatabaseFactory.loadNativeLibrary()
             val factory = SupportOpenHelperFactory(passphrase.copyOf())
             val database = Room.databaseBuilder(
                 appContext,
                 MemoraDatabase::class.java,
-                encryptedDatabaseName,
+                databaseName,
             )
                 .openHelperFactory(factory)
                 .build()
@@ -304,6 +389,29 @@ class PlaintextToEncryptedConversionHarness(
         File(base.path + "-journal").delete()
     }
 
+    private fun renameDatabaseFiles(fromName: String, toName: String): Boolean {
+        val from = databaseFile(fromName)
+        val to = databaseFile(toName)
+        if (!from.exists()) {
+            return false
+        }
+        deleteDatabaseFiles(toName)
+        to.parentFile?.mkdirs()
+        val mainRenamed = from.renameTo(to)
+        if (!mainRenamed) {
+            return false
+        }
+        listOf("-wal", "-shm", "-journal").forEach { suffix ->
+            val source = File(from.path + suffix)
+            if (source.exists()) {
+                val target = File(to.path + suffix)
+                target.delete()
+                source.renameTo(target)
+            }
+        }
+        return to.exists()
+    }
+
     private data class Snapshot(
         val assets: List<AssetEntity>,
         val checkpoints: List<DiscoveryCheckpointEntity>,
@@ -321,10 +429,29 @@ class PlaintextToEncryptedConversionHarness(
     companion object {
         const val PLAINTEXT_DATABASE_NAME = "memora_plaintext_conversion_poc.db"
         const val ENCRYPTED_CANDIDATE_DATABASE_NAME = "memora_encrypted_conversion_poc.db"
+        const val PRODUCTION_DATABASE_NAME = "memora.db"
+        const val PRODUCTION_ENCRYPTED_CANDIDATE_NAME = "memora.db.encrypted_candidate"
+        const val PRODUCTION_PLAINTEXT_RETAINED_NAME = "memora.db.plaintext_retained"
         const val EXPECTED_SCHEMA_VERSION = 3
         const val CONVERSION_KEY_ALIAS = "memora.poc.conversion.wrap.v1"
         const val CONVERSION_WRAPPER_FILE = "memora_poc_conversion_wrap_v1.bin"
+        const val PRODUCTION_KEY_ALIAS = "memora.db.wrap.v1"
+        const val PRODUCTION_WRAPPER_FILE = "memora_db_wrap_v1.bin"
+        const val PRODUCTION_JOURNAL_FILE = "memora_db_conversion_v1.journal"
         const val FIXTURE_MARKER = "MEMORA_CONVERSION_FIXTURE_MARKER_v1"
+        const val PRODUCTION_FIXTURE_MARKER = "MEMORA_PRODUCTION_NAMED_CONVERSION_MARKER_v1"
+
+        fun productionNamed(
+            context: Context,
+            passphraseStore: KeystoreDatabasePassphraseStore,
+            journal: DatabaseEncryptionConversionJournal,
+        ): PlaintextToEncryptedConversionHarness = PlaintextToEncryptedConversionHarness(
+            context = context,
+            passphraseStore = passphraseStore,
+            journal = journal,
+            plaintextDatabaseName = PRODUCTION_DATABASE_NAME,
+            encryptedDatabaseName = PRODUCTION_ENCRYPTED_CANDIDATE_NAME,
+        )
     }
 }
 

@@ -139,9 +139,11 @@ text is enabled.
 - **Classpath Slice 1 (2026-07-24):** SQLCipher `4.17.0` and `androidx.sqlite`
   `2.6.2` are on `implementation` after hash/OSV re-check; emulator PoC **7/7** and
   conversion **5/5** still pass. Production opening remains plaintext.
-- **Next gate:** production-named synthetic conversion against disposable files,
-  then PersistenceModule encrypted open + notices surface. PDF-text persistence
-  remains blocked.
+- **Production-named conversion (2026-07-24):**
+  `ProductionNamedConversionIntegrationTest` passed **3 of 3**, proving disposable
+  `memora.db` → candidate → rename finalize without switching live PersistenceModule.
+- **Next gate:** wire PersistenceModule encrypted open + conversion journal, then
+  notices surface before release. PDF-text persistence remains blocked.
 - **Scope:** Production `PersistenceModule` still opens plaintext `memora.db`. No PDF
   content write, retrieval, explanation, AI, worker, or user-facing encryption UI.
 

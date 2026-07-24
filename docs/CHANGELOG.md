@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified production-named disposable conversion
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Instrumentation conversion using disposable `memora.db` /
+  `memora.db.encrypted_candidate` names, production Keystore alias/journal files,
+  and rename-finalize onto `memora.db` after validated encrypted reopen. TearDown
+  deletes disposable files so live plaintext PersistenceModule is not stranded.
+- **Verification:** On 2026-07-24, Medium Phone emulator ran
+  `ProductionNamedConversionIntegrationTest`: **3 of 3 passed**.
+- **Truthfulness:** Live `PersistenceModule` still opens plaintext `memora.db`. No
+  PDF content write, notices UI, WorkManager, AI, or network path was added.
+
 ### Promoted SQLCipher to production classpath (Slice 1)
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
