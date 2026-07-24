@@ -524,28 +524,84 @@ missing, and mismatched input never calls the port. The tests use a fake port on
 no repository implementation, Room schema/migration/write, source access, parser
 transport, UI, worker, semantic understanding/AI, or network behavior was added.
 
-## Next approved engineering step
+## Verified engineering checkpoint
 
 The user accepted ADR-020's privacy posture. The backup/device-transfer foundation
 is verified: the debug app assembled and installed on the Medium Phone, and its
 installed manifest plus packaged resources confirm that all Memora-private data is
 excluded from legacy backup and Android 12+ cloud/device-transfer paths.
 
-The detailed encrypted-database decision record is prepared in
-`docs/ENCRYPTED_DATABASE_DECISION.md`; ADR-021 is deliberately **proposed**, not
-implemented. It recommends SQLCipher for Android with a randomly generated database
-passphrase wrapped by a versioned Android Keystore AES-GCM key. It defines dependency
-licensing/provenance, key creation/invalidation/rotation/recovery, non-destructive
-conversion, device-unlock behavior, diagnostics, and test/release gates.
+The detailed encrypted-database decision record was prepared in
+`docs/ENCRYPTED_DATABASE_DECISION.md`. ADR-021 was then proposed for approval with
+SQLCipher for Android, a randomly generated database passphrase wrapped by a
+versioned Android Keystore AES-GCM key, dependency licensing/provenance, key
+lifecycle, non-destructive conversion, device-unlock behavior, diagnostics, and
+test/release gates.
+
+## Verified engineering checkpoint
+
+The product-owner approval gate for ADR-021 is complete. The earlier ask-to-approve
+step is closed by the accepted checkpoint below; it no longer blocks work.
+
+## Verified engineering checkpoint
+
+ADR-021 is accepted. On 2026-07-24 the product owner approved the SQLCipher-for-
+Android plus Android-Keystore direction with frictionless ordinary use and the
+approved recovery wording that never mentions SQLCipher, keys, or encryption
+failures. `docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` records Maven Central
+candidate `net.zetetic:sqlcipher-android:4.17.0`, AAR hashes, the declared
+`androidx.sqlite:sqlite:2.6.2` runtime dependency, BSD-style attribution obligations,
+and a point-in-time OSV query with no listed advisories for that version.
+`docs/ENCRYPTED_DATABASE_POC_PLAN.md` defines the synthetic-only next code gate.
+Production `PersistenceModule` still opens plaintext `memora.db`. No production
+SQLCipher binding, database conversion, PDF content write, UI, WorkManager, AI, or
+network path was added at that documentation gate.
+
+## Verified engineering checkpoint
+
+The synthetic encrypted-database PoC is verified. On 2026-07-24,
+`EncryptedDatabasePocIntegrationTest` completed on the Medium Phone emulator:
+**7 tests passed**. It loads native SQLCipher, creates `memora_encrypted_poc.db`
+with a Keystore-wrapped random passphrase, round-trips synthetic schema-v3 Asset/
+checkpoint/document-tree rows across close/reopen, denies wrong-passphrase and
+tampered-wrapper access without deleting the database, rejects a read-only standard
+SQLite probe, finds no fixture marker in clear-text artifacts, and confirms the app
+still requests no `INTERNET` permission while production `PersistenceModule` still
+targets plaintext `memora.db`. SQLCipher is `androidTestImplementation` only.
+Resolved test classpath versions: `net.zetetic:sqlcipher-android:4.17.0`,
+`androidx.sqlite:sqlite:2.6.2`, `androidx.room:room-runtime:2.8.4`.
+
+## Verified engineering checkpoint
+
+The synthetic plaintext-to-encrypted conversion harness is verified. On 2026-07-24,
+`PlaintextToEncryptedConversionIntegrationTest` completed on the Medium Phone
+emulator: **5 tests passed**. It copies schema-v3 Asset/checkpoint/document-tree
+fixture rows from `memora_plaintext_conversion_poc.db` into
+`memora_encrypted_conversion_poc.db`, validates counts and row equality, proves
+encrypted reopen while retaining plaintext at `SWITCH_PENDING`, deletes plaintext
+only after explicit finalize, converts an empty database, keeps plaintext and drops
+a bad candidate on validation failure, and retries safely from an interrupted
+`ROWS_COPIED` journal state. Production `PersistenceModule` remains plaintext
+`memora.db`. No PDF content persistence, UI, WorkManager, AI, or network path was
+added.
+
+## Verified engineering checkpoint
+
+The production conversion rollout acceptance document is in place. On 2026-07-24,
+`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md` recorded PersistenceModule switch
+criteria, crash-resume rules, BSD attribution gate, rollback procedure, staged
+release checklist, and remaining physical-device/process-death/notices proofs.
+No production database opening, SQLCipher promotion, PDF content write, UI,
+WorkManager, AI, or network path was changed.
 
 ## Next approved engineering step
 
-Ask the product owner to approve or reject ADR-021's exact SQLCipher-plus-Keystore
-direction. Until approval, do not add any SQLCipher dependency, Room entity/migration,
-repository write, source access, text transport, UI, WorkManager, search, semantic
-understanding/AI, or real-source capability. If approved, the next work is a separate
-dependency/provenance review and synthetic-only encrypted-database proof-of-concept
-plan; it is not PDF content persistence.
+Promote SQLCipher for the production switch change set only after re-verifying AAR
+hashes and advisories, then implement production-named synthetic conversion against
+disposable files and wire `PersistenceModule` encrypted open behind the rollout
+journal. Ship the Open-source notices surface before any release that includes the
+native library. Do not enable PDF text persistence, alter setup/indexing UX for
+encryption, schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision
 

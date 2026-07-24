@@ -69,6 +69,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.room.testing)
+    // Synthetic encrypted-database PoC only. Production PersistenceModule stays plaintext.
+    androidTestImplementation(libs.sqlcipher.android)
+    androidTestImplementation(libs.androidx.sqlite)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

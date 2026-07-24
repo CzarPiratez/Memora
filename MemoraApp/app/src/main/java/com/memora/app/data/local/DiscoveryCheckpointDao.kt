@@ -17,4 +17,10 @@ interface DiscoveryCheckpointDao {
         """,
     )
     suspend fun find(sourceId: String): DiscoveryCheckpointEntity?
+
+    @Query("SELECT * FROM discovery_checkpoints ORDER BY source_id ASC")
+    suspend fun findAll(): List<DiscoveryCheckpointEntity>
+
+    @Query("SELECT COUNT(*) FROM discovery_checkpoints")
+    suspend fun count(): Int
 }

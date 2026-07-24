@@ -25,4 +25,7 @@ interface DocumentTreeApprovalDao {
         """,
     )
     suspend fun findAll(): List<DocumentTreeApprovalEntity>
+
+    @Query("SELECT COUNT(*) FROM document_tree_approvals")
+    suspend fun count(): Int
 }

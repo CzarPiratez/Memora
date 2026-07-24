@@ -117,19 +117,39 @@ manifest and packaged XML resources verified this configuration. P-07 persistenc
 remains planned: no Room content write, real-source parsing, or searchable stored PDF
 text is enabled.
 
+### Accepted encrypted-database direction and verified synthetic PoC
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Decision:** ADR-021 is accepted. Memora will use SQLCipher-for-Android plus an
+  Android-Keystore-wrapped database secret, with frictionless ordinary use and
+  plain-language recovery copy that never mentions SQLCipher, keys, or encryption
+  failures.
+- **Supply chain:** `docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` records Maven
+  Central `net.zetetic:sqlcipher-android:4.17.0` hashes and a 2026-07-24 OSV check
+  with no listed advisories for that version.
+- **PoC verification:** On 2026-07-24, `EncryptedDatabasePocIntegrationTest` passed
+  **7 of 7** on the Medium Phone emulator against `memora_encrypted_poc.db` only.
+  Resolved versions: SQLCipher `4.17.0`, `androidx.sqlite` `2.6.2`, Room `2.8.4`.
+- **Conversion harness:** On 2026-07-24,
+  `PlaintextToEncryptedConversionIntegrationTest` passed **5 of 5**, proving
+  copy-and-validate, plaintext retention until finalize, empty conversion, validation
+  failure safety, and interrupted `ROWS_COPIED` retry.
+- **Rollout plan:** `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md` records
+  PersistenceModule switch criteria, crash-resume, BSD attribution, and rollback.
+  Production opening remains plaintext until that gate is implemented and verified.
+- **Next gate:** promote SQLCipher with re-verified provenance, production-named
+  synthetic conversion, then PersistenceModule encrypted open + notices surface.
+  PDF-text persistence remains blocked.
+- **Scope:** Production `PersistenceModule` still opens plaintext `memora.db`. No PDF
+  content write, retrieval, explanation, AI, worker, or user-facing encryption UI.
+
 ### Proposed encrypted-database direction
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
-- **Decision:** ADR-021 proposes a SQLCipher-for-Android plus Android-Keystore
-  wrapped database-secret design. It specifies local-only key/recovery behavior,
-  whole-database encryption, non-destructive conversion, and a user-confirmed
-  derived-data reset if key recovery is impossible.
+- **Decision:** Historical proposal retained; superseded by ADR-021 acceptance above.
 - **Scope:** Documentation only. No encryption dependency, database conversion, Room
   entity/migration, content write, source access, retrieval, explanation, AI, worker,
   or UI has been added.
-- **Approval gate:** The product owner must approve the exact direction; then a
-  separate supply-chain and proof-of-concept step must pass before any release or
-  PDF-text persistence claim.
 
 Before closing any feature, link its tests and visible behavior to at least one ID in
 this table. If a proposed feature has no matching requirement, either decline it as

@@ -1,10 +1,12 @@
 # Local Encrypted Database Decision Record
 
-**Status:** Proposed for product-owner approval. This selects a recommended direction
-but authorizes no dependency, database conversion, schema change, or content write.
+**Status:** Accepted product direction. Synthetic proof-of-concept is separately
+planned; production conversion, release dependency pin, and content write remain
+blocked until their gates pass.
 
 **Date:** 2026-07-24  
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+**Approval:** Product owner accepted ADR-021 on 2026-07-24.
 
 ## Decision boundary
 
@@ -144,9 +146,17 @@ content-free version telemetry, and a documented support/recovery procedure.
 
 ## Diagnostics and user experience
 
-Privacy should usually be invisible. If recovery is required, explain what happened,
-what remains safe, and what the user action will change. Never show aliases, cipher
-details, paths, source names, text, or raw exceptions.
+Privacy should usually be invisible. Ordinary use has no password to create or
+remember, no biometric prompt for every search or index, and no encryption setup
+screen. Memora simply works while protecting its private index locally.
+
+If recovery is required, explain what happened, what remains safe, and what the user
+action will change. Never show aliases, cipher details, paths, source names, text, or
+raw exceptions. Never mention “SQLCipher,” “keys,” or “encryption failures” to users.
+The only approved recovery wording is:
+
+> Your private Memora index needs to be rebuilt. Your original photos, documents, and
+> notes are unchanged.
 
 Only coarse local categories are permitted: `KEY_UNAVAILABLE`, `WRAPPER_INVALID`,
 `DATABASE_AUTH_FAILED`, `CONVERSION_VALIDATION_FAILED`, and
@@ -176,10 +186,12 @@ page text, or parser output. Any support export is a separate consent decision.
 
 ## Consequences and status
 
-This is deliberately a recommendation, not a claim that Room is currently encrypted.
-Approval authorizes only a tightly scoped SQLCipher/Keystore proof-of-concept and
-conversion design. A separate acceptance gate is required for production adoption,
-and another for PDF extraction persistence.
+Room is not currently encrypted. ADR-021 acceptance plus
+`docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` and
+`docs/ENCRYPTED_DATABASE_POC_PLAN.md` authorize the synthetic SQLCipher/Keystore
+proof-of-concept. `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md` defines the
+production PersistenceModule switch acceptance criteria. A separate implementation
+gate is required for that switch, and another for PDF extraction persistence.
 
 ## Sources consulted
 
@@ -200,8 +212,11 @@ and another for PDF extraction persistence.
   `Room.databaseBuilder` and migrations 1-to-2/2-to-3. There is no encryption
   dependency or content-bearing PDF Room entity.
 - **Affected layers:** documentation/future data-security boundary only.
-- **Verification:** documentation cross-reference and code inspection only; no
-  executable code changed, so no Android Studio test is required.
+- **Verification:** documentation cross-reference, code inspection, Maven Central
+  artifact/POM/checksum review, and OSV query for `net.zetetic:sqlcipher-android:4.17.0`
+  on 2026-07-24 (no listed advisories). No executable app code changed.
+- **Follow-up docs:** `docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` and
+  `docs/ENCRYPTED_DATABASE_POC_PLAN.md`.
 - **Known limitation:** no encrypted database, content persistence, or security
-  certification exists yet. Exact implementation remains blocked pending approval and
-  every mandatory proof above.
+  certification exists yet. Production conversion remains blocked until the synthetic
+  PoC and later adoption gates pass.

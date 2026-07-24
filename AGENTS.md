@@ -83,5 +83,7 @@ Keep dependencies flowing inward:
 
 The user is learning Android development. Work one verified step at a time: explain
 the outcome in plain language, make the smallest safe change, ask the user to test,
-and wait for feedback before moving on. Do not make product decisions that materially
-change the PRD without flagging them in `docs/DECISIONS.md`.
+and wait for feedback before moving on. After each verified checkpoint, create a
+local git commit so work is not lost; do not push unless asked. See
+`.cursor/rules/git-checkpoint-commits.mdc`. Do not make product decisions that
+materially change the PRD without flagging them in `docs/DECISIONS.md`.

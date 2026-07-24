@@ -1,0 +1,42 @@
+---
+description: Commit verified Memora checkpoints to local git automatically
+alwaysApply: true
+---
+
+# Local git checkpoint commits
+
+After a meaningful, verified engineering or documentation checkpoint, create a
+**local** git commit without waiting to be asked.
+
+## When to commit
+
+Commit when all of these are true:
+
+1. The change set is coherent (one concern; not a half-finished refactor).
+2. Verification for that step succeeded (unit/instrumentation tests, documented
+   inspection gate, or an explicit docs-only acceptance record).
+3. `CONTINUE.md` / changelog / decision records for the step are updated when
+   governance requires them.
+4. No secrets, credentials, keystore material, or local machine-only junk is
+   staged.
+
+Typical triggers: ADR accepted and recorded; synthetic PoC/tests green; rollout
+plan authored; feature slice complete per `docs/GOVERNANCE.md`.
+
+## When not to commit
+
+- Mid-step WIP that does not yet compile or pass its planned checks
+- User explicitly says not to commit
+- Only formatting/noise with no product or docs intent
+
+## How to commit
+
+- Follow the repository commit-message style (`feat:`, `docs:`, `fix:`, etc.).
+- Stage only files that belong to the checkpoint.
+- Prefer one commit per verified checkpoint; split unrelated concerns.
+- Run `git status` after the commit to confirm a clean or expected state.
+
+## Pushing
+
+Do **not** push to remote unless the user explicitly asks. Local commits are
+enough to keep work from being lost.

@@ -2,13 +2,68 @@
 
 ## Unreleased
 
+### Accepted encrypted-database production conversion rollout plan
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md` defines
+  PersistenceModule switch acceptance criteria, crash-resume rules, BSD attribution
+  gate, rollback, staged release checklist, and remaining device/process-death
+  proofs.
+- **Status:** Design gate only. Production `memora.db` remains plaintext; no
+  SQLCipher promotion, Room conversion switch, PDF content write, UI, worker, AI, or
+  network behavior changed.
+- **Verification:** Documentation cross-check against verified synthetic PoC and
+  conversion harness results on 2026-07-24.
+
+### Verified synthetic plaintext-to-encrypted conversion harness
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Conversion journal/phases in `data/security`, DAO `findAll`/`count`
+  helpers, and androidTest-only `PlaintextToEncryptedConversionHarness` that
+  copy-and-validates schema-v3 fixture rows between separately named PoC databases,
+  retains plaintext until explicit finalize, and fails safe without destructive
+  overwrite.
+- **Verification:** On 2026-07-24, Medium Phone emulator ran
+  `PlaintextToEncryptedConversionIntegrationTest`: **5 of 5 passed**.
+- **Truthfulness:** Production `PersistenceModule` remains plaintext `memora.db`. No
+  PDF content persistence, UI, WorkManager, AI, or network path was added.
+
+### Verified synthetic encrypted-database PoC
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Keystore AES-GCM passphrase wrapper in `data/security`, androidTest-
+  only SQLCipher Room opener for `memora_encrypted_poc.db`, and
+  `EncryptedDatabasePocIntegrationTest` covering native load, create/reopen round-
+  trip, wrong passphrase, tampered wrapper, read-only plaintext probe, clear-text
+  marker absence, no-INTERNET permission, and unchanged production `memora.db` name.
+- **Dependencies:** `androidTestImplementation` only —
+  `net.zetetic:sqlcipher-android:4.17.0` and `androidx.sqlite:sqlite:2.6.2` (resolves
+  cleanly with Room `2.8.4`).
+- **Verification:** On 2026-07-24, Medium Phone emulator ran
+  `EncryptedDatabasePocIntegrationTest`: **7 of 7 passed**.
+- **Truthfulness:** Production `PersistenceModule` remains plaintext. No PDF content
+  persistence, UI, WorkManager, AI, or network path was added.
+
+### Accepted ADR-021 encrypted-database direction with provenance and PoC plan
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Product owner accepted ADR-021. Frictionless UX and recovery-copy
+  rules are recorded. `docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` accepts
+  Maven Central `net.zetetic:sqlcipher-android:4.17.0` for PoC use only, with
+  recorded AAR hashes and a point-in-time empty OSV result.
+  `docs/ENCRYPTED_DATABASE_POC_PLAN.md` defines the synthetic-only next code gate.
+- **Status:** Direction accepted; production `memora.db` remains plaintext; no
+  production SQLCipher binding, Room conversion, PDF content write, UI, worker, AI,
+  or network behavior changed at the documentation gate.
+- **Verification:** Documentation and supply-chain inspection only on 2026-07-24.
+
 ### Proposed encrypted-database decision record
 
 - **Delivered:** Added the SQLCipher-for-Android plus Android-Keystore recommendation,
   option comparison, licensing/provenance gate, key lifecycle, recovery,
   non-destructive conversion, diagnostics, and test/release requirements.
-- **Status:** ADR-021 is **proposed**. No dependency, database migration, Room schema,
-  source access, content persistence, UI, worker, AI, or network behavior changed.
+- **Status:** Superseded by ADR-021 acceptance above. Historical proposal retained for
+  traceability.
 
 ### Accepted local-data backup and transfer exclusion
 
