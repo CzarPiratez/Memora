@@ -86,7 +86,8 @@ with another fingerprint/schema becomes `STALE_REINDEX_REQUIRED`, never an overw
 
 The retention duration for superseded records is unresolved. Before writing content,
 an ADR must choose either non-current provenance with user-controlled clearing or an
-explicit deletion policy.
+explicit deletion policy. **ADR-022 proposes** non-current provenance retention
+(recommended) versus delete-on-supersede; it awaits product-owner acceptance.
 
 ## Backup and encryption review
 
@@ -109,19 +110,15 @@ Android app-private storage benefits from device protection, but that is not an
 app-level database-encryption design. Before persistent source-derived text is
 enabled, Memora must explicitly accept one of these models:
 
-1. **Accepted enterprise direction, design still required:** an encrypted database
-   design with a
-   locally generated secret protected by Android Keystore, including invalidation,
-   rotation, recovery, lock-screen behavior, dependency licensing, migration, and
-   testing; or
-2. **Lower-complexity baseline:** device-protected internal storage only, with an
-   explicit threat-model acceptance of what it does and does not protect.
+1. **Accepted under ADR-021:** encrypted database with a locally generated secret
+   protected by Android Keystore, including invalidation, rotation, recovery,
+   lock-screen behavior, dependency licensing, migration, and testing (conversion
+   rollout proofs #1–#10 verified 2026-07-24/25); or
+2. **Lower-complexity baseline (not selected):** device-protected internal storage
+   only, with an explicit threat-model acceptance of what it does and does not
+   protect.
 
-No model is silently assumed. The proposed detailed direction is now recorded in
-[`ENCRYPTED_DATABASE_DECISION.md`](ENCRYPTED_DATABASE_DECISION.md), including its
-unaccepted dependency, Keystore, migration, recovery, and test gates. It still needs
-product-owner approval and supply-chain/security proof before it adds a dependency or
-code.
+No model is silently assumed. ADR-021 is the accepted detailed direction.
 
 ## Migration, rollback, and bounded writes
 

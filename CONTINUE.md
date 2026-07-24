@@ -711,11 +711,16 @@ WorkManager, AI, or network path was added.
 
 ## Next approved engineering step
 
-Encrypted-database conversion rollout proofs #1–#10 are complete for the current
-acceptance bar. Keep PDF text persistence blocked until ADR-017 / ADR-020 privacy
-and resource gates for real-user PDFs pass. Choose the next product slice from
-`docs/ROADMAP.md` only after those PDF gates, or resolve ADR-003 for notes.
-Do not schedule WorkManager, invoke AI, or use the network.
+Encrypted-database conversion rollout proofs #1–#10 are complete. PDF text
+persistence remains blocked. The next gate is a **product decision** on superseded
+PDF extraction retention (**ADR-022**, proposed in `docs/DECISIONS.md`):
+
+1. **Recommended:** keep superseded extractions as non-current provenance; never use as
+   current evidence; clear only via user-confirmed clear (or future clear-by-source).
+2. **Alternative:** delete previous extraction when a new fingerprint/schema succeeds.
+
+Do not implement PDF Room content writes, WorkManager, AI, or network until ADR-022
+is accepted and the remaining ADR-020 / ADR-017 gates pass.
 
 ## Important open decision
 

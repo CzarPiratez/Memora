@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Proposed ADR-022 superseded PDF extraction retention
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** ADR-020 gate progress updated (ADR-021 encryption prerequisite
+  satisfied). ADR-022 proposed: retain superseded PDF extractions as non-current
+  provenance (recommended) versus delete-on-supersede. No Room content write enabled.
+- **Verification:** Documentation and decision records only.
+- **Truthfulness:** PDF content persistence remains blocked until ADR-022 acceptance
+  and remaining ADR-020 / ADR-017 gates.
+
 ### Verified encrypted conversion performance budget
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
