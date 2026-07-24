@@ -37,8 +37,8 @@ class RoomDiscoveryPageStoreTest {
             MemoraDatabase::class.java,
         ).build()
         store = RoomDiscoveryPageStore(
-            database,
-            Clock.fixed(Instant.parse("2026-07-19T10:00:00Z"), ZoneOffset.UTC),
+            database = { database },
+            clock = Clock.fixed(Instant.parse("2026-07-19T10:00:00Z"), ZoneOffset.UTC),
         )
     }
 

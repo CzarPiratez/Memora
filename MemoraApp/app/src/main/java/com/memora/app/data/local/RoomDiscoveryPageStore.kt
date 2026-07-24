@@ -13,13 +13,14 @@ import java.time.Clock
  * start the indexing lifecycle again from DISCOVERED.
  */
 class RoomDiscoveryPageStore(
-    private val database: MemoraDatabase,
+    private val database: () -> MemoraDatabase,
     private val clock: Clock = Clock.systemUTC(),
 ) : DiscoveryPageStore {
     override suspend fun save(page: DiscoveryPage) {
-        database.withTransaction {
+        val db = database()
+        db.withTransaction {
             page.assets.forEach { asset ->
-                val existing = database.assetDao().find(
+                val existing = db.assetDao().find(
                     asset.identity.sourceId.value,
                     asset.identity.sourceAssetKey.value,
                 )
@@ -28,9 +29,9 @@ class RoomDiscoveryPageStore(
                     existing.fingerprint == asset.fingerprint.value -> existing.toDomain().copy(asset = asset)
                     else -> AssetIndexRecord(asset, IndexingState.discovered)
                 }
-                database.assetDao().upsert(record.toEntity())
+                db.assetDao().upsert(record.toEntity())
             }
-            database.discoveryCheckpointDao().upsert(page.checkpoint.toEntity(clock.instant()))
+            db.discoveryCheckpointDao().upsert(page.checkpoint.toEntity(clock.instant()))
         }
     }
 }

@@ -636,6 +636,18 @@ production DB/wrapper/journal files. No PDF content persistence, WorkManager, AI
 network path was added. Recovery copy still never mentions SQLCipher, keys, or
 encryption failures.
 
+## Verified engineering checkpoint
+
+User-confirmed Clear Memora derived data is verified. On 2026-07-24,
+`MemoraDatabaseHandle` closes the live Room helper, deletes only Memora-owned
+`memora.db`/candidate/retained sidecars plus Keystore wrap alias and conversion
+journal, then reopens a fresh encrypted empty index without process kill.
+Welcome → **Clear Memora index** requires confirm and shows only the ADR-021 rebuild
+wording. Instrumentation: `ClearMemoraDerivedDataIntegrationTest` **1 of 1 passed**;
+unit copy guard `ClearMemoraDerivedDataCopyTest` passed. Persistable URI grant count
+is unchanged by clear. No PDF content persistence, WorkManager, AI, or network path
+was added.
+
 ## Next approved engineering step
 
 Keep PDF text persistence blocked (ADR-017 / ADR-020). Optionally prove physical-

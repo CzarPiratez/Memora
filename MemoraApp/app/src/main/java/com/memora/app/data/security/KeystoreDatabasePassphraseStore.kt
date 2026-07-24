@@ -76,7 +76,7 @@ class KeystoreDatabasePassphraseStore(
         }
     }
 
-    fun clearForTest() {
+    fun clearOwnedState() {
         wrapperFile().delete()
         File(wrapperFile().parentFile, "${wrapperFile().name}.tmp").delete()
         try {
@@ -85,8 +85,12 @@ class KeystoreDatabasePassphraseStore(
                 keyStore.deleteEntry(keyAlias)
             }
         } catch (_: Exception) {
-            // Test cleanup best-effort; subsequent create will surface KEY_UNAVAILABLE.
+            // Best-effort; subsequent create will surface KEY_UNAVAILABLE.
         }
+    }
+
+    fun clearForTest() {
+        clearOwnedState()
     }
 
     fun tamperWrapperForTest() {

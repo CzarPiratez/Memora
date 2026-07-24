@@ -145,6 +145,9 @@ text is enabled.
 - **Live encrypted open + notices (2026-07-24):** `PersistenceModule` opens through
   `MemoraEncryptedDatabaseOpener`; welcome screen ships Open-source licenses with
   SQLCipher Community BSD text. PDF-text persistence remains blocked.
+- **Clear derived data (2026-07-24):** user-confirmed Clear Memora index removes only
+  Memora-owned DB/wrapper/journal state, reopens a fresh encrypted empty index, and
+  shows ADR-021 rebuild copy only (`ClearMemoraDerivedDataIntegrationTest` 1/1).
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

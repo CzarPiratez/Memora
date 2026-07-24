@@ -67,6 +67,10 @@ class DocumentTreeSetupViewModel @Inject constructor(
         restoreMostRecentConnection()
     }
 
+    fun onDerivedDataCleared() {
+        restoreMostRecentConnection()
+    }
+
     private fun restoreMostRecentConnection() {
         viewModelScope.launch {
             mutableUiState.value = runCatching {

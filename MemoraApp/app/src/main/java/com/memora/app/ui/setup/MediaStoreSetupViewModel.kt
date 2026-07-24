@@ -67,6 +67,11 @@ class MediaStoreSetupViewModel @Inject constructor(
         }
     }
 
+    fun onDerivedDataCleared() {
+        val photoAccess = mutableUiState.value.photoAccess
+        mutableUiState.value = MediaStoreSetupUiState(photoAccess = photoAccess)
+    }
+
     fun onIndexRequested() {
         val current = mutableUiState.value
         if (current.photoAccess != PhotoAccessState.GRANTED ||

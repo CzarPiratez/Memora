@@ -7,14 +7,14 @@ import java.time.Clock
 
 /** Room-backed persistence for opaque source scan checkpoints. */
 class RoomDiscoveryCheckpointRepository(
-    private val checkpointDao: DiscoveryCheckpointDao,
+    private val checkpointDao: () -> DiscoveryCheckpointDao,
     private val clock: Clock = Clock.systemUTC(),
 ) : DiscoveryCheckpointRepository {
     override suspend fun save(cursor: DiscoveryCursor) {
-        checkpointDao.upsert(cursor.toEntity(clock.instant()))
+        checkpointDao().upsert(cursor.toEntity(clock.instant()))
     }
 
-    override suspend fun find(sourceId: SourceId): DiscoveryCursor? = checkpointDao
+    override suspend fun find(sourceId: SourceId): DiscoveryCursor? = checkpointDao()
         .find(sourceId.value)
         ?.toDomain()
 }

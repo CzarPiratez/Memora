@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Verified Clear Memora derived data and rebuild recovery UX
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** `MemoraDatabaseHandle` + `ClearMemoraDerivedData` close, delete only
+  Memora-owned DB/wrapper/journal/Keystore wrap state, and reopen a fresh encrypted
+  empty index. Welcome **Clear Memora index** confirm flow uses ADR-021 rebuild copy
+  only. Repositories resolve DAOs through the live handle after recreate.
+- **Verification:** On 2026-07-24, Medium Phone emulator
+  `ClearMemoraDerivedDataIntegrationTest` **1 of 1 passed**; unit
+  `ClearMemoraDerivedDataCopyTest` passed. Persistable URI grants unchanged by clear.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+  Clear does not revoke Android folder permissions.
+
 ### Wired live encrypted PersistenceModule open and Open-source notices
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

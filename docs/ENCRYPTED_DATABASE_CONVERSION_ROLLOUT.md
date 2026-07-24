@@ -63,8 +63,10 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    rebuild message only.
 9. **Performance/battery budget:** content-free timing buckets for conversion of
    representative schema-v3 sizes; set limits before PDF text persistence begins.
-10. **Clear-derived-data:** user-confirmed clear removes only Memora-owned encrypted
-    data and wrapper/journal state; originals and Android grants remain untouched.
+10. **Clear-derived-data:** ~~user-confirmed clear removes only Memora-owned encrypted
+    data and wrapper/journal state; originals and Android grants remain untouched.~~
+    **done 2026-07-24** (`ClearMemoraDerivedData` + welcome confirm UI;
+    `ClearMemoraDerivedDataIntegrationTest` 1/1).
 
 ## Production `PersistenceModule` switch acceptance criteria
 
@@ -229,8 +231,9 @@ release:
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
 Remaining optional proofs: physical-device conversion, process-death during
-`SWITCH_PENDING`, and low-storage failure. PDF content persistence stays blocked
-until its own privacy/resource gates pass.
+`SWITCH_PENDING`, and low-storage failure. Clear-derived-data is done
+(2026-07-24). PDF content persistence stays blocked until its own privacy/resource
+gates pass.
 
 ## Pre-work and delivery record
 
@@ -239,10 +242,11 @@ until its own privacy/resource gates pass.
   CONTINUE, product contract, architecture, decisions, encrypted-database decision,
   provenance review, PoC plan, conversion harness results, PRD traceability.
 - **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
-  `memora.db` via `MemoraEncryptedDatabaseOpener`; notices UI ships Community BSD
-  text; synthetic PoC/conversion/opener instrumentation covers the path.
-- **Affected layers:** data/security, DI, welcome UI notices, documentation.
-- **Verification:** opener instrumentation + compile; notices text committed under
+  `memora.db` via `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener`; notices UI
+  and Clear Memora index recovery UX ship; opener and clear instrumentation cover the
+  path.
+- **Affected layers:** data/security, DI, welcome UI notices/clear, documentation.
+- **Verification:** opener + clear instrumentation; notices text committed under
   version control from Zetetic Community Edition licence URL.
 - **Known limitation:** physical-device, process-death, and low-storage proofs remain
   open; PDF content persistence remains blocked.

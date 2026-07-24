@@ -45,6 +45,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.memora.app.ui.privacy.ClearDerivedDataPhase
+import com.memora.app.ui.privacy.ClearDerivedDataUiState
+import com.memora.app.ui.privacy.ClearDerivedDataViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -63,6 +66,7 @@ import java.io.InputStreamReader
 class MainActivity : ComponentActivity() {
     private val mediaStoreSetupViewModel: MediaStoreSetupViewModel by viewModels()
     private val documentTreeSetupViewModel: DocumentTreeSetupViewModel by viewModels()
+    private val clearDerivedDataViewModel: ClearDerivedDataViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,12 +74,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val setupUiState by mediaStoreSetupViewModel.uiState.collectAsState()
             val documentTreeSetupUiState by documentTreeSetupViewModel.uiState.collectAsState()
+            val clearDerivedDataUiState by clearDerivedDataViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MemoraApp(
                         setupUiState = setupUiState,
                         documentTreeSetupUiState = documentTreeSetupUiState,
+                        clearDerivedDataUiState = clearDerivedDataUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onDocumentTreeReadAccessReceived =
@@ -83,6 +89,16 @@ class MainActivity : ComponentActivity() {
                         onDocumentTreeReadAccessFailed =
                             documentTreeSetupViewModel::onPersistableReadAccessFailed,
                         onPdfIndexRequested = documentTreeSetupViewModel::onIndexRequested,
+                        onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
+                        onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
+                        onClearIndexConfirmed = {
+                            clearDerivedDataViewModel.onClearConfirmed()
+                        },
+                        onClearIndexAcknowledged = {
+                            clearDerivedDataViewModel.onClearedAcknowledged()
+                            mediaStoreSetupViewModel.onDerivedDataCleared()
+                            documentTreeSetupViewModel.onDerivedDataCleared()
+                        },
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -95,14 +111,19 @@ class MainActivity : ComponentActivity() {
 fun MemoraApp(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
+    clearDerivedDataUiState: ClearDerivedDataUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
+    onClearIndexRequested: () -> Unit,
+    onClearIndexConfirmDismissed: () -> Unit,
+    onClearIndexConfirmed: () -> Unit,
+    onClearIndexAcknowledged: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val requiredPermissions = remember { mediaPermissionsForCurrentAndroidVersion() }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -131,34 +152,58 @@ fun MemoraApp(
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
     }
 
-    if (isShowingOpenSourceNotices) {
-        OpenSourceNoticesScreen(
-            onBack = { isShowingOpenSourceNotices = false },
+    when (val clearPhase = clearDerivedDataUiState.phase) {
+        ClearDerivedDataPhase.Confirming -> ClearDerivedDataConfirmScreen(
+            onConfirm = onClearIndexConfirmed,
+            onCancel = onClearIndexConfirmDismissed,
             modifier = modifier,
         )
-    } else if (isShowingPrivacyScreen) {
-        PrivacyScreen(
-            setupUiState = setupUiState,
-            onRequestPhotoAccess = { permissionLauncher.launch(requiredPermissions) },
-            onStartIndexing = onIndexRequested,
-            onBack = { isShowingPrivacyScreen = false },
+
+        ClearDerivedDataPhase.InProgress -> ClearDerivedDataProgressScreen(modifier = modifier)
+
+        is ClearDerivedDataPhase.Cleared -> ClearDerivedDataResultScreen(
+            message = clearPhase.message,
+            onDone = onClearIndexAcknowledged,
             modifier = modifier,
         )
-    } else if (isShowingDocumentTreeScreen) {
-        DocumentTreeSetupScreen(
-            setupUiState = documentTreeSetupUiState,
-            onChooseFolder = { documentTreeLauncher.launch(null) },
-            onStartIndexing = onPdfIndexRequested,
-            onBack = { isShowingDocumentTreeScreen = false },
+
+        ClearDerivedDataPhase.Failed -> ClearDerivedDataResultScreen(
+            message = stringResource(R.string.clear_index_failed),
+            onDone = onClearIndexConfirmDismissed,
+            isError = true,
             modifier = modifier,
         )
-    } else {
-        MemoraWelcomeScreen(
-            onBeginSetup = { isShowingPrivacyScreen = true },
-            onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
-            onOpenSourceNotices = { isShowingOpenSourceNotices = true },
-            modifier = modifier,
-        )
+
+        ClearDerivedDataPhase.Idle -> when {
+            isShowingOpenSourceNotices -> OpenSourceNoticesScreen(
+                onBack = { isShowingOpenSourceNotices = false },
+                modifier = modifier,
+            )
+
+            isShowingPrivacyScreen -> PrivacyScreen(
+                setupUiState = setupUiState,
+                onRequestPhotoAccess = { permissionLauncher.launch(requiredPermissions) },
+                onStartIndexing = onIndexRequested,
+                onBack = { isShowingPrivacyScreen = false },
+                modifier = modifier,
+            )
+
+            isShowingDocumentTreeScreen -> DocumentTreeSetupScreen(
+                setupUiState = documentTreeSetupUiState,
+                onChooseFolder = { documentTreeLauncher.launch(null) },
+                onStartIndexing = onPdfIndexRequested,
+                onBack = { isShowingDocumentTreeScreen = false },
+                modifier = modifier,
+            )
+
+            else -> MemoraWelcomeScreen(
+                onBeginSetup = { isShowingPrivacyScreen = true },
+                onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
+                onOpenSourceNotices = { isShowingOpenSourceNotices = true },
+                onClearIndex = onClearIndexRequested,
+                modifier = modifier,
+            )
+        }
     }
 }
 
@@ -167,6 +212,7 @@ fun MemoraWelcomeScreen(
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
     onOpenSourceNotices: () -> Unit,
+    onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -231,6 +277,107 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.open_source_licenses))
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = onClearIndex,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.clear_memora_index))
+        }
+    }
+}
+
+@Composable
+fun ClearDerivedDataConfirmScreen(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.clear_index_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.clear_index_explanation),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.clear_index_confirm))
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.clear_index_cancel))
+        }
+    }
+}
+
+@Composable
+fun ClearDerivedDataProgressScreen(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator()
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.clear_index_in_progress),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+fun ClearDerivedDataResultScreen(
+    message: String,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = message,
+            color = if (isError) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.primary
+            },
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onDone,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.clear_index_done))
         }
     }
 }

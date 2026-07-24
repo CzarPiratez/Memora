@@ -36,7 +36,7 @@ class IndexMediaStoreImagesIntegrationTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         database = Room.inMemoryDatabaseBuilder(context, MemoraDatabase::class.java).build()
         source = MediaStoreImageDiscoverySource(context)
-        store = RecordingRoomPageStore(RoomDiscoveryPageStore(database))
+        store = RecordingRoomPageStore(RoomDiscoveryPageStore(database = { database }))
     }
 
     @After
@@ -49,7 +49,9 @@ class IndexMediaStoreImagesIntegrationTest {
         val useCase = IndexMediaStoreImages(
             imageLibrarySource = source,
             discoverSourcePage = DiscoverSourcePage(
-                checkpointRepository = RoomDiscoveryCheckpointRepository(database.discoveryCheckpointDao()),
+                checkpointRepository = RoomDiscoveryCheckpointRepository(
+                    checkpointDao = { database.discoveryCheckpointDao() },
+                ),
                 processDiscoveryResult = ProcessDiscoveryResult(PersistDiscoveryPage(store)),
             ),
         )

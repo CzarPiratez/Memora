@@ -7,13 +7,13 @@ import com.memora.app.application.discovery.DiscoverSourcePage
 import com.memora.app.application.discovery.PersistDiscoveryPage
 import com.memora.app.application.discovery.ProcessDiscoveryResult
 import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.local.MemoraDatabaseMigrations
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.saf.ContentResolverDocumentTreeAccessValidator
 import com.memora.app.data.saf.ContentResolverSafDocumentTreeCatalog
 import com.memora.app.data.saf.SafPdfDiscoverySourceFactory
+import com.memora.app.data.security.MemoraEncryptedDatabaseOpener
 import com.memora.app.domain.asset.IndexingStatus
 import com.memora.app.domain.discovery.DiscoveryPage
 import com.memora.app.domain.discovery.DiscoveryPageStore
@@ -41,14 +41,9 @@ class IndexSafPdfFolderIntegrationTest {
     @Before
     fun openDependencies() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        applicationDatabase = Room.databaseBuilder(context, MemoraDatabase::class.java, "memora.db")
-            .addMigrations(
-                MemoraDatabaseMigrations.MIGRATION_1_2,
-                MemoraDatabaseMigrations.MIGRATION_2_3,
-            )
-            .build()
+        applicationDatabase = MemoraEncryptedDatabaseOpener.open(context)
         outputDatabase = Room.inMemoryDatabaseBuilder(context, MemoraDatabase::class.java).build()
-        store = RecordingRoomPageStore(RoomDiscoveryPageStore(outputDatabase))
+        store = RecordingRoomPageStore(RoomDiscoveryPageStore(database = { outputDatabase }))
     }
 
     @After
@@ -59,9 +54,9 @@ class IndexSafPdfFolderIntegrationTest {
 
     @Test
     fun persistsOneLiveBoundedPdfPageAndCheckpointInAnIsolatedDatabase() = runBlocking {
-        val approvalRepository = RoomDocumentTreeApprovalRepository(
-            applicationDatabase.documentTreeApprovalDao(),
-        )
+        val approvalRepository = RoomDocumentTreeApprovalRepository {
+            applicationDatabase.documentTreeApprovalDao()
+        }
         val approval = requireNotNull(approvalRepository.findAll().firstOrNull()) {
             "Connect a PDF folder in Memora before running this emulator integration test."
         }
@@ -77,7 +72,7 @@ class IndexSafPdfFolderIntegrationTest {
             ),
             discoverSourcePage = DiscoverSourcePage(
                 checkpointRepository = RoomDiscoveryCheckpointRepository(
-                    outputDatabase.discoveryCheckpointDao(),
+                    checkpointDao = { outputDatabase.discoveryCheckpointDao() },
                 ),
                 processDiscoveryResult = ProcessDiscoveryResult(PersistDiscoveryPage(store)),
             ),

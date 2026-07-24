@@ -3,4 +3,13 @@
     <string name="back">Back</string>
     <string name="connect_pdf_folder">Connect a PDF folder</string>
     <string name="open_source_licenses">Open-source licenses</string>
+    <string name="clear_memora_index">Clear Memora index</string>
+    <string name="clear_index_title">Clear Memora index?</string>
+    <string name="clear_index_explanation">This removes only Memora\'s private catalogue on this phone. Your original photos, documents, and notes stay where they are. Android folder permissions are not revoked.</string>
+    <string name="clear_index_confirm">Clear index</string>
+    <string name="clear_index_cancel">Cancel</string>
+    <string name="clear_index_in_progress">Clearing Memora\'s private catalogue…</string>
+    <string name="clear_index_failed">Memora could not clear its private catalogue. Please try again.</string>
+    <string name="clear_index_done">Done</string>
+    <string name="rebuild_index_message">Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged.</string>
 </resources>

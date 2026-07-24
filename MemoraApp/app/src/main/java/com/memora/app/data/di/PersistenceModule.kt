@@ -1,15 +1,12 @@
 package com.memora.app.data.di
 
 import android.content.Context
-import com.memora.app.data.local.AssetDao
-import com.memora.app.data.local.DiscoveryCheckpointDao
-import com.memora.app.data.local.DocumentTreeApprovalDao
 import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
-import com.memora.app.data.security.MemoraEncryptedDatabaseOpener
+import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
@@ -30,40 +27,38 @@ object PersistenceModule {
 
     @Provides
     @Singleton
-    fun provideMemoraDatabase(
-        @ApplicationContext context: Context
-    ): MemoraDatabase = MemoraEncryptedDatabaseOpener.open(context)
+    fun provideMemoraDatabaseHandle(
+        @ApplicationContext context: Context,
+    ): MemoraDatabaseHandle = MemoraDatabaseHandle(context)
 
     @Provides
-    fun provideAssetDao(database: MemoraDatabase): AssetDao = database.assetDao()
-
-    @Provides
-    fun provideDiscoveryCheckpointDao(database: MemoraDatabase): DiscoveryCheckpointDao =
-        database.discoveryCheckpointDao()
-
-    @Provides
-    fun provideDocumentTreeApprovalDao(database: MemoraDatabase): DocumentTreeApprovalDao =
-        database.documentTreeApprovalDao()
+    fun provideMemoraDatabase(handle: MemoraDatabaseHandle): MemoraDatabase = handle.database()
 
     @Provides
     @Singleton
-    fun provideAssetRepository(assetDao: AssetDao): AssetRepository =
-        RoomAssetRepository(assetDao)
+    fun provideAssetRepository(handle: MemoraDatabaseHandle): AssetRepository =
+        RoomAssetRepository(assetDao = { handle.database().assetDao() })
 
     @Provides
     @Singleton
     fun provideDiscoveryCheckpointRepository(
-        checkpointDao: DiscoveryCheckpointDao,
-    ): DiscoveryCheckpointRepository = RoomDiscoveryCheckpointRepository(checkpointDao)
+        handle: MemoraDatabaseHandle,
+    ): DiscoveryCheckpointRepository =
+        RoomDiscoveryCheckpointRepository(
+            checkpointDao = { handle.database().discoveryCheckpointDao() },
+        )
 
     @Provides
     @Singleton
     fun provideDocumentTreeApprovalRepository(
-        approvalDao: DocumentTreeApprovalDao,
-    ): DocumentTreeApprovalRepository = RoomDocumentTreeApprovalRepository(approvalDao)
+        handle: MemoraDatabaseHandle,
+    ): DocumentTreeApprovalRepository =
+        RoomDocumentTreeApprovalRepository(
+            approvalDao = { handle.database().documentTreeApprovalDao() },
+        )
 
     @Provides
     @Singleton
-    fun provideDiscoveryPageStore(database: MemoraDatabase): DiscoveryPageStore =
-        RoomDiscoveryPageStore(database)
+    fun provideDiscoveryPageStore(handle: MemoraDatabaseHandle): DiscoveryPageStore =
+        RoomDiscoveryPageStore(database = { handle.database() })
 }

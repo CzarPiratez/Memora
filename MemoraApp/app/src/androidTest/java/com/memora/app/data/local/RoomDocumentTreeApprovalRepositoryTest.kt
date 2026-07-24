@@ -25,7 +25,7 @@ class RoomDocumentTreeApprovalRepositoryTest {
             ApplicationProvider.getApplicationContext(),
             MemoraDatabase::class.java,
         ).build()
-        repository = RoomDocumentTreeApprovalRepository(database.documentTreeApprovalDao())
+        repository = RoomDocumentTreeApprovalRepository { database.documentTreeApprovalDao() }
     }
 
     @After

@@ -50,9 +50,13 @@ class DatabaseEncryptionConversionJournal(
         }
     }
 
-    fun clearForTest() {
+    fun clearOwnedState() {
         journalFile().delete()
         File(journalFile().parentFile, "${journalFile().name}.tmp").delete()
+    }
+
+    fun clearForTest() {
+        clearOwnedState()
     }
 
     private fun journalFile(): File = File(appContext.noBackupFilesDir, journalFileName)

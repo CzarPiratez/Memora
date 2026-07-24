@@ -33,7 +33,7 @@ class RoomAssetRepositoryTest {
             ApplicationProvider.getApplicationContext(),
             MemoraDatabase::class.java,
         ).build()
-        repository = RoomAssetRepository(database.assetDao())
+        repository = RoomAssetRepository { database.assetDao() }
     }
 
     @After

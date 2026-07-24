@@ -28,8 +28,8 @@ class RoomDiscoveryCheckpointRepositoryTest {
             MemoraDatabase::class.java,
         ).build()
         repository = RoomDiscoveryCheckpointRepository(
-            database.discoveryCheckpointDao(),
-            Clock.fixed(Instant.parse("2026-07-19T10:00:00Z"), ZoneOffset.UTC),
+            checkpointDao = { database.discoveryCheckpointDao() },
+            clock = Clock.fixed(Instant.parse("2026-07-19T10:00:00Z"), ZoneOffset.UTC),
         )
     }
 
