@@ -12,11 +12,27 @@ class ClearMemoraDerivedDataCopyTest {
             "Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged.",
             message,
         )
-        val lower = message.lowercase()
+        assertNoForbiddenTerms(message)
+    }
+
+    @Test
+    fun unlock_required_copy_avoids_encryption_jargon() {
+        val copy = listOf(
+            "Unlock your phone",
+            "Memora opens your private index only after you unlock this phone. " +
+                "Your original photos, documents, and notes stay where they are.",
+            "Unlock, then Memora continues automatically.",
+        ).joinToString("\n")
+        assertNoForbiddenTerms(copy)
+    }
+
+    private fun assertNoForbiddenTerms(text: String) {
+        val lower = text.lowercase()
         assertFalse(lower.contains("sqlcipher"))
         assertFalse(lower.contains("encrypt"))
         assertFalse(lower.contains("keystore"))
         assertFalse(lower.contains("passphrase"))
+        assertFalse(lower.contains("cipher"))
         assertFalse(Regex("""\bkeys?\b""").containsMatchIn(lower))
     }
 }

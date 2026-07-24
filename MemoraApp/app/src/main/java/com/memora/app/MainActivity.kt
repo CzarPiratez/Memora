@@ -48,6 +48,9 @@ import androidx.compose.ui.unit.dp
 import com.memora.app.ui.privacy.ClearDerivedDataPhase
 import com.memora.app.ui.privacy.ClearDerivedDataUiState
 import com.memora.app.ui.privacy.ClearDerivedDataViewModel
+import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
+import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
+import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -67,6 +70,7 @@ class MainActivity : ComponentActivity() {
     private val mediaStoreSetupViewModel: MediaStoreSetupViewModel by viewModels()
     private val documentTreeSetupViewModel: DocumentTreeSetupViewModel by viewModels()
     private val clearDerivedDataViewModel: ClearDerivedDataViewModel by viewModels()
+    private val databaseAvailabilityViewModel: DatabaseAvailabilityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,10 +79,12 @@ class MainActivity : ComponentActivity() {
             val setupUiState by mediaStoreSetupViewModel.uiState.collectAsState()
             val documentTreeSetupUiState by documentTreeSetupViewModel.uiState.collectAsState()
             val clearDerivedDataUiState by clearDerivedDataViewModel.uiState.collectAsState()
+            val databaseAvailabilityUiState by databaseAvailabilityViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MemoraApp(
+                        databaseAvailabilityUiState = databaseAvailabilityUiState,
                         setupUiState = setupUiState,
                         documentTreeSetupUiState = documentTreeSetupUiState,
                         clearDerivedDataUiState = clearDerivedDataUiState,
@@ -109,6 +115,52 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MemoraApp(
+    databaseAvailabilityUiState: DatabaseAvailabilityUiState,
+    setupUiState: MediaStoreSetupUiState,
+    documentTreeSetupUiState: DocumentTreeSetupUiState,
+    clearDerivedDataUiState: ClearDerivedDataUiState,
+    onPhotoPermissionResult: (Boolean) -> Unit,
+    onIndexRequested: () -> Unit,
+    onDocumentTreeReadAccessReceived: (String) -> Unit,
+    onDocumentTreeReadAccessFailed: () -> Unit,
+    onPdfIndexRequested: () -> Unit,
+    onClearIndexRequested: () -> Unit,
+    onClearIndexConfirmDismissed: () -> Unit,
+    onClearIndexConfirmed: () -> Unit,
+    onClearIndexAcknowledged: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (databaseAvailabilityUiState.phase) {
+        DatabaseAvailabilityPhase.Checking -> UnlockRequiredScreen(
+            showProgress = true,
+            modifier = modifier,
+        )
+
+        DatabaseAvailabilityPhase.WaitingForUnlock -> UnlockRequiredScreen(
+            showProgress = false,
+            modifier = modifier,
+        )
+
+        DatabaseAvailabilityPhase.Ready -> MemoraAppReady(
+            setupUiState = setupUiState,
+            documentTreeSetupUiState = documentTreeSetupUiState,
+            clearDerivedDataUiState = clearDerivedDataUiState,
+            onPhotoPermissionResult = onPhotoPermissionResult,
+            onIndexRequested = onIndexRequested,
+            onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
+            onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
+            onPdfIndexRequested = onPdfIndexRequested,
+            onClearIndexRequested = onClearIndexRequested,
+            onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
+            onClearIndexConfirmed = onClearIndexConfirmed,
+            onClearIndexAcknowledged = onClearIndexAcknowledged,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+private fun MemoraAppReady(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
@@ -203,6 +255,42 @@ fun MemoraApp(
                 onClearIndex = onClearIndexRequested,
                 modifier = modifier,
             )
+        }
+    }
+}
+
+@Composable
+fun UnlockRequiredScreen(
+    showProgress: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.unlock_required_title),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.unlock_required_body),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.unlock_required_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (showProgress) {
+            Spacer(modifier = Modifier.height(24.dp))
+            CircularProgressIndicator()
         }
     }
 }

@@ -689,12 +689,23 @@ production-opener conversion). Standard SQLite probes now copy before open so OE
 cleanup cannot delete live encrypted files. No PDF content persistence, WorkManager,
 AI, or network path was added.
 
+## Verified engineering checkpoint
+
+Device-unlock deferred database open and recovery-copy guards are verified. On
+2026-07-25, locked-gate open refuses without creating or mutating DB/wrapper files
+(`WAITING_FOR_USER_UNLOCK`), then succeeds after unlock with prior fixture rows
+(`DeviceUnlockDeferredOpenIntegrationTest` **2 of 2**). Welcome path shows calm
+unlock copy; rebuild + unlock strings have unit jargon guards
+(`ClearMemoraDerivedDataCopyTest` **2 of 2**). No PDF content persistence,
+WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
 Keep PDF text persistence blocked (ADR-017 / ADR-020). Remaining encrypted-database
-rollout checklist items (not hardware-blocked) are listed in
-`docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`, including device unlock /
-credential-encrypted storage, recovery copy review, and performance/battery budget.
+rollout checklist item:
+
+1. Performance/battery budget for representative schema-v3 conversion sizes.
+
 Do not schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision

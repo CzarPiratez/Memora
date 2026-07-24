@@ -563,10 +563,10 @@ is enabled by this ADR. ADR-017 remains independently binding for real user PDFs
 
 **Status:** Accepted. Production encrypted open, conversion journal, BSD notices,
 user-confirmed clear derived data, **live** conversion process-death resume,
-low-storage / interruption denial, and physical-device `arm64-v8a` conversion have
-landed. Remaining release checklist items include device unlock, recovery copy
-review, and performance/battery budget. PDF content persistence remains blocked
-(ADR-020 / ADR-017).
+low-storage / interruption denial, physical-device `arm64-v8a` conversion,
+device-unlock deferred open, and recovery/unlock copy guards have landed.
+Remaining release checklist item: performance/battery budget. PDF content
+persistence remains blocked (ADR-020 / ADR-017).
 
 **Decision:** Use SQLCipher for Android integrated through Room's open-helper factory,
 with a randomly generated database passphrase wrapped by a non-exportable, versioned
@@ -594,10 +594,10 @@ local, privacy-first direction without cloud escrow or a user password.
 `net.zetetic:sqlcipher-android:4.17.0`. Production path uses Keystore lifecycle tests,
 plaintext-to-encrypted copy-and-validate conversion, crash-resume (simulated + live
 kill covered), low-storage / interruption denial, physical-device `arm64-v8a`
-verification, user-confirmed derived-data clearing, and BSD attribution notices.
-Device-unlock deferred open, recovery-copy review, and performance budget remain
-open. No destructive migration, silent reset, cloud recovery, source mutation, or
-content logging is allowed.
+verification, device-unlock deferred open, user-confirmed derived-data clearing,
+recovery/unlock plain-language copy guards, and BSD attribution notices.
+Performance budget remains open. No destructive migration, silent reset, cloud
+recovery, source mutation, or content logging is allowed.
 
 **Consequences:** Production Room opens encrypted `memora.db` through
 `MemoraEncryptedDatabaseOpener` / `MemoraDatabaseHandle`. This does **not** authorize

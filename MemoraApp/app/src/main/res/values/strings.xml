@@ -12,4 +12,7 @@
     <string name="clear_index_failed">Memora could not clear its private catalogue. Please try again.</string>
     <string name="clear_index_done">Done</string>
     <string name="rebuild_index_message">Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged.</string>
+    <string name="unlock_required_title">Unlock your phone</string>
+    <string name="unlock_required_body">Memora opens your private index only after you unlock this phone. Your original photos, documents, and notes stay where they are.</string>
+    <string name="unlock_required_hint">Unlock, then Memora continues automatically.</string>
 </resources>

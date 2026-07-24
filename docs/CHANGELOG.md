@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified device-unlock deferred open and recovery copy guards
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Credential-unlock gate defers encrypted open without creating a
+  second database or mutating files; handle exposes waiting state; calm unlock UI;
+  rebuild + unlock copy jargon guards.
+- **Verification:** On 2026-07-25, unit **2 of 2** and Medium Phone emulator
+  `DeviceUnlockDeferredOpenIntegrationTest` **2 of 2**.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+  Performance/battery budget remains open.
+
 ### Verified physical-device arm64 encrypted conversion
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

@@ -24,6 +24,9 @@ object MemoraEncryptedDatabaseOpener {
     private var storageGuard: ConversionStorageGuard = StatFsConversionStorageGuard
 
     @Volatile
+    private var unlockGate: UserCredentialUnlockGate = AndroidUserCredentialUnlockGate
+
+    @Volatile
     private var testForceIoFailureDuringConversion: Boolean = false
 
     @Volatile
@@ -33,6 +36,13 @@ object MemoraEncryptedDatabaseOpener {
     fun setStorageGuardForTest(guard: ConversionStorageGuard?) {
         storageGuard = guard ?: StatFsConversionStorageGuard
     }
+
+    fun setUnlockGateForTest(gate: UserCredentialUnlockGate?) {
+        unlockGate = gate ?: AndroidUserCredentialUnlockGate
+    }
+
+    fun isUserUnlocked(context: Context): Boolean =
+        unlockGate.isUserUnlocked(context.applicationContext)
 
     fun setForceIoFailureDuringConversionForTest(force: Boolean) {
         testForceIoFailureDuringConversion = force
@@ -44,6 +54,10 @@ object MemoraEncryptedDatabaseOpener {
 
     fun open(context: Context): MemoraDatabase {
         val appContext = context.applicationContext
+        if (!unlockGate.isUserUnlocked(appContext)) {
+            lastFailureCategory = DatabaseSecretFailureCategory.WAITING_FOR_USER_UNLOCK
+            throw DeviceLockedException()
+        }
         System.loadLibrary("sqlcipher")
         val passphraseStore = KeystoreDatabasePassphraseStore(
             context = appContext,
