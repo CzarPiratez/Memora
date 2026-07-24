@@ -720,16 +720,15 @@ persist PDF text. No real-source parse, WorkManager, AI, or network path was add
 
 ## Next approved engineering step
 
-Encrypted-database conversion rollout proofs #1–#10 are complete. PDF text
-persistence remains blocked. The next gate is a **product decision** on superseded
-PDF extraction retention (**ADR-022**, proposed in `docs/DECISIONS.md`):
+ADR-022 is accepted (superseded PDF extractions kept as non-current provenance).
+Additive Room schema v4 + synthetic `RoomPdfExtractionPersistencePort` atomic write
+tests are verified. Remaining before production PDF content / real-source use:
 
-1. **Recommended:** keep superseded extractions as non-current provenance; never use as
-   current evidence; clear only via user-confirmed clear (or future clear-by-source).
-2. **Alternative:** delete previous extraction when a new fingerprint/schema succeeds.
+1. Measured write-path resource limits for extraction storage.
+2. ADR-017 real-source / bounded-streaming / visible-recovery gates.
 
-Do not implement PDF Room content writes, WorkManager, AI, or network until ADR-022
-is accepted and the remaining ADR-020 / ADR-017 gates pass.
+Do not wire production discovery/UI to persist PDF text, schedule WorkManager,
+invoke AI, or use the network until those gates pass.
 
 ## Important open decision
 

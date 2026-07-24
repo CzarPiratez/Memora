@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Accepted ADR-022 and verified synthetic PDF extraction Room persistence
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** ADR-022 accepted (retain superseded extrated as non-current provenance). Room schema v4 adds pdf extraction tables with additive migration 3 to 4. RoomPdfExtractionPersistencePort proves atomic write, idempotency, dual-fingerprint retention, conflict fail-safe, and delete-all. Not wired into production discovery/UI.
+- **Verification:** On 2026-07-25, Medium Phone emulator persistence + migration 5 of 5; opener 3 of 3 on schema v4.
+- **Truthfulness:** No real PDF parse, WorkManager, AI, network, or searchable UI. Measured write limits and ADR-017 real-source gates remain.
+
 ### Proposed ADR-022 superseded PDF extraction retention
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
@@ -9,8 +16,7 @@
   satisfied). ADR-022 proposed: retain superseded PDF extractions as non-current
   provenance (recommended) versus delete-on-supersede. No Room content write enabled.
 - **Verification:** Documentation and decision records only.
-- **Truthfulness:** PDF content persistence remains blocked until ADR-022 acceptance
-  and remaining ADR-020 / ADR-017 gates.
+- **Truthfulness:** Historical proposal; ADR-022 later accepted. See entry above.
 
 ### Verified encrypted conversion performance budget
 
