@@ -49,7 +49,7 @@ class MemoraEncryptedDatabaseOpenerIntegrationTest {
     fun fresh_open_creates_encrypted_memora_db() {
         val database = MemoraEncryptedDatabaseOpener.open(context)
         try {
-            assertEquals(3, database.openHelper.readableDatabase.version)
+            assertEquals(4, database.openHelper.readableDatabase.version)
             assertEquals(0, runBlocking { database.assetDao().count() })
             assertFalse(probeStandardSqlite(ProductionDatabaseIdentity.DATABASE_NAME))
             assertEquals(
@@ -102,6 +102,7 @@ class MemoraEncryptedDatabaseOpenerIntegrationTest {
             .addMigrations(
                 MemoraDatabaseMigrations.MIGRATION_1_2,
                 MemoraDatabaseMigrations.MIGRATION_2_3,
+                MemoraDatabaseMigrations.MIGRATION_3_4,
             )
             .build()
         try {

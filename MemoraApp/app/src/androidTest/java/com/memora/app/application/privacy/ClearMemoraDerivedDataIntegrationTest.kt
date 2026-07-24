@@ -62,7 +62,7 @@ class ClearMemoraDerivedDataIntegrationTest {
         assertEquals(0, handle.database().assetDao().count())
         assertEquals(0, handle.database().discoveryCheckpointDao().count())
         assertEquals(0, handle.database().documentTreeApprovalDao().count())
-        assertEquals(3, handle.database().openHelper.readableDatabase.version)
+        assertEquals(4, handle.database().openHelper.readableDatabase.version)
         assertFalse(probeStandardSqlite(ProductionDatabaseIdentity.DATABASE_NAME))
         assertFalse(
             context.getDatabasePath(ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME).exists(),

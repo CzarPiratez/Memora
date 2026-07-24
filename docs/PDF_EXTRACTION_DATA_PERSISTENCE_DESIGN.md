@@ -1,7 +1,8 @@
 # PDF Extraction Data-Persistence Design
 
-**Status:** Privacy posture accepted; persistence implementation remains blocked.
-This is not authorization to write PDF extraction content.
+**Status:** Privacy posture accepted; ADR-022 retention accepted; synthetic Room
+schema/port verified. Production/real-source PDF content writes remain blocked
+pending measured write limits and ADR-017.
 
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
 

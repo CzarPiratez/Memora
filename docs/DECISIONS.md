@@ -552,14 +552,20 @@ atomic write/deletion verification must still be accepted.
 
 **Gate progress (2026-07-25):** The encrypted-database design and production open path
 are accepted and verified under ADR-021 (conversion rollout proofs #1–#10). That
-satisfies the encryption-design prerequisite in this ADR. Remaining blockers before
-any PDF content Room write:
+satisfies the encryption-design prerequisite in this ADR. ADR-022 superseded-record
+retention is accepted (non-current provenance). Remaining blockers before any
+production PDF content write path / real-source parsing:
 
-1. superseded-record retention ADR (proposed as ADR-022);
-2. concrete additive Room schema + migration/rollback review;
+1. ~~superseded-record retention ADR~~ **done (ADR-022)**;
+2. ~~concrete additive Room schema + migration/rollback verification~~ **done
+   (schema v4 + migration 3→4 + synthetic Room port)**;
 3. measured write-path resource limits for extraction storage;
-4. atomic write/deletion verification tests;
+4. ~~atomic write/deletion verification tests~~ **done (synthetic instrumentation)**;
 5. ADR-017 real-source / bounded-streaming / visible-recovery gates (independent).
+
+A synthetic-only Room adapter landed to close (2) and (4). It is **not** wired into
+production discovery/UI. Real-source parsing, search, WorkManager, AI, and network
+remain blocked.
 
 **Reason:** Derived page text is sensitive user content. The existing typed
 persistence-port contract protects identity/fingerprint/schema/coverage correctness,
@@ -567,22 +573,19 @@ but cannot decide how sensitive local content is protected, retained, migrated, 
 removed.
 
 **Consequences:** The backup/device-transfer configuration is implemented as a
-separate privacy foundation. ADR-021 encrypts Memora-owned Room data at rest. No PDF
-extraction Room entity, migration, DAO, repository binding, write path,
-source-content transport, search, UI, worker, AI, or real-source parsing is enabled
-until the remaining gates above are accepted. ADR-017 remains independently binding
-for real user PDFs.
+separate privacy foundation. ADR-021 encrypts Memora-owned Room data at rest.
+ADR-022 retains superseded PDF extractions as non-current provenance. Additive PDF
+extraction tables and a synthetic Room port may verify atomic writes. Production
+indexing, search UI, WorkManager, AI, network, and real-source PDF parsing remain
+blocked until measured write limits and ADR-017 gates pass.
 
-## ADR-022: Superseded PDF extraction retention (proposed)
+## ADR-022: Superseded PDF extraction retention
 
-**Status:** Proposed — needs product-owner acceptance before any PDF content write
+**Status:** Accepted on 2026-07-25 (product owner delegated lead; recommended
+enterprise choice recorded)
 
-**Decision needed:** When a PDF Asset is re-extracted because its fingerprint or
-extraction schema version changed, what happens to the previous durable extraction
-rows?
-
-**Recommended choice (enterprise default):** Keep superseded extractions records as
-**non-current provenance** under their immutable
+**Decision:** Keep superseded PDF extraction records as **non-current provenance**
+under their immutable
 `(sourceId, sourceAssetKey, fingerprint, schemaVersion)` key. Current recall and
 Explain Mode may use only the extraction that matches the Asset's current
 fingerprint and schema. Superseded rows are never presented as current evidence.
@@ -590,22 +593,17 @@ User-confirmed **Clear Memora index** (and a future clear-by-source action) dele
 superseded and current derived rows alike. Measured storage budgets may later force
 an overflow outcome that refuses new writes without silently deleting provenance.
 
-**Alternative (simpler storage):** On successful re-extraction for a new fingerprint
-or schema, delete the previous extraction for that Asset identity in the same
-transaction. No superseded provenance is retained. Clear derived data still applies.
+**Rejected alternative:** Delete previous extraction automatically when a new
+fingerprint or schema succeeds.
 
-**Reason for the recommendation:** Memora is an evidence retrieval engine. Immutable
-provenance matches ADR-018/ADR-019 and avoids silent rewrite of past evidence after a
-file change. Clear derived data already gives a calm user control. Storage pressure is
-handled by measured budgets and truthful failure states, not by hidden deletes.
+**Reason:** Memora is an evidence retrieval engine. Immutable provenance matches
+ADR-018/ADR-019 and avoids silent rewrite of past evidence after a file change.
+Clear derived data already gives calm user control.
 
-**Out of scope until accepted:** No Room schema, migration, DAO, write path, UI,
-WorkManager, AI, network, or real-source parsing. Acceptance of this ADR alone does
-not authorize content persistence; ADR-020's other remaining gates and ADR-017 still
-apply.
-
-**Ask:** Product owner accepts the recommended provenance retention, chooses the
-delete-on-supersede alternative, or requests a different rule.
+**Consequences:** Future PDF content Room adapters must retain prior fingerprint /
+schema rows. Acceptance does **not** alone authorize production/real-source content
+writes; remaining ADR-020 gates and ADR-017 still apply. A synthetic-only additive
+schema, migration, and Room port may proceed to verify atomicity.
 
 ## ADR-021: Encrypted database direction protects Memora-owned data at rest
 

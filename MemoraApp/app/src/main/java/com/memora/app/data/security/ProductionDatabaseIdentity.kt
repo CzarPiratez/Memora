@@ -11,5 +11,5 @@ object ProductionDatabaseIdentity {
     const val KEY_ALIAS = "memora.db.wrap.v1"
     const val WRAPPER_FILE = "memora_db_wrap_v1.bin"
     const val JOURNAL_FILE = "memora_db_conversion_v1.journal"
-    const val EXPECTED_SCHEMA_VERSION = 3
+    const val EXPECTED_SCHEMA_VERSION = 4
 }

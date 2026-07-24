@@ -709,6 +709,15 @@ records content-free timing buckets and optional charge-counter deltas. Plan:
 `docs/ENCRYPTED_DATABASE_CONVERSION_BENCHMARK_PLAN.md`. No PDF content persistence,
 WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+ADR-022 accepted (non-current provenance retention). On 2026-07-25, Room schema v4
+(`pdf_extractions` / pages / metadata) with additive migration 3→4 and synthetic
+`RoomPdfExtractionPersistencePort` passed on the Medium Phone emulator
+(`RoomPdfExtractionPersistenceIntegrationTest` + `MemoraDatabaseMigrationTest`
+**5 of 5**; opener **3 of 3** on schema v4). Production discovery/UI is not wired to
+persist PDF text. No real-source parse, WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
 Encrypted-database conversion rollout proofs #1–#10 are complete. PDF text

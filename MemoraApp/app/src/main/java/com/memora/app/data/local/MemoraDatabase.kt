@@ -4,8 +4,15 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [AssetEntity::class, DiscoveryCheckpointEntity::class, DocumentTreeApprovalEntity::class],
-    version = 3,
+    entities = [
+        AssetEntity::class,
+        DiscoveryCheckpointEntity::class,
+        DocumentTreeApprovalEntity::class,
+        PdfExtractionEntity::class,
+        PdfExtractionPageEntity::class,
+        PdfExtractionMetadataEntity::class,
+    ],
+    version = 4,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -14,4 +21,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun discoveryCheckpointDao(): DiscoveryCheckpointDao
 
     abstract fun documentTreeApprovalDao(): DocumentTreeApprovalDao
+
+    abstract fun pdfExtractionDao(): PdfExtractionDao
 }

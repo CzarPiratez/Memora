@@ -34,4 +34,111 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `pdf_extractions` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `schema_version` TEXT NOT NULL,
+                    `page_count` INTEGER NOT NULL,
+                    `text_coverage` TEXT NOT NULL,
+                    `title` TEXT,
+                    `extracted_at_epoch_millis` INTEGER NOT NULL,
+                    `created_at_epoch_millis` INTEGER NOT NULL,
+                    `integrity` TEXT NOT NULL,
+                    PRIMARY KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    )
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_pdf_extractions_source_id_source_asset_key` " +
+                    "ON `pdf_extractions` (`source_id`, `source_asset_key`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_pdf_extractions_fingerprint` " +
+                    "ON `pdf_extractions` (`fingerprint`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `pdf_extraction_pages` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `schema_version` TEXT NOT NULL,
+                    `page_number` INTEGER NOT NULL,
+                    `page_text` TEXT NOT NULL,
+                    PRIMARY KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`,
+                        `page_number`
+                    ),
+                    FOREIGN KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    ) REFERENCES `pdf_extractions` (
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    ) ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS " +
+                    "`index_pdf_extraction_pages_source_id_source_asset_key_fingerprint_schema_version` " +
+                    "ON `pdf_extraction_pages` " +
+                    "(`source_id`, `source_asset_key`, `fingerprint`, `schema_version`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `pdf_extraction_metadata` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `schema_version` TEXT NOT NULL,
+                    `metadata_name` TEXT NOT NULL,
+                    `metadata_value` TEXT NOT NULL,
+                    PRIMARY KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`,
+                        `metadata_name`
+                    ),
+                    FOREIGN KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    ) REFERENCES `pdf_extractions` (
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    ) ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS " +
+                    "`index_pdf_extraction_metadata_source_id_source_asset_key_fingerprint_schema_version` " +
+                    "ON `pdf_extraction_metadata` " +
+                    "(`source_id`, `source_asset_key`, `fingerprint`, `schema_version`)",
+            )
+        }
+    }
 }

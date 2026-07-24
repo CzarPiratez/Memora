@@ -19,4 +19,5 @@
 
 ## Delivery record
 
-- **Status:** Delivered as proposal; awaiting product-owner acceptance of ADR-022.
+- **Status:** Delivered as proposal; product owner delegated lead and ADR-022 was
+  accepted as the recommended provenance retention (see ADR-022 Accepted).

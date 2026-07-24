@@ -432,7 +432,7 @@ class PlaintextToEncryptedConversionHarness(
         const val PRODUCTION_DATABASE_NAME = "memora.db"
         const val PRODUCTION_ENCRYPTED_CANDIDATE_NAME = "memora.db.encrypted_candidate"
         const val PRODUCTION_PLAINTEXT_RETAINED_NAME = "memora.db.plaintext_retained"
-        const val EXPECTED_SCHEMA_VERSION = 3
+        const val EXPECTED_SCHEMA_VERSION = 4
         const val CONVERSION_KEY_ALIAS = "memora.poc.conversion.wrap.v1"
         const val CONVERSION_WRAPPER_FILE = "memora_poc_conversion_wrap_v1.bin"
         const val PRODUCTION_KEY_ALIAS = "memora.db.wrap.v1"
