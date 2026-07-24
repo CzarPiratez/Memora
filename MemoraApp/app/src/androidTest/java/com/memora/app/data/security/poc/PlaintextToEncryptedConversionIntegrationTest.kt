@@ -58,10 +58,8 @@ class PlaintextToEncryptedConversionIntegrationTest {
     }
 
     @Test
-    fun production_persistence_module_still_targets_plaintext_memora_db() {
-        val field = PersistenceModule::class.java.getDeclaredField("DATABASE_NAME")
-        field.isAccessible = true
-        assertEquals("memora.db", field.get(PersistenceModule))
+    fun production_persistence_module_targets_memora_db_name() {
+        assertEquals("memora.db", PersistenceModule.DATABASE_NAME)
         assertFalse(
             PlaintextToEncryptedConversionHarness.PLAINTEXT_DATABASE_NAME == "memora.db",
         )

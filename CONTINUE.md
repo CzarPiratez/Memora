@@ -620,13 +620,28 @@ plaintext on validation failure, and deletes disposable files in tearDown so liv
 open switch, PDF content write, notices UI, WorkManager, AI, or network path was
 added.
 
+## Verified engineering checkpoint
+
+Live encrypted `PersistenceModule` open and Open-source notices are verified. On
+2026-07-24, production startup opens `memora.db` through
+`MemoraEncryptedDatabaseOpener` (SQLCipher + Keystore-wrapped passphrase +
+conversion journal). Fresh installs create an encrypted database; existing
+plaintext `memora.db` is converted with copy-and-validate rename finalize.
+Welcome screen exposes user-accessible **Open-source licenses** with the SQLCipher
+Community Edition BSD text (ZETETIC copyright), plus SQLite and LibTomCrypt public-
+domain notices from `res/raw/open_source_notices.txt`. Emulator instrumentation:
+`MemoraEncryptedDatabaseOpenerIntegrationTest` **3 of 3 passed** on Medium Phone
+(fresh create, plaintext convert, PersistenceModule name), with tearDown clearing
+production DB/wrapper/journal files. No PDF content persistence, WorkManager, AI, or
+network path was added. Recovery copy still never mentions SQLCipher, keys, or
+encryption failures.
+
 ## Next approved engineering step
 
-Wire `PersistenceModule` to encrypted open plus the conversion journal for real app
-startup, using the production-named algorithm already proven in instrumentation.
-Ship the Open-source notices surface before any release that includes the native
-library. Do not enable PDF text persistence, alter setup UI for encryption,
-schedule WorkManager, invoke AI, or use the network.
+Keep PDF text persistence blocked (ADR-017 / ADR-020). Optionally prove physical-
+device conversion, process-death during SWITCH_PENDING, and low-storage failure
+paths from `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`. Do not schedule
+WorkManager, invoke AI, or use the network.
 
 ## Important open decision
 

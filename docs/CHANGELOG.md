@@ -2,17 +2,31 @@
 
 ## Unreleased
 
+### Wired live encrypted PersistenceModule open and Open-source notices
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** `PersistenceModule` opens `memora.db` via
+  `MemoraEncryptedDatabaseOpener` (SQLCipher `SupportOpenHelperFactory`, Keystore
+  passphrase wrap, conversion journal). Fresh encrypted create and plaintext
+  copy-and-validate rename finalize. Welcome → **Open-source licenses** ships
+  SQLCipher Community BSD notice text plus SQLite/LibTomCrypt notices.
+- **Verification:** On 2026-07-24, Medium Phone emulator ran
+  `MemoraEncryptedDatabaseOpenerIntegrationTest`: **3 of 3 passed**. TearDown
+  clears production identity files.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was
+  added. Recovery UX still uses approved rebuild wording only.
+
 ### Verified production-named disposable conversion
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
 - **Delivered:** Instrumentation conversion using disposable `memora.db` /
   `memora.db.encrypted_candidate` names, production Keystore alias/journal files,
   and rename-finalize onto `memora.db` after validated encrypted reopen. TearDown
-  deletes disposable files so live plaintext PersistenceModule is not stranded.
+  deletes disposable files so live PersistenceModule identity is not stranded.
 - **Verification:** On 2026-07-24, Medium Phone emulator ran
   `ProductionNamedConversionIntegrationTest`: **3 of 3 passed**.
-- **Truthfulness:** Live `PersistenceModule` still opens plaintext `memora.db`. No
-  PDF content write, notices UI, WorkManager, AI, or network path was added.
+- **Truthfulness (at delivery):** Live `PersistenceModule` still opened plaintext
+  `memora.db` at that gate; later superseded by the encrypted-open checkpoint above.
 
 ### Promoted SQLCipher to production classpath (Slice 1)
 

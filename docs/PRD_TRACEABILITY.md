@@ -141,11 +141,12 @@ text is enabled.
   conversion **5/5** still pass. Production opening remains plaintext.
 - **Production-named conversion (2026-07-24):**
   `ProductionNamedConversionIntegrationTest` passed **3 of 3**, proving disposable
-  `memora.db` → candidate → rename finalize without switching live PersistenceModule.
-- **Next gate:** wire PersistenceModule encrypted open + conversion journal, then
-  notices surface before release. PDF-text persistence remains blocked.
-- **Scope:** Production `PersistenceModule` still opens plaintext `memora.db`. No PDF
-  content write, retrieval, explanation, AI, worker, or user-facing encryption UI.
+  `memora.db` → candidate → rename finalize.
+- **Live encrypted open + notices (2026-07-24):** `PersistenceModule` opens through
+  `MemoraEncryptedDatabaseOpener`; welcome screen ships Open-source licenses with
+  SQLCipher Community BSD text. PDF-text persistence remains blocked.
+- **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
+  user-facing encryption/recovery jargon beyond the approved rebuild wording.
 
 ### Proposed encrypted-database direction
 

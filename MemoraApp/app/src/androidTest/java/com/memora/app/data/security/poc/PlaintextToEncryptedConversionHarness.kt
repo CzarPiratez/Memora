@@ -169,7 +169,7 @@ class PlaintextToEncryptedConversionHarness(
      * Production naming finalize: keep [PRODUCTION_DATABASE_NAME] as the durable file
      * name by renaming the encrypted candidate onto it after moving plaintext aside.
      * Instrumentation must delete these disposable files in tearDown so the live
-     * plaintext [PersistenceModule] path is not left encrypted.
+     * live encrypted [PersistenceModule] identity is not left with harness residue.
      */
     fun finalizeByRenamingEncryptedToProductionName(): ConversionHarnessResult {
         val record = journal.read()

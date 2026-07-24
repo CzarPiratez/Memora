@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 /**
  * Production-named disposable conversion corpus.
  * Uses memora.db naming inside instrumentation only, then deletes those files so the
- * live PersistenceModule plaintext path is not left encrypted.
+ * live encrypted PersistenceModule identity is not left with harness residue.
  */
 @RunWith(AndroidJUnit4::class)
 class ProductionNamedConversionIntegrationTest {
@@ -58,12 +58,10 @@ class ProductionNamedConversionIntegrationTest {
     }
 
     @Test
-    fun production_persistence_module_still_opens_plaintext_memora_db_name() {
-        val field = PersistenceModule::class.java.getDeclaredField("DATABASE_NAME")
-        field.isAccessible = true
+    fun production_persistence_module_targets_memora_db_name() {
         assertEquals(
             PlaintextToEncryptedConversionHarness.PRODUCTION_DATABASE_NAME,
-            field.get(PersistenceModule),
+            PersistenceModule.DATABASE_NAME,
         )
     }
 

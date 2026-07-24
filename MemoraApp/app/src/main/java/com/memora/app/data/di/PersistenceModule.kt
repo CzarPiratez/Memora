@@ -1,16 +1,16 @@
 package com.memora.app.data.di
 
 import android.content.Context
-import androidx.room.Room
 import com.memora.app.data.local.AssetDao
 import com.memora.app.data.local.DiscoveryCheckpointDao
 import com.memora.app.data.local.DocumentTreeApprovalDao
 import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.local.MemoraDatabaseMigrations
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
+import com.memora.app.data.security.MemoraEncryptedDatabaseOpener
+import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryPageStore
@@ -26,18 +26,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object PersistenceModule {
 
+    const val DATABASE_NAME = ProductionDatabaseIdentity.DATABASE_NAME
+
     @Provides
     @Singleton
     fun provideMemoraDatabase(
         @ApplicationContext context: Context
-    ): MemoraDatabase = Room.databaseBuilder(
-        context,
-        MemoraDatabase::class.java,
-        DATABASE_NAME
-    ).addMigrations(
-        MemoraDatabaseMigrations.MIGRATION_1_2,
-        MemoraDatabaseMigrations.MIGRATION_2_3,
-    ).build()
+    ): MemoraDatabase = MemoraEncryptedDatabaseOpener.open(context)
 
     @Provides
     fun provideAssetDao(database: MemoraDatabase): AssetDao = database.assetDao()
@@ -71,6 +66,4 @@ object PersistenceModule {
     @Singleton
     fun provideDiscoveryPageStore(database: MemoraDatabase): DiscoveryPageStore =
         RoomDiscoveryPageStore(database)
-
-    private const val DATABASE_NAME = "memora.db"
 }

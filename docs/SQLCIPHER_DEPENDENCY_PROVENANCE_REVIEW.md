@@ -1,8 +1,9 @@
 # SQLCipher Dependency and Provenance Review
 
-**Status:** Accepted for production classpath promotion (Slice 1). PersistenceModule
-still opens plaintext `memora.db`. This does **not** authorize the encrypted open
-switch, PDF content persistence, or a store release without BSD notices.
+**Status:** Accepted. SQLCipher is on the production classpath; `PersistenceModule`
+opens encrypted `memora.db` via `MemoraEncryptedDatabaseOpener`; Open-source notices
+ship the Community Edition BSD text. This does **not** authorize PDF content
+persistence.
 
 **Date:** 2026-07-24  
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.  
@@ -24,9 +25,9 @@ It does **not**:
 - claim a permanent vulnerability guarantee or enterprise SLA;
 - satisfy the BSD notices release gate by itself.
 
-Classpath note (2026-07-24, Slice 1): the reviewed coordinate is promoted to
-`implementation` in `MemoraApp/app/build.gradle.kts`. Production
-`PersistenceModule` remains plaintext until the conversion/switch gate.
+Classpath note (2026-07-24): the reviewed coordinate is `implementation` in
+`MemoraApp/app/build.gradle.kts`. Encrypted open and notices UI shipped the same day
+after conversion instrumentation gates.
 
 ## Provenance re-check (2026-07-24, Slice 1)
 

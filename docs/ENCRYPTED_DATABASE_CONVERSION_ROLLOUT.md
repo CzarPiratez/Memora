@@ -210,8 +210,8 @@ notices is a release blocker even if encryption works.
 - Claiming FIPS, commercial SQLCipher, or enterprise SLA coverage
 
 Note (2026-07-24): Slice 1 promoted SQLCipher to the production classpath while
-keeping plaintext `PersistenceModule` open. Encrypted open and notices UI remain
-later gates.
+keeping plaintext `PersistenceModule` open. Encrypted open and notices UI were later
+gates (completed the same day).
 
 ## Next approved engineering step after this document
 
@@ -223,11 +223,14 @@ release:
    **done 2026-07-24 (classpath only; plaintext open retained)**
 2. ~~production-named instrumentation conversion against disposable files;~~
    **done 2026-07-24 (`ProductionNamedConversionIntegrationTest` 3/3)**
-3. wire `PersistenceModule` to encrypted open + conversion journal;
-4. ship notices surface before any release that includes the native library.
+3. ~~wire `PersistenceModule` to encrypted open + conversion journal;~~
+   **done 2026-07-24 (`MemoraEncryptedDatabaseOpener` + `PersistenceModule`)**
+4. ~~ship notices surface before any release that includes the native library;~~
+   **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Each of those remains a separately verifiable checkpoint. PDF content persistence
-stays blocked until its own privacy/resource gates pass.
+Remaining optional proofs: physical-device conversion, process-death during
+`SWITCH_PENDING`, and low-storage failure. PDF content persistence stays blocked
+until its own privacy/resource gates pass.
 
 ## Pre-work and delivery record
 
@@ -235,10 +238,11 @@ stays blocked until its own privacy/resource gates pass.
 - **Sources read:** product registry, Local AI Technical Specification, governance,
   CONTINUE, product contract, architecture, decisions, encrypted-database decision,
   provenance review, PoC plan, conversion harness results, PRD traceability.
-- **Current-code evidence:** `PersistenceModule` opens plaintext `memora.db`;
-  SQLCipher is androidTest-scoped; synthetic PoC and conversion harness tests pass.
-- **Affected layers:** documentation / future data-security rollout only.
-- **Verification:** documentation cross-check against verified synthetic tests; no
-  executable production path changed.
-- **Known limitation:** production encryption is not enabled; physical-device,
-  process-death, low-storage, notices UI, and PersistenceModule switch remain open.
+- **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
+  `memora.db` via `MemoraEncryptedDatabaseOpener`; notices UI ships Community BSD
+  text; synthetic PoC/conversion/opener instrumentation covers the path.
+- **Affected layers:** data/security, DI, welcome UI notices, documentation.
+- **Verification:** opener instrumentation + compile; notices text committed under
+  version control from Zetetic Community Edition licence URL.
+- **Known limitation:** physical-device, process-death, and low-storage proofs remain
+  open; PDF content persistence remains blocked.
