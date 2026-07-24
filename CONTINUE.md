@@ -668,14 +668,26 @@ kill; the ordinary process then opens via `MemoraEncryptedDatabaseOpener` and
 completes with fixture rows. No PDF content persistence, WorkManager, AI, or network
 path was added.
 
+## Verified engineering checkpoint
+
+Low-storage / interruption conversion denial is verified. On 2026-07-24,
+`ConversionLowStorageDenialIntegrationTest` completed on the Medium Phone emulator:
+**2 of 2 passed**. Storage preflight denial and forced mid-conversion IO failure each
+leave plaintext `memora.db` standard-SQLite-readable with fixture rows, journal
+`FAILED_SAFE`, category `CONVERSION_VALIDATION_FAILED`, no incomplete encrypted
+candidate; a later open with storage allowed completes conversion. No PDF content
+persistence, WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
 Keep PDF text persistence blocked (ADR-017 / ADR-020). Remaining encrypted-database
-release proofs:
+release proof that needs the owner's hardware:
 
-1. Low-storage / interruption denial leaves plaintext intact.
-2. Physical-device `arm64-v8a` conversion proof.
+1. Physical-device `arm64-v8a` conversion proof (native load, conversion, reopen,
+   wrong-passphrase denial).
 
+Other rollout checklist items (device unlock, recovery copy review, performance
+budget, etc.) remain listed in `docs/ENCRYPTED_DATABASE_CONVERSION_ROLLOUT.md`.
 Do not schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision

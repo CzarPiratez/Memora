@@ -151,6 +151,9 @@ text is enabled.
 - **Process-death resume (2026-07-24):** Simulated suite **4 of 4** plus live
   `am crash`/kill suite **2 of 2** (`ConversionLiveProcessDeathIntegrationTest`) close
   rollout proof #3.
+- **Low-storage / interruption (2026-07-24):**
+  `ConversionLowStorageDenialIntegrationTest` **2 of 2** closes rollout proof #4
+  (plaintext retained; `FAILED_SAFE` / `CONVERSION_VALIDATION_FAILED`; retry ok).
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

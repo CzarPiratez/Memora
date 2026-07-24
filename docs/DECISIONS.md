@@ -562,9 +562,10 @@ is enabled by this ADR. ADR-017 remains independently binding for real user PDFs
 ## ADR-021: Encrypted database direction protects Memora-owned data at rest
 
 **Status:** Accepted. Production encrypted open, conversion journal, BSD notices,
-user-confirmed clear derived data, and **live** conversion process-death resume have
-landed. Remaining release proofs: low-storage interruption and physical-device
-`arm64-v8a` verification. PDF content persistence remains blocked (ADR-020 / ADR-017).
+user-confirmed clear derived data, **live** conversion process-death resume, and
+low-storage / interruption denial have landed. Remaining release proof that needs
+hardware: physical-device `arm64-v8a` verification. PDF content persistence remains
+blocked (ADR-020 / ADR-017).
 
 **Decision:** Use SQLCipher for Android integrated through Room's open-helper factory,
 with a randomly generated database passphrase wrapped by a non-exportable, versioned
@@ -591,10 +592,10 @@ local, privacy-first direction without cloud escrow or a user password.
 `docs/SQLCIPHER_DEPENDENCY_PROVENANCE_REVIEW.md` is accepted for
 `net.zetetic:sqlcipher-android:4.17.0`. Production path uses Keystore lifecycle tests,
 plaintext-to-encrypted copy-and-validate conversion, crash-resume (simulated + live
-kill covered), user-confirmed derived-data clearing, and BSD attribution notices.
-Physical-device/ABI proof and low-storage denial remain open. No destructive
-migration, silent reset, cloud recovery, source mutation, or content logging is
-allowed.
+kill covered), low-storage / interruption denial, user-confirmed derived-data
+clearing, and BSD attribution notices. Physical-device/ABI proof remains open. No
+destructive migration, silent reset, cloud recovery, source mutation, or content
+logging is allowed.
 
 **Consequences:** Production Room opens encrypted `memora.db` through
 `MemoraEncryptedDatabaseOpener` / `MemoraDatabaseHandle`. This does **not** authorize

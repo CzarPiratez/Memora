@@ -20,6 +20,28 @@ object MemoraEncryptedDatabaseOpener {
     @Volatile
     private var testStopAfterPhase: DatabaseEncryptionConversionPhase? = null
 
+    @Volatile
+    private var storageGuard: ConversionStorageGuard = StatFsConversionStorageGuard
+
+    @Volatile
+    private var testForceIoFailureDuringConversion: Boolean = false
+
+    @Volatile
+    var lastFailureCategory: DatabaseSecretFailureCategory? = null
+        private set
+
+    fun setStorageGuardForTest(guard: ConversionStorageGuard?) {
+        storageGuard = guard ?: StatFsConversionStorageGuard
+    }
+
+    fun setForceIoFailureDuringConversionForTest(force: Boolean) {
+        testForceIoFailureDuringConversion = force
+    }
+
+    fun clearLastFailureCategoryForTest() {
+        lastFailureCategory = null
+    }
+
     fun open(context: Context): MemoraDatabase {
         val appContext = context.applicationContext
         System.loadLibrary("sqlcipher")
@@ -33,7 +55,22 @@ object MemoraEncryptedDatabaseOpener {
             journalFileName = ProductionDatabaseIdentity.JOURNAL_FILE,
         )
         return runBlocking(Dispatchers.IO) {
-            prepareEncryptedDatabase(appContext, passphraseStore, journal)
+            try {
+                prepareEncryptedDatabase(appContext, passphraseStore, journal)
+            } catch (denied: ConversionDeniedException) {
+                lastFailureCategory = denied.category
+                val productionFile = databaseFile(appContext, ProductionDatabaseIdentity.DATABASE_NAME)
+                if (isPlaintextReadable(productionFile)) {
+                    return@runBlocking openPlaintext(appContext)
+                }
+                throw denied
+            }
+            val productionFile = databaseFile(appContext, ProductionDatabaseIdentity.DATABASE_NAME)
+            if (journal.read().phase == DatabaseEncryptionConversionPhase.FAILED_SAFE &&
+                isPlaintextReadable(productionFile)
+            ) {
+                return@runBlocking openPlaintext(appContext)
+            }
             openEncrypted(
                 context = appContext,
                 passphraseStore = passphraseStore,
@@ -149,13 +186,17 @@ object MemoraEncryptedDatabaseOpener {
         passphraseStore: KeystoreDatabasePassphraseStore,
         journal: DatabaseEncryptionConversionJournal,
     ) {
+        val productionFile = databaseFile(context, ProductionDatabaseIdentity.DATABASE_NAME)
+        if (!storageGuard.hasRoomForConversion(context, productionFile.length())) {
+            denyConversion(context, journal)
+        }
+
         val plaintext = openPlaintext(context)
         try {
             if (plaintext.openHelper.readableDatabase.version !=
                 ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION
             ) {
-                markFailed(journal)
-                error("Unsupported plaintext schema for encrypted conversion.")
+                denyConversion(context, journal)
             }
             journal.write(
                 DatabaseEncryptionConversionRecord(
@@ -179,6 +220,12 @@ object MemoraEncryptedDatabaseOpener {
                         schemaVersion = ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION,
                     ),
                 )
+                if (testForceIoFailureDuringConversion) {
+                    testForceIoFailureDuringConversion = false
+                    encrypted.close()
+                    deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
+                    denyConversion(context, journal)
+                }
                 copyRows(snapshot, encrypted)
                 journal.write(
                     DatabaseEncryptionConversionRecord(
@@ -192,8 +239,7 @@ object MemoraEncryptedDatabaseOpener {
                 if (!validateAgainstSnapshot(encrypted, snapshot)) {
                     encrypted.close()
                     deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
-                    markFailed(journal)
-                    error("Encrypted conversion validation failed.")
+                    denyConversion(context, journal)
                 }
                 journal.write(
                     DatabaseEncryptionConversionRecord(
@@ -201,11 +247,13 @@ object MemoraEncryptedDatabaseOpener {
                         schemaVersion = ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION,
                     ),
                 )
+            } catch (denied: ConversionDeniedException) {
+                runCatching { encrypted.close() }
+                throw denied
             } catch (error: Exception) {
                 runCatching { encrypted.close() }
                 deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
-                markFailed(journal)
-                throw error
+                denyConversion(context, journal)
             } finally {
                 runCatching { encrypted.close() }
             }
@@ -233,8 +281,7 @@ object MemoraEncryptedDatabaseOpener {
             if (!validateAgainstSnapshot(reopened, verifiedSnapshot)) {
                 reopened.close()
                 deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
-                markFailed(journal)
-                error("Encrypted conversion reopen validation failed.")
+                denyConversion(context, journal)
             }
             journal.write(
                 DatabaseEncryptionConversionRecord(
@@ -250,6 +297,16 @@ object MemoraEncryptedDatabaseOpener {
         }
 
         finalizeRename(context, passphraseStore, journal)
+    }
+
+    private fun denyConversion(
+        context: Context,
+        journal: DatabaseEncryptionConversionJournal,
+    ): Nothing {
+        deleteDatabaseFiles(context, ProductionDatabaseIdentity.ENCRYPTED_CANDIDATE_NAME)
+        markFailed(journal)
+        lastFailureCategory = DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED
+        throw ConversionDeniedException(DatabaseSecretFailureCategory.CONVERSION_VALIDATION_FAILED)
     }
 
     private fun finalizeRename(

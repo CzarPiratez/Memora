@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified low-storage / interruption conversion denial
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** `ConversionStorageGuard` preflight before encrypted candidate create;
+  denial and mid-conversion IO failure mark `FAILED_SAFE` /
+  `CONVERSION_VALIDATION_FAILED`, keep plaintext intact, and open plaintext for the
+  session until storage allows a successful retry (`MemoraEncryptedDatabaseOpener`).
+- **Verification:** On 2026-07-24, Medium Phone emulator
+  `ConversionLowStorageDenialIntegrationTest` **2 of 2 passed**.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+  Physical-device `arm64-v8a` proof remains open.
+
 ### Verified live conversion process-death resume
 
 - **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
@@ -22,8 +34,8 @@
   `docs/CHANGE_CONTROL_LIVE_CONVERSION_PROCESS_DEATH.md`.
 - **Verification:** Documentation cross-check only; no production behavior change.
 - **Truthfulness:** Superseded for the live-kill gate by the verified live suite above.
-  Low-storage and physical-device proofs remain open. PDF content persistence remains
-  blocked.
+  Low-storage denial later verified separately; physical-device proof remains open.
+  PDF content persistence remains blocked.
 
 ### Verified simulated conversion process-death resume
 

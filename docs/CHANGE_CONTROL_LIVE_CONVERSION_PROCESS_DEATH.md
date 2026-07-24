@@ -13,8 +13,9 @@
   hooks + finalize resume), `ConversionProcessDeathResumeIntegrationTest` (simulated
   only), `MemoraDatabaseHandle` / clear path, production identity files.
 - **Open ADRs / platform limitations checked:** ADR-017 / ADR-020 keep PDF text
-  persistence blocked. ADR-021 production open has landed; low-storage /
-  physical-device proofs remain after this slice. ADR-003 notes connector still open
+  persistence blocked. ADR-021 production open has landed; low-storage denial has
+  since landed (see `CHANGE_CONTROL_LOW_STORAGE_CONVERSION.md`). Physical-device
+  proof remains. ADR-003 notes connector still open
   (out of scope). Phase 1 WorkManager is a roadmap deliverable but CONTINUE forbids
   enabling it now.
 - **Privacy, source-access, dependency, offline, and data-retention impact:** No new
@@ -40,6 +41,7 @@
 - **Emulator/manual verification and result:** Instrumentation only; no UI change.
 - **Failure/recovery paths verified:** Journal phase survives kill; opener completes
   to `COMPLETED` with fixture rows; standard SQLite probe fails on production DB.
-- **Known limitation or follow-up:** Low-storage and physical-device proofs remain.
+- **Known limitation or follow-up:** Physical-device proof remains (low-storage
+  denial verified separately).
 - **Documentation/traceability/ADR updates:** Yes.
 - **Git commit:** (this checkpoint)

@@ -54,8 +54,10 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    process `am crash`/kill at `ROWS_COPIED` and `SWITCH_PENDING`, then cold resume).
    Simulated prepare-stop suite remains as regression
    (`ConversionProcessDeathResumeIntegrationTest` 4/4).
-4. **Low-storage / interruption:** conversion denial leaves plaintext intact and
-   exposes `CONVERSION_VALIDATION_FAILED` (content-free).
+4. **Low-storage / interruption:** ~~conversion denial leaves plaintext intact and
+   exposes `CONVERSION_VALIDATION_FAILED` (content-free).~~
+   **done 2026-07-24** (`ConversionLowStorageDenialIntegrationTest` 2/2: storage
+   preflight denial + mid-conversion IO failure; plaintext retained; retry succeeds).
 5. **Device unlock / credential-encrypted storage:** after reboot, deferred open until
    user unlock; no second database, no destructive reset.
 6. **Physical device:** at least one `arm64-v8a` device proves native load, conversion,
@@ -234,9 +236,11 @@ release:
 4. ~~ship notices surface before any release that includes the native library;~~
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Remaining proofs: physical-device conversion and low-storage failure. Simulated and
-**live** process-death resume, plus clear-derived-data, are done (2026-07-24). PDF
-content persistence stays blocked until its own privacy/resource gates pass.
+Remaining proof needing hardware: physical-device `arm64-v8a` conversion. Simulated
+and **live** process-death resume, clear-derived-data, and low-storage /
+interruption denial are done (2026-07-24). Device-unlock, recovery-copy review,
+and performance budget remain on the checklist above. PDF content persistence stays
+blocked until its own privacy/resource gates pass.
 
 ## Pre-work and delivery record
 
@@ -246,12 +250,13 @@ content persistence stays blocked until its own privacy/resource gates pass.
   provenance review, PoC plan, conversion harness results, PRD traceability.
 - **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
   `memora.db` via `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener`; notices UI
-  and Clear Memora index recovery UX ship; opener, clear, simulated, and **live**
-  process-death resume instrumentation cover the path.
+  and Clear Memora index recovery UX ship; opener, clear, simulated + **live**
+  process-death, and low-storage / interruption denial instrumentation cover the path.
 - **Affected layers:** data/security, DI, welcome UI notices/clear, debug live-death
   worker, documentation.
-- **Verification:** opener + clear + simulated + live process-death instrumentation;
-  notices text committed under version control from Zetetic Community Edition licence
-  URL.
-- **Known limitation:** physical-device and low-storage proofs remain open; PDF content
+- **Verification:** opener + clear + simulated + live process-death + low-storage
+  denial instrumentation; notices text committed under version control from Zetetic
+  Community Edition licence URL.
+- **Known limitation:** physical-device proof remains open; other checklist items
+  (device unlock, recovery copy review, performance budget) remain; PDF content
   persistence remains blocked.
