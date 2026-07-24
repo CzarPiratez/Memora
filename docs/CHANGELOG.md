@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Verified pure PDF parser session/chunk assembler
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** Session streaming plan plus IsolatedPdfParserSessionAssembler; unit tests cover ordered assembly, terminal headers, cancel, and rejection without partial text. Binder protocol v3 not implemented.
+- **Verification:** On 2026-07-25, local IsolatedPdfParserSessionAssemblerTest 8 of 8.
+- **Truthfulness:** No AIDL/service change, real PDF, Room/UI wiring, WorkManager, AI, or network.
+
 ### Verified PDF extraction write-path resource budgets
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.

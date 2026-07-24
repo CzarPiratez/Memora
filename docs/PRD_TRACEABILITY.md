@@ -57,6 +57,14 @@ single bounded Binder envelope is not the mandatory real-source session/chunk
 streaming design, and the limits are not production budgets. ADR-017 keeps real
 source parsing disabled.
 
+### P-07 checkpoint correction — pure session/chunk assembler
+
+On 2026-07-25, `IsolatedPdfParserSessionAssemblerTest` passed **8 of 8** local unit
+tests against the plan in `docs/PDF_PARSER_SESSION_STREAMING_PLAN.md`. The assembler
+validates ordered header/chunk/complete sessions and rejects or cancels without
+exposing partial text. Binder protocol v3, isolated-service streaming, visible
+recovery, and real-source opening remain separate ADR-017 gates.
+
 ### P-07 checkpoint correction — validated domain handoff
 
 On 2026-07-23, a synthetic-only mapper from an already validated isolated-parser
