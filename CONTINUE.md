@@ -713,10 +713,8 @@ WorkManager, AI, or network path was added.
 
 Encrypted-database conversion rollout proofs #1–#10 are complete for the current
 acceptance bar. Keep PDF text persistence blocked until ADR-017 / ADR-020 privacy
-and resource gates for real-user PDFs pass. Do not schedule WorkManager, invoke AI,
-or use the network. Choose the next product slice from `docs/ROADMAP.md` only after
-those PDF gates, or resolve ADR-003 for notes.
-
+and resource gates for real-user PDFs pass. Choose the next product slice from
+`docs/ROADMAP.md` only after those PDF gates, or resolve ADR-003 for notes.
 Do not schedule WorkManager, invoke AI, or use the network.
 
 ## Important open decision
