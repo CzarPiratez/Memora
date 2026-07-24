@@ -49,6 +49,13 @@ internal class RoomPdfExtractionPersistencePort(
                 val pageCount = record.pageCount
                     ?: return@withTransaction PdfExtractionPersistenceWriteOutcome.FailedSafely
 
+                when (PdfExtractionWriteBudgets.evaluate(inspect(record, pageCount))) {
+                    PdfExtractionWriteBudgets.WriteBudgetVerdict.Accepted -> Unit
+                    is PdfExtractionWriteBudgets.WriteBudgetVerdict.Rejected -> {
+                        return@withTransaction PdfExtractionPersistenceWriteOutcome.FailedSafely
+                    }
+                }
+
                 val header = PdfExtractionEntity(
                     sourceId = sourceId,
                     sourceAssetKey = sourceAssetKey,
@@ -119,6 +126,22 @@ internal class RoomPdfExtractionPersistencePort(
         val metadata = dao.findMetadata(sourceId, sourceAssetKey, fingerprint, schemaVersion)
             .associate { it.metadataName to it.metadataValue }
         return metadata == record.metadata
+    }
+
+    private fun inspect(
+        record: PdfExtractionRecord,
+        pageCount: Int,
+    ): PdfExtractionWriteBudgets.WriteBudgetInspection {
+        val pageCharCounts = record.pages.map { it.text.length }
+        return PdfExtractionWriteBudgets.WriteBudgetInspection(
+            pageCount = pageCount,
+            totalChars = pageCharCounts.sum(),
+            maxCharsOnAnyPage = pageCharCounts.maxOrNull() ?: 0,
+            metadataEntryCount = record.metadata.size,
+            maxMetadataNameChars = record.metadata.keys.maxOfOrNull { it.length } ?: 0,
+            maxMetadataValueChars = record.metadata.values.maxOfOrNull { it.length } ?: 0,
+            titleChars = record.title?.length ?: 0,
+        )
     }
 
     companion object {

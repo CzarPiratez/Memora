@@ -559,11 +559,12 @@ production PDF content write path / real-source parsing:
 1. ~~superseded-record retention ADR~~ **done (ADR-022)**;
 2. ~~concrete additive Room schema + migration/rollback verification~~ **done
    (schema v4 + migration 3→4 + synthetic Room port)**;
-3. measured write-path resource limits for extraction storage;
+3. ~~measured write-path resource limits for extraction storage~~ **done
+   (`PdfExtractionWriteBudgets` + write-path benchmark 5/5)**;
 4. ~~atomic write/deletion verification tests~~ **done (synthetic instrumentation)**;
 5. ADR-017 real-source / bounded-streaming / visible-recovery gates (independent).
 
-A synthetic-only Room adapter landed to close (2) and (4). It is **not** wired into
+A synthetic-only Room adapter and write budgets landed. They are **not** wired into
 production discovery/UI. Real-source parsing, search, WorkManager, AI, and network
 remain blocked.
 

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Verified PDF extraction write-path resource budgets
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** PdfExtractionWriteBudgets provisional hard limits enforced on Room writes; content-free write-path benchmark buckets; over-budget page count fails safely with zero rows.
+- **Verification:** On 2026-07-25, unit 3 of 3 and Medium Phone emulator 5 of 5.
+- **Truthfulness:** Synthetic fixtures only; no real PDF / WorkManager / AI / network / production UI wiring. ADR-017 remains.
+
 ### Accepted ADR-022 and verified synthetic PDF extraction Room persistence
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
