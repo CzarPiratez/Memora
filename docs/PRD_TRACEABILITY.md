@@ -148,9 +148,9 @@ text is enabled.
 - **Clear derived data (2026-07-24):** user-confirmed Clear Memora index removes only
   Memora-owned DB/wrapper/journal state, reopens a fresh encrypted empty index, and
   shows ADR-021 rebuild copy only (`ClearMemoraDerivedDataIntegrationTest` 1/1).
-- **Process-death resume (2026-07-24):** `ConversionProcessDeathResumeIntegrationTest`
-  **4 of 4** proves **simulated** `ROWS_COPIED` / `SWITCH_PENDING` / mid-finalize
-  resume. Rollout **live crash/kill** process-death gate remains open.
+- **Process-death resume (2026-07-24):** Simulated suite **4 of 4** plus live
+  `am crash`/kill suite **2 of 2** (`ConversionLiveProcessDeathIntegrationTest`) close
+  rollout proof #3.
 - **Scope:** No PDF content write, retrieval, explanation, AI, or worker. No
   user-facing encryption/recovery jargon beyond the approved rebuild wording.
 

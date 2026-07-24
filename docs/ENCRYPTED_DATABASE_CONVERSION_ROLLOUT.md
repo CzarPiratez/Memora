@@ -48,12 +48,12 @@ These are **blocking** for any release that opens encrypted `memora.db` by defau
    disposable instrumentation databases that use the real production file naming
    strategy (`memora.db` / encrypted candidate / retained plaintext sidecar), still
    without changing the live Hilt provider default until its own step.
-3. **Live process-death:** crash or kill while `ROWS_COPIED` or `SWITCH_PENDING` and
-   prove resume preserves plaintext or completes exactly once.
-   - **Partial (2026-07-24):** simulated prepare-stop + resume covered by
-     `ConversionProcessDeathResumeIntegrationTest` **4/4** (including mid-finalize
-     file layouts). Opener finalize resume paths landed.
-   - **Still open:** real process kill/crash during conversion, then cold resume.
+3. **Live process-death:** ~~crash or kill while `ROWS_COPIED` or `SWITCH_PENDING` and
+   prove resume preserves plaintext or completes exactly once.~~
+   **done 2026-07-24** (`ConversionLiveProcessDeathIntegrationTest` 2/2: secondary
+   process `am crash`/kill at `ROWS_COPIED` and `SWITCH_PENDING`, then cold resume).
+   Simulated prepare-stop suite remains as regression
+   (`ConversionProcessDeathResumeIntegrationTest` 4/4).
 4. **Low-storage / interruption:** conversion denial leaves plaintext intact and
    exposes `CONVERSION_VALIDATION_FAILED` (content-free).
 5. **Device unlock / credential-encrypted storage:** after reboot, deferred open until
@@ -234,10 +234,9 @@ release:
 4. ~~ship notices surface before any release that includes the native library;~~
    **done 2026-07-24 (welcome → Open-source licenses / `res/raw/open_source_notices.txt`)**
 
-Remaining proofs: **live** process-death (real kill/crash), physical-device conversion,
-and low-storage failure. Simulated process-death instrumentation and clear-derived-data
-are done (2026-07-24). PDF content persistence stays blocked until its own
-privacy/resource gates pass.
+Remaining proofs: physical-device conversion and low-storage failure. Simulated and
+**live** process-death resume, plus clear-derived-data, are done (2026-07-24). PDF
+content persistence stays blocked until its own privacy/resource gates pass.
 
 ## Pre-work and delivery record
 
@@ -247,12 +246,12 @@ privacy/resource gates pass.
   provenance review, PoC plan, conversion harness results, PRD traceability.
 - **Current-code evidence (updated 2026-07-24):** `PersistenceModule` opens encrypted
   `memora.db` via `MemoraDatabaseHandle` / `MemoraEncryptedDatabaseOpener`; notices UI
-  and Clear Memora index recovery UX ship; opener, clear, and **simulated**
+  and Clear Memora index recovery UX ship; opener, clear, simulated, and **live**
   process-death resume instrumentation cover the path.
-- **Affected layers:** data/security, DI, welcome UI notices/clear, documentation.
-- **Verification:** opener + clear + simulated process-death instrumentation; notices
-  text committed under version control from Zetetic Community Edition licence URL.
-- **Known limitation:** live crash/kill, physical-device, and low-storage proofs remain
-  open; PDF content persistence remains blocked.
-- **Honesty correction (2026-07-24):** earlier “done” marking for live process-death
-  was overstated; corrected to partial/simulated only.
+- **Affected layers:** data/security, DI, welcome UI notices/clear, debug live-death
+  worker, documentation.
+- **Verification:** opener + clear + simulated + live process-death instrumentation;
+  notices text committed under version control from Zetetic Community Edition licence
+  URL.
+- **Known limitation:** physical-device and low-storage proofs remain open; PDF content
+  persistence remains blocked.

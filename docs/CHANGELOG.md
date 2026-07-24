@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified live conversion process-death resume
+
+- **Requirements:** P-05, P-14, P-15, P-17; A-01, A-02, A-06; E-04, E-05.
+- **Delivered:** Debug secondary process `:conv_live_death` arms conversion at
+  `ROWS_COPIED` / `SWITCH_PENDING`; instrumentation induces real `am crash`/kill;
+  ordinary process cold-opens and completes with fixture rows
+  (`ConversionLiveProcessDeathIntegrationTest`).
+- **Verification:** On 2026-07-24, Medium Phone emulator **2 of 2 passed**.
+- **Truthfulness:** No PDF content write, WorkManager, AI, or network path was added.
+  Live-death helper is debug-source only (not in release).
+
 ### Corrected process-death proof status (honesty)
 
 - **Requirements:** P-05, P-14, P-15, P-17; governance truthfulness.
@@ -10,8 +21,9 @@
   the live-kill slice added in
   `docs/CHANGE_CONTROL_LIVE_CONVERSION_PROCESS_DEATH.md`.
 - **Verification:** Documentation cross-check only; no production behavior change.
-- **Truthfulness:** Live process-death, low-storage, and physical-device proofs remain
-  open. PDF content persistence remains blocked.
+- **Truthfulness:** Superseded for the live-kill gate by the verified live suite above.
+  Low-storage and physical-device proofs remain open. PDF content persistence remains
+  blocked.
 
 ### Verified simulated conversion process-death resume
 

@@ -8,5 +8,10 @@
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS" />
+        <!-- Secondary process for live conversion crash/kill resume proofs. -->
+        <service
+            android:name="com.memora.app.data.security.ConversionLiveDeathWorkerService"
+            android:exported="false"
+            android:process=":conv_live_death" />
     </application>
 </manifest>

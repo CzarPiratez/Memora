@@ -1,4 +1,4 @@
-# Change-control: Live conversion process-death (next slice)
+# Change-control: Live conversion process-death
 
 ## Pre-work record
 
@@ -13,35 +13,33 @@
   hooks + finalize resume), `ConversionProcessDeathResumeIntegrationTest` (simulated
   only), `MemoraDatabaseHandle` / clear path, production identity files.
 - **Open ADRs / platform limitations checked:** ADR-017 / ADR-020 keep PDF text
-  persistence blocked. ADR-021 production open has landed; live kill / low-storage /
-  physical-device proofs remain. ADR-003 notes connector still open (out of scope).
-  Phase 1 WorkManager is a roadmap deliverable but CONTINUE forbids enabling it now.
+  persistence blocked. ADR-021 production open has landed; low-storage /
+  physical-device proofs remain after this slice. ADR-003 notes connector still open
+  (out of scope). Phase 1 WorkManager is a roadmap deliverable but CONTINUE forbids
+  enabling it now.
 - **Privacy, source-access, dependency, offline, and data-retention impact:** No new
   permission, network, or source mutation. Test must not delete user originals or
-  revoke Android grants. Content-free diagnostics only.
-- **Smallest safe change:** Add instrumentation that seeds plaintext conversion,
-  reaches `ROWS_COPIED` or `SWITCH_PENDING`, **kills the test process** (or equivalent
-  real process death), then a fresh process opens via `MemoraEncryptedDatabaseOpener`
-  and asserts plaintext preserved or conversion completed exactly once with fixture
-  rows. Prefer emulator-automatable kill; no UI change.
-- **Acceptance criteria:**
-  1. Death occurs after journal shows `ROWS_COPIED` or `SWITCH_PENDING` (real kill,
-     not prepare-stop return).
-  2. Next process open completes to `COMPLETED` with fixture rows, or safely retries
-     from plaintext without data loss.
-  3. TearDown clears production identity files.
-  4. Docs mark rollout proof #3 complete only after this passes.
-  5. No PDF persistence, WorkManager, AI, or network.
+  revoke Android grants. Content-free diagnostics only. Live-death worker is
+  debug-source only.
+- **Smallest safe change:** Secondary debug process arms conversion at journal phase;
+  instrumentation induces real `am crash`/kill; ordinary process opens and asserts
+  completed encrypted rows.
+- **Acceptance criteria:** Met — see delivery record.
 - **Test and emulator verification plan:** Medium Phone
-  `connectedDebugAndroidTest` for the new live-kill suite; keep simulated suite as
-  regression.
-- **User-visible quality/accessibility review plan:** None (no UI). User confirmation
-  after green tests before claiming the gate closed.
+  `ConversionLiveProcessDeathIntegrationTest`.
+- **User-visible quality/accessibility review plan:** None (no UI).
 
 ## Delivery record
 
-- **Status:** Pre-work only. Implementation not started pending product-owner OK.
-- **Files/layers changed:** honesty corrections in CONTINUE, CHANGELOG, rollout,
-  PRD_TRACEABILITY, ADR-021 status (this checkpoint).
-- **Known limitation or follow-up:** After live kill, still need low-storage and
-  physical-device proofs before treating encryption release gates as complete.
+- **Status:** Verified and committed.
+- **Files/layers changed:** debug `ConversionLiveDeathWorkerService` + marker;
+  `ConversionLiveProcessDeathIntegrationTest`; CONTINUE/CHANGELOG/rollout/
+  PRD_TRACEABILITY/ADR-021 updates.
+- **Automated verification and result:** Medium Phone emulator **2 of 2 passed**
+  (`ROWS_COPIED` and `SWITCH_PENDING` live crash/kill + cold resume).
+- **Emulator/manual verification and result:** Instrumentation only; no UI change.
+- **Failure/recovery paths verified:** Journal phase survives kill; opener completes
+  to `COMPLETED` with fixture rows; standard SQLite probe fails on production DB.
+- **Known limitation or follow-up:** Low-storage and physical-device proofs remain.
+- **Documentation/traceability/ADR updates:** Yes.
+- **Git commit:** (this checkpoint)

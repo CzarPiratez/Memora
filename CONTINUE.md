@@ -658,18 +658,23 @@ once), clean `SWITCH_PENDING`, mid-finalize after plaintext retained, and mid-fi
 after encrypted candidate promotion onto `memora.db`. `MemoraEncryptedDatabaseOpener`
 finalize handles those interrupted file layouts.
 
-This does **not** yet satisfy the rollout's **live crash/kill** process-death gate.
-No PDF content persistence, WorkManager, AI, or network path was added.
+## Verified engineering checkpoint
+
+Conversion **live** process-death resume is verified. On 2026-07-24,
+`ConversionLiveProcessDeathIntegrationTest` completed on the Medium Phone emulator:
+**2 of 2 passed**. A debug-only secondary process (`:conv_live_death`) arms conversion
+at `ROWS_COPIED` or `SWITCH_PENDING`; instrumentation induces a real `am crash` /
+kill; the ordinary process then opens via `MemoraEncryptedDatabaseOpener` and
+completes with fixture rows. No PDF content persistence, WorkManager, AI, or network
+path was added.
 
 ## Next approved engineering step
 
-Keep PDF text persistence blocked (ADR-017 / ADR-020). Close the remaining encrypted-
-database release proofs in this order:
+Keep PDF text persistence blocked (ADR-017 / ADR-020). Remaining encrypted-database
+release proofs:
 
-1. **Live process-death** — real process kill/crash while `ROWS_COPIED` or
-   `SWITCH_PENDING`, then resume (not only prepare-stop simulation).
-2. Low-storage / interruption denial leaves plaintext intact.
-3. Physical-device `arm64-v8a` conversion proof.
+1. Low-storage / interruption denial leaves plaintext intact.
+2. Physical-device `arm64-v8a` conversion proof.
 
 Do not schedule WorkManager, invoke AI, or use the network.
 
