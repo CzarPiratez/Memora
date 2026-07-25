@@ -50,4 +50,4 @@
   separately governed. Only the first indexed PDF is checked per Start.
 - **Documentation/traceability/ADR updates:** CONTINUE next step → searchable
   persist; CHANGELOG unreleased entry; ADR-020 gate note updated.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** b655890
