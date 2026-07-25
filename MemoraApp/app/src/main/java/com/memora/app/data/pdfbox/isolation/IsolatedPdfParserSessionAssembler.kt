@@ -4,8 +4,8 @@ package com.memora.app.data.pdfbox.isolation
  * Pure ordinary-process assembler for a future session/chunk parser protocol.
  *
  * It has no Android, Binder, descriptor, SAF, Room, UI, WorkManager, or AI dependency.
- * It never returns partial page text on rejection or cancellation. Production Binder
- * protocol v3 remains a separate ADR-017 implementation gate.
+ * It never returns partial page text on rejection or cancellation. The ordinary-process
+ * protocol v3 client feeds Binder session messages into this assembler.
  */
 internal class IsolatedPdfParserSessionAssembler(
     private val limits: IsolatedPdfParserSessionLimits,

@@ -466,12 +466,11 @@ test-APK manifests remain unchanged: neither declares `ACCESS_NETWORK_STATE` nor
 preferable to a manually supplied “offline” flag, which would not prove the runtime
 condition, or adding network-state visibility to either shipped package.
 
-On 2026-07-25, the pure ordinary-process session/chunk assembler
-(`IsolatedPdfParserSessionAssembler`) and
-`docs/PDF_PARSER_SESSION_STREAMING_PLAN.md` were verified with **8 of 8** local unit
-tests. This closes only the pure validation half of the bounded-streaming gate. Binder
-protocol v3, isolated-service streaming, visible recovery UI, and real-source
-descriptor opening remain mandatory and disabled.
+On 2026-07-25, Binder protocol v3 (`begin` / `nextChunk` / `cancel`) streamed
+bounded chunks for repository-owned synthetic descriptors on the Medium Phone
+emulator (**25** focused isolation/handoff/process-death tests). The ordinary client
+assembles through `IsolatedPdfParserSessionAssembler` and still returns status only.
+Visible recovery UI and real-source descriptor opening remain mandatory and disabled.
 
 ## ADR-018: Memora evolves through evidence-backed linking, not destructive grouping
 
@@ -569,8 +568,8 @@ production PDF content write path / real-source parsing:
 3. ~~measured write-path resource limits for extraction storage~~ **done
    (`PdfExtractionWriteBudgets` + write-path benchmark 5/5)**;
 4. ~~atomic write/deletion verification tests~~ **done (synthetic instrumentation)**;
-5. ADR-017 remaining: Binder protocol v3 session streaming, visible recovery, then
-   real-source (pure session assembler verified 2026-07-25; streaming not complete).
+5. ADR-017 remaining: visible recovery, then real-source (Binder protocol v3
+   synthetic streaming verified 2026-07-25).
 
 A synthetic-only Room adapter and write budgets landed. They are **not** wired into
 production discovery/UI. Real-source parsing, search, WorkManager, AI, and network

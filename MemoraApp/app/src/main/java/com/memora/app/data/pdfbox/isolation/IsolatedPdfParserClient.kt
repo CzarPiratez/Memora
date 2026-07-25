@@ -1,13 +1,12 @@
 package com.memora.app.data.pdfbox.isolation
 
-import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.DeadObjectException
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import java.io.IOException
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -17,10 +16,9 @@ import java.util.concurrent.TimeoutException
 /**
  * Private ordinary-process boundary for one already-opened synthetic PDF descriptor.
  *
- * This class deliberately has no URI, path, source identity, Room, UI, or source-access API.
- * It validates the private service's bounded result envelope, then discards all page text and
- * returns a content-free status summary. A later, separately governed persistence boundary may
- * receive validated deterministic text; until then this client is synthetic-fixture-only.
+ * Protocol v3 pulls a content-free header and bounded chunks through the session assembler,
+ * then discards all page text and returns a content-free status summary. A later, separately
+ * governed persistence boundary may receive validated deterministic text.
  */
 internal class IsolatedPdfParserClient(
     private val connection: IsolatedPdfParserConnection,
@@ -30,8 +28,8 @@ internal class IsolatedPdfParserClient(
 ) : AutoCloseable {
 
     /**
-     * Calls the private parser with a bounded wait and converts transport failures to an
-     * explicit retryable status. The client always closes [source], including bind failure,
+     * Streams the private parser session with a bounded wait and converts transport failures to
+     * an explicit retryable status. The client always closes [source], including bind failure,
      * Binder death, timeout, malformed response, and cancellation paths.
      */
     fun parse(
@@ -42,11 +40,17 @@ internal class IsolatedPdfParserClient(
         require(timeoutMillis > 0) { "The isolated parser timeout must be positive." }
 
         val requestLock = Any()
-        var request: Future<Bundle>? = null
+        var request: Future<IsolatedPdfParserClientResult>? = null
         var cancelled = false
+        var parser: IIsolatedPdfParser? = null
 
         fun cancelRequest() = synchronized(requestLock) {
             request?.cancel(true)
+            try {
+                parser?.cancel()
+            } catch (_: RemoteException) {
+                // Best-effort cooperative cancel after Binder loss.
+            }
         }
 
         return try {
@@ -58,24 +62,34 @@ internal class IsolatedPdfParserClient(
                 synchronized(requestLock) {
                     cancelled = true
                     request?.cancel(true)
+                    try {
+                        parser?.cancel()
+                    } catch (_: RemoteException) {
+                        // Best-effort cooperative cancel after Binder loss.
+                    }
                 }
             }
 
-            val parser = connection.acquire()
+            val acquired = connection.acquire()
             val submittedRequest = synchronized(requestLock) {
+                parser = acquired
                 if (cancelled || cancellationSignal?.isCanceled == true) {
                     cancelled = true
                     null
                 } else {
-                    worker.submit<Bundle> {
-                        parser.parse(source, IsolatedPdfParserService.PROTOCOL_VERSION)
+                    worker.submit<IsolatedPdfParserClientResult> {
+                        runSession(
+                            parser = acquired,
+                            source = source,
+                            cancellationSignal = cancellationSignal,
+                        )
                     }.also { request = it }
                 }
             }
             if (submittedRequest == null) {
                 retryableFailure()
             } else {
-                submittedRequest.get(timeoutMillis, TimeUnit.MILLISECONDS).toClientResult().takeUnless {
+                submittedRequest.get(timeoutMillis, TimeUnit.MILLISECONDS).takeUnless {
                     cancellationSignal?.isCanceled == true
                 } ?: retryableFailure()
             }
@@ -83,6 +97,7 @@ internal class IsolatedPdfParserClient(
             cancelRequest()
             retryableFailure()
         } catch (_: CancellationException) {
+            cancelRequest()
             retryableFailure()
         } catch (_: DeadObjectException) {
             retryableFailure()
@@ -108,27 +123,83 @@ internal class IsolatedPdfParserClient(
         worker.shutdownNow()
     }
 
-    private fun Bundle.toClientResult(): IsolatedPdfParserClientResult {
-        if (
-            !getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED) ||
-            keySet() != setOf(
-                IsolatedPdfParserService.KEY_IS_ISOLATED,
-                IsolatedPdfParserService.KEY_BOUNDED_RESULT,
-            )
-        ) {
+    private fun runSession(
+        parser: IIsolatedPdfParser,
+        source: ParcelFileDescriptor,
+        cancellationSignal: CancellationSignal?,
+    ): IsolatedPdfParserClientResult {
+        if (cancellationSignal?.isCanceled == true) {
+            parser.cancel()
             return retryableFailure()
         }
-        val boundedResult = getBundle(IsolatedPdfParserService.KEY_BOUNDED_RESULT)
-            ?: return retryableFailure()
-        return when (
-            val validation = IsolatedPdfParserResultBundleCodec.decode(
-                boundedResult,
-                IsolatedPdfParserSyntheticResultPolicy.limits,
-            )
-        ) {
-            is IsolatedPdfParserWireResultValidation.Valid -> validation.result.toClientSummary()
-            IsolatedPdfParserWireResultValidation.Rejected -> retryableFailure()
+
+        val assembler = IsolatedPdfParserSessionAssembler(
+            IsolatedPdfParserSyntheticResultPolicy.sessionLimits,
+        )
+        val beginMessage = IsolatedPdfParserSessionMessageCodec.decode(
+            parser.begin(source, IsolatedPdfParserService.PROTOCOL_VERSION),
+        ) ?: return retryableFailureAfterCancel(parser)
+
+        val header = when (beginMessage) {
+            is IsolatedPdfParserSessionMessage.Header -> beginMessage.header
+            else -> return retryableFailureAfterCancel(parser)
         }
+
+        when (val opened = assembler.accept(IsolatedPdfParserSessionEvent.Opened(header))) {
+            is IsolatedPdfParserSessionState.Completed -> return opened.result.toClientSummary()
+            is IsolatedPdfParserSessionState.Collecting -> Unit
+            IsolatedPdfParserSessionState.Rejected,
+            IsolatedPdfParserSessionState.Cancelled,
+            IsolatedPdfParserSessionState.AwaitingOpen,
+            -> return retryableFailureAfterCancel(parser)
+        }
+
+        while (true) {
+            if (cancellationSignal?.isCanceled == true || Thread.currentThread().isInterrupted) {
+                parser.cancel()
+                assembler.accept(IsolatedPdfParserSessionEvent.Cancelled)
+                return retryableFailure()
+            }
+
+            val pull = IsolatedPdfParserSessionMessageCodec.decode(parser.nextChunk())
+                ?: return retryableFailureAfterCancel(parser)
+
+            val state = when (pull) {
+                is IsolatedPdfParserSessionMessage.Chunk -> {
+                    assembler.accept(IsolatedPdfParserSessionEvent.ChunkReceived(pull.chunk))
+                }
+                IsolatedPdfParserSessionMessage.SessionComplete -> {
+                    assembler.accept(IsolatedPdfParserSessionEvent.Completed)
+                }
+                is IsolatedPdfParserSessionMessage.Header -> {
+                    return retryableFailureAfterCancel(parser)
+                }
+            }
+
+            when (state) {
+                is IsolatedPdfParserSessionState.Completed -> {
+                    // Status-only: discard retained wire text after deriving the summary.
+                    return state.result.toClientSummary()
+                }
+                is IsolatedPdfParserSessionState.Collecting -> Unit
+                IsolatedPdfParserSessionState.Rejected,
+                IsolatedPdfParserSessionState.Cancelled,
+                IsolatedPdfParserSessionState.AwaitingOpen,
+                -> {
+                    parser.cancel()
+                    return retryableFailure()
+                }
+            }
+        }
+    }
+
+    private fun retryableFailureAfterCancel(parser: IIsolatedPdfParser): IsolatedPdfParserClientResult {
+        try {
+            parser.cancel()
+        } catch (_: RemoteException) {
+            // Best-effort cooperative cancel after Binder loss.
+        }
+        return retryableFailure()
     }
 
     private fun IsolatedPdfParserWireResult.toClientSummary(): IsolatedPdfParserClientResult = when (outcome) {

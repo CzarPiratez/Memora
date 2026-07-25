@@ -738,14 +738,23 @@ result contract, and rejects or cancels without exposing partial text. No AIDL,
 service protocol v3, client streaming, real-source open, Room/UI wiring,
 WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+Binder protocol v3 session/chunk streaming is verified (synthetic descriptors only).
+On 2026-07-25, Medium Phone emulator passed **25** focused tests across the private
+service (including one-chunk-per-Binder pull), ordinary client, end-to-end transport,
+binding adapter, approved-broker handoff, and live process-death suites. `begin` /
+`nextChunk` / `cancel` replace the single-envelope `parse`; the client feeds the
+session assembler and still returns status only. Plan:
+`docs/PDF_PARSER_SESSION_STREAMING_PLAN.md`. No real-source open, Room/UI wiring,
+WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
 Remaining ADR-017 gates before production PDF content / real-source use:
 
-1. Binder protocol v3 session streaming on the isolated service (synthetic descriptors
-   only first).
-2. Visible foreground progress / pause / retry recovery flow.
-3. Real-source descriptor path only after streaming + recovery gates pass.
+1. Visible foreground progress / pause / retry recovery flow.
+2. Real-source descriptor path only after recovery gates pass.
 
 Do not wire production discovery/UI to persist PDF text from real documents,
 schedule WorkManager, invoke AI, or use the network until those gates pass.

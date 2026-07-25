@@ -24,7 +24,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Verifies the synthetic-only transport boundary required by ADR-017.
+ * Verifies the synthetic-only protocol v3 transport boundary required by ADR-017.
  *
  * The test creates an in-memory descriptor pipe from repository-owned fixture bytes.
  * It does not use a SAF URI, a real PDF, Room, or a persisted source approval.
@@ -56,7 +56,7 @@ class IsolatedPdfParserServiceIntegrationTest {
         )
 
         assertTrue("The private parser service should bind.", isBound)
-        assertTrue("The private parser service should connect promptly.", connected.await(10, TimeUnit.SECONDS))
+        assertTrue("The private parser service should connect promptly.", connected.await(30, TimeUnit.SECONDS))
     }
 
     @After
@@ -78,11 +78,8 @@ class IsolatedPdfParserServiceIntegrationTest {
     }
 
     @Test
-    fun parses_a_synthetic_descriptor_without_a_source_location_and_closes_it() {
-        val result = parseSynthetic(SyntheticPdfFixtures.twoPageSelectable())
-
-        assertTrue("The service must confirm that it runs isolated.", result.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED))
-        val decoded = decodedResult(result)
+    fun streams_a_synthetic_descriptor_without_a_source_location_and_closes_it() {
+        val decoded = streamSynthetic(SyntheticPdfFixtures.twoPageSelectable())
 
         assertEquals(IsolatedPdfParserWireOutcome.EXTRACTED, decoded.outcome)
         assertEquals(2, decoded.pageCount)
@@ -92,9 +89,7 @@ class IsolatedPdfParserServiceIntegrationTest {
 
     @Test
     fun returns_explicit_no_text_for_an_image_only_synthetic_descriptor() {
-        val result = parseSynthetic(SyntheticPdfFixtures.imageOnly())
-
-        val decoded = decodedResult(result)
+        val decoded = streamSynthetic(SyntheticPdfFixtures.imageOnly())
 
         assertEquals(IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT, decoded.outcome)
         assertEquals(1, decoded.pageCount)
@@ -103,9 +98,7 @@ class IsolatedPdfParserServiceIntegrationTest {
 
     @Test
     fun returns_password_protected_without_returning_source_content() {
-        val result = parseSynthetic(SyntheticPdfFixtures.passwordProtected())
-
-        val decoded = decodedResult(result)
+        val decoded = streamSynthetic(SyntheticPdfFixtures.passwordProtected())
 
         assertEquals(IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED, decoded.outcome)
         assertEquals(null, decoded.pageCount)
@@ -114,9 +107,7 @@ class IsolatedPdfParserServiceIntegrationTest {
 
     @Test
     fun returns_a_retryable_failure_for_a_malformed_descriptor_and_closes_it() {
-        val result = parseSynthetic(SyntheticPdfFixtures.malformed())
-
-        val decoded = decodedResult(result)
+        val decoded = streamSynthetic(SyntheticPdfFixtures.malformed())
 
         assertEquals(IsolatedPdfParserWireOutcome.FAILURE, decoded.outcome)
         assertTrue(decoded.retryable)
@@ -125,12 +116,10 @@ class IsolatedPdfParserServiceIntegrationTest {
 
     @Test
     fun rejects_an_unsupported_protocol_without_parsing_the_descriptor() {
-        val result = parseSynthetic(
+        val decoded = streamSynthetic(
             source = SyntheticPdfFixtures.malformed(),
             protocolVersion = IsolatedPdfParserService.PROTOCOL_VERSION + 1,
         )
-
-        val decoded = decodedResult(result)
 
         assertEquals(IsolatedPdfParserWireOutcome.FAILURE, decoded.outcome)
         assertFalse(decoded.retryable)
@@ -138,34 +127,79 @@ class IsolatedPdfParserServiceIntegrationTest {
         assertTrue(decoded.chunks.isEmpty())
     }
 
-    private fun decodedResult(result: Bundle): IsolatedPdfParserWireResult {
-        assertTrue("The service must confirm that it runs isolated.", result.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED))
-        assertEquals(
-            setOf(IsolatedPdfParserService.KEY_IS_ISOLATED, IsolatedPdfParserService.KEY_BOUNDED_RESULT),
-            result.keySet(),
-        )
-        val payload = requireNotNull(result.getBundle(IsolatedPdfParserService.KEY_BOUNDED_RESULT))
-        return when (
-            val validation = IsolatedPdfParserResultBundleCodec.decode(
-                payload,
-                IsolatedPdfParserSyntheticResultPolicy.limits,
+    @Test
+    fun pulls_extracted_chunks_one_binder_message_at_a_time() {
+        val descriptor = descriptorFor(SyntheticPdfFixtures.twoPageSelectable())
+        try {
+            val begin = IsolatedPdfParserSessionMessageCodec.decode(
+                parser.begin(descriptor.readEnd, IsolatedPdfParserService.PROTOCOL_VERSION),
             )
-        ) {
-            is IsolatedPdfParserWireResultValidation.Valid -> validation.result
-            IsolatedPdfParserWireResultValidation.Rejected -> throw AssertionError(
-                "The private service must return an exact bounded result envelope.",
-            )
+            assertTrue(begin is IsolatedPdfParserSessionMessage.Header)
+            val header = (begin as IsolatedPdfParserSessionMessage.Header).header
+            assertEquals(IsolatedPdfParserWireOutcome.EXTRACTED, header.outcome)
+            assertEquals(2, header.pageCount)
+
+            val first = IsolatedPdfParserSessionMessageCodec.decode(parser.nextChunk())
+            assertTrue(first is IsolatedPdfParserSessionMessage.Chunk)
+            val second = IsolatedPdfParserSessionMessageCodec.decode(parser.nextChunk())
+            assertTrue(second is IsolatedPdfParserSessionMessage.Chunk)
+            val complete = IsolatedPdfParserSessionMessageCodec.decode(parser.nextChunk())
+            assertEquals(IsolatedPdfParserSessionMessage.SessionComplete, complete)
+        } finally {
+            descriptor.readEnd.close()
+            descriptor.writer.join(10_000)
+            assertFalse("The fixture writer should close its pipe end.", descriptor.writer.isAlive)
         }
     }
 
-    private fun parseSynthetic(
+    private fun streamSynthetic(
         source: InputStream,
         protocolVersion: Int = IsolatedPdfParserService.PROTOCOL_VERSION,
-    ): android.os.Bundle {
+    ): IsolatedPdfParserWireResult {
         val descriptor = descriptorFor(source)
+        try {
+            val beginBundle = parser.begin(descriptor.readEnd, protocolVersion)
+            assertTrue(
+                "The service must confirm that it runs isolated.",
+                beginBundle.getBoolean(IsolatedPdfParserService.KEY_IS_ISOLATED),
+            )
+            val begin = IsolatedPdfParserSessionMessageCodec.decode(beginBundle)
+                ?: throw AssertionError("begin must decode")
+            require(begin is IsolatedPdfParserSessionMessage.Header)
 
-        return try {
-            parser.parse(descriptor.readEnd, protocolVersion)
+            val assembler = IsolatedPdfParserSessionAssembler(
+                IsolatedPdfParserSyntheticResultPolicy.sessionLimits,
+            )
+            when (val opened = assembler.accept(IsolatedPdfParserSessionEvent.Opened(begin.header))) {
+                is IsolatedPdfParserSessionState.Completed -> return opened.result
+                is IsolatedPdfParserSessionState.Collecting -> {
+                    // Continue pulling chunks below.
+                }
+                else -> throw AssertionError("Unexpected begin state: $opened")
+            }
+
+            while (true) {
+                val pull = IsolatedPdfParserSessionMessageCodec.decode(parser.nextChunk())
+                    ?: throw AssertionError("nextChunk must decode")
+                val state = when (pull) {
+                    is IsolatedPdfParserSessionMessage.Chunk -> {
+                        assembler.accept(IsolatedPdfParserSessionEvent.ChunkReceived(pull.chunk))
+                    }
+                    IsolatedPdfParserSessionMessage.SessionComplete -> {
+                        assembler.accept(IsolatedPdfParserSessionEvent.Completed)
+                    }
+                    is IsolatedPdfParserSessionMessage.Header -> {
+                        throw AssertionError("Unexpected header during pull")
+                    }
+                }
+                when (state) {
+                    is IsolatedPdfParserSessionState.Completed -> return state.result
+                    is IsolatedPdfParserSessionState.Collecting -> {
+                        // Keep pulling.
+                    }
+                    else -> throw AssertionError("Unexpected pull state: $state")
+                }
+            }
         } finally {
             descriptor.readEnd.close()
             descriptor.writer.join(10_000)

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Verified Binder protocol v3 session/chunk streaming
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** IIsolatedPdfParser begin/nextChunk/cancel; session message codec;
+  isolated service streaming; ordinary client assembly via session assembler with
+  status-only result.
+- **Verification:** On 2026-07-25, Medium Phone emulator 25 focused isolation/handoff/
+  process-death tests passed.
+- **Truthfulness:** Synthetic descriptors only; no real PDF, Room/UI wiring,
+  WorkManager, AI, or network.
+
 ### Verified pure PDF parser session/chunk assembler
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

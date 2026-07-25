@@ -76,7 +76,17 @@ class AndroidIsolatedPdfParserConnectionIntegrationTest {
     private class RecordingParser : IIsolatedPdfParser.Stub() {
         val requestCount = AtomicInteger(0)
 
-        override fun parse(source: ParcelFileDescriptor, protocolVersion: Int): Bundle {
+        override fun begin(source: ParcelFileDescriptor, protocolVersion: Int): Bundle {
+            requestCount.incrementAndGet()
+            throw AssertionError("A binding-availability test must not submit parser work.")
+        }
+
+        override fun nextChunk(): Bundle {
+            requestCount.incrementAndGet()
+            throw AssertionError("A binding-availability test must not submit parser work.")
+        }
+
+        override fun cancel() {
             requestCount.incrementAndGet()
             throw AssertionError("A binding-availability test must not submit parser work.")
         }

@@ -20,4 +20,9 @@ internal object IsolatedPdfParserSyntheticResultPolicy {
         maximumPageTextCodeUnits = MAXIMUM_PAGE_TEXT_CODE_UNITS,
         maximumTotalTextCodeUnits = MAXIMUM_TOTAL_TEXT_CODE_UNITS,
     )
+
+    val sessionLimits = IsolatedPdfParserSessionLimits(
+        resultLimits = limits,
+        maximumChunkTextCodeUnits = MAXIMUM_CHUNK_TEXT_CODE_UNITS.toLong(),
+    )
 }
