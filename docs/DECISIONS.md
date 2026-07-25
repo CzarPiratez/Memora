@@ -582,13 +582,16 @@ production PDF content write path / real-source parsing:
    verified 2026-07-25).
 6. ~~Foreground searchable PDF extraction persist from Local PDF reading Start~~
    **done** (validated wire retained → prepare → Room; persist integration **1/1**
-   on 2026-07-25). Search UI / WorkManager incremental indexing remain separate
-   follow-ups.
+   on 2026-07-25).
+7. ~~Phase 1 WorkManager SAF PDF **discovery** drain~~ **done** (unique work per
+   source; metadata placeholders/checkpoints only; extract WM deferred per
+   ADR-017). Keyword search UI already landed separately.
 
 Foreground Local PDF reading Start may open one indexed PDF and persist eligible
 complete/no-text extraction text in encrypted Room. On 2026-07-25, interim
 on-device **keyword** search over current-fingerprint page text landed (not
-semantic Memory recall). WorkManager, on-device AI, and network remain blocked
+semantic Memory recall). The first WorkManager job is **discovery-only** (no PDF
+bytes / extract). Extract WorkManager, on-device AI, and network remain blocked
 until separately governed.
 
 **Reason:** Derived page text is sensitive user content. The existing typed
@@ -599,9 +602,9 @@ removed.
 **Consequences:** The backup/device-transfer configuration is implemented as a
 separate privacy foundation. ADR-021 encrypts Memora-owned Room data at rest.
 ADR-022 retains superseded PDF extractions as non-current provenance. Additive PDF
-extraction tables and a synthetic Room port may verify atomic writes. Production
-indexing, search UI, WorkManager, AI, network, and real-source PDF parsing remain
-blocked until measured write limits and ADR-017 gates pass.
+extraction tables and a synthetic Room port may verify atomic writes. Production extract WorkManager, on-device AI, and network remain blocked
+until separately governed. Discovery WorkManager and foreground keyword search are
+Phase-1/local-reading follow-through only.
 
 ## ADR-022: Superseded PDF extraction retention
 

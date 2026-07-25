@@ -30,6 +30,10 @@ AI, and invalid transitions are rejected by tests.
 **Deliverables:** MediaStore image/screenshot adapter, PDF folder adapter, source
 cursors, Room schema, WorkManager scheduling, progress/error UI.
 
+**Status (2026-07-25):** SAF PDF **discovery** WorkManager drain is in place
+(metadata placeholders + checkpoints only). Extract-in-worker remains Phase 2 /
+ADR-017 follow-up. MediaStore background WM is not yet scheduled.
+
 **Exit gate:** restarting the app does not duplicate items; changed source assets are
 re-queued; revoking access leaves existing derived records safe and clearly marked.
 

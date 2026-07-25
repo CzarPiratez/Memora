@@ -807,12 +807,24 @@ PDF text**; copy states keyword matching, not meaning-based recall. Change contr
 semantic Memory ranking was added. On 2026-07-25 the user confirmed on Medium
 Phone: Find saved PDF text → query → page + excerpt hit.
 
+## Verified engineering checkpoint
+
+WorkManager SAF PDF **discovery drain** is verified (metadata placeholders only).
+On 2026-07-25, unit mapper/summary/ViewModel tests passed and Medium Phone
+SafPdfDiscoveryWorkerAndroidTest **3 of 3** proved unique-work page drain,
+re-enqueue after complete, and access-stopped failure. Explicit **Index this folder**
+enqueues background discovery; copy states folder metadata listing, not PDF text
+search. Change control: docs/CHANGE_CONTROL_PDF_DISCOVERY_WORKMANAGER.md.
+No extract WorkManager, AI, or network. On 2026-07-25 the user confirmed on
+Medium Phone: folder connected → indexed **2 PDF items** → list up to date with
+copy that text search still needs Local PDF reading; Local PDF reading then
+Completed (saved for search).
+
 ## Next approved engineering step
 
-Governed next product slice after keyword-search confirmation — candidates include
-WorkManager-backed incremental PDF indexing (multi-file without tapping Start), or
-richer recall — each still requiring its own change-control approval. Do not add AI
-or network until separately approved.
+Governed extract WorkManager (reuse PersistValidatedPdfLocalReading / isolated
+parser for queued Assets), or richer recall — each still requiring its own
+change-control approval. Do not add AI or network until separately approved.
 
 ## Important open decision
 

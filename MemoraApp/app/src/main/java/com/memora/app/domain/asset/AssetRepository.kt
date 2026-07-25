@@ -14,4 +14,7 @@ interface AssetRepository {
 
     /** Returns the first stored asset for [sourceId] with [type], or null when none exist. */
     suspend fun findFirstBySourceAndType(sourceId: SourceId, type: AssetType): Asset?
+
+    /** Returns how many stored assets exist for [sourceId] with [type]. */
+    suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int
 }

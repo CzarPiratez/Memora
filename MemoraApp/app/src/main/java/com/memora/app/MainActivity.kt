@@ -71,6 +71,7 @@ import com.memora.app.ui.setup.PdfLocalReadingState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -1107,7 +1108,10 @@ private fun PdfFolderIndexingControl(
         ) {
             CircularProgressIndicator()
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Indexing one small, read-only page of PDF metadataâ€¦")
+            Text(
+                text = PDF_FOLDER_INDEXING_IN_PROGRESS_BODY,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
 
         is PdfFolderIndexingState.COMPLETED -> {
@@ -1125,7 +1129,7 @@ private fun PdfFolderIndexingControl(
                     onClick = onStartIndexing,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Index next page")
+                    Text("Continue folder indexing")
                 }
             }
         }

@@ -2,13 +2,17 @@ package com.memora.app.ui.setup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.memora.app.application.documents.DocumentTreeApprover
 import com.memora.app.application.documents.PdfFolderConnectionFinder
-import com.memora.app.application.documents.SafPdfFolderIndexer
-import com.memora.app.application.documents.SafPdfFolderIndexingOutcome
+import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.work.SafPdfDiscoveryWorkScheduler
+import com.memora.app.work.SafPdfDiscoveryWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +59,8 @@ sealed interface PdfFolderIndexingState {
 class DocumentTreeSetupViewModel @Inject constructor(
     private val approveDocumentTree: DocumentTreeApprover,
     private val findPdfFolderConnection: PdfFolderConnectionFinder,
-    private val indexPdfFolder: SafPdfFolderIndexer,
+    private val discoveryWorkScheduler: SafPdfDiscoveryWorkScheduler,
+    private val assetRepository: AssetRepository,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(
         DocumentTreeSetupUiState(connection = DocumentTreeConnectionState.LOADING),
@@ -63,11 +68,14 @@ class DocumentTreeSetupViewModel @Inject constructor(
 
     val uiState: StateFlow<DocumentTreeSetupUiState> = mutableUiState.asStateFlow()
 
+    private var workObservationJob: Job? = null
+
     init {
         restoreMostRecentConnection()
     }
 
     fun onDerivedDataCleared() {
+        workObservationJob?.cancel()
         restoreMostRecentConnection()
     }
 
@@ -90,6 +98,11 @@ class DocumentTreeSetupViewModel @Inject constructor(
                     )
                 },
             )
+            val connectedId =
+                (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)?.sourceId
+            if (connectedId != null) {
+                observeDiscoveryWork(connectedId)
+            }
         }
     }
 
@@ -112,6 +125,11 @@ class DocumentTreeSetupViewModel @Inject constructor(
                     )
                 },
             )
+            val connectedId =
+                (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)?.sourceId
+            if (connectedId != null) {
+                observeDiscoveryWork(connectedId)
+            }
         }
     }
 
@@ -123,7 +141,11 @@ class DocumentTreeSetupViewModel @Inject constructor(
         )
     }
 
-    /** Starts one explicit, bounded, read-only metadata page for the connected folder. */
+    /**
+     * Starts WorkManager-backed discovery drain for the connected folder after explicit consent.
+     *
+     * Metadata placeholders only; does not open PDF bytes or save searchable text.
+     */
     fun onIndexRequested() {
         val sourceId = (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)
             ?.sourceId
@@ -133,45 +155,73 @@ class DocumentTreeSetupViewModel @Inject constructor(
         mutableUiState.value = mutableUiState.value.copy(
             indexing = PdfFolderIndexingState.IN_PROGRESS,
         )
-        viewModelScope.launch {
-            mutableUiState.value = runCatching {
-                indexPdfFolder(sourceId)
-            }.fold(
-                onSuccess = ::stateFor,
-                onFailure = {
-                    mutableUiState.value.copy(
-                        indexing = PdfFolderIndexingState.FAILED(
-                            "Memora could not complete this PDF indexing step. You can try again.",
-                        ),
-                    )
-                },
-            )
+        discoveryWorkScheduler.enqueueDrain(sourceId)
+        observeDiscoveryWork(sourceId)
+    }
+
+    private fun observeDiscoveryWork(sourceId: SourceId) {
+        workObservationJob?.cancel()
+        workObservationJob = viewModelScope.launch {
+            discoveryWorkScheduler.observeUniqueWork(sourceId).collect { infos ->
+                applyWorkInfos(sourceId, infos)
+            }
         }
     }
 
-    private fun stateFor(outcome: SafPdfFolderIndexingOutcome): DocumentTreeSetupUiState = when (outcome) {
-        is SafPdfFolderIndexingOutcome.Indexed -> mutableUiState.value.copy(
-            indexing = PdfFolderIndexingState.COMPLETED(
-                discoveredAssetCount = outcome.discoveredAssetCount,
-                hasMore = outcome.hasMore,
-            ),
-        )
+    private suspend fun applyWorkInfos(sourceId: SourceId, infos: List<WorkInfo>) {
+        if (infos.isEmpty()) return
 
-        SafPdfFolderIndexingOutcome.SourceNotConnected -> DocumentTreeSetupUiState(
-            connection = DocumentTreeConnectionState.FAILED(
-                "Memora can no longer find this folder connection. Please choose it again.",
-            ),
-        )
+        val connection = mutableUiState.value.connection
+        if (connection !is DocumentTreeConnectionState.CONNECTED || connection.sourceId != sourceId) {
+            return
+        }
 
-        SafPdfFolderIndexingOutcome.AccessRequired,
-        SafPdfFolderIndexingOutcome.AccessRevoked -> DocumentTreeSetupUiState(
-            connection = DocumentTreeConnectionState.FAILED(
-                "Android no longer allows Memora to read this folder. Please choose it again.",
-            ),
-        )
+        val totalAssets = runCatching {
+            assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
+        }.getOrDefault(0)
 
-        is SafPdfFolderIndexingOutcome.Failed -> mutableUiState.value.copy(
-            indexing = PdfFolderIndexingState.FAILED(outcome.failure.message),
-        )
+        when {
+            infos.any { info ->
+                info.state == WorkInfo.State.RUNNING ||
+                    info.state == WorkInfo.State.ENQUEUED ||
+                    info.state == WorkInfo.State.BLOCKED
+            } -> {
+                mutableUiState.value = mutableUiState.value.copy(
+                    indexing = PdfFolderIndexingState.IN_PROGRESS,
+                )
+            }
+
+            infos.any { it.state == WorkInfo.State.FAILED } -> {
+                val failed = infos.lastOrNull { it.state == WorkInfo.State.FAILED }
+                val reason = failed?.outputData?.getString(SafPdfDiscoveryWorker.KEY_FAILURE_REASON)
+                if (reason == SafPdfDiscoveryWorker.REASON_ACCESS_STOPPED) {
+                    mutableUiState.value = DocumentTreeSetupUiState(
+                        connection = DocumentTreeConnectionState.FAILED(
+                            "Android no longer allows Memora to read this folder. Please choose it again.",
+                        ),
+                    )
+                } else {
+                    mutableUiState.value = mutableUiState.value.copy(
+                        indexing = PdfFolderIndexingState.FAILED(
+                            "Memora could not finish reading PDF folder metadata. You can try again.",
+                        ),
+                    )
+                }
+            }
+
+            infos.all { it.state.isFinished } -> {
+                val lastSuccess = infos.lastOrNull { it.state == WorkInfo.State.SUCCEEDED }
+                val hasMore = lastSuccess?.outputData?.getBoolean(
+                    SafPdfDiscoveryWorker.KEY_HAS_MORE,
+                    false,
+                ) == true
+                mutableUiState.value = mutableUiState.value.copy(
+                    indexing = PdfFolderIndexingState.COMPLETED(
+                        discoveredAssetCount = totalAssets,
+                        hasMore = hasMore,
+                    ),
+                )
+            }
+        }
     }
 }

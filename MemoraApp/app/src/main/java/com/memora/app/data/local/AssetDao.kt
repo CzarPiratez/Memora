@@ -31,6 +31,14 @@ interface AssetDao {
     )
     suspend fun findFirstBySourceAndType(sourceId: String, assetType: String): AssetEntity?
 
+    @Query(
+        """
+        SELECT COUNT(*) FROM assets
+        WHERE source_id = :sourceId AND asset_type = :assetType
+        """,
+    )
+    suspend fun countBySourceAndType(sourceId: String, assetType: String): Int
+
     @Query("SELECT COUNT(*) FROM assets")
     suspend fun count(): Int
 }

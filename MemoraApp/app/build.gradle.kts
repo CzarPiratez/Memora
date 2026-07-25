@@ -54,6 +54,8 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.pdfbox.android)
     // Explicitly replace PDFBox-Android's vulnerable Bouncy Castle 1.72 transitives
     // with the pinned versions reviewed in docs/dependency-review/.
@@ -62,6 +64,7 @@ dependencies {
     implementation(libs.bouncycastle.util)
     kapt(libs.room.compiler)
     kapt(libs.hilt.compiler)
+    kapt(libs.androidx.hilt.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -69,6 +72,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.room.testing)
+    androidTestImplementation(libs.androidx.work.testing)
     // Production classpath for future PersistenceModule switch (Slice 1).
     // PersistenceModule still opens plaintext memora.db until the conversion gate.
     implementation(libs.sqlcipher.android)

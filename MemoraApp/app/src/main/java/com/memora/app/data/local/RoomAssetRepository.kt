@@ -24,4 +24,7 @@ class RoomAssetRepository(
             .findFirstBySourceAndType(sourceId.value, type.name)
             ?.toDomain()
             ?.asset
+
+    override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int =
+        assetDao().countBySourceAndType(sourceId.value, type.name)
 }

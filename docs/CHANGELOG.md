@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### WorkManager SAF PDF discovery drain
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** Hilt SafPdfDiscoveryWorker drains bounded IndexSafPdfFolder
+  pages under unique work per source; ViewModel enqueues on Index; honest metadata
+  progress copy; battery-not-low constraint.
+- **Verification:** On 2026-07-25, unit mapper/summary/ViewModel tests; Medium Phone
+  WorkManager androidTest **3 of 3**; debug APK installed. User confirmed on
+  Medium Phone: indexed 2 PDF items + up-to-date list copy (Local PDF reading still
+  required for text search).
+- **Truthfulness:** Discovery placeholders/checkpoints only; no PDF bytes, extract
+  WM, AI, or network.
+
 ### On-device keyword search over saved PDF page text
 
 - **Requirements:** P-01, P-07, P-11, P-14, P-15, P-17; A-01, A-02, A-06.
