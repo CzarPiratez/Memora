@@ -570,8 +570,8 @@ production PDF content write path / real-source parsing:
 3. ~~measured write-path resource limits for extraction storage~~ **done
    (`PdfExtractionWriteBudgets` + write-path benchmark 5/5)**;
 4. ~~atomic write/deletion verification tests~~ **done (synthetic instrumentation)**;
-5. ADR-017 remaining: real-source descriptor path (visible recovery presentation
-   verified 2026-07-25; manual emulator confirmation pending).
+5. ADR-017 remaining: real-source descriptor path (visible recovery verified
+   2026-07-25, including user emulator confirmation).
 
 A synthetic-only Room adapter and write budgets landed. They are **not** wired into
 production discovery/UI. Real-source parsing, search, WorkManager, AI, and network
