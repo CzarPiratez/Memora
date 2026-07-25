@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### AI Pack delivery/security plan (architecture gate)
+
+- **Requirements:** A-01, A-02, A-03, A-07; Local AI Technical Spec §6/§13.3.
+- **Delivered:** `docs/AI_PACK_DELIVERY_SECURITY_PLAN.md` (ADR-023); domain
+  AiPackManifest / install state / verification contracts; UnavailableAiPackManager
+  stub; unit validation tests. No download, INTERNET, models, or install UI.
+- **Verification:** On 2026-07-25, domain intelligence unit tests passed (including
+  AiPackContractsTest). No new AI/OCR/network Gradle deps.
+- **Truthfulness:** Does not claim packs can install or that understanding is ready;
+  compatibility/fallback policy and Local-AI benchmarks still open for gate exit.
+
 ### Local-AI capability interfaces (architecture gate)
 
 - **Requirements:** A-01, A-02, A-03; Local AI Technical Spec §4.

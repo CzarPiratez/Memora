@@ -678,3 +678,25 @@ recovery, source mutation, or content logging is allowed.
 PDF content persistence, WorkManager indexing, search, AI, or network. ADR-017 and
 ADR-020 remain independently binding. `ENCRYPTED_DATABASE_DECISION.md` remains the
 binding detailed design.
+
+## ADR-023: AI Pack delivery and security plan accepted for gate planning
+
+**Status:** Accepted (planning only)
+
+**Decision:** `docs/AI_PACK_DELIVERY_SECURITY_PLAN.md` is the binding delivery,
+integrity, disclosure, and rollback plan for Spec §6 / A-07 until a later
+implementation slice is separately change-controlled. Domain contracts for pack
+manifest fields, install state, verification results, and an unavailable
+`AiPackManager` stub are allowed without network, download UI, or model bytes.
+
+**Reason:** The Local-AI architecture gate requires a documented licensing, delivery,
+update, integrity, and rollback plan before any AI Pack download or inference
+dependency. Recording the plan and testable manifest contracts keeps A-07
+progress honest without claiming understanding works on device.
+
+**Consequences:** No INTERNET permission, pack download, model file, OCR/embedding
+SDK, or WorkManager AI job may land merely because this ADR exists. Compatibility/
+fallback policy and Local-AI benchmark plan remain separate gate deliverables.
+Capability engines remain unavailable until a verified pack (or approved system
+runtime) is installed.
+

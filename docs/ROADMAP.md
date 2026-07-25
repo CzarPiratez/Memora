@@ -10,8 +10,10 @@ interfaces, AI Pack delivery/security plan, compatibility/fallback policy, bench
 plan, and Local-AI traceability IDs.
 
 **Status (2026-07-25):** Spec §4 capability interfaces + unavailable stubs are
-unit-tested in domain (A-03 partial). AI Pack delivery/security plan,
-compatibility/fallback policy, and Local-AI benchmark plan remain before exit.
+unit-tested in domain (A-03 partial). AI Pack delivery/security plan and domain
+manifest / unavailable `AiPackManager` contracts are accepted for planning
+(A-07 partial; ADR-023). Compatibility/fallback policy and Local-AI benchmark
+plan remain before exit.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

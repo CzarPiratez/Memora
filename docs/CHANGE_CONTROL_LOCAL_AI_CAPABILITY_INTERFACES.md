@@ -45,4 +45,4 @@
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG
   Unreleased; PRD_TRACEABILITY A-03 notes interfaces landed without marking
   A-01/A-07 done.
-- **Git commit:** _(pending user request)_
+- **Git commit:** `ce73dbb`

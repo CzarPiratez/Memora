@@ -865,12 +865,23 @@ intelligence unit tests passed. Docs do not claim on-device understanding is
 ready; A-01/A-07 and full gate exit (packs, fallback matrix, benchmarks) remain
 open.
 
+## Verified engineering checkpoint
+
+**AI Pack delivery/security plan** (architecture gate slice) is accepted:
+docs/AI_PACK_DELIVERY_SECURITY_PLAN.md (ADR-023) plus domain AiPackManifest /
+install-state / verification contracts and UnavailableAiPackManager stub with
+unit tests. Change control:
+docs/CHANGE_CONTROL_AI_PACK_DELIVERY_SECURITY_PLAN.md. No download, INTERNET,
+models, or install UI. On 2026-07-25, domain intelligence unit tests passed.
+A-07 notes plan progress; compatibility/fallback policy and Local-AI benchmark
+plan remain for gate exit.
+
 ## Next approved engineering step
 
-Remaining Local-AI architecture gate work (AI Pack delivery/security plan,
-compatibility/fallback policy, Local-AI benchmark plan), or further recall
-polish — each still requiring its own change-control approval. Do not add AI or
-network until separately approved.
+Remaining Local-AI architecture gate work (compatibility/fallback policy, then
+Local-AI benchmark plan), or further recall polish — each still requiring its
+own change-control approval. Do not add AI or network until separately
+approved.
 
 ## Important open decision
 
