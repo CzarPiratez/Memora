@@ -34,4 +34,4 @@
 - **Known limitation or follow-up:** Local-AI benchmark plan; concrete ABI/API/RAM
   rows when a pack is chosen.
 - **Documentation/traceability/ADR updates:** ADR-024; ROADMAP/CONTINUE/CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `1ecd7ee`

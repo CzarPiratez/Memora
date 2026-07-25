@@ -32,4 +32,4 @@
 - **Known limitation or follow-up:** Measured pack baselines require a future
   implementation slice; A-01 remains Planned.
 - **Documentation/traceability/ADR updates:** ADR-025; ROADMAP planning complete.
-- **Git commit:** _(pending)_
+- **Git commit:** `1ecd7ee`
