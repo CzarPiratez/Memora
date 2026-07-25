@@ -66,6 +66,46 @@ interface PdfExtractionDao {
     )
     suspend fun countForAsset(sourceId: String, sourceAssetKey: String): Int
 
+    /**
+     * Keyword match over page text for extractions whose fingerprint still matches
+     * the Asset row (ADR-022 current version only).
+     */
+    @Query(
+        """
+        SELECT
+            pages.source_id AS source_id,
+            pages.source_asset_key AS source_asset_key,
+            pages.fingerprint AS fingerprint,
+            pages.schema_version AS schema_version,
+            pages.page_number AS page_number,
+            pages.page_text AS page_text,
+            headers.title AS title,
+            assets.display_name AS display_name
+        FROM pdf_extraction_pages AS pages
+        INNER JOIN pdf_extractions AS headers
+            ON headers.source_id = pages.source_id
+            AND headers.source_asset_key = pages.source_asset_key
+            AND headers.fingerprint = pages.fingerprint
+            AND headers.schema_version = pages.schema_version
+        INNER JOIN assets AS assets
+            ON assets.source_id = pages.source_id
+            AND assets.source_asset_key = pages.source_asset_key
+            AND assets.fingerprint = pages.fingerprint
+        WHERE pages.schema_version = :schemaVersion
+          AND pages.page_text LIKE '%' || :escapedNeedle || '%' ESCAPE '\'
+        ORDER BY
+            CASE WHEN assets.display_name IS NULL THEN 1 ELSE 0 END,
+            assets.display_name ASC,
+            pages.page_number ASC
+        LIMIT :limit
+        """,
+    )
+    suspend fun searchCurrentPages(
+        escapedNeedle: String,
+        schemaVersion: String,
+        limit: Int,
+    ): List<PdfExtractionPageSearchRow>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: PdfExtractionEntity)
 

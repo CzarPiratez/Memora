@@ -23,12 +23,15 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.memora.app.ui.privacy.ClearDerivedDataPhase
 import com.memora.app.ui.privacy.ClearDerivedDataUiState
@@ -51,6 +55,10 @@ import com.memora.app.ui.privacy.ClearDerivedDataViewModel
 import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
 import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
 import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
+import com.memora.app.ui.search.PdfKeywordSearchCopy
+import com.memora.app.ui.search.PdfKeywordSearchPhase
+import com.memora.app.ui.search.PdfKeywordSearchUiState
+import com.memora.app.ui.search.PdfKeywordSearchViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -76,6 +84,7 @@ class MainActivity : ComponentActivity() {
     private val clearDerivedDataViewModel: ClearDerivedDataViewModel by viewModels()
     private val databaseAvailabilityViewModel: DatabaseAvailabilityViewModel by viewModels()
     private val pdfLocalReadingViewModel: PdfLocalReadingViewModel by viewModels()
+    private val pdfKeywordSearchViewModel: PdfKeywordSearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +95,7 @@ class MainActivity : ComponentActivity() {
             val clearDerivedDataUiState by clearDerivedDataViewModel.uiState.collectAsState()
             val databaseAvailabilityUiState by databaseAvailabilityViewModel.uiState.collectAsState()
             val pdfLocalReadingState by pdfLocalReadingViewModel.uiState.collectAsState()
+            val pdfKeywordSearchUiState by pdfKeywordSearchViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -95,6 +105,7 @@ class MainActivity : ComponentActivity() {
                         documentTreeSetupUiState = documentTreeSetupUiState,
                         clearDerivedDataUiState = clearDerivedDataUiState,
                         pdfLocalReadingState = pdfLocalReadingState,
+                        pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onDocumentTreeReadAccessReceived =
@@ -109,6 +120,8 @@ class MainActivity : ComponentActivity() {
                         onStopLocalReadingStep = pdfLocalReadingViewModel::onStop,
                         onRetryLocalReadingStep = pdfLocalReadingViewModel::onRetry,
                         onShowLocalReadingRetryableDemo = pdfLocalReadingViewModel::onShowRetryableDemo,
+                        onPdfKeywordQueryChanged = pdfKeywordSearchViewModel::onQueryChanged,
+                        onPdfKeywordSearch = pdfKeywordSearchViewModel::onSearch,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -134,6 +147,7 @@ fun MemoraApp(
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
     pdfLocalReadingState: PdfLocalReadingState,
+    pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
@@ -146,6 +160,8 @@ fun MemoraApp(
     onStopLocalReadingStep: () -> Unit,
     onRetryLocalReadingStep: () -> Unit,
     onShowLocalReadingRetryableDemo: () -> Unit,
+    onPdfKeywordQueryChanged: (String) -> Unit,
+    onPdfKeywordSearch: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -168,6 +184,7 @@ fun MemoraApp(
             documentTreeSetupUiState = documentTreeSetupUiState,
             clearDerivedDataUiState = clearDerivedDataUiState,
             pdfLocalReadingState = pdfLocalReadingState,
+            pdfKeywordSearchUiState = pdfKeywordSearchUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
@@ -180,6 +197,8 @@ fun MemoraApp(
             onStopLocalReadingStep = onStopLocalReadingStep,
             onRetryLocalReadingStep = onRetryLocalReadingStep,
             onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
+            onPdfKeywordQueryChanged = onPdfKeywordQueryChanged,
+            onPdfKeywordSearch = onPdfKeywordSearch,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -195,6 +214,7 @@ private fun MemoraAppReady(
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
     pdfLocalReadingState: PdfLocalReadingState,
+    pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
@@ -207,6 +227,8 @@ private fun MemoraAppReady(
     onStopLocalReadingStep: () -> Unit,
     onRetryLocalReadingStep: () -> Unit,
     onShowLocalReadingRetryableDemo: () -> Unit,
+    onPdfKeywordQueryChanged: (String) -> Unit,
+    onPdfKeywordSearch: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -236,6 +258,7 @@ private fun MemoraAppReady(
     }
     var isShowingPrivacyScreen by rememberSaveable { mutableStateOf(false) }
     var isShowingDocumentTreeScreen by rememberSaveable { mutableStateOf(false) }
+    var isShowingPdfKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -294,9 +317,18 @@ private fun MemoraAppReady(
                 modifier = modifier,
             )
 
+            isShowingPdfKeywordSearch -> PdfKeywordSearchScreen(
+                uiState = pdfKeywordSearchUiState,
+                onQueryChanged = onPdfKeywordQueryChanged,
+                onSearch = onPdfKeywordSearch,
+                onBack = { isShowingPdfKeywordSearch = false },
+                modifier = modifier,
+            )
+
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
+                onFindSavedPdfText = { isShowingPdfKeywordSearch = true },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
                 modifier = modifier,
@@ -345,6 +377,7 @@ fun UnlockRequiredScreen(
 fun MemoraWelcomeScreen(
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
+    onFindSavedPdfText: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
@@ -353,7 +386,9 @@ fun MemoraWelcomeScreen(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 32.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
@@ -393,6 +428,13 @@ fun MemoraWelcomeScreen(
         }
         Spacer(modifier = Modifier.height(24.dp))
         Button(
+            onClick = onFindSavedPdfText,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(PdfKeywordSearchCopy.SCREEN_TITLE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
             onClick = onBeginSetup,
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -418,6 +460,107 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.clear_memora_index))
+        }
+    }
+}
+
+@Composable
+fun PdfKeywordSearchScreen(
+    uiState: PdfKeywordSearchUiState,
+    onQueryChanged: (String) -> Unit,
+    onSearch: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
+    ) {
+        Button(onClick = onBack) {
+            Text(PdfKeywordSearchCopy.BACK_LABEL)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = PdfKeywordSearchCopy.SCREEN_TITLE,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = PdfKeywordSearchCopy.SCOPE_BODY,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            value = uiState.query,
+            onValueChange = onQueryChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(PdfKeywordSearchCopy.QUERY_LABEL) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onSearch,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching,
+        ) {
+            Text(PdfKeywordSearchCopy.SEARCH_LABEL)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        when (val phase = uiState.phase) {
+            PdfKeywordSearchPhase.Idle -> Unit
+            PdfKeywordSearchPhase.EmptyQuery -> Text(
+                text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            PdfKeywordSearchPhase.Searching -> CircularProgressIndicator()
+            PdfKeywordSearchPhase.NoMatches -> Text(
+                text = PdfKeywordSearchCopy.NO_MATCHES_BODY,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            is PdfKeywordSearchPhase.Results -> {
+                Text(
+                    text = PdfKeywordSearchCopy.RESULTS_HINT,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                phase.hits.forEach { hit ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = hit.label,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = PdfKeywordSearchCopy.pageLabel(hit.pageNumber),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = hit.excerpt,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
         }
     }
 }

@@ -586,8 +586,10 @@ production PDF content write path / real-source parsing:
    follow-ups.
 
 Foreground Local PDF reading Start may open one indexed PDF and persist eligible
-complete/no-text extraction text in encrypted Room. Searchable PDF recall UI,
-WorkManager, AI, and network remain blocked until separately governed.
+complete/no-text extraction text in encrypted Room. On 2026-07-25, interim
+on-device **keyword** search over current-fingerprint page text landed (not
+semantic Memory recall). WorkManager, on-device AI, and network remain blocked
+until separately governed.
 
 **Reason:** Derived page text is sensitive user content. The existing typed
 persistence-port contract protects identity/fingerprint/schema/coverage correctness,

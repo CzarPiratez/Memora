@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### On-device keyword search over saved PDF page text
+
+- **Requirements:** P-01, P-07, P-11, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** `SearchPersistedPdfPageText`; DAO join on current Asset fingerprint;
+  Find saved PDF text screen with page + excerpt hits; honest keyword copy.
+- **Verification:** On 2026-07-25, unit support/copy tests; Medium Phone keyword
+  search androidTest **2 of 2**; debug APK installed. Manual confirmation pending.
+- **Truthfulness:** Keyword/substring only; no PDF reopen, WorkManager, AI, or network.
+
 ### Persist searchable PDF text from Local PDF reading Start
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

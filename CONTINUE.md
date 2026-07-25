@@ -796,12 +796,22 @@ AI, network, or search-results UI was added. On 2026-07-25 the user confirmed on
 Medium Phone: Start → Completed (“finished reading one PDF and saved its text for
 search on this phone”).
 
+## Verified engineering checkpoint
+
+On-device keyword search over saved PDF page text is verified. On 2026-07-25,
+`PdfKeywordSearchSupportTest` / copy tests passed and Medium Phone
+`PdfExtractionKeywordSearchIntegrationTest` **2 of 2** proved current-fingerprint
+matches with page excerpts and superseded rows ignored. Welcome opens **Find saved
+PDF text**; copy states keyword matching, not meaning-based recall. Change control:
+`docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH.md`. No WorkManager, AI, network, or
+semantic Memory ranking was added. Manual emulator confirmation pending.
+
 ## Next approved engineering step
 
-Governed next product slice after searchable persist confirmation — candidates
-include recalling/searching saved PDF text in the UI, or WorkManager-backed
-incremental indexing — each still requiring its own change-control approval. Do not
-add AI or network until separately approved.
+Governed next product slice after keyword-search confirmation — candidates include
+WorkManager-backed incremental PDF indexing (multi-file without tapping Start), or
+richer recall — each still requiring its own change-control approval. Do not add AI
+or network until separately approved.
 
 ## Important open decision
 
