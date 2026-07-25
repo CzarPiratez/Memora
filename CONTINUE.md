@@ -792,8 +792,9 @@ page text from an approved-tree fixture through broker + isolated parser + Room.
 Client retains validated wire results on completed sessions; Start maps → prepare →
 atomic Room write; Completed copy states text was saved for search on this phone.
 Change control: `docs/CHANGE_CONTROL_PDF_LOCAL_READING_PERSIST.md`. No WorkManager,
-AI, network, or search-results UI was added. Manual Start confirmation of the new
-Completed wording is pending user feedback.
+AI, network, or search-results UI was added. On 2026-07-25 the user confirmed on
+Medium Phone: Start → Completed (“finished reading one PDF and saved its text for
+search on this phone”).
 
 ## Next approved engineering step
 

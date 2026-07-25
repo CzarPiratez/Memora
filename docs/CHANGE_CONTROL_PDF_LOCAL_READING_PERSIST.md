@@ -41,8 +41,8 @@
 - **Automated verification and result:** unit local-reading passed; Medium Phone
   `PersistValidatedPdfLocalReadingIntegrationTest` **1 of 1**;
   `IsolatedPdfParserClientIntegrationTest` **10 of 10**; `:app:installDebug` OK.
-- **Emulator/manual verification and result:** APK installed; user confirmation of
-  new Completed wording pending.
+- **Emulator/manual verification and result:** APK installed; user confirmed
+  Start → Completed saved-for-search wording on Medium Phone (2026-07-25).
 - **Failure/recovery paths verified:** missing validated wire / persist failure →
   RetryableProblem (no saved claim); password/access broker paths unchanged.
 - **Known limitation or follow-up:** Still one PDF per Start; no search UI;

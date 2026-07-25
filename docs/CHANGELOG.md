@@ -10,7 +10,7 @@
   copy states text was saved for search on this phone.
 - **Verification:** On 2026-07-25, unit local-reading tests passed; Medium Phone
   persist integration **1 of 1** and client isolation **10 of 10**; debug APK
-  installed. Manual Completed-copy confirmation pending.
+  installed. User confirmed Start → Completed saved-for-search copy on Medium Phone.
 - **Truthfulness:** No WorkManager, AI, network, or search-results UI.
 
 ### Wired Local PDF reading status UI (foreground, status-only)
