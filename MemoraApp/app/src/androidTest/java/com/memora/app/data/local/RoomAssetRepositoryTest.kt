@@ -84,6 +84,67 @@ class RoomAssetRepositoryTest {
     }
 
     @Test
+    fun findNextPdfPendingLocalReading_skips_current_fingerprint_extractions_and_respects_after_key() =
+        runBlocking {
+            val sourceId = SourceId("saf-pdf-folder")
+            val schema = "pdf-extraction-v1"
+            val first = assetRecord(
+                identity = AssetIdentity(sourceId, SourceAssetKey("a-doc")),
+                fingerprint = "pdf:a:1:10",
+                type = AssetType.PDF,
+                state = IndexingState.discovered,
+            )
+            val second = assetRecord(
+                identity = AssetIdentity(sourceId, SourceAssetKey("b-doc")),
+                fingerprint = "pdf:b:2:20",
+                type = AssetType.PDF,
+                state = IndexingState.discovered,
+            )
+            repository.save(first)
+            repository.save(second)
+
+            assertEquals(
+                first.asset,
+                repository.findNextPdfPendingLocalReading(sourceId, schema),
+            )
+
+            database.pdfExtractionDao().insertHeader(
+                PdfExtractionEntity(
+                    sourceId = sourceId.value,
+                    sourceAssetKey = "a-doc",
+                    fingerprint = "pdf:a:1:10",
+                    schemaVersion = schema,
+                    pageCount = 1,
+                    textCoverage = "FULL",
+                    title = null,
+                    extractedAtEpochMillis = 1L,
+                    createdAtEpochMillis = 1L,
+                    integrity = "ok",
+                ),
+            )
+
+            assertEquals(
+                second.asset,
+                repository.findNextPdfPendingLocalReading(sourceId, schema),
+            )
+            assertEquals(
+                second.asset,
+                repository.findNextPdfPendingLocalReading(
+                    sourceId = sourceId,
+                    schemaVersion = schema,
+                    afterSourceAssetKey = "a-doc",
+                ),
+            )
+            assertNull(
+                repository.findNextPdfPendingLocalReading(
+                    sourceId = sourceId,
+                    schemaVersion = schema,
+                    afterSourceAssetKey = "b-doc",
+                ),
+            )
+        }
+
+    @Test
     fun saveUpsertsTheSameSourceIdentityWithoutDuplicatingIt() = runBlocking {
         val identity = AssetIdentity(SourceId("android-media-store"), SourceAssetKey("42"))
         val original = assetRecord(

@@ -17,4 +17,15 @@ interface AssetRepository {
 
     /** Returns how many stored assets exist for [sourceId] with [type]. */
     suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int
+
+    /**
+     * Returns the next PDF that still needs local reading for [schemaVersion], or null.
+     *
+     * [afterSourceAssetKey] is exclusive; pass null/blank to start from the first pending PDF.
+     */
+    suspend fun findNextPdfPendingLocalReading(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String? = null,
+    ): Asset?
 }

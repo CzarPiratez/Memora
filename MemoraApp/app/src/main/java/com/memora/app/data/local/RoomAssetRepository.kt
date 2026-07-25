@@ -27,4 +27,19 @@ class RoomAssetRepository(
 
     override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int =
         assetDao().countBySourceAndType(sourceId.value, type.name)
+
+    override suspend fun findNextPdfPendingLocalReading(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String?,
+    ): Asset? =
+        assetDao()
+            .findNextPdfPendingLocalReading(
+                sourceId = sourceId.value,
+                assetType = AssetType.PDF.name,
+                schemaVersion = schemaVersion,
+                afterSourceAssetKey = afterSourceAssetKey.orEmpty(),
+            )
+            ?.toDomain()
+            ?.asset
 }

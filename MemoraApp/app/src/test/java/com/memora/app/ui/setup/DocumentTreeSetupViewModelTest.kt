@@ -367,5 +367,11 @@ class DocumentTreeSetupViewModelTest {
 
         override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int =
             if (type == AssetType.PDF) pdfCount else 0
+
+        override suspend fun findNextPdfPendingLocalReading(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
     }
 }

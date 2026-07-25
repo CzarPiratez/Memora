@@ -820,11 +820,23 @@ Medium Phone: folder connected → indexed **2 PDF items** → list up to date w
 copy that text search still needs Local PDF reading; Local PDF reading then
 Completed (saved for search).
 
+## Verified engineering checkpoint
+
+WorkManager SAF PDF **extract drain** is implemented (ADR-017 broker + isolated
+parser; PersistValidatedPdfLocalReading). Explicit Local PDF reading Start enqueues
+unique extract work: one pending PDF per doWork, continue while pending remain,
+password skips ahead, access-stop fails. Unit mapper/copy tests and Medium Phone
+SafPdfExtractWorkerAndroidTest + RoomAssetRepository pending selector passed on
+2026-07-25. Change control: docs/CHANGE_CONTROL_PDF_EXTRACT_WORKMANAGER.md.
+No AI/network. On 2026-07-25 the user confirmed on Medium Phone: Local PDF
+reading Completed copy — finished reading PDFs from this folder and saved text
+for search where reading succeeded.
+
 ## Next approved engineering step
 
-Governed extract WorkManager (reuse PersistValidatedPdfLocalReading / isolated
-parser for queued Assets), or richer recall — each still requiring its own
-change-control approval. Do not add AI or network until separately approved.
+Richer recall / semantic Memory, or MediaStore background discovery — each still
+requiring its own change-control approval. Do not add AI or network until
+separately approved.
 
 ## Important open decision
 

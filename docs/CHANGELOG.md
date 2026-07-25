@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### WorkManager SAF PDF extract drain
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** SafPdfExtractWorker drains pending PDFs (no current extraction)
+  via broker + isolated parser + persist; Local PDF reading Start enqueues unique
+  work; honest multi-PDF copy; password skip / access-stop outcomes.
+- **Verification:** On 2026-07-25, unit mapper/copy tests; Medium Phone extract
+  androidTest + pending-asset Room test; debug APK installed. User confirmed on
+  Medium Phone: Completed multi-PDF saved-for-search copy.
+- **Truthfulness:** Explicit consent only; ADR-017 isolation; no AI/network.
+
 ### WorkManager SAF PDF discovery drain
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-17; A-01, A-02, A-06.

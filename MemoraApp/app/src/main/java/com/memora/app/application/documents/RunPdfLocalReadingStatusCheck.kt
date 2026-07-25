@@ -12,7 +12,6 @@ import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
 import com.memora.app.data.saf.SafPdfDescriptorBroker
 import com.memora.app.data.saf.SafPdfDescriptorBrokerResult
 import com.memora.app.domain.asset.AssetRepository
-import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.discovery.DocumentTreeAccessValidator
 import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.extraction.ExtractionSchemaVersion
@@ -25,7 +24,7 @@ import kotlinx.coroutines.withContext
 /**
  * Foreground local reading check that may persist searchable PDF extraction text.
  *
- * Opens one indexed PDF from the connected folder through the approved broker and private
+ * Opens the next pending PDF from the connected folder through the approved broker and private
  * isolated parser, maps a validated wire result, and atomically writes eligible complete /
  * no-text records to Room. It does not schedule WorkManager, invoke AI, or use the network.
  */
@@ -49,8 +48,10 @@ class RunPdfLocalReadingStatusCheck @Inject constructor(
         val sourceId = findPdfFolderConnection()
             ?: return@withContext PdfLocalReadingStatusCheckResult.AccessRecoveryNeeded
 
-        val asset = assetRepository.findFirstBySourceAndType(sourceId, AssetType.PDF)
-            ?: return@withContext PdfLocalReadingStatusCheckResult.RetryableProblem
+        val asset = assetRepository.findNextPdfPendingLocalReading(
+            sourceId = sourceId,
+            schemaVersion = EXTRACTION_SCHEMA.value,
+        ) ?: return@withContext PdfLocalReadingStatusCheckResult.RetryableProblem
 
         val request = PdfExtractionRequest(
             asset = asset,
