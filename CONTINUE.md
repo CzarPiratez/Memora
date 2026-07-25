@@ -760,6 +760,17 @@ example problem → Try again; Text reading not enabled yet. Plan:
 isolated-parser user-document call, Room extraction write, WorkManager, AI, or
 network path was added.
 
+## Verified engineering checkpoint
+
+Real-source descriptor path is verified. On 2026-07-25, Medium Phone emulator
+passed **11** focused broker/synthetic/real-source tests and fingerprint
+revalidation **3 of 3**. Broker revalidates the approved-tree fingerprint before
+open; stale/unavailable sources stay status-only; the real-source integration test
+creates a fixture under the user-approved SAF tree, opens via live descriptor +
+isolated parser, and deletes the fixture. Change control:
+`docs/CHANGE_CONTROL_PDF_REAL_SOURCE_DESCRIPTOR.md`. No production UI parse wire,
+searchable Room extraction persist, WorkManager, AI, or network path was added.
+
 ## Next approved engineering step
 
 ADR-017 isolation gates through real-source descriptor path are closed. Next slice
