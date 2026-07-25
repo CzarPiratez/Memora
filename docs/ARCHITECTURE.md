@@ -108,6 +108,7 @@ that a MediaStore URI, a document URI, and a provider note ID behave the same wa
 - Search uses stored Memories and local query-only processing where necessary. It does
   not reopen or reanalyse original assets for normal recall.
 - AI Pack delivery, model availability, fallback, integrity, and update behaviour are
-  governed by `LOCAL_AI_TECHNICAL_SPEC.md` and
-  `docs/AI_PACK_DELIVERY_SECURITY_PLAN.md` (ADR-023) before an AI implementation is
-  added.
+  governed by `LOCAL_AI_TECHNICAL_SPEC.md`,
+  `docs/AI_PACK_DELIVERY_SECURITY_PLAN.md` (ADR-023),
+  `docs/LOCAL_AI_COMPATIBILITY_FALLBACK_POLICY.md` (ADR-024), and
+  `docs/LOCAL_AI_BENCHMARK_PLAN.md` (ADR-025) before an AI implementation is added.

@@ -41,4 +41,4 @@
   benchmark plan still required. No `AiPackManager` download/install implementation.
 - **Documentation/traceability/ADR updates:** ADR-023; A-07 partial; ROADMAP gate
   status; CONTINUE next step points to fallback policy then benchmarks.
-- **Git commit:** _(pending)_
+- **Git commit:** `fe42088`

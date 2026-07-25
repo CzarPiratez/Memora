@@ -700,3 +700,43 @@ fallback policy and Local-AI benchmark plan remain separate gate deliverables.
 Capability engines remain unavailable until a verified pack (or approved system
 runtime) is installed.
 
+## ADR-024: Local-AI compatibility and fallback policy accepted for gate planning
+
+**Status:** Accepted (planning only)
+
+**Decision:** `docs/LOCAL_AI_COMPATIBILITY_FALLBACK_POLICY.md` is the binding
+supported-device / capability matrix and fallback policy for Spec §11 / §13.4 until
+measured pack-specific rows are change-controlled. Domain
+`CapabilitySupportDecision` types and a default unsupported resolver are allowed.
+Silent semantic→filename fallback and unlabeled keyword-as-semantic paths are
+forbidden.
+
+**Reason:** Unsupported devices must receive truthful unavailable outcomes. A
+documented matrix and forbidden-fallback rules make the offline-first promise
+reviewable before any model dependency.
+
+**Consequences:** No capability may report AVAILABLE merely because discovery,
+extraction, or keyword search works. Concrete ABI/API/RAM cut lines require a
+chosen pack plus Local-AI benchmark evidence. Gate exit still needs the benchmark
+plan.
+
+## ADR-025: Local-AI benchmark plan accepted for gate planning
+
+**Status:** Accepted (planning only)
+
+**Decision:** `docs/LOCAL_AI_BENCHMARK_PLAN.md` is the binding performance, quality,
+offline, and privacy-safe measurement plan for Spec §11 / §13.6 until a pack
+implementation produces measured baselines. Domain metric IDs and
+`LocalAiBenchmarkClaim` rules forbid publishing unmeasured release promises.
+
+**Reason:** Spec §11 rejects arbitrary latency, battery, storage, or quality claims
+without evidence. Recording the plan and claim guards completes the documentation
+side of the Local-AI architecture gate.
+
+**Consequences:** No user-facing AVAILABLE intelligence claim, SLA, or pack-size
+promise may cite planning targets alone. First measured baselines require a
+separately approved pack/harness slice. Architecture-gate **planning** deliverables
+are complete; measured pack proof remains open for A-01.
+
+
+

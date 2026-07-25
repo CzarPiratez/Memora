@@ -876,12 +876,30 @@ models, or install UI. On 2026-07-25, domain intelligence unit tests passed.
 A-07 notes plan progress; compatibility/fallback policy and Local-AI benchmark
 plan remain for gate exit.
 
+## Verified engineering checkpoint
+
+**Local-AI compatibility/fallback policy** is accepted:
+docs/LOCAL_AI_COMPATIBILITY_FALLBACK_POLICY.md (ADR-024) plus domain support
+decisions, default unsupported resolver, and forbidden silent semantic fallbacks
+with unit tests. Change control:
+docs/CHANGE_CONTROL_LOCAL_AI_COMPATIBILITY_FALLBACK.md. No models/network.
+
+## Verified engineering checkpoint
+
+**Local-AI benchmark plan** is accepted: docs/LOCAL_AI_BENCHMARK_PLAN.md
+(ADR-025) plus domain metric/claim contracts that forbid unmeasured release
+promises. Change control: docs/CHANGE_CONTROL_LOCAL_AI_BENCHMARK_PLAN.md.
+No inference harness or pack baseline yet.
+
+Local-AI architecture gate **planning** deliverables are complete. Measured pack
+proof and A-01 offline end-to-end intelligence remain open.
+
 ## Next approved engineering step
 
-Remaining Local-AI architecture gate work (compatibility/fallback policy, then
-Local-AI benchmark plan), or further recall polish — each still requiring its
-own change-control approval. Do not add AI or network until separately
-approved.
+Further recall polish, or a separately approved first AI Pack / harness
+implementation slice that produces measured baselines — each requiring its own
+change-control. Do not add AI or network until separately approved. Do not claim
+Local-AI gate **exit** complete until measured pack proof exists.
 
 ## Important open decision
 

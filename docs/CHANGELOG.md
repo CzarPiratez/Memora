@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Local-AI benchmark plan (architecture gate)
+
+- **Requirements:** A-01, A-02, A-05, A-06, A-07, E-06; Local AI Technical Spec §11.
+- **Delivered:** `docs/LOCAL_AI_BENCHMARK_PLAN.md` (ADR-025); domain benchmark
+  metric/claim contracts forbidding unmeasured release promises; unit tests.
+- **Verification:** On 2026-07-25, domain intelligence unit tests passed. No new
+  AI/OCR/network Gradle deps.
+- **Truthfulness:** No latency/battery/storage SLA accepted; measured pack
+  baselines still required before AVAILABLE claims.
+
+### Local-AI compatibility/fallback policy (architecture gate)
+
+- **Requirements:** A-01, A-02, A-03, A-07; Local AI Technical Spec §11/§12/§13.4.
+- **Delivered:** `docs/LOCAL_AI_COMPATIBILITY_FALLBACK_POLICY.md` (ADR-024); domain
+  support tiers/default unsupported resolver; forbidden silent semantic fallbacks;
+  unit tests.
+- **Verification:** On 2026-07-25, domain intelligence unit tests passed. No new
+  AI/OCR/network Gradle deps.
+- **Truthfulness:** Defaults all intelligence capabilities to UNSUPPORTED; no
+  AVAILABLE claim from discovery/keyword paths alone.
+
 ### AI Pack delivery/security plan (architecture gate)
 
 - **Requirements:** A-01, A-02, A-03, A-07; Local AI Technical Spec §6/§13.3.

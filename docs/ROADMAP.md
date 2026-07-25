@@ -9,15 +9,17 @@ embedding, vector, or WorkManager AI dependency is introduced.
 interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
 plan, and Local-AI traceability IDs.
 
-**Status (2026-07-25):** Spec §4 capability interfaces + unavailable stubs are
-unit-tested in domain (A-03 partial). AI Pack delivery/security plan and domain
-manifest / unavailable `AiPackManager` contracts are accepted for planning
-(A-07 partial; ADR-023). Compatibility/fallback policy and Local-AI benchmark
-plan remain before exit.
+**Status (2026-07-25):** Local-AI architecture gate **planning** deliverables are
+complete: Spec; Spec §4 capability interfaces; AI Pack delivery/security plan
+(ADR-023); compatibility/fallback policy (ADR-024); Local-AI benchmark plan
+(ADR-025). Measured pack baselines and any AVAILABLE intelligence claim remain
+separate implementation slices. A-01 offline end-to-end proof is still open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive
-a truthful outcome rather than a hidden degraded claim.
+a truthful outcome rather than a hidden degraded claim. Planning docs and domain
+contracts now support that review; measured pack proof is still required before
+exit is claimed complete.
 
 ## Phase 0 - Foundation
 
