@@ -476,7 +476,7 @@ does not open user PDFs. On 2026-07-25, fingerprint revalidation plus a live
 approved-tree descriptor open through the broker and isolated parser returned
 status only (**11** focused emulator tests). On 2026-07-25, the Local PDF reading
 product UI was wired to one foreground parse of the first indexed PDF, then later
-the same day retained validated wire text and persisted eligible extractions page text
+the same day retained validated wire text and persisted eligible extracted page text
 to Room for search on-device (persist integration **1/1**). Search UI and
 WorkManager remain separate follow-ups.
 
