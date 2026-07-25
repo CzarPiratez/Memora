@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Keyword search Why this result? (stored evidence)
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-01, A-02, A-05.
+- **Delivered:** Per-hit Why this result? on Find saved PDF text; cites query,
+  page, and stored excerpt; Results phase retains normalized query; honest
+  keyword-not-meaning copy.
+- **Verification:** On 2026-07-25, unit copy tests; debug APK installed. User
+  confirmed Why this result? cites page + excerpt for meet mira on Medium Phone.
+- **Truthfulness:** Interim keyword path only; no AI, confidence, Memory Explain,
+  or PDF reopen.
+
 ### WorkManager MediaStore discovery drain
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-17; A-01, A-02, A-06.

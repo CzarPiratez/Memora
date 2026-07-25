@@ -23,9 +23,30 @@ object PdfKeywordSearchCopy {
         "No saved PDF page text on this phone matched those words. " +
             "Try different words, or finish Local PDF reading for a document first."
 
-    const val RESULTS_HINT = "Matches show the page and a short excerpt from the saved text."
+    const val RESULTS_HINT =
+        "Matches show the page and a short excerpt from the saved text. " +
+            "Open Why this result? to see the matching evidence."
+
+    const val WHY_THIS_RESULT_LABEL = "Why this result?"
+
+    const val HIDE_WHY_LABEL = "Hide explanation"
 
     const val BACK_LABEL = "Back"
 
     fun pageLabel(pageNumber: Int): String = "Page $pageNumber"
+
+    /**
+     * Builds a citation from stored hit fields and the search query only.
+     *
+     * Does not invent confidence, meaning, or AI reasons.
+     */
+    fun whyThisResultBody(query: String, pageNumber: Int, excerpt: String): String {
+        require(query.isNotBlank()) { "Why this result needs the search query." }
+        require(pageNumber > 0) { "Why this result needs a positive page number." }
+        require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
+
+        return "Memora matched \"$query\" in saved PDF page text on this phone " +
+            "(${pageLabel(pageNumber)}). Matching evidence: $excerpt. " +
+            "This is keyword matching, not meaning-based recall."
+    }
 }

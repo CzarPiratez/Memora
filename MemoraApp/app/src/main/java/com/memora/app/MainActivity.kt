@@ -533,7 +533,10 @@ fun PdfKeywordSearchScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                phase.hits.forEach { hit ->
+                phase.hits.forEachIndexed { index, hit ->
+                    var whyExpanded by remember(phase.query, index, hit.sourceId, hit.sourceAssetKey, hit.pageNumber) {
+                        mutableStateOf(false)
+                    }
                     Card(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -558,6 +561,31 @@ fun PdfKeywordSearchScreen(
                                 text = hit.excerpt,
                                 style = MaterialTheme.typography.bodySmall,
                             )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = { whyExpanded = !whyExpanded },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(
+                                    if (whyExpanded) {
+                                        PdfKeywordSearchCopy.HIDE_WHY_LABEL
+                                    } else {
+                                        PdfKeywordSearchCopy.WHY_THIS_RESULT_LABEL
+                                    },
+                                )
+                            }
+                            if (whyExpanded) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    text = PdfKeywordSearchCopy.whyThisResultBody(
+                                        query = phase.query,
+                                        pageNumber = hit.pageNumber,
+                                        excerpt = hit.excerpt,
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))

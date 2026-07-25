@@ -843,11 +843,21 @@ On 2026-07-25 the user confirmed on Medium Phone: Start indexing completed with
 honest metadata-only copy (0 items from permitted photo library; catalogue up to
 date; no photo contents / searchable memories claimed).
 
+## Verified engineering checkpoint
+
+Keyword search **Why this result?** Explain Mode is implemented for saved PDF
+page text only. Each hit can show a citation of the query, page, and stored
+excerpt with honest keyword-not-meaning copy. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_EXPLAIN.md. No AI, Memory ranking, confidence
+scores, or PDF reopen. On 2026-07-25 the user confirmed on Medium Phone:
+Find saved PDF text -> meet mira -> Why this result? cites Page 1 + stored excerpt
+and keyword-not-meaning copy.
+
 ## Next approved engineering step
 
-Richer keyword Explain Mode (evidence citations, no AI), or Local-AI gate work —
-each still requiring its own change-control approval. Do not add AI or network
-until separately approved.
+Local-AI architecture gate work, or further recall polish — each still requiring
+its own change-control approval. Do not add AI or network until separately
+approved.
 
 ## Important open decision
 

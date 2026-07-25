@@ -24,8 +24,15 @@ sealed interface PdfKeywordSearchPhase {
 
     data object Searching : PdfKeywordSearchPhase
 
-    data class Results(val hits: List<PdfKeywordSearchHit>) : PdfKeywordSearchPhase
-
+    data class Results(
+        val query: String,
+        val hits: List<PdfKeywordSearchHit>,
+    ) : PdfKeywordSearchPhase {
+        init {
+            require(query.isNotBlank()) { "Results need the search query for Explain Mode." }
+            require(hits.isNotEmpty()) { "Results need at least one hit." }
+        }
+    }
     data object NoMatches : PdfKeywordSearchPhase
 }
 
@@ -50,7 +57,10 @@ class PdfKeywordSearchViewModel @Inject constructor(
                     is PdfKeywordSearchOutcome.Matches -> if (outcome.hits.isEmpty()) {
                         PdfKeywordSearchPhase.NoMatches
                     } else {
-                        PdfKeywordSearchPhase.Results(outcome.hits)
+                        PdfKeywordSearchPhase.Results(
+                            query = outcome.query,
+                            hits = outcome.hits,
+                        )
                     }
                 },
             )
