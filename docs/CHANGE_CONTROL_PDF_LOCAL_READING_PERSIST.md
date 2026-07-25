@@ -49,4 +49,4 @@
   WorkManager not scheduled.
 - **Documentation/traceability/ADR updates:** CONTINUE next step after confirmation;
   CHANGELOG; ADR-020 production persist note.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** 0832c70
