@@ -771,12 +771,22 @@ isolated parser, and deletes the fixture. Change control:
 `docs/CHANGE_CONTROL_PDF_REAL_SOURCE_DESCRIPTOR.md`. No production UI parse wire,
 searchable Room extraction persist, WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+Foreground Local PDF reading status UI is wired (status-only). On 2026-07-25,
+unit tests for session/copy/status mapping passed (**9**), Room asset lookup
+androidTest **3 of 3** on Medium Phone, and debug APK installed. Start/Retry/Resume
+run one broker + isolated-parser status check for the first indexed PDF in the
+connected folder; page text is still discarded; no searchable Room write,
+WorkManager, AI, or network. Change control:
+`docs/CHANGE_CONTROL_PDF_LOCAL_READING_STATUS_UI.md`. Manual emulator confirmation
+of Start → Completed (or honest failure) is pending user feedback.
+
 ## Next approved engineering step
 
-ADR-017 isolation gates through real-source descriptor path are closed. Next slice
-is governed production wiring that may persist searchable PDF extraction text /
-surface real parse status in product UI — still without WorkManager, AI, or network
-until separately approved.
+Governed production wiring that may persist searchable PDF extraction text from the
+validated parse path — still without WorkManager, AI, or network until separately
+approved.
 
 ## Important open decision
 

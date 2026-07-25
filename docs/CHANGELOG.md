@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Wired Local PDF reading status UI (foreground, status-only)
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** `RunPdfLocalReadingStatusCheck`; ViewModel Start/Retry/Resume bind
+  the isolated parser for one indexed PDF; session Completed state; honest copy;
+  first-PDF asset lookup on `AssetRepository`.
+- **Verification:** On 2026-07-25, unit local-reading **9**; Room asset lookup
+  androidTest **3 of 3**; debug APK installed on Medium Phone. Manual Start
+  confirmation pending.
+- **Truthfulness:** Page text still discarded; no searchable Room persist,
+  WorkManager, AI, or network.
+
 ### Verified real-source descriptor path (fingerprint + live SAF open)
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

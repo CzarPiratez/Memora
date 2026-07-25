@@ -11,4 +11,7 @@ interface AssetRepository {
     suspend fun save(record: AssetIndexRecord)
 
     suspend fun find(identity: AssetIdentity): AssetIndexRecord?
+
+    /** Returns the first stored asset for [sourceId] with [type], or null when none exist. */
+    suspend fun findFirstBySourceAndType(sourceId: SourceId, type: AssetType): Asset?
 }

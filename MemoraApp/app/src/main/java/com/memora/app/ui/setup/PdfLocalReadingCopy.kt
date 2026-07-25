@@ -17,24 +17,31 @@ object PdfLocalReadingCopy {
     const val CONTINUE_LABEL = "Continue"
 
     const val READY_BODY =
-        "You can practice pause and retry here. Memora has not opened any PDF for text reading yet."
+        "Start reads one indexed PDF from your connected folder on this phone. " +
+            "Text is not saved for search yet."
 
     const val START_LABEL = "Start local reading step"
 
     const val IN_PROGRESS_BODY =
-        "Memora is in a local reading step. No PDF has been opened for text yet."
+        "Memora is reading one PDF from your connected folder. Reading stays on this phone. " +
+            "Text is not saved for search yet."
 
     const val PAUSE_LABEL = "Pause"
 
     const val PAUSED_BODY =
-        "Local reading is paused. You can resume or stop. No PDF has been opened for text."
+        "Local reading is paused. You can resume or stop."
 
     const val RESUME_LABEL = "Resume"
 
     const val STOP_LABEL = "Stop"
 
+    const val COMPLETED_BODY =
+        "Memora finished a local reading check for one PDF. Your originals are unchanged. " +
+            "Text was not saved for search yet."
+
     const val RETRYABLE_BODY =
-        "Memora could not finish this local reading step. Your original PDFs are unchanged. You can try again."
+        "Memora could not finish this local reading step. Index the PDF folder if you have not, " +
+            "then try again. Your original PDFs are unchanged."
 
     const val RETRY_LABEL = "Try again"
 
@@ -49,9 +56,9 @@ object PdfLocalReadingCopy {
             "Your original file is unchanged."
 
     const val UNAVAILABLE_BODY =
-        "PDF text reading is not enabled yet. Folder connection and PDF metadata indexing still work as before. " +
-            "Your original PDFs are unchanged."
+        "Memora could not find a PDF ready for this local reading check. Index the connected folder, " +
+            "then try again. Your original PDFs are unchanged."
 
-    /** Demo control so pause/retry can be verified without opening a document. */
+    /** Demo control so retry copy can be verified without forcing a failing document. */
     const val SHOW_RETRYABLE_DEMO_LABEL = "Show example problem"
 }

@@ -109,7 +109,6 @@ class MainActivity : ComponentActivity() {
                         onStopLocalReadingStep = pdfLocalReadingViewModel::onStop,
                         onRetryLocalReadingStep = pdfLocalReadingViewModel::onRetry,
                         onShowLocalReadingRetryableDemo = pdfLocalReadingViewModel::onShowRetryableDemo,
-                        onMarkLocalReadingUnavailable = pdfLocalReadingViewModel::onMarkUnavailable,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -147,7 +146,6 @@ fun MemoraApp(
     onStopLocalReadingStep: () -> Unit,
     onRetryLocalReadingStep: () -> Unit,
     onShowLocalReadingRetryableDemo: () -> Unit,
-    onMarkLocalReadingUnavailable: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -182,7 +180,6 @@ fun MemoraApp(
             onStopLocalReadingStep = onStopLocalReadingStep,
             onRetryLocalReadingStep = onRetryLocalReadingStep,
             onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
-            onMarkLocalReadingUnavailable = onMarkLocalReadingUnavailable,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -210,7 +207,6 @@ private fun MemoraAppReady(
     onStopLocalReadingStep: () -> Unit,
     onRetryLocalReadingStep: () -> Unit,
     onShowLocalReadingRetryableDemo: () -> Unit,
-    onMarkLocalReadingUnavailable: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -294,7 +290,6 @@ private fun MemoraAppReady(
                 onStopLocalReadingStep = onStopLocalReadingStep,
                 onRetryLocalReadingStep = onRetryLocalReadingStep,
                 onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
-                onMarkLocalReadingUnavailable = onMarkLocalReadingUnavailable,
                 onBack = { isShowingDocumentTreeScreen = false },
                 modifier = modifier,
             )
@@ -697,7 +692,6 @@ fun DocumentTreeSetupScreen(
     onStopLocalReadingStep: () -> Unit,
     onRetryLocalReadingStep: () -> Unit,
     onShowLocalReadingRetryableDemo: () -> Unit,
-    onMarkLocalReadingUnavailable: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -798,7 +792,6 @@ fun DocumentTreeSetupScreen(
                     onStop = onStopLocalReadingStep,
                     onRetry = onRetryLocalReadingStep,
                     onShowRetryableDemo = onShowLocalReadingRetryableDemo,
-                    onMarkUnavailable = onMarkLocalReadingUnavailable,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
@@ -837,7 +830,6 @@ private fun PdfLocalReadingRecoveryControl(
     onStop: () -> Unit,
     onRetry: () -> Unit,
     onShowRetryableDemo: () -> Unit,
-    onMarkUnavailable: () -> Unit,
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -885,13 +877,6 @@ private fun PdfLocalReadingRecoveryControl(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(PdfLocalReadingCopy.SHOW_RETRYABLE_DEMO_LABEL)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = onMarkUnavailable,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text("Text reading not enabled yet")
                     }
                 }
 
@@ -945,6 +930,7 @@ private fun PdfLocalReadingRecoveryControl(
                     }
                 }
 
+                PdfLocalReadingState.Completed,
                 PdfLocalReadingState.AccessRecoveryNeeded,
                 PdfLocalReadingState.PasswordProtected,
                 PdfLocalReadingState.Unavailable,

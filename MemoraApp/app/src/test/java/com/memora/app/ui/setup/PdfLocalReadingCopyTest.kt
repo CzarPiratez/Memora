@@ -13,6 +13,7 @@ class PdfLocalReadingCopyTest {
             PdfLocalReadingCopy.READY_BODY,
             PdfLocalReadingCopy.IN_PROGRESS_BODY,
             PdfLocalReadingCopy.PAUSED_BODY,
+            PdfLocalReadingCopy.COMPLETED_BODY,
             PdfLocalReadingCopy.RETRYABLE_BODY,
             PdfLocalReadingCopy.ACCESS_RECOVERY_BODY,
             PdfLocalReadingCopy.PASSWORD_BODY,
@@ -34,12 +35,11 @@ class PdfLocalReadingCopyTest {
     }
 
     @Test
-    fun scope_copy_states_local_read_only_folder_scope() {
+    fun ready_copy_states_indexed_pdf_and_no_search_persist_yet() {
         assertEquals(
-            "When Memora reads PDF text, it will use only the folder you connected, " +
-                "keep that access read-only, and leave your original files unchanged. " +
-                "Reading stays on this phone.",
-            PdfLocalReadingCopy.SCOPE_BODY,
+            "Start reads one indexed PDF from your connected folder on this phone. " +
+                "Text is not saved for search yet.",
+            PdfLocalReadingCopy.READY_BODY,
         )
     }
 }

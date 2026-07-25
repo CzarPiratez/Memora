@@ -21,6 +21,16 @@ interface AssetDao {
     @Query("SELECT * FROM assets ORDER BY source_id ASC, source_asset_key ASC")
     suspend fun findAll(): List<AssetEntity>
 
+    @Query(
+        """
+        SELECT * FROM assets
+        WHERE source_id = :sourceId AND asset_type = :assetType
+        ORDER BY source_asset_key ASC
+        LIMIT 1
+        """,
+    )
+    suspend fun findFirstBySourceAndType(sourceId: String, assetType: String): AssetEntity?
+
     @Query("SELECT COUNT(*) FROM assets")
     suspend fun count(): Int
 }

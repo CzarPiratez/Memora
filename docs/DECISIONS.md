@@ -474,8 +474,10 @@ The visible foreground recovery presentation (scope, progress, pause, retry,
 unavailable) landed the same day with unit-tested copy and session transitions; it
 does not open user PDFs. On 2026-07-25, fingerprint revalidation plus a live
 approved-tree descriptor open through the broker and isolated parser returned
-status only (**11** focused emulator tests). Production UI/Room searchable wiring
-remains a separate follow-up.
+status only (**11** focused emulator tests). On 2026-07-25, the Local PDF reading
+product UI was wired to one foreground status-only parse of the first indexed PDF
+(page text still discarded). Production Room searchable wiring remains a separate
+follow-up.
 
 ## ADR-018: Memora evolves through evidence-backed linking, not destructive grouping
 
@@ -574,13 +576,15 @@ production PDF content write path / real-source parsing:
    (`PdfExtractionWriteBudgets` + write-path benchmark 5/5)**;
 4. ~~atomic write/deletion verification tests~~ **done (synthetic instrumentation)**;
 5. ~~ADR-017 real-source / bounded-streaming / visible-recovery~~ **done for current
-   bar** (protocol v3 streaming, visible recovery UI, fingerprint revalidation, and
-   live approved-tree descriptor open verified 2026-07-25). Production UI/Room
-   searchable wiring remains a separate follow-up.
+   bar** (protocol v3 streaming, visible recovery UI, fingerprint revalidation,
+   live approved-tree descriptor open, and foreground Local PDF reading status UI
+   verified 2026-07-25). Production Room searchable wiring remains a separate
+   follow-up.
 
 A synthetic-only Room adapter and write budgets landed. They are **not** wired into
-production discovery/UI. Searchable PDF recall, WorkManager, AI, and network remain
-blocked until a governed production persistence/UI path is verified.
+production discovery for searchable text. Foreground status-only Local PDF reading
+UI may open one indexed PDF. Searchable PDF recall, WorkManager, AI, and network
+remain blocked until a governed production persistence path is verified.
 
 **Reason:** Derived page text is sensitive user content. The existing typed
 persistence-port contract protects identity/fingerprint/schema/coverage correctness,

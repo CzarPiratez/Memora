@@ -1,42 +1,98 @@
 package com.memora.app.ui.setup
 
+import android.os.CancellationSignal
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.memora.app.application.documents.RunPdfLocalReadingStatusCheck
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
- * Presentation-only ViewModel for ADR-017 visible PDF local-reading recovery.
+ * Local PDF reading ViewModel: presentation session plus one foreground status-only parse.
  *
- * It never opens a PDF, binds the isolated parser for a user document, or writes
- * extraction text.
+ * It never persists extraction text, schedules WorkManager, invokes AI, or uses the network.
  */
 @HiltViewModel
-class PdfLocalReadingViewModel @Inject constructor() : ViewModel() {
+class PdfLocalReadingViewModel @Inject constructor(
+    private val runStatusCheck: RunPdfLocalReadingStatusCheck,
+) : ViewModel() {
     private val session = PdfLocalReadingSession()
     private val mutableUiState = MutableStateFlow(session.state)
+    private var activeJob: Job? = null
+    private var activeCancellation: CancellationSignal? = null
 
     val uiState: StateFlow<PdfLocalReadingState> = mutableUiState.asStateFlow()
 
     fun onAcknowledgeScope() = dispatch(PdfLocalReadingEvent.AcknowledgeScope)
 
-    fun onStart() = dispatch(PdfLocalReadingEvent.Start)
+    fun onStart() {
+        dispatch(PdfLocalReadingEvent.Start)
+        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+            beginStatusCheck()
+        }
+    }
 
-    fun onPause() = dispatch(PdfLocalReadingEvent.Pause)
+    fun onPause() {
+        cancelActiveWork()
+        dispatch(PdfLocalReadingEvent.Pause)
+    }
 
-    fun onResume() = dispatch(PdfLocalReadingEvent.Resume)
+    fun onResume() {
+        dispatch(PdfLocalReadingEvent.Resume)
+        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+            beginStatusCheck()
+        }
+    }
 
-    fun onStop() = dispatch(PdfLocalReadingEvent.Stop)
+    fun onStop() {
+        cancelActiveWork()
+        dispatch(PdfLocalReadingEvent.Stop)
+    }
 
-    fun onRetry() = dispatch(PdfLocalReadingEvent.Retry)
+    fun onRetry() {
+        dispatch(PdfLocalReadingEvent.Retry)
+        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+            beginStatusCheck()
+        }
+    }
 
     fun onShowRetryableDemo() = dispatch(PdfLocalReadingEvent.ShowRetryableDemo)
 
-    fun onMarkUnavailable() = dispatch(PdfLocalReadingEvent.MarkUnavailable)
+    private fun beginStatusCheck() {
+        cancelActiveWork()
+        val cancellationSignal = CancellationSignal()
+        activeCancellation = cancellationSignal
+        activeJob = viewModelScope.launch {
+            val result = runStatusCheck(cancellationSignal)
+            if (cancellationSignal.isCanceled) {
+                return@launch
+            }
+            if (mutableUiState.value != PdfLocalReadingState.InProgress) {
+                return@launch
+            }
+            val event = pdfLocalReadingEventFor(result) ?: return@launch
+            dispatch(event)
+        }
+    }
+
+    private fun cancelActiveWork() {
+        activeCancellation?.cancel()
+        activeCancellation = null
+        activeJob?.cancel()
+        activeJob = null
+    }
 
     private fun dispatch(event: PdfLocalReadingEvent) {
         mutableUiState.value = session.onEvent(event)
+    }
+
+    override fun onCleared() {
+        cancelActiveWork()
+        super.onCleared()
     }
 }

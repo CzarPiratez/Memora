@@ -5,7 +5,7 @@ import org.junit.Test
 
 class PdfLocalReadingSessionTest {
     @Test
-    fun acknowledge_then_start_pause_resume_and_stop() {
+    fun acknowledge_start_pause_resume_stop_cycle() {
         val session = PdfLocalReadingSession()
 
         assertEquals(PdfLocalReadingState.NeedsExplanation, session.state)
@@ -17,7 +17,20 @@ class PdfLocalReadingSessionTest {
     }
 
     @Test
-    fun retryable_failure_can_retry_or_stop() {
+    fun in_progress_success_reaches_completed_then_stop_returns_ready() {
+        val session = PdfLocalReadingSession()
+        session.onEvent(PdfLocalReadingEvent.AcknowledgeScope)
+        session.onEvent(PdfLocalReadingEvent.Start)
+
+        assertEquals(
+            PdfLocalReadingState.Completed,
+            session.onEvent(PdfLocalReadingEvent.FinishOk),
+        )
+        assertEquals(PdfLocalReadingState.Ready, session.onEvent(PdfLocalReadingEvent.Stop))
+    }
+
+    @Test
+    fun retryable_failure_supports_retry_and_stop() {
         val session = PdfLocalReadingSession()
         session.onEvent(PdfLocalReadingEvent.AcknowledgeScope)
         session.onEvent(PdfLocalReadingEvent.Start)
@@ -32,7 +45,7 @@ class PdfLocalReadingSessionTest {
     }
 
     @Test
-    fun start_is_ignored_before_scope_is_acknowledged() {
+    fun start_before_acknowledge_is_ignored() {
         val session = PdfLocalReadingSession()
 
         assertEquals(
@@ -42,7 +55,7 @@ class PdfLocalReadingSessionTest {
     }
 
     @Test
-    fun demo_retryable_path_does_not_require_in_progress() {
+    fun demo_retryable_path_still_available_from_ready() {
         val session = PdfLocalReadingSession()
         session.onEvent(PdfLocalReadingEvent.AcknowledgeScope)
 
@@ -50,18 +63,5 @@ class PdfLocalReadingSessionTest {
             PdfLocalReadingState.RetryableProblem,
             session.onEvent(PdfLocalReadingEvent.ShowRetryableDemo),
         )
-    }
-
-    @Test
-    fun unavailable_is_an_honest_terminal_until_stop() {
-        val session = PdfLocalReadingSession()
-        session.onEvent(PdfLocalReadingEvent.AcknowledgeScope)
-        session.onEvent(PdfLocalReadingEvent.Start)
-
-        assertEquals(
-            PdfLocalReadingState.Unavailable,
-            session.onEvent(PdfLocalReadingEvent.MarkUnavailable),
-        )
-        assertEquals(PdfLocalReadingState.Ready, session.onEvent(PdfLocalReadingEvent.Stop))
     }
 }

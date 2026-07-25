@@ -54,6 +54,36 @@ class RoomAssetRepositoryTest {
     }
 
     @Test
+    fun findFirstBySourceAndType_returns_first_matching_pdf() = runBlocking {
+        val sourceId = SourceId("saf-pdf-folder")
+        val laterPdf = assetRecord(
+            identity = AssetIdentity(sourceId, SourceAssetKey("b-doc")),
+            fingerprint = "pdf:b:2:20",
+            type = AssetType.PDF,
+            state = IndexingState.discovered,
+        )
+        val firstPdf = assetRecord(
+            identity = AssetIdentity(sourceId, SourceAssetKey("a-doc")),
+            fingerprint = "pdf:a:1:10",
+            type = AssetType.PDF,
+            state = IndexingState.discovered,
+        )
+        val photo = assetRecord(
+            identity = AssetIdentity(sourceId, SourceAssetKey("photo-1")),
+            fingerprint = "media:1:1:1",
+            type = AssetType.PHOTO,
+            state = IndexingState.discovered,
+        )
+
+        repository.save(laterPdf)
+        repository.save(firstPdf)
+        repository.save(photo)
+
+        assertEquals(firstPdf.asset, repository.findFirstBySourceAndType(sourceId, AssetType.PDF))
+        assertNull(repository.findFirstBySourceAndType(SourceId("other-source"), AssetType.PDF))
+    }
+
+    @Test
     fun saveUpsertsTheSameSourceIdentityWithoutDuplicatingIt() = runBlocking {
         val identity = AssetIdentity(SourceId("android-media-store"), SourceAssetKey("42"))
         val original = assetRecord(
@@ -81,11 +111,12 @@ class RoomAssetRepositoryTest {
             SourceAssetKey("42"),
         ),
         fingerprint: String,
+        type: AssetType = AssetType.PHOTO,
         state: IndexingState,
     ): AssetIndexRecord = AssetIndexRecord(
         asset = Asset(
             identity = identity,
-            type = AssetType.PHOTO,
+            type = type,
             location = AssetLocation("content://media/external/images/media/42"),
             fingerprint = AssetFingerprint(fingerprint),
             discoveredAt = Instant.ofEpochMilli(1_720_000_000_000),

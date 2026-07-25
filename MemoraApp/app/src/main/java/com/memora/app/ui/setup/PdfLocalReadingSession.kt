@@ -4,6 +4,7 @@ package com.memora.app.ui.setup
  * Pure presentation session for ADR-017 visible recovery controls.
  *
  * It never opens a descriptor, binds the parser, or persists extraction text.
+ * The ViewModel owns when a real status-only parse is launched.
  */
 class PdfLocalReadingSession {
     var state: PdfLocalReadingState = PdfLocalReadingState.NeedsExplanation
@@ -21,17 +22,16 @@ class PdfLocalReadingSession {
                 PdfLocalReadingEvent.ShowRetryableDemo -> PdfLocalReadingState.RetryableProblem
                 PdfLocalReadingEvent.ShowAccessRecoveryDemo -> PdfLocalReadingState.AccessRecoveryNeeded
                 PdfLocalReadingEvent.ShowPasswordDemo -> PdfLocalReadingState.PasswordProtected
-                PdfLocalReadingEvent.MarkUnavailable -> PdfLocalReadingState.Unavailable
                 else -> current
             }
 
             PdfLocalReadingState.InProgress -> when (event) {
                 PdfLocalReadingEvent.Pause -> PdfLocalReadingState.Paused
                 PdfLocalReadingEvent.Stop -> PdfLocalReadingState.Ready
+                PdfLocalReadingEvent.FinishOk -> PdfLocalReadingState.Completed
                 PdfLocalReadingEvent.FailRetryable -> PdfLocalReadingState.RetryableProblem
                 PdfLocalReadingEvent.FailAccessRevoked -> PdfLocalReadingState.AccessRecoveryNeeded
                 PdfLocalReadingEvent.FailPassword -> PdfLocalReadingState.PasswordProtected
-                PdfLocalReadingEvent.MarkUnavailable -> PdfLocalReadingState.Unavailable
                 else -> current
             }
 
@@ -47,6 +47,7 @@ class PdfLocalReadingSession {
                 else -> current
             }
 
+            PdfLocalReadingState.Completed,
             PdfLocalReadingState.AccessRecoveryNeeded,
             PdfLocalReadingState.PasswordProtected,
             PdfLocalReadingState.Unavailable,
@@ -68,6 +69,8 @@ sealed interface PdfLocalReadingState {
     data object InProgress : PdfLocalReadingState
 
     data object Paused : PdfLocalReadingState
+
+    data object Completed : PdfLocalReadingState
 
     data object RetryableProblem : PdfLocalReadingState
 
@@ -91,13 +94,13 @@ sealed interface PdfLocalReadingEvent {
 
     data object Retry : PdfLocalReadingEvent
 
+    data object FinishOk : PdfLocalReadingEvent
+
     data object FailRetryable : PdfLocalReadingEvent
 
     data object FailAccessRevoked : PdfLocalReadingEvent
 
     data object FailPassword : PdfLocalReadingEvent
-
-    data object MarkUnavailable : PdfLocalReadingEvent
 
     data object ShowRetryableDemo : PdfLocalReadingEvent
 

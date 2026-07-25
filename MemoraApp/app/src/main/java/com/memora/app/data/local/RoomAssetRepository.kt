@@ -1,8 +1,11 @@
 package com.memora.app.data.local
 
+import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetIndexRecord
 import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceId
 
 /** Room-backed implementation of the Asset persistence boundary. */
 class RoomAssetRepository(
@@ -15,4 +18,10 @@ class RoomAssetRepository(
     override suspend fun find(identity: AssetIdentity): AssetIndexRecord? = assetDao()
         .find(identity.sourceId.value, identity.sourceAssetKey.value)
         ?.toDomain()
+
+    override suspend fun findFirstBySourceAndType(sourceId: SourceId, type: AssetType): Asset? =
+        assetDao()
+            .findFirstBySourceAndType(sourceId.value, type.name)
+            ?.toDomain()
+            ?.asset
 }
