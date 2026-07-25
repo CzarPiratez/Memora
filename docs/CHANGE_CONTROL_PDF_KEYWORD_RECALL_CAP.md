@@ -40,4 +40,4 @@ CONTINUE recall polish (default non-AI fork). No AI/network/PDF reopen.
 - **Known limitation or follow-up:** Still interim keyword path; does not query a
   total match count beyond the listed page; semantic Memory recall remains later.
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `5117c3e`
