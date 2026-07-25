@@ -34,4 +34,4 @@
   deferred; only saved PDF page text is searched.
 - **Documentation/traceability/ADR updates:** CONTINUE next step → WorkManager or
   richer recall after confirmation.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** f08e894
