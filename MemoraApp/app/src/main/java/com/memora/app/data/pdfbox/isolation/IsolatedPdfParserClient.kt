@@ -14,11 +14,12 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /**
- * Private ordinary-process boundary for one already-opened synthetic PDF descriptor.
+ * Private ordinary-process boundary for one already-opened PDF descriptor.
  *
- * Protocol v3 pulls a content-free header and bounded chunks through the session assembler,
- * then discards all page text and returns a content-free status summary. A later, separately
- * governed persistence boundary may receive validated deterministic text.
+ * Protocol v3 pulls a content-free header and bounded chunks through the session assembler.
+ * On a completed session it returns a content-free status summary and, when the wire result
+ * was contract-validated, the validated result for a separately governed persistence path.
+ * Rejected, cancelled, and transport failures never expose partial page text.
  */
 internal class IsolatedPdfParserClient(
     private val connection: IsolatedPdfParserConnection,
@@ -146,7 +147,7 @@ internal class IsolatedPdfParserClient(
         }
 
         when (val opened = assembler.accept(IsolatedPdfParserSessionEvent.Opened(header))) {
-            is IsolatedPdfParserSessionState.Completed -> return opened.result.toClientSummary()
+            is IsolatedPdfParserSessionState.Completed -> return opened.result.toClientResult()
             is IsolatedPdfParserSessionState.Collecting -> Unit
             IsolatedPdfParserSessionState.Rejected,
             IsolatedPdfParserSessionState.Cancelled,
@@ -178,8 +179,7 @@ internal class IsolatedPdfParserClient(
 
             when (state) {
                 is IsolatedPdfParserSessionState.Completed -> {
-                    // Status-only: discard retained wire text after deriving the summary.
-                    return state.result.toClientSummary()
+                    return state.result.toClientResult()
                 }
                 is IsolatedPdfParserSessionState.Collecting -> Unit
                 IsolatedPdfParserSessionState.Rejected,
@@ -202,25 +202,41 @@ internal class IsolatedPdfParserClient(
         return retryableFailure()
     }
 
-    private fun IsolatedPdfParserWireResult.toClientSummary(): IsolatedPdfParserClientResult = when (outcome) {
-        IsolatedPdfParserWireOutcome.EXTRACTED -> pageSummary(IsolatedPdfParserClientOutcome.EXTRACTED)
-        IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT -> {
-            pageSummary(IsolatedPdfParserClientOutcome.NO_EXTRACTABLE_TEXT)
+    private fun IsolatedPdfParserWireResult.toClientResult(): IsolatedPdfParserClientResult {
+        // Assembler only Completes after IsolatedPdfParserWireResultValidation.Valid.
+        val validated = IsolatedPdfParserWireResultValidation.Valid(this)
+        return when (outcome) {
+            IsolatedPdfParserWireOutcome.EXTRACTED -> pageResult(
+                outcome = IsolatedPdfParserClientOutcome.EXTRACTED,
+                validated = validated,
+            )
+            IsolatedPdfParserWireOutcome.NO_EXTRACTABLE_TEXT -> pageResult(
+                outcome = IsolatedPdfParserClientOutcome.NO_EXTRACTABLE_TEXT,
+                validated = validated,
+            )
+            IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED -> IsolatedPdfParserClientResult(
+                outcome = IsolatedPdfParserClientOutcome.PASSWORD_PROTECTED,
+                retryable = false,
+                validatedResult = validated,
+            )
+            IsolatedPdfParserWireOutcome.FAILURE -> IsolatedPdfParserClientResult(
+                outcome = IsolatedPdfParserClientOutcome.FAILURE,
+                retryable = retryable,
+                validatedResult = validated,
+            )
         }
-        IsolatedPdfParserWireOutcome.PASSWORD_PROTECTED -> IsolatedPdfParserClientResult(
-            outcome = IsolatedPdfParserClientOutcome.PASSWORD_PROTECTED,
-            retryable = false,
-        )
-        IsolatedPdfParserWireOutcome.FAILURE -> IsolatedPdfParserClientResult(
-            outcome = IsolatedPdfParserClientOutcome.FAILURE,
-            retryable = retryable,
-        )
     }
 
-    private fun IsolatedPdfParserWireResult.pageSummary(
+    private fun IsolatedPdfParserWireResult.pageResult(
         outcome: IsolatedPdfParserClientOutcome,
+        validated: IsolatedPdfParserWireResultValidation.Valid,
     ): IsolatedPdfParserClientResult = if (!retryable && pageCount != null && pageCount > 0) {
-        IsolatedPdfParserClientResult(outcome = outcome, retryable = false, pageCount = pageCount)
+        IsolatedPdfParserClientResult(
+            outcome = outcome,
+            retryable = false,
+            pageCount = pageCount,
+            validatedResult = validated,
+        )
     } else {
         retryableFailure()
     }
@@ -251,11 +267,18 @@ internal fun interface IsolatedPdfParserConnection {
     fun acquire(): IIsolatedPdfParser
 }
 
-/** A bounded, content-free parser status for the ordinary app process. */
+/**
+ * Ordinary-process parser outcome.
+ *
+ * [outcome]/[retryable], and [pageCount] remain the status surface. [validatedResult] is
+ * present only after a completed, contract-validated session so a governed persistence path may
+ * map deterministic text without reopening the document. Transport failures leave it null.
+ */
 internal data class IsolatedPdfParserClientResult(
     val outcome: IsolatedPdfParserClientOutcome,
     val retryable: Boolean,
     val pageCount: Int? = null,
+    val validatedResult: IsolatedPdfParserWireResultValidation.Valid? = null,
 )
 
 internal enum class IsolatedPdfParserClientOutcome {

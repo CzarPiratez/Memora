@@ -10,8 +10,8 @@ import androidx.room.withTransaction
 
 /**
  * Room adapter for eligible PDF extraction writes.
- * Keeps superseded fingerprint/schema rows (ADR-022). Not wired into production
- * discovery/UI flows; synthetic instrumentation verifies atomicity first.
+ * Keeps superseded fingerprint/schema rows (ADR-022). Wired from the foreground
+ * Local PDF reading Start path only; no WorkManager, AI, or network.
  */
 internal class RoomPdfExtractionPersistencePort(
     private val database: MemoraDatabase,

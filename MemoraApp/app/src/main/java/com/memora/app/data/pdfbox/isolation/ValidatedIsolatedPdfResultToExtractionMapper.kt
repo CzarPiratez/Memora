@@ -8,13 +8,12 @@ import com.memora.app.domain.extraction.PdfTextCoverage
 import java.time.Clock
 
 /**
- * Converts an already validated, synthetic isolated-parser result into Memora's
+ * Converts an already validated isolated-parser wire result into Memora's
  * deterministic PDF-extraction domain shape.
  *
  * The input type deliberately requires [IsolatedPdfParserWireResultValidation.Valid].
  * This mapper neither decodes Binder data nor opens a descriptor, URI, or source. It
- * keeps no reference to source content, writes nothing, and is not bound to Room, UI,
- * WorkManager, semantic understanding, or real user documents.
+ * keeps no lasting reference beyond the returned outcome and writes nothing itself.
  */
 internal class ValidatedIsolatedPdfResultToExtractionMapper(
     private val clock: Clock = Clock.systemUTC(),

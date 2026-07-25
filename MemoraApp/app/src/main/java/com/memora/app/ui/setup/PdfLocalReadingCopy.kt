@@ -17,14 +17,14 @@ object PdfLocalReadingCopy {
     const val CONTINUE_LABEL = "Continue"
 
     const val READY_BODY =
-        "Start reads one indexed PDF from your connected folder on this phone. " +
-            "Text is not saved for search yet."
+        "Start reads one indexed PDF from your connected folder on this phone and, when " +
+            "reading succeeds, saves its text for search on this phone."
 
     const val START_LABEL = "Start local reading step"
 
     const val IN_PROGRESS_BODY =
         "Memora is reading one PDF from your connected folder. Reading stays on this phone. " +
-            "Text is not saved for search yet."
+            "If reading succeeds, text is saved for search here."
 
     const val PAUSE_LABEL = "Pause"
 
@@ -36,8 +36,8 @@ object PdfLocalReadingCopy {
     const val STOP_LABEL = "Stop"
 
     const val COMPLETED_BODY =
-        "Memora finished a local reading check for one PDF. Your originals are unchanged. " +
-            "Text was not saved for search yet."
+        "Memora finished reading one PDF and saved its text for search on this phone. " +
+            "Your originals are unchanged."
 
     const val RETRYABLE_BODY =
         "Memora could not finish this local reading step. Index the PDF folder if you have not, " +

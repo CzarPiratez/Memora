@@ -35,11 +35,16 @@ class PdfLocalReadingCopyTest {
     }
 
     @Test
-    fun ready_copy_states_indexed_pdf_and_no_search_persist_yet() {
+    fun ready_and_completed_copy_state_search_save_on_this_phone() {
         assertEquals(
-            "Start reads one indexed PDF from your connected folder on this phone. " +
-                "Text is not saved for search yet.",
+            "Start reads one indexed PDF from your connected folder on this phone and, when " +
+                "reading succeeds, saves its text for search on this phone.",
             PdfLocalReadingCopy.READY_BODY,
+        )
+        assertEquals(
+            "Memora finished reading one PDF and saved its text for search on this phone. " +
+                "Your originals are unchanged.",
+            PdfLocalReadingCopy.COMPLETED_BODY,
         )
     }
 }

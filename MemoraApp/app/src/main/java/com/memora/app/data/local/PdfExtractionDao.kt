@@ -78,6 +78,22 @@ interface PdfExtractionDao {
     @Query("DELETE FROM pdf_extractions")
     suspend fun deleteAll()
 
+    @Query(
+        """
+        DELETE FROM pdf_extractions
+        WHERE source_id = :sourceId
+          AND source_asset_key = :sourceAssetKey
+          AND fingerprint = :fingerprint
+          AND schema_version = :schemaVersion
+        """,
+    )
+    suspend fun deleteHeader(
+        sourceId: String,
+        sourceAssetKey: String,
+        fingerprint: String,
+        schemaVersion: String,
+    ): Int
+
     @Transaction
     suspend fun insertAtomic(
         header: PdfExtractionEntity,

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Persist searchable PDF text from Local PDF reading Start
+
+- **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** Client retains validated wire results; `PersistValidatedPdfLocalReading`
+  maps → prepare → Room; Start path persists complete/no-text extractions; Completed
+  copy states text was saved for search on this phone.
+- **Verification:** On 2026-07-25, unit local-reading tests passed; Medium Phone
+  persist integration **1 of 1** and client isolation **10 of 10**; debug APK
+  installed. Manual Completed-copy confirmation pending.
+- **Truthfulness:** No WorkManager, AI, network, or search-results UI.
+
 ### Wired Local PDF reading status UI (foreground, status-only)
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

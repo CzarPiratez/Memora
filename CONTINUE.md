@@ -783,11 +783,24 @@ WorkManager, AI, or network. Change control:
 confirmed on Medium Phone: indexed folder (1 PDF) → Continue → Start → Completed
 (“finished a local reading check… Text was not saved for search yet”).
 
+## Verified engineering checkpoint
+
+Searchable PDF extraction persist from Local PDF reading Start is verified. On
+2026-07-25, unit local-reading copy/session/mapping passed; Medium Phone
+`PersistValidatedPdfLocalReadingIntegrationTest` **1 of 1** persisted non-blank
+page text from an approved-tree fixture through broker + isolated parser + Room.
+Client retains validated wire results on completed sessions; Start maps → prepare →
+atomic Room write; Completed copy states text was saved for search on this phone.
+Change control: `docs/CHANGE_CONTROL_PDF_LOCAL_READING_PERSIST.md`. No WorkManager,
+AI, network, or search-results UI was added. Manual Start confirmation of the new
+Completed wording is pending user feedback.
+
 ## Next approved engineering step
 
-Governed production wiring that may persist searchable PDF extraction text from the
-validated parse path — still without WorkManager, AI, or network until separately
-approved.
+Governed next product slice after searchable persist confirmation — candidates
+include recalling/searching saved PDF text in the UI, or WorkManager-backed
+incremental indexing — each still requiring its own change-control approval. Do not
+add AI or network until separately approved.
 
 ## Important open decision
 
