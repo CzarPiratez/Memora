@@ -27,6 +27,7 @@ sealed interface PdfKeywordSearchPhase {
     data class Results(
         val query: String,
         val hits: List<PdfKeywordSearchHit>,
+        val limitReached: Boolean,
     ) : PdfKeywordSearchPhase {
         init {
             require(query.isNotBlank()) { "Results need the search query for Explain Mode." }
@@ -60,6 +61,7 @@ class PdfKeywordSearchViewModel @Inject constructor(
                         PdfKeywordSearchPhase.Results(
                             query = outcome.query,
                             hits = outcome.hits,
+                            limitReached = outcome.limitReached,
                         )
                     }
                 },

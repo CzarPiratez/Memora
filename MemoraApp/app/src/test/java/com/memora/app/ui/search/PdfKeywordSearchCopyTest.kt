@@ -14,6 +14,11 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
             PdfKeywordSearchCopy.RESULTS_HINT,
+            PdfKeywordSearchCopy.resultsSummary(matchCount = 2, limitReached = false),
+            PdfKeywordSearchCopy.resultsSummary(
+                matchCount = PdfKeywordSearchCopy.MAX_LISTED_MATCHES,
+                limitReached = true,
+            ),
             PdfKeywordSearchCopy.WHY_THIS_RESULT_LABEL,
             PdfKeywordSearchCopy.whyThisResultBody(
                 query = "meet mira",
@@ -46,5 +51,39 @@ class PdfKeywordSearchCopyTest {
                 excerpt = "…meet mira tomorrow…",
             ),
         )
+    }
+
+    @Test
+    fun results_summary_states_count_without_cap_when_under_limit() {
+        assertEquals(
+            "Showing 2 matches. " + PdfKeywordSearchCopy.RESULTS_HINT,
+            PdfKeywordSearchCopy.resultsSummary(matchCount = 2, limitReached = false),
+        )
+        assertEquals(
+            "Showing 1 match. " + PdfKeywordSearchCopy.RESULTS_HINT,
+            PdfKeywordSearchCopy.resultsSummary(matchCount = 1, limitReached = false),
+        )
+    }
+
+    @Test
+    fun results_summary_discloses_cap_when_limit_reached() {
+        val summary = PdfKeywordSearchCopy.resultsSummary(
+            matchCount = PdfKeywordSearchCopy.MAX_LISTED_MATCHES,
+            limitReached = true,
+        )
+        assertEquals(
+            "Showing 20 matches. Memora lists at most 20 matches for now; " +
+                "more saved pages may also contain these words. " +
+                PdfKeywordSearchCopy.RESULTS_HINT,
+            summary,
+        )
+        assertFalse(summary.lowercase().contains("confidence"))
+        assertFalse(summary.lowercase().contains("semantic memory"))
+        assertFalse(summary.lowercase().contains("ai "))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun results_summary_rejects_zero_matches() {
+        PdfKeywordSearchCopy.resultsSummary(matchCount = 0, limitReached = false)
     }
 }

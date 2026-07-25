@@ -27,6 +27,37 @@ object PdfKeywordSearchCopy {
         "Matches show the page and a short excerpt from the saved text. " +
             "Open Why this result? to see the matching evidence."
 
+    /** Hard display cap for interim keyword search; must match search support. */
+    const val MAX_LISTED_MATCHES = 20
+
+    /**
+     * Honest results summary: listed count, optional cap disclosure, then hint.
+     *
+     * When [limitReached] is true, Memora may have stopped early at
+     * [MAX_LISTED_MATCHES]; it does not claim a total corpus match count.
+     */
+    fun resultsSummary(matchCount: Int, limitReached: Boolean): String {
+        require(matchCount > 0) { "Results summary needs at least one match." }
+        if (limitReached) {
+            require(matchCount >= MAX_LISTED_MATCHES) {
+                "A capped summary needs at least $MAX_LISTED_MATCHES listed matches."
+            }
+        }
+
+        val countLine = if (matchCount == 1) {
+            "Showing 1 match."
+        } else {
+            "Showing $matchCount matches."
+        }
+        val capLine = if (limitReached) {
+            " Memora lists at most $MAX_LISTED_MATCHES matches for now; " +
+                "more saved pages may also contain these words."
+        } else {
+            ""
+        }
+        return countLine + capLine + " " + RESULTS_HINT
+    }
+
     const val WHY_THIS_RESULT_LABEL = "Why this result?"
 
     const val HIDE_WHY_LABEL = "Hide explanation"

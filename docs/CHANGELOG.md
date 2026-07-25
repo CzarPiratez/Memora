@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Keyword recall match-count / cap honesty
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Results summary with listed match count; honest at-most-20
+  disclosure when the search cap is reached; Why this result? unchanged.
+- **Verification:** On 2026-07-26, unit copy tests; debug APK installed. User
+  confirmed on Medium Phone: meet mira → Showing 2 matches for two fixture PDFs.
+- **Truthfulness:** Interim keyword path only; no total-corpus count query; no AI.
+
 ### Local-AI benchmark plan (architecture gate)
 
 - **Requirements:** A-01, A-02, A-05, A-06, A-07, E-06; Local AI Technical Spec §11.

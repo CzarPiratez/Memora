@@ -37,7 +37,11 @@ class SearchPersistedPdfPageText @Inject constructor(
                 )
             }
 
-            PdfKeywordSearchOutcome.Matches(query = query, hits = hits)
+            PdfKeywordSearchOutcome.Matches(
+                query = query,
+                hits = hits,
+                limitReached = hits.size >= PdfKeywordSearchSupport.MAX_RESULTS,
+            )
         }
 }
 
@@ -63,9 +67,15 @@ sealed interface PdfKeywordSearchOutcome {
     data class Matches(
         val query: String,
         val hits: List<PdfKeywordSearchHit>,
+        val limitReached: Boolean,
     ) : PdfKeywordSearchOutcome {
         init {
             require(query.isNotBlank()) { "A PDF keyword search match list needs the query." }
+            if (limitReached) {
+                require(hits.size >= PdfKeywordSearchSupport.MAX_RESULTS) {
+                    "limitReached requires a full result page of ${PdfKeywordSearchSupport.MAX_RESULTS}."
+                }
+            }
         }
     }
 }

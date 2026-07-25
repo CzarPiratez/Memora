@@ -894,6 +894,15 @@ No inference harness or pack baseline yet.
 Local-AI architecture gate **planning** deliverables are complete. Measured pack
 proof and A-01 offline end-to-end intelligence remain open.
 
+## Verified engineering checkpoint
+
+Keyword recall **match-count / cap honesty** is implemented. Results show how many
+matches are listed; when the 20-hit cap is reached, copy states Memora lists at
+most 20 and more saved pages may match. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_RECALL_CAP.md. No AI/network. On 2026-07-26 the
+user confirmed on Medium Phone: Find saved PDF text → meet mira → Showing 2
+matches for two fixture PDFs; Why this result? still keyword-not-meaning.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

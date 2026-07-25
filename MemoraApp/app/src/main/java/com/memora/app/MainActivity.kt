@@ -528,7 +528,10 @@ fun PdfKeywordSearchScreen(
             )
             is PdfKeywordSearchPhase.Results -> {
                 Text(
-                    text = PdfKeywordSearchCopy.RESULTS_HINT,
+                    text = PdfKeywordSearchCopy.resultsSummary(
+                        matchCount = phase.hits.size,
+                        limitReached = phase.limitReached,
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
