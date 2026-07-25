@@ -582,6 +582,7 @@ fun PdfKeywordSearchScreen(
                                 Text(
                                     text = PdfKeywordSearchCopy.whyThisResultBody(
                                         query = phase.query,
+                                        documentLabel = hit.label,
                                         pageNumber = hit.pageNumber,
                                         excerpt = hit.excerpt,
                                     ),

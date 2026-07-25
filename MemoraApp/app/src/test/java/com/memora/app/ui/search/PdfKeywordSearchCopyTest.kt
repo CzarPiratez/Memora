@@ -22,6 +22,7 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.WHY_THIS_RESULT_LABEL,
             PdfKeywordSearchCopy.whyThisResultBody(
                 query = "meet mira",
+                documentLabel = "memora-persist-fixture.pdf",
                 pageNumber = 2,
                 excerpt = "…meet mira tomorrow…",
             ),
@@ -29,6 +30,7 @@ class PdfKeywordSearchCopyTest {
 
         assertTrue(copy.contains("keyword"))
         assertTrue(copy.contains("not meaning-based"))
+        assertTrue(copy.contains("memora-persist-fixture.pdf"))
         assertFalse(copy.contains("sqlcipher"))
         assertFalse(copy.contains("binder"))
         assertFalse(copy.contains("embedding"))
@@ -40,16 +42,28 @@ class PdfKeywordSearchCopyTest {
     }
 
     @Test
-    fun why_this_result_cites_only_query_page_and_excerpt() {
+    fun why_this_result_cites_query_document_page_and_excerpt() {
         assertEquals(
-            "Memora matched \"meet mira\" in saved PDF page text on this phone " +
-                "(Page 2). Matching evidence: …meet mira tomorrow…. " +
+            "Memora matched \"meet mira\" in saved PDF page text from " +
+                "\"memora-persist-fixture.pdf\" on this phone (Page 1). " +
+                "Matching evidence: Café memory: meet Mira at 10:30…. " +
                 "This is keyword matching, not meaning-based recall.",
             PdfKeywordSearchCopy.whyThisResultBody(
                 query = "meet mira",
-                pageNumber = 2,
-                excerpt = "…meet mira tomorrow…",
+                documentLabel = "memora-persist-fixture.pdf",
+                pageNumber = 1,
+                excerpt = "Café memory: meet Mira at 10:30…",
             ),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun why_this_result_rejects_blank_document_label() {
+        PdfKeywordSearchCopy.whyThisResultBody(
+            query = "meet mira",
+            documentLabel = " ",
+            pageNumber = 1,
+            excerpt = "meet mira",
         )
     }
 

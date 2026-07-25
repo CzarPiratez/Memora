@@ -903,6 +903,14 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_RECALL_CAP.md. No AI/network. On 2026-07-26 the
 user confirmed on Medium Phone: Find saved PDF text → meet mira → Showing 2
 matches for two fixture PDFs; Why this result? still keyword-not-meaning.
 
+## Verified engineering checkpoint
+
+Keyword **Why this result?** now cites the saved document label (same name as the
+result card) with query, page, and excerpt. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_WHY_LABEL.md. No AI/network/PDF reopen. On
+2026-07-26 the user confirmed on Medium Phone: Why cites
+memora-persist-fixture.pdf and memora-real-source-fixture.pdf for meet mira.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

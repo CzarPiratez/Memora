@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Keyword Why document-label provenance
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Why this result? cites the same saved document label shown on the
+  result card, plus query/page/excerpt; still keyword-not-meaning.
+- **Verification:** On 2026-07-26, unit copy tests; debug APK installed. User
+  confirmed on Medium Phone: Why cites each fixture PDF name for meet mira.
+- **Truthfulness:** Interim keyword path; label from Room metadata only; no PDF reopen.
+
 ### Keyword recall match-count / cap honesty
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.

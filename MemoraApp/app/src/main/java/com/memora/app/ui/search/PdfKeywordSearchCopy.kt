@@ -69,15 +69,25 @@ object PdfKeywordSearchCopy {
     /**
      * Builds a citation from stored hit fields and the search query only.
      *
-     * Does not invent confidence, meaning, or AI reasons.
+     * [documentLabel] is the same saved display name shown on the result card.
+     * Does not invent confidence, meaning, or AI reasons, and does not reopen files.
      */
-    fun whyThisResultBody(query: String, pageNumber: Int, excerpt: String): String {
+    fun whyThisResultBody(
+        query: String,
+        documentLabel: String,
+        pageNumber: Int,
+        excerpt: String,
+    ): String {
         require(query.isNotBlank()) { "Why this result needs the search query." }
+        require(documentLabel.isNotBlank()) {
+            "Why this result needs the saved document label."
+        }
         require(pageNumber > 0) { "Why this result needs a positive page number." }
         require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
 
-        return "Memora matched \"$query\" in saved PDF page text on this phone " +
-            "(${pageLabel(pageNumber)}). Matching evidence: $excerpt. " +
+        return "Memora matched \"$query\" in saved PDF page text from " +
+            "\"$documentLabel\" on this phone (${pageLabel(pageNumber)}). " +
+            "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."
     }
 }
