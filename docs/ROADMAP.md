@@ -9,6 +9,10 @@ embedding, vector, or WorkManager AI dependency is introduced.
 interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
 plan, and Local-AI traceability IDs.
 
+**Status (2026-07-25):** Spec §4 capability interfaces + unavailable stubs are
+unit-tested in domain (A-03 partial). AI Pack delivery/security plan,
+compatibility/fallback policy, and Local-AI benchmark plan remain before exit.
+
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive
 a truthful outcome rather than a hidden degraded claim.

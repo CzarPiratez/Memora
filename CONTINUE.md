@@ -853,11 +853,24 @@ scores, or PDF reopen. On 2026-07-25 the user confirmed on Medium Phone:
 Find saved PDF text -> meet mira -> Why this result? cites Page 1 + stored excerpt
 and keyword-not-meaning copy.
 
+## Verified engineering checkpoint
+
+Local-AI **capability interfaces** (architecture gate slice) are in domain
+`com.memora.app.domain.intelligence`: CapabilityAvailability/Id types, Spec §4
+VisionEngine / OcrEngine / DocumentEngine / EmbeddingEngine / MemoryBuilder /
+RecallRanker, and truthful unavailable stubs with unit tests. Change control:
+docs/CHANGE_CONTROL_LOCAL_AI_CAPABILITY_INTERFACES.md. No models, OCR SDKs,
+embeddings, network, AI Pack download, or Hilt binds. On 2026-07-25, domain
+intelligence unit tests passed. Docs do not claim on-device understanding is
+ready; A-01/A-07 and full gate exit (packs, fallback matrix, benchmarks) remain
+open.
+
 ## Next approved engineering step
 
-Local-AI architecture gate work, or further recall polish — each still requiring
-its own change-control approval. Do not add AI or network until separately
-approved.
+Remaining Local-AI architecture gate work (AI Pack delivery/security plan,
+compatibility/fallback policy, Local-AI benchmark plan), or further recall
+polish — each still requiring its own change-control approval. Do not add AI or
+network until separately approved.
 
 ## Important open decision
 

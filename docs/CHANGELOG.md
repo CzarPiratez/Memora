@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Local-AI capability interfaces (architecture gate)
+
+- **Requirements:** A-01, A-02, A-03; Local AI Technical Spec §4.
+- **Delivered:** Domain CapabilityAvailability/Id types; Spec §4 VisionEngine,
+  OcrEngine, DocumentEngine, EmbeddingEngine, MemoryBuilder, RecallRanker;
+  truthful unavailable stubs; unit availability tests. No models, OCR SDKs,
+  embeddings, network, or AI Pack downloads.
+- **Verification:** On 2026-07-25, domain intelligence unit tests passed. No new
+  AI/OCR/network Gradle deps.
+- **Truthfulness:** Does not claim on-device understanding is ready; A-01/A-07 and
+  full Local-AI gate exit remain open (packs, fallback matrix, benchmarks).
+
 ### Keyword search Why this result? (stored evidence)
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-01, A-02, A-05.
