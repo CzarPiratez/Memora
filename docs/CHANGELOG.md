@@ -8,7 +8,8 @@
 - **Delivered:** `SearchPersistedPdfPageText`; DAO join on current Asset fingerprint;
   Find saved PDF text screen with page + excerpt hits; honest keyword copy.
 - **Verification:** On 2026-07-25, unit support/copy tests; Medium Phone keyword
-  search androidTest **2 of 2**; debug APK installed. Manual confirmation pending.
+  search androidTest **2 of 2**; debug APK installed. User confirmed query → page
+  + excerpt hit on Medium Phone.
 - **Truthfulness:** Keyword/substring only; no PDF reopen, WorkManager, AI, or network.
 
 ### Persist searchable PDF text from Local PDF reading Start

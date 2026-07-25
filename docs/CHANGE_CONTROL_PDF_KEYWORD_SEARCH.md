@@ -26,8 +26,8 @@
   unit + androidTest, CONTINUE/CHANGELOG/this record.
 - **Automated verification and result:** unit support/copy passed; Medium Phone
   keyword search androidTest **2 of 2**; `:app:installDebug` OK.
-- **Emulator/manual verification and result:** APK installed; user confirmation
-  pending.
+- **Emulator/manual verification and result:** APK installed; user confirmed
+  Find saved PDF text → query → page + excerpt hit on Medium Phone (2026-07-25).
 - **Failure/recovery paths verified:** blank query; no matches; superseded
   fingerprint ignored via Asset join.
 - **Known limitation or follow-up:** Not semantic Memory recall; WorkManager

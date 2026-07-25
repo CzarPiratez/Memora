@@ -804,7 +804,8 @@ On-device keyword search over saved PDF page text is verified. On 2026-07-25,
 matches with page excerpts and superseded rows ignored. Welcome opens **Find saved
 PDF text**; copy states keyword matching, not meaning-based recall. Change control:
 `docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH.md`. No WorkManager, AI, network, or
-semantic Memory ranking was added. Manual emulator confirmation pending.
+semantic Memory ranking was added. On 2026-07-25 the user confirmed on Medium
+Phone: Find saved PDF text → query → page + excerpt hit.
 
 ## Next approved engineering step
 
