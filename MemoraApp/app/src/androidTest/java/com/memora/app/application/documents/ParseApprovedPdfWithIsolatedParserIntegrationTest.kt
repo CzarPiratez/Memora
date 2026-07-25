@@ -16,8 +16,8 @@ import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
 import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
 import com.memora.app.data.saf.SafPdfDescriptorBroker
 import com.memora.app.data.saf.SyntheticPdfDocumentsProvider
+import com.memora.app.data.saf.SafPdfDocumentFingerprint
 import com.memora.app.domain.asset.Asset
-import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetLocation
 import com.memora.app.domain.asset.AssetType
@@ -145,7 +145,12 @@ class ParseApprovedPdfWithIsolatedParserIntegrationTest {
             location = AssetLocation(
                 "content://com.memora.app.debug.syntheticpdfdocuments/document/ignored-location",
             ),
-            fingerprint = AssetFingerprint("synthetic-report:42:1024:application/pdf"),
+            fingerprint = SafPdfDocumentFingerprint.from(
+                documentId = SyntheticPdfDocumentsProvider.PDF_DOCUMENT_ID,
+                lastModifiedEpochMillis = SyntheticPdfDocumentsProvider.FIXTURE_MODIFIED_AT,
+                sizeBytes = SyntheticPdfDocumentsProvider.SYNTHETIC_PDF.size.toLong(),
+                mimeType = SyntheticPdfDocumentsProvider.PDF_MIME_TYPE,
+            ),
             discoveredAt = Instant.parse("2026-07-23T00:00:00Z"),
         ),
         schemaVersion = ExtractionSchemaVersion("pdf-extraction-v1"),

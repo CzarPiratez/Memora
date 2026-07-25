@@ -72,6 +72,14 @@ On 2026-07-25, `PdfLocalReadingCopyTest` **2 of 2** and `PdfLocalReadingSessionT
 pause/resume/stop, retryable recovery, and an honest unavailable path without opening
 any PDF. Real-source descriptor opening remains blocked.
 
+### P-07 checkpoint correction — real-source SAF descriptor open (status-only)
+
+On 2026-07-25, fingerprint revalidation unit tests **3 of 3** and Medium Phone
+emulator **11 of 11** passed, including creating one PDF under the user-approved SAF
+tree, opening it through the real broker with fresh-grant and fingerprint checks,
+parsing in the isolated service, and returning status only. Production UI/Room
+searchable wiring remains a separate follow-up.
+
 ### P-07 checkpoint correction — pure session/chunk assembler
 
 On 2026-07-25, `IsolatedPdfParserSessionAssemblerTest` passed **8 of 8** local unit

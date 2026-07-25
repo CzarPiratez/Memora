@@ -1,8 +1,8 @@
 # SAF PDF Platform Descriptor Broker Plan
 
-**Status:** Synthetic-only descriptor broker and broker-to-parser handoff verified;
-real user-source parsing remains disabled.
-**Date:** 2026-07-23
+**Status:** Synthetic broker handoff and live approved-tree real-source descriptor
+open verified (status-only). Production UI/Room searchable wiring remains disabled.
+**Date:** 2026-07-25
 **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.
 **Governing guardrail:** ADR-017 and `docs/PDF_PARSER_ISOLATION_REVIEW.md`.
 

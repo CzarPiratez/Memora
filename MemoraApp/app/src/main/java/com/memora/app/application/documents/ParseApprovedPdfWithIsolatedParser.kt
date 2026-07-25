@@ -32,6 +32,7 @@ internal class ParseApprovedPdfWithIsolatedParser(
         SafPdfDescriptorBrokerResult.AccessRevoked -> ApprovedPdfParsingOutcome.AccessRevoked
         SafPdfDescriptorBrokerResult.SourceUnavailable -> ApprovedPdfParsingOutcome.SourceUnavailable
         SafPdfDescriptorBrokerResult.SourceMismatch -> ApprovedPdfParsingOutcome.SourceMismatch
+        SafPdfDescriptorBrokerResult.StaleSource -> ApprovedPdfParsingOutcome.StaleSource
         SafPdfDescriptorBrokerResult.InvalidTarget,
         SafPdfDescriptorBrokerResult.TreeMembershipDenied,
         SafPdfDescriptorBrokerResult.UnsupportedPlatform,
@@ -96,6 +97,8 @@ internal sealed interface ApprovedPdfParsingOutcome {
     data object SourceUnavailable : ApprovedPdfParsingOutcome
 
     data object SourceMismatch : ApprovedPdfParsingOutcome
+
+    data object StaleSource : ApprovedPdfParsingOutcome
 
     data object Cancelled : ApprovedPdfParsingOutcome
 

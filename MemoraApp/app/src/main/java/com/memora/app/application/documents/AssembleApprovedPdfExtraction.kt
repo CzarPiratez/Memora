@@ -43,6 +43,7 @@ internal class AssembleApprovedPdfExtraction(
         ApprovedPdfParsingOutcome.AccessRevoked -> ApprovedPdfExtractionAssemblyOutcome.AccessRevoked
         ApprovedPdfParsingOutcome.SourceUnavailable -> ApprovedPdfExtractionAssemblyOutcome.SourceUnavailable
         ApprovedPdfParsingOutcome.SourceMismatch -> ApprovedPdfExtractionAssemblyOutcome.SourceMismatch
+        ApprovedPdfParsingOutcome.StaleSource -> ApprovedPdfExtractionAssemblyOutcome.StaleSource
         ApprovedPdfParsingOutcome.Cancelled -> ApprovedPdfExtractionAssemblyOutcome.Cancelled
         ApprovedPdfParsingOutcome.ParserFailure -> ApprovedPdfExtractionAssemblyOutcome.ParserFailure
         ApprovedPdfParsingOutcome.RetryableFailure -> {
@@ -110,6 +111,8 @@ internal sealed interface ApprovedPdfExtractionAssemblyOutcome {
     data object SourceUnavailable : ApprovedPdfExtractionAssemblyOutcome
 
     data object SourceMismatch : ApprovedPdfExtractionAssemblyOutcome
+
+    data object StaleSource : ApprovedPdfExtractionAssemblyOutcome
 
     data object Cancelled : ApprovedPdfExtractionAssemblyOutcome
 

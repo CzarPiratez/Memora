@@ -122,6 +122,21 @@ class SafPdfDescriptorBrokerIntegrationTest {
     }
 
     @Test
+    fun stale_fingerprint_does_not_open_a_descriptor() = runBlocking {
+        val platform = RecordingPlatform(
+            fingerprint = AssetFingerprint("synthetic-report:0:0:application/pdf"),
+        )
+        val result = broker(
+            accessStates = listOf(SourceAccessState.GRANTED, SourceAccessState.GRANTED),
+            platform = platform,
+        ).withReadOnlyDescriptor(request()) { "must not run" }
+
+        assertEquals(SafPdfDescriptorBrokerResult.StaleSource, result)
+        assertEquals(1, platform.membershipCalls.get())
+        assertEquals(0, platform.openCalls.get())
+    }
+
+    @Test
     fun foreign_source_without_an_approval_is_denied_before_platform_access() = runBlocking {
         val platform = RecordingPlatform()
         val result = broker(
@@ -155,7 +170,12 @@ class SafPdfDescriptorBrokerIntegrationTest {
             location = AssetLocation(
                 "content://com.memora.app.debug.syntheticpdfdocuments/document/ignored-location",
             ),
-            fingerprint = AssetFingerprint("synthetic-report:42:1024:application/pdf"),
+            fingerprint = SafPdfDocumentFingerprint.from(
+                documentId = SyntheticPdfDocumentsProvider.PDF_DOCUMENT_ID,
+                lastModifiedEpochMillis = SyntheticPdfDocumentsProvider.FIXTURE_MODIFIED_AT,
+                sizeBytes = SyntheticPdfDocumentsProvider.SYNTHETIC_PDF.size.toLong(),
+                mimeType = SyntheticPdfDocumentsProvider.PDF_MIME_TYPE,
+            ),
             discoveredAt = Instant.parse("2026-07-23T00:00:00Z"),
         ),
         schemaVersion = ExtractionSchemaVersion("pdf-extraction-v1"),
@@ -184,6 +204,7 @@ class SafPdfDescriptorBrokerIntegrationTest {
 
     private class RecordingPlatform(
         private val membership: SafPdfTreeMembership = SafPdfTreeMembership.VERIFIED,
+        private val fingerprint: AssetFingerprint? = matchingSyntheticFingerprint(),
     ) : SafPdfDescriptorPlatform {
         val membershipCalls = AtomicInteger(0)
         val openCalls = AtomicInteger(0)
@@ -192,6 +213,8 @@ class SafPdfDescriptorBrokerIntegrationTest {
             membershipCalls.incrementAndGet()
             return membership
         }
+
+        override fun observeFingerprint(target: SafPdfCanonicalTarget): AssetFingerprint? = fingerprint
 
         override fun openReadOnly(
             target: SafPdfCanonicalTarget,
@@ -210,9 +233,21 @@ class SafPdfDescriptorBrokerIntegrationTest {
         override fun membership(target: SafPdfCanonicalTarget): SafPdfTreeMembership =
             SafPdfTreeMembership.VERIFIED
 
+        override fun observeFingerprint(target: SafPdfCanonicalTarget): AssetFingerprint =
+            matchingSyntheticFingerprint()
+
         override fun openReadOnly(
             target: SafPdfCanonicalTarget,
             cancellationSignal: CancellationSignal?,
         ): ParcelFileDescriptor = original
+    }
+
+    private companion object {
+        fun matchingSyntheticFingerprint(): AssetFingerprint = SafPdfDocumentFingerprint.from(
+            documentId = SyntheticPdfDocumentsProvider.PDF_DOCUMENT_ID,
+            lastModifiedEpochMillis = SyntheticPdfDocumentsProvider.FIXTURE_MODIFIED_AT,
+            sizeBytes = SyntheticPdfDocumentsProvider.SYNTHETIC_PDF.size.toLong(),
+            mimeType = SyntheticPdfDocumentsProvider.PDF_MIME_TYPE,
+        )
     }
 }

@@ -46,6 +46,12 @@ internal class PrepareApprovedPdfExtractionPersistence {
             retry = PdfExtractionRetryDirective.REQUIRES_FRESH_EXTRACTION,
         )
 
+        ApprovedPdfExtractionAssemblyOutcome.StaleSource -> notEligible(
+            request,
+            lifecycle = PdfExtractionPersistenceLifecycle.STALE_REINDEX_REQUIRED,
+            retry = PdfExtractionRetryDirective.REQUIRES_FRESH_EXTRACTION,
+        )
+
         ApprovedPdfExtractionAssemblyOutcome.Cancelled,
         ApprovedPdfExtractionAssemblyOutcome.RetryableParserFailure -> notEligible(
             request,

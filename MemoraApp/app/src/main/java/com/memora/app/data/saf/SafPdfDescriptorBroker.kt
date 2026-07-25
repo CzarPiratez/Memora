@@ -7,21 +7,24 @@ import com.memora.app.domain.discovery.DocumentTreeAccessValidator
 import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.discovery.SourceAccessState
 import com.memora.app.domain.extraction.ApprovedPdfDescriptorCustodyContract
+import com.memora.app.domain.extraction.ApprovedPdfFingerprintRevalidationContract
 import com.memora.app.domain.extraction.PdfDescriptorCustodyDecision
 import com.memora.app.domain.extraction.PdfExtractionRequest
+import com.memora.app.domain.extraction.PdfFingerprintRevalidationDecision
+import com.memora.app.domain.asset.AssetFingerprint
 import java.io.FileNotFoundException
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Ordinary-process custody boundary for one future SAF PDF parser request.
+ * Ordinary-process custody boundary for one SAF PDF parser request.
  *
  * The broker contains all descriptor ownership: it opens one read-only descriptor,
  * duplicates it once, closes the original before the supplied data-layer consumer
  * executes, then closes the duplicate on every exit. It is intentionally internal,
  * unbound from Hilt, and has no UI, Room persistence, worker, or parser-service
- * dependency. The only current caller is its synthetic Android integration test.
+ * dependency.
  */
 internal class SafPdfDescriptorBroker(
     private val approvalRepository: DocumentTreeApprovalRepository,
@@ -99,6 +102,21 @@ internal class SafPdfDescriptorBroker(
             return@withContext finalAccess.toBrokerResult()
         }
 
+        when (
+            ApprovedPdfFingerprintRevalidationContract.decide(
+                requestFingerprint = request.asset.fingerprint,
+                observedFingerprint = platform.observeFingerprint(target),
+            )
+        ) {
+            PdfFingerprintRevalidationDecision.Current -> Unit
+            PdfFingerprintRevalidationDecision.Stale -> {
+                return@withContext SafPdfDescriptorBrokerResult.StaleSource
+            }
+            PdfFingerprintRevalidationDecision.Unavailable -> {
+                return@withContext SafPdfDescriptorBrokerResult.SourceUnavailable
+            }
+        }
+
         val duplicate = try {
             val opened = platform.openReadOnly(target, cancellationSignal)
                 ?: return@withContext SafPdfDescriptorBrokerResult.SourceUnavailable
@@ -135,6 +153,8 @@ internal class SafPdfDescriptorBroker(
 internal interface SafPdfDescriptorPlatform {
     fun membership(target: SafPdfCanonicalTarget): SafPdfTreeMembership
 
+    fun observeFingerprint(target: SafPdfCanonicalTarget): AssetFingerprint?
+
     @Throws(
         OperationCanceledException::class,
         SecurityException::class,
@@ -166,6 +186,8 @@ internal sealed interface SafPdfDescriptorBrokerResult<out T> {
     data object SourceUnavailable : SafPdfDescriptorBrokerResult<Nothing>
 
     data object SourceMismatch : SafPdfDescriptorBrokerResult<Nothing>
+
+    data object StaleSource : SafPdfDescriptorBrokerResult<Nothing>
 
     data object InvalidTarget : SafPdfDescriptorBrokerResult<Nothing>
 

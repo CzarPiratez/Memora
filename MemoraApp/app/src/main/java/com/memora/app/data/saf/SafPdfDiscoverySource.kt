@@ -1,7 +1,6 @@
 package com.memora.app.data.saf
 
 import com.memora.app.domain.asset.Asset
-import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetLocation
 import com.memora.app.domain.asset.AssetType
@@ -158,8 +157,11 @@ class SafPdfDiscoverySource(
             ),
             type = AssetType.PDF,
             location = AssetLocation(documentUri),
-            fingerprint = AssetFingerprint(
-                "$documentId:${lastModifiedEpochMillis ?: UNKNOWN_VERSION}:${sizeBytes ?: UNKNOWN_SIZE}:$mimeType",
+            fingerprint = SafPdfDocumentFingerprint.from(
+                documentId = documentId,
+                lastModifiedEpochMillis = lastModifiedEpochMillis,
+                sizeBytes = sizeBytes,
+                mimeType = mimeType,
             ),
             discoveredAt = discoveredAt,
             displayName = displayName?.takeIf(String::isNotBlank),
@@ -170,7 +172,5 @@ class SafPdfDiscoverySource(
     private companion object {
         const val PDF_MIME_TYPE = "application/pdf"
         const val DIRECTORY_MIME_TYPE = "vnd.android.document/directory"
-        const val UNKNOWN_VERSION = "unknown-version"
-        const val UNKNOWN_SIZE = "unknown-size"
     }
 }
