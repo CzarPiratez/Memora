@@ -3,10 +3,10 @@ package com.memora.app.ui.setup
 import com.memora.app.domain.discovery.ImageLibraryAccessScope
 
 /**
- * User-facing completion copy for one explicit, bounded MediaStore indexing request.
+ * User-facing completion copy for MediaStore photo/screenshot metadata discovery.
  *
- * This is pure presentation logic so the selected-photo privacy boundary remains
- * testable without requiring a device or accessing an Android source.
+ * Pure presentation logic so the selected-photo privacy boundary remains testable
+ * without requiring a device. Never claims OCR, Memory, or searchable understanding.
  */
 internal fun completedIndexingSummary(
     discoveredAssetCount: Int,
@@ -19,10 +19,16 @@ internal fun completedIndexingSummary(
     }
     val itemDescription = if (discoveredAssetCount == 1) "item" else "items"
     val nextStep = if (hasMore) {
-        "More permitted items remain. You can choose another indexing step later."
+        "More permitted items remain. Tap Start indexing to keep listing photo metadata. " +
+            "This does not read photo contents or create searchable memories yet."
     } else {
-        "This permitted source is currently up to date."
+        "This permitted photo catalogue is currently up to date. " +
+            "This lists metadata only; it does not read photo contents or create searchable memories yet."
     }
 
     return "Memora indexed $discoveredAssetCount $itemDescription from $sourceDescription. $nextStep"
 }
+
+internal const val MEDIASTORE_INDEXING_IN_PROGRESS_BODY =
+    "Memora is reading photo and screenshot metadata on this phone. " +
+        "This lists items only; it does not open photo contents or create searchable memories yet."

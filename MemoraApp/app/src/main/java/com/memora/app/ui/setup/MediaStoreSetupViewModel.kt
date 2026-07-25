@@ -2,11 +2,16 @@ package com.memora.app.ui.setup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.memora.app.application.discovery.MediaStoreImageIndexer
-import com.memora.app.application.discovery.MediaStoreIndexingOutcome
+import androidx.work.WorkInfo
+import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.discovery.ImageLibraryAccessScope
+import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
+import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
+import com.memora.app.work.MediaStoreDiscoveryWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +29,7 @@ enum class PhotoAccessState {
     GRANTED,
 }
 
-/** A user-safe summary of a single explicit indexing request. */
+/** A user-safe summary of MediaStore discovery drain progress. */
 sealed interface MediaStoreIndexingState {
     data object NOT_STARTED : MediaStoreIndexingState
 
@@ -50,16 +55,20 @@ sealed interface MediaStoreIndexingState {
  *
  * Android permission requests remain in the Activity/Compose layer. Indexing begins
  * only when that layer reports granted access and the user explicitly requests it.
+ * Discovery metadata only; does not open image bytes or schedule OCR.
  */
 @HiltViewModel
 class MediaStoreSetupViewModel @Inject constructor(
-    private val indexMediaStoreImages: MediaStoreImageIndexer,
+    private val discoveryWorkScheduler: MediaStoreDiscoveryWorkScheduler,
+    private val assetRepository: AssetRepository,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(MediaStoreSetupUiState())
+    private var workObservationJob: Job? = null
 
     val uiState: StateFlow<MediaStoreSetupUiState> = mutableUiState.asStateFlow()
 
     fun onPhotoPermissionResult(isGranted: Boolean) {
+        workObservationJob?.cancel()
         mutableUiState.value = if (isGranted) {
             MediaStoreSetupUiState(photoAccess = PhotoAccessState.GRANTED)
         } else {
@@ -68,6 +77,7 @@ class MediaStoreSetupViewModel @Inject constructor(
     }
 
     fun onDerivedDataCleared() {
+        workObservationJob?.cancel()
         val photoAccess = mutableUiState.value.photoAccess
         mutableUiState.value = MediaStoreSetupUiState(photoAccess = photoAccess)
     }
@@ -81,36 +91,80 @@ class MediaStoreSetupViewModel @Inject constructor(
         }
 
         mutableUiState.value = current.copy(indexing = MediaStoreIndexingState.IN_PROGRESS)
-        viewModelScope.launch {
-            mutableUiState.value = indexMediaStoreImages().toUiState(current.photoAccess)
+        discoveryWorkScheduler.enqueueDrain()
+        observeDiscoveryWork()
+    }
+
+    private fun observeDiscoveryWork() {
+        workObservationJob?.cancel()
+        workObservationJob = viewModelScope.launch {
+            discoveryWorkScheduler.observeUniqueWork().collect { infos ->
+                applyWorkInfos(infos)
+            }
         }
     }
 
-    private fun MediaStoreIndexingOutcome.toUiState(
-        priorPhotoAccess: PhotoAccessState,
-    ): MediaStoreSetupUiState = when (this) {
-        is MediaStoreIndexingOutcome.Indexed -> MediaStoreSetupUiState(
-            photoAccess = priorPhotoAccess,
-            indexing = MediaStoreIndexingState.COMPLETED(
-                discoveredAssetCount = discoveredAssetCount,
-                hasMore = hasMore,
-                accessScope = accessScope,
-            ),
-        )
+    private suspend fun applyWorkInfos(infos: List<WorkInfo>) {
+        if (infos.isEmpty()) return
+        if (mutableUiState.value.photoAccess != PhotoAccessState.GRANTED &&
+            mutableUiState.value.indexing != MediaStoreIndexingState.IN_PROGRESS
+        ) {
+            return
+        }
 
-        MediaStoreIndexingOutcome.AccessRequired -> MediaStoreSetupUiState(
-            photoAccess = PhotoAccessState.REQUIRED,
-            indexing = MediaStoreIndexingState.ACCESS_REQUIRED,
-        )
+        val sourceId = DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID
+        val totalAssets = runCatching {
+            assetRepository.countBySourceAndType(sourceId, AssetType.PHOTO) +
+                assetRepository.countBySourceAndType(sourceId, AssetType.SCREENSHOT)
+        }.getOrDefault(0)
 
-        MediaStoreIndexingOutcome.AccessRevoked -> MediaStoreSetupUiState(
-            photoAccess = PhotoAccessState.REQUIRED,
-            indexing = MediaStoreIndexingState.ACCESS_REVOKED,
-        )
+        when {
+            infos.any { info ->
+                info.state == WorkInfo.State.RUNNING ||
+                    info.state == WorkInfo.State.ENQUEUED ||
+                    info.state == WorkInfo.State.BLOCKED
+            } -> {
+                mutableUiState.value = mutableUiState.value.copy(
+                    indexing = MediaStoreIndexingState.IN_PROGRESS,
+                )
+            }
 
-        is MediaStoreIndexingOutcome.Failed -> MediaStoreSetupUiState(
-            photoAccess = priorPhotoAccess,
-            indexing = MediaStoreIndexingState.FAILED(failure.message),
-        )
+            infos.any { it.state == WorkInfo.State.FAILED } -> {
+                val failed = infos.lastOrNull { it.state == WorkInfo.State.FAILED }
+                val reason = failed?.outputData?.getString(MediaStoreDiscoveryWorker.KEY_FAILURE_REASON)
+                if (reason == MediaStoreDiscoveryWorker.REASON_ACCESS_STOPPED) {
+                    mutableUiState.value = MediaStoreSetupUiState(
+                        photoAccess = PhotoAccessState.REQUIRED,
+                        indexing = MediaStoreIndexingState.ACCESS_REVOKED,
+                    )
+                } else {
+                    mutableUiState.value = mutableUiState.value.copy(
+                        indexing = MediaStoreIndexingState.FAILED(
+                            "Memora could not finish reading photo metadata. You can try again.",
+                        ),
+                    )
+                }
+            }
+
+            infos.all { it.state.isFinished } -> {
+                val lastSuccess = infos.lastOrNull { it.state == WorkInfo.State.SUCCEEDED }
+                val hasMore = lastSuccess?.outputData?.getBoolean(
+                    MediaStoreDiscoveryWorker.KEY_HAS_MORE,
+                    false,
+                ) == true
+                val accessScope = lastSuccess?.outputData
+                    ?.getString(MediaStoreDiscoveryWorker.KEY_ACCESS_SCOPE)
+                    ?.let { runCatching { ImageLibraryAccessScope.valueOf(it) }.getOrNull() }
+                    ?: ImageLibraryAccessScope.FULL_LIBRARY
+                mutableUiState.value = MediaStoreSetupUiState(
+                    photoAccess = PhotoAccessState.GRANTED,
+                    indexing = MediaStoreIndexingState.COMPLETED(
+                        discoveredAssetCount = totalAssets,
+                        hasMore = hasMore,
+                        accessScope = accessScope,
+                    ),
+                )
+            }
+        }
     }
 }

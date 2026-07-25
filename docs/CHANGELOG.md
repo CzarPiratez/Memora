@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### WorkManager MediaStore discovery drain
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** MediaStoreDiscoveryWorker drains IndexMediaStoreImages pages under
+  unique work; ViewModel enqueues on Start indexing; honest full/selected metadata
+  copy; battery-not-low constraint.
+- **Verification:** On 2026-07-25, unit mapper/summary/ViewModel tests; Medium Phone
+  MediaStoreDiscoveryWorkerAndroidTest **2 of 2**; debug APK installed. User
+  confirmed on Medium Phone: metadata-only completed copy (0 items / up to date).
+- **Truthfulness:** Metadata catalogue only; no image bytes, OCR, AI, or network.
+
 ### WorkManager SAF PDF extract drain
 
 - **Requirements:** P-05, P-07, P-14, P-15, P-17; A-01, A-02, A-06.

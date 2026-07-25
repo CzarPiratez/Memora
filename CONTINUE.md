@@ -832,11 +832,22 @@ No AI/network. On 2026-07-25 the user confirmed on Medium Phone: Local PDF
 reading Completed copy — finished reading PDFs from this folder and saved text
 for search where reading succeeded.
 
+## Verified engineering checkpoint
+
+WorkManager MediaStore **discovery drain** is implemented (photo/screenshot
+metadata only). Explicit Start indexing enqueues unique work that pages
+IndexMediaStoreImages until complete or access fails; copy keeps full-vs-selected
+honesty and never claims OCR/Memory readiness. Change control:
+docs/CHANGE_CONTROL_MEDIASTORE_DISCOVERY_WORKMANAGER.md. No OCR/AI/network.
+On 2026-07-25 the user confirmed on Medium Phone: Start indexing completed with
+honest metadata-only copy (0 items from permitted photo library; catalogue up to
+date; no photo contents / searchable memories claimed).
+
 ## Next approved engineering step
 
-Richer recall / semantic Memory, or MediaStore background discovery — each still
-requiring its own change-control approval. Do not add AI or network until
-separately approved.
+Richer keyword Explain Mode (evidence citations, no AI), or Local-AI gate work —
+each still requiring its own change-control approval. Do not add AI or network
+until separately approved.
 
 ## Important open decision
 

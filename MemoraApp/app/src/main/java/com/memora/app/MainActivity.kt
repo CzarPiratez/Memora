@@ -71,6 +71,7 @@ import com.memora.app.ui.setup.PdfLocalReadingState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.MEDIASTORE_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
@@ -757,12 +758,24 @@ fun PrivacyScreen(
                 ) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Indexing one small, read-only page of photo metadata…")
+                    Text(
+                        text = MEDIASTORE_INDEXING_IN_PROGRESS_BODY,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
             }
 
             is MediaStoreIndexingState.COMPLETED -> {
                 IndexingCompletedMessage(indexing = setupUiState.indexing)
+                if (setupUiState.indexing.hasMore) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = onStartIndexing,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Continue indexing")
+                    }
+                }
             }
 
             is MediaStoreIndexingState.FAILED -> {
@@ -783,7 +796,7 @@ fun PrivacyScreen(
             MediaStoreIndexingState.NOT_STARTED -> {
                 if (setupUiState.photoAccess.isGranted) {
                     Text(
-                        text = "Photo access is ready. When you start, Memora will save one small page of permitted photo metadata to its private on-device catalogue. It will not open, edit, upload, or delete your photos.",
+                        text = "Photo access is ready. When you start, Memora will read permitted photo metadata into its private on-device catalogue in the background. It will not open, edit, upload, or delete your photos.",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyMedium,
                     )

@@ -2,8 +2,10 @@ package com.memora.app.data.di
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
+import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.SafPdfDiscoveryWorkScheduler
 import com.memora.app.work.SafPdfExtractWorkScheduler
 import com.memora.app.application.documents.PendingPdfLocalReader
@@ -39,6 +41,12 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
     abstract fun bindSafPdfExtractWorkScheduler(
         impl: DefaultSafPdfExtractWorkScheduler,
     ): SafPdfExtractWorkScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindMediaStoreDiscoveryWorkScheduler(
+        impl: DefaultMediaStoreDiscoveryWorkScheduler,
+    ): MediaStoreDiscoveryWorkScheduler
 
     @Binds
     @Singleton
