@@ -36,4 +36,4 @@ AI/network/PDF reopen. Label already on the hit card from saved Room metadata.
 - **Known limitation or follow-up:** Label may be generic “PDF document” when
   display name/title were blank at discovery; still interim keyword path.
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `d838df0`
