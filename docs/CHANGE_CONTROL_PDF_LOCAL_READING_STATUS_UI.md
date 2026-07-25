@@ -42,8 +42,8 @@
   CONTINUE/CHANGELOG/this record.
 - **Automated verification and result:** unit local-reading **9** passed; Room
   asset lookup androidTest **3 of 3** on Medium Phone; `:app:installDebug` OK.
-- **Emulator/manual verification and result:** APK installed; user Start →
-  Completed (or honest failure) confirmation pending.
+- **Emulator/manual verification and result:** APK installed; user confirmed
+  Start → Completed on Medium Phone with one indexed PDF (2026-07-25).
 - **Failure/recovery paths verified:** unit mapping for password/access/retryable/
   cancel; Pause/Stop cancel signal in ViewModel.
 - **Known limitation or follow-up:** Searchable Room persist and WorkManager remain

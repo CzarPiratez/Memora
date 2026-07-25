@@ -779,8 +779,9 @@ androidTest **3 of 3** on Medium Phone, and debug APK installed. Start/Retry/Res
 run one broker + isolated-parser status check for the first indexed PDF in the
 connected folder; page text is still discarded; no searchable Room write,
 WorkManager, AI, or network. Change control:
-`docs/CHANGE_CONTROL_PDF_LOCAL_READING_STATUS_UI.md`. Manual emulator confirmation
-of Start → Completed (or honest failure) is pending user feedback.
+`docs/CHANGE_CONTROL_PDF_LOCAL_READING_STATUS_UI.md`. On 2026-07-25 the user
+confirmed on Medium Phone: indexed folder (1 PDF) → Continue → Start → Completed
+(“finished a local reading check… Text was not saved for search yet”).
 
 ## Next approved engineering step
 

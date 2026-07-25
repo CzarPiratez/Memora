@@ -9,8 +9,8 @@
   the isolated parser for one indexed PDF; session Completed state; honest copy;
   first-PDF asset lookup on `AssetRepository`.
 - **Verification:** On 2026-07-25, unit local-reading **9**; Room asset lookup
-  androidTest **3 of 3**; debug APK installed on Medium Phone. Manual Start
-  confirmation pending.
+  androidTest **3 of 3**; debug APK installed on Medium Phone. User confirmed
+  Start → Completed on an indexed folder (1 PDF).
 - **Truthfulness:** Page text still discarded; no searchable Room persist,
   WorkManager, AI, or network.
 
