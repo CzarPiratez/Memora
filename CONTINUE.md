@@ -749,15 +749,30 @@ session assembler and still returns status only. Plan:
 `docs/PDF_PARSER_SESSION_STREAMING_PLAN.md`. No real-source open, Room/UI wiring,
 WorkManager, AI, or network path was added.
 
+## Verified engineering checkpoint
+
+ADR-017 visible foreground PDF local-reading recovery flow is verified at the
+presentation layer. On 2026-07-25, `PdfLocalReadingCopyTest` **2 of 2** and
+`PdfLocalReadingSessionTest` **5 of 5** passed. Plan:
+`docs/PDF_EXTRACTION_VISIBLE_RECOVERY_PLAN.md`. The connected PDF-folder screen
+shows scope explanation, progress/pause/resume/stop, retryable recovery, and an
+honest “text reading not enabled yet” path. No PDF is opened, no isolated-parser
+user-document call, Room extraction write, WorkManager, AI, or network path was
+added.
+
 ## Next approved engineering step
 
-Remaining ADR-017 gates before production PDF content / real-source use:
+Remaining ADR-017 gate before production PDF content / real-source use:
 
-1. Visible foreground progress / pause / retry recovery flow.
-2. Real-source descriptor path only after recovery gates pass.
+1. Real-source descriptor path (only after this recovery gate is manually confirmed
+   on the emulator).
 
 Do not wire production discovery/UI to persist PDF text from real documents,
-schedule WorkManager, invoke AI, or use the network until those gates pass.
+schedule WorkManager, invoke AI, or use the network until that gate passes.
+
+**Manual check (please):** Welcome → Connect a PDF folder → with a connected folder,
+use the **Local PDF reading** card: Continue → Start → Pause → Resume → Stop; also
+try **Show example problem** → Try again, and **Text reading not enabled yet**.
 
 ## Important open decision
 

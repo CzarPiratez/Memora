@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Verified visible PDF local-reading recovery UI (presentation-only)
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** PdfLocalReadingCopy/session/ViewModel and Local PDF reading card on
+  the connected folder screen (explain, progress, pause, retry, unavailable).
+- **Verification:** On 2026-07-25, unit copy 2 of 2 and session 5 of 5.
+- **Truthfulness:** Does not open PDFs, call the parser for user documents, write
+  Room extraction text, or add WorkManager/AI/network.
+
 ### Verified Binder protocol v3 session/chunk streaming
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

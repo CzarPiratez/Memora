@@ -62,7 +62,15 @@ source parsing disabled.
 On 2026-07-25, Medium Phone emulator verification passed **25** focused tests for
 protocol v3 `begin` / `nextChunk` / `cancel` against repository-owned synthetic
 descriptors. The ordinary client validates through the session assembler and returns
-status only. Visible recovery and real-source opening remain separate ADR-017 gates.
+status only. Visible recovery presentation landed separately the same day; real-source
+opening remains a separate ADR-017 gate.
+
+### P-07 checkpoint correction — visible local-reading recovery presentation
+
+On 2026-07-25, `PdfLocalReadingCopyTest` **2 of 2** and `PdfLocalReadingSessionTest`
+**5 of 5** passed. The connected PDF-folder screen shows scope explanation, progress,
+pause/resume/stop, retryable recovery, and an honest unavailable path without opening
+any PDF. Real-source descriptor opening remains blocked.
 
 ### P-07 checkpoint correction — pure session/chunk assembler
 

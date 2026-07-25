@@ -58,8 +58,12 @@ import com.memora.app.ui.setup.DocumentTreeConnectionState
 import com.memora.app.ui.setup.DocumentTreeSetupUiState
 import com.memora.app.ui.setup.DocumentTreeSetupViewModel
 import com.memora.app.ui.setup.PdfFolderIndexingState
+import com.memora.app.ui.setup.PdfLocalReadingCopy
+import com.memora.app.ui.setup.PdfLocalReadingState
+import com.memora.app.ui.setup.PdfLocalReadingViewModel
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.BufferedReader
@@ -71,6 +75,7 @@ class MainActivity : ComponentActivity() {
     private val documentTreeSetupViewModel: DocumentTreeSetupViewModel by viewModels()
     private val clearDerivedDataViewModel: ClearDerivedDataViewModel by viewModels()
     private val databaseAvailabilityViewModel: DatabaseAvailabilityViewModel by viewModels()
+    private val pdfLocalReadingViewModel: PdfLocalReadingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +85,7 @@ class MainActivity : ComponentActivity() {
             val documentTreeSetupUiState by documentTreeSetupViewModel.uiState.collectAsState()
             val clearDerivedDataUiState by clearDerivedDataViewModel.uiState.collectAsState()
             val databaseAvailabilityUiState by databaseAvailabilityViewModel.uiState.collectAsState()
+            val pdfLocalReadingState by pdfLocalReadingViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -88,6 +94,7 @@ class MainActivity : ComponentActivity() {
                         setupUiState = setupUiState,
                         documentTreeSetupUiState = documentTreeSetupUiState,
                         clearDerivedDataUiState = clearDerivedDataUiState,
+                        pdfLocalReadingState = pdfLocalReadingState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onDocumentTreeReadAccessReceived =
@@ -95,6 +102,14 @@ class MainActivity : ComponentActivity() {
                         onDocumentTreeReadAccessFailed =
                             documentTreeSetupViewModel::onPersistableReadAccessFailed,
                         onPdfIndexRequested = documentTreeSetupViewModel::onIndexRequested,
+                        onAcknowledgeLocalReadingScope = pdfLocalReadingViewModel::onAcknowledgeScope,
+                        onStartLocalReadingStep = pdfLocalReadingViewModel::onStart,
+                        onPauseLocalReadingStep = pdfLocalReadingViewModel::onPause,
+                        onResumeLocalReadingStep = pdfLocalReadingViewModel::onResume,
+                        onStopLocalReadingStep = pdfLocalReadingViewModel::onStop,
+                        onRetryLocalReadingStep = pdfLocalReadingViewModel::onRetry,
+                        onShowLocalReadingRetryableDemo = pdfLocalReadingViewModel::onShowRetryableDemo,
+                        onMarkLocalReadingUnavailable = pdfLocalReadingViewModel::onMarkUnavailable,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -119,11 +134,20 @@ fun MemoraApp(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
+    pdfLocalReadingState: PdfLocalReadingState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
+    onAcknowledgeLocalReadingScope: () -> Unit,
+    onStartLocalReadingStep: () -> Unit,
+    onPauseLocalReadingStep: () -> Unit,
+    onResumeLocalReadingStep: () -> Unit,
+    onStopLocalReadingStep: () -> Unit,
+    onRetryLocalReadingStep: () -> Unit,
+    onShowLocalReadingRetryableDemo: () -> Unit,
+    onMarkLocalReadingUnavailable: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -145,11 +169,20 @@ fun MemoraApp(
             setupUiState = setupUiState,
             documentTreeSetupUiState = documentTreeSetupUiState,
             clearDerivedDataUiState = clearDerivedDataUiState,
+            pdfLocalReadingState = pdfLocalReadingState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
+            onAcknowledgeLocalReadingScope = onAcknowledgeLocalReadingScope,
+            onStartLocalReadingStep = onStartLocalReadingStep,
+            onPauseLocalReadingStep = onPauseLocalReadingStep,
+            onResumeLocalReadingStep = onResumeLocalReadingStep,
+            onStopLocalReadingStep = onStopLocalReadingStep,
+            onRetryLocalReadingStep = onRetryLocalReadingStep,
+            onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
+            onMarkLocalReadingUnavailable = onMarkLocalReadingUnavailable,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -164,11 +197,20 @@ private fun MemoraAppReady(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
+    pdfLocalReadingState: PdfLocalReadingState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
+    onAcknowledgeLocalReadingScope: () -> Unit,
+    onStartLocalReadingStep: () -> Unit,
+    onPauseLocalReadingStep: () -> Unit,
+    onResumeLocalReadingStep: () -> Unit,
+    onStopLocalReadingStep: () -> Unit,
+    onRetryLocalReadingStep: () -> Unit,
+    onShowLocalReadingRetryableDemo: () -> Unit,
+    onMarkLocalReadingUnavailable: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -242,8 +284,17 @@ private fun MemoraAppReady(
 
             isShowingDocumentTreeScreen -> DocumentTreeSetupScreen(
                 setupUiState = documentTreeSetupUiState,
+                pdfLocalReadingState = pdfLocalReadingState,
                 onChooseFolder = { documentTreeLauncher.launch(null) },
                 onStartIndexing = onPdfIndexRequested,
+                onAcknowledgeLocalReadingScope = onAcknowledgeLocalReadingScope,
+                onStartLocalReadingStep = onStartLocalReadingStep,
+                onPauseLocalReadingStep = onPauseLocalReadingStep,
+                onResumeLocalReadingStep = onResumeLocalReadingStep,
+                onStopLocalReadingStep = onStopLocalReadingStep,
+                onRetryLocalReadingStep = onRetryLocalReadingStep,
+                onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
+                onMarkLocalReadingUnavailable = onMarkLocalReadingUnavailable,
                 onBack = { isShowingDocumentTreeScreen = false },
                 modifier = modifier,
             )
@@ -636,8 +687,17 @@ fun PrivacyScreen(
 @Composable
 fun DocumentTreeSetupScreen(
     setupUiState: DocumentTreeSetupUiState,
+    pdfLocalReadingState: PdfLocalReadingState,
     onChooseFolder: () -> Unit,
     onStartIndexing: () -> Unit,
+    onAcknowledgeLocalReadingScope: () -> Unit,
+    onStartLocalReadingStep: () -> Unit,
+    onPauseLocalReadingStep: () -> Unit,
+    onResumeLocalReadingStep: () -> Unit,
+    onStopLocalReadingStep: () -> Unit,
+    onRetryLocalReadingStep: () -> Unit,
+    onShowLocalReadingRetryableDemo: () -> Unit,
+    onMarkLocalReadingUnavailable: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -645,8 +705,9 @@ fun DocumentTreeSetupScreen(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 32.dp),
-        verticalArrangement = Arrangement.Center,
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
     ) {
         Button(onClick = onBack) {
             Text("Back")
@@ -727,6 +788,18 @@ fun DocumentTreeSetupScreen(
                     indexing = setupUiState.indexing,
                     onStartIndexing = onStartIndexing,
                 )
+                Spacer(modifier = Modifier.height(20.dp))
+                PdfLocalReadingRecoveryControl(
+                    state = pdfLocalReadingState,
+                    onAcknowledgeScope = onAcknowledgeLocalReadingScope,
+                    onStart = onStartLocalReadingStep,
+                    onPause = onPauseLocalReadingStep,
+                    onResume = onResumeLocalReadingStep,
+                    onStop = onStopLocalReadingStep,
+                    onRetry = onRetryLocalReadingStep,
+                    onShowRetryableDemo = onShowLocalReadingRetryableDemo,
+                    onMarkUnavailable = onMarkLocalReadingUnavailable,
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
                     onClick = onChooseFolder,
@@ -748,6 +821,138 @@ fun DocumentTreeSetupScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Choose a PDF folder")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PdfLocalReadingRecoveryControl(
+    state: PdfLocalReadingState,
+    onAcknowledgeScope: () -> Unit,
+    onStart: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onStop: () -> Unit,
+    onRetry: () -> Unit,
+    onShowRetryableDemo: () -> Unit,
+    onMarkUnavailable: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = PdfLocalReadingCopy.SECTION_TITLE,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = pdfLocalReadingBody(state),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (state == PdfLocalReadingState.AccessRecoveryNeeded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = PdfLocalReadingCopy.RECONNECT_HINT,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            when (state) {
+                PdfLocalReadingState.NeedsExplanation -> Button(
+                    onClick = onAcknowledgeScope,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(PdfLocalReadingCopy.CONTINUE_LABEL)
+                }
+
+                PdfLocalReadingState.Ready -> {
+                    Button(
+                        onClick = onStart,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.START_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onShowRetryableDemo,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.SHOW_RETRYABLE_DEMO_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onMarkUnavailable,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Text reading not enabled yet")
+                    }
+                }
+
+                PdfLocalReadingState.InProgress -> {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = onPause,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.PAUSE_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.STOP_LABEL)
+                    }
+                }
+
+                PdfLocalReadingState.Paused -> {
+                    Button(
+                        onClick = onResume,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.RESUME_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.STOP_LABEL)
+                    }
+                }
+
+                PdfLocalReadingState.RetryableProblem -> {
+                    Button(
+                        onClick = onRetry,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.RETRY_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.STOP_LABEL)
+                    }
+                }
+
+                PdfLocalReadingState.AccessRecoveryNeeded,
+                PdfLocalReadingState.PasswordProtected,
+                PdfLocalReadingState.Unavailable,
+                -> OutlinedButton(
+                    onClick = onStop,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(PdfLocalReadingCopy.STOP_LABEL)
                 }
             }
         }
