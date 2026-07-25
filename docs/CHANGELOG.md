@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Verified real-source descriptor path (fingerprint + live SAF open)
+
+- **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** ApprovedPdfFingerprintRevalidationContract; SafPdfDocumentFingerprint;
+  broker observeFingerprint before open; StaleSource through parse/assemble/eligibility;
+  ParseApprovedPdfWithIsolatedParserRealSourceIntegrationTest (user-approved tree,
+  fixture PDF, live open, status-only, delete fixture).
+- **Verification:** On 2026-07-25, Medium Phone emulator 11 focused broker/synthetic/
+  real-source tests; unit fingerprint revalidation 3 of 3.
+- **Truthfulness:** Does not wire production UI to real parse, persist searchable
+  extraction text, or add WorkManager/AI/network.
+
 ### Verified visible PDF local-reading recovery UI (presentation-only)
 
 - **Requirements:** P-07, P-14, P-15, P-17; A-01, A-02, A-06.

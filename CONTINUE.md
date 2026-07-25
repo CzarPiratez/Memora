@@ -762,12 +762,10 @@ network path was added.
 
 ## Next approved engineering step
 
-Remaining ADR-017 gate before production PDF content / real-source use:
-
-1. Real-source descriptor path.
-
-Do not wire production discovery/UI to persist PDF text from real documents,
-schedule WorkManager, invoke AI, or use the network until that gate passes.
+ADR-017 isolation gates through real-source descriptor path are closed. Next slice
+is governed production wiring that may persist searchable PDF extraction text /
+surface real parse status in product UI — still without WorkManager, AI, or network
+until separately approved.
 
 ## Important open decision
 
