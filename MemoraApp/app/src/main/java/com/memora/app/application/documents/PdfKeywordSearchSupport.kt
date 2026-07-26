@@ -42,4 +42,18 @@ internal object PdfKeywordSearchSupport {
         val suffix = if (end < pageText.length) "…" else ""
         return prefix + slice + suffix
     }
+
+    /**
+     * First case-insensitive substring span of [needle] in [haystack], if any.
+     *
+     * Used to emphasize the same match already used for excerpt construction.
+     */
+    fun firstMatchSpan(haystack: String, needle: String): IntRange? {
+        if (needle.isBlank() || haystack.isEmpty()) return null
+        val start = haystack.indexOf(needle, ignoreCase = true)
+        if (start < 0) return null
+        val endExclusive = start + needle.length
+        if (endExclusive > haystack.length) return null
+        return start until endExclusive
+    }
 }

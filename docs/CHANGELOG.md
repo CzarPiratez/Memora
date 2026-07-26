@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Keyword excerpt match highlight
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** First case-insensitive query span bold/primary in each result
+  excerpt; Why this result? unchanged.
+- **Verification:** On 2026-07-27, support/highlight unit tests; debug APK
+  installed. User confirmed on Medium Phone: meet highlighted in fixture excerpts.
+- **Truthfulness:** Interim keyword path; first occurrence only; no AI/network.
+
 ### Clear-index UI recovery (PDF Index + Local reading + live DB)
 
 - **Requirements:** P-04, P-05, P-14, P-15, P-17; A-02, A-06.

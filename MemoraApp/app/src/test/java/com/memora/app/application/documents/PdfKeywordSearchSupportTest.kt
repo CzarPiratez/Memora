@@ -32,4 +32,23 @@ class PdfKeywordSearchSupportTest {
         assertTrue(excerpt.startsWith("…") || excerpt.startsWith("AAAA"))
         assertTrue(excerpt.endsWith("…"))
     }
+
+    @Test
+    fun first_match_span_is_case_insensitive_and_first_only() {
+        val haystack = "Café memory: meet Mira at 10:30. meet Mira again."
+        val span = requireNotNull(
+            PdfKeywordSearchSupport.firstMatchSpan(haystack, "meet mira"),
+        )
+        val expectedStart = haystack.indexOf("meet mira", ignoreCase = true)
+        assertEquals(expectedStart until expectedStart + "meet mira".length, span)
+        assertEquals("meet Mira", haystack.substring(span))
+        assertTrue(expectedStart < haystack.indexOf("meet Mira", startIndex = expectedStart + 1))
+    }
+
+    @Test
+    fun first_match_span_returns_null_when_absent_or_blank() {
+        assertNull(PdfKeywordSearchSupport.firstMatchSpan("hello", "zzz"))
+        assertNull(PdfKeywordSearchSupport.firstMatchSpan("hello", " "))
+        assertNull(PdfKeywordSearchSupport.firstMatchSpan("", "meet"))
+    }
 }

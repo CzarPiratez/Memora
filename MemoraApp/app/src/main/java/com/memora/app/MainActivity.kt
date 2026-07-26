@@ -56,6 +56,7 @@ import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
 import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
 import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
 import com.memora.app.ui.search.PdfKeywordSearchCopy
+import com.memora.app.ui.search.PdfKeywordSearchHighlight
 import com.memora.app.ui.search.PdfKeywordSearchPhase
 import com.memora.app.ui.search.PdfKeywordSearchUiState
 import com.memora.app.ui.search.PdfKeywordSearchViewModel
@@ -571,7 +572,11 @@ fun PdfKeywordSearchScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = hit.excerpt,
+                                text = PdfKeywordSearchHighlight.annotatedExcerpt(
+                                    excerpt = hit.excerpt,
+                                    query = phase.query,
+                                    highlightColor = MaterialTheme.colorScheme.primary,
+                                ),
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             Spacer(modifier = Modifier.height(12.dp))

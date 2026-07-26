@@ -932,6 +932,14 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_EMPTY_CORPUS.md. No AI/network. On 2026-07-27
 the user confirmed on Medium Phone: Index returns after clear+reconnect; Done
 after reading; search works.
 
+## Verified engineering checkpoint
+
+Keyword **excerpt match highlight** is implemented. Result cards emphasize the
+first case-insensitive match of the submitted query in the saved excerpt. Change
+control: docs/CHANGE_CONTROL_PDF_KEYWORD_MATCH_HIGHLIGHT.md. No AI/network. On
+2026-07-27 the user confirmed on Medium Phone: search meet highlights meet in
+both fixture excerpts; Why this result? still works.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness
