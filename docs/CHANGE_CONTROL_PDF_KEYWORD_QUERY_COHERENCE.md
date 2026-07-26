@@ -39,4 +39,4 @@ Explain honesty. No AI/network/PDF reopen.
   no-matches with query, and superseded in-flight ignore.
 - **Known limitation or follow-up:** Empty-corpus vs no-match distinction still later.
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `a0231ea`
