@@ -122,6 +122,41 @@ class DocumentTreeSetupViewModelTest {
             DocumentTreeConnectionState.CONNECTED(DocumentTreeSource.sourceIdFor(treeUri)),
             viewModel.uiState.value.connection,
         )
+        assertEquals(PdfFolderIndexingState.NOT_STARTED, viewModel.uiState.value.indexing)
+    }
+
+    @Test
+    fun ignoresStaleFinishedDiscoveryWorkUntilUserStartsIndexing() = runTest {
+        val treeUri = "content://example/tree/documents"
+        val sourceId = DocumentTreeSource.sourceIdFor(treeUri)
+        val scheduler = RecordingScheduler()
+        val viewModel = DocumentTreeSetupViewModel(
+            RecordingApprover(),
+            RecordingFinder(),
+            scheduler,
+            RecordingAssetRepository(pdfCount = 0),
+        )
+        dispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.onPersistedReadAccessReceived(treeUri)
+        dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(PdfFolderIndexingState.NOT_STARTED, viewModel.uiState.value.indexing)
+
+        // Prior session finished unique work still reported by WorkManager after clear.
+        scheduler.emit(
+            listOf(
+                workInfo(
+                    state = WorkInfo.State.SUCCEEDED,
+                    output = Data.Builder()
+                        .putBoolean(SafPdfDiscoveryWorker.KEY_HAS_MORE, false)
+                        .build(),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertEquals(PdfFolderIndexingState.NOT_STARTED, viewModel.uiState.value.indexing)
+        assertEquals(DocumentTreeConnectionState.CONNECTED(sourceId), viewModel.uiState.value.connection)
     }
 
     @Test

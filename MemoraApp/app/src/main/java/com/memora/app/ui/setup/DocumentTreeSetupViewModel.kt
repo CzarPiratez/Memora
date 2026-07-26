@@ -176,22 +176,24 @@ class DocumentTreeSetupViewModel @Inject constructor(
             return
         }
 
-        val totalAssets = runCatching {
-            assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
-        }.getOrDefault(0)
+        val indexing = mutableUiState.value.indexing
+        val hasActiveWork = infos.any { info ->
+            info.state == WorkInfo.State.RUNNING ||
+                info.state == WorkInfo.State.ENQUEUED ||
+                info.state == WorkInfo.State.BLOCKED
+        }
 
         when {
-            infos.any { info ->
-                info.state == WorkInfo.State.RUNNING ||
-                    info.state == WorkInfo.State.ENQUEUED ||
-                    info.state == WorkInfo.State.BLOCKED
-            } -> {
+            hasActiveWork -> {
                 mutableUiState.value = mutableUiState.value.copy(
                     indexing = PdfFolderIndexingState.IN_PROGRESS,
                 )
             }
 
             infos.any { it.state == WorkInfo.State.FAILED } -> {
+                // Ignore stale finished work from a prior session (e.g. after clear).
+                if (indexing != PdfFolderIndexingState.IN_PROGRESS) return
+
                 val failed = infos.lastOrNull { it.state == WorkInfo.State.FAILED }
                 val reason = failed?.outputData?.getString(SafPdfDiscoveryWorker.KEY_FAILURE_REASON)
                 if (reason == SafPdfDiscoveryWorker.REASON_ACCESS_STOPPED) {
@@ -210,6 +212,13 @@ class DocumentTreeSetupViewModel @Inject constructor(
             }
 
             infos.all { it.state.isFinished } -> {
+                // Ignore stale finished work unless this session started indexing
+                // (or process death resumed into IN_PROGRESS via active work above).
+                if (indexing != PdfFolderIndexingState.IN_PROGRESS) return
+
+                val totalAssets = runCatching {
+                    assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
+                }.getOrDefault(0)
                 val lastSuccess = infos.lastOrNull { it.state == WorkInfo.State.SUCCEEDED }
                 val hasMore = lastSuccess?.outputData?.getBoolean(
                     SafPdfDiscoveryWorker.KEY_HAS_MORE,

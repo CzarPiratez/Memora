@@ -920,6 +920,18 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_QUERY_COHERENCE.md. No AI/network. On 2026-07-26
 the user confirmed on Medium Phone: Results/Why for meet mira, then for meet
 without citing the prior query.
 
+## Verified engineering checkpoint
+
+**Clear-index UI recovery** is implemented: after Clear Memora index + reconnect,
+Index this folder returns (stale finished WorkManager results ignored; Memora WM
+tags cancelled on clear); Local PDF reading finished shows Done; local-reading
+session resets on clear; extract/search resolve the live database handle.
+Companion keyword empty-corpus honesty + no endless spinner. Change control:
+docs/CHANGE_CONTROL_CLEAR_INDEX_UI_RECOVERY.md,
+docs/CHANGE_CONTROL_PDF_KEYWORD_EMPTY_CORPUS.md. No AI/network. On 2026-07-27
+the user confirmed on Medium Phone: Index returns after clear+reconnect; Done
+after reading; search works.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

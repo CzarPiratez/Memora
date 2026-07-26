@@ -10,6 +10,11 @@ class PdfLocalReadingSession {
     var state: PdfLocalReadingState = PdfLocalReadingState.NeedsExplanation
         private set
 
+    fun resetAfterDerivedDataCleared(): PdfLocalReadingState {
+        state = PdfLocalReadingState.NeedsExplanation
+        return state
+    }
+
     fun onEvent(event: PdfLocalReadingEvent): PdfLocalReadingState {
         state = when (val current = state) {
             PdfLocalReadingState.NeedsExplanation -> when (event) {

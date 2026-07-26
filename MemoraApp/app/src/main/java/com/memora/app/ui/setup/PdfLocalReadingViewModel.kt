@@ -58,6 +58,15 @@ class PdfLocalReadingViewModel @Inject constructor(
         dispatch(PdfLocalReadingEvent.Stop)
     }
 
+    /** Clears session and cancels extract observation after user-confirmed index clear. */
+    fun onDerivedDataCleared() {
+        workObservationJob?.cancel()
+        workObservationJob = null
+        observedSourceId?.let(extractWorkScheduler::cancel)
+        observedSourceId = null
+        mutableUiState.value = session.resetAfterDerivedDataCleared()
+    }
+
     fun onRetry() {
         dispatch(PdfLocalReadingEvent.Retry)
         if (mutableUiState.value == PdfLocalReadingState.InProgress) {

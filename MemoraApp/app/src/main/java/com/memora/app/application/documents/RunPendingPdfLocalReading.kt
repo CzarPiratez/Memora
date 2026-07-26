@@ -2,7 +2,7 @@ package com.memora.app.application.documents
 
 import android.content.Context
 import android.os.CancellationSignal
-import com.memora.app.data.local.MemoraDatabase
+import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.pdfbox.isolation.AndroidIsolatedPdfParserConnection
 import com.memora.app.data.pdfbox.isolation.ContextIsolatedPdfParserServiceBinder
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
@@ -44,9 +44,9 @@ class RunPendingPdfLocalReading @Inject constructor(
     private val assetRepository: AssetRepository,
     private val approvalRepository: DocumentTreeApprovalRepository,
     private val accessValidator: DocumentTreeAccessValidator,
-    private val database: MemoraDatabase,
+    databaseHandle: MemoraDatabaseHandle,
 ) : PendingPdfLocalReader {
-    private val persistValidated = PersistValidatedPdfLocalReading(database)
+    private val persistValidated = PersistValidatedPdfLocalReading { databaseHandle.database() }
 
     override suspend operator fun invoke(
         sourceId: SourceId,

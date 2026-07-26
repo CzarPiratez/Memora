@@ -44,6 +44,20 @@ sealed interface PdfKeywordSearchPhase {
             require(query.isNotBlank()) { "No-matches needs the submitted search query." }
         }
     }
+
+    /** Search ran, but no current saved PDF page text exists to search. */
+    data class NothingSavedToSearch(
+        val query: String,
+    ) : PdfKeywordSearchPhase {
+        init {
+            require(query.isNotBlank()) {
+                "Nothing-saved needs the submitted search query."
+            }
+        }
+    }
+
+    /** Search could not finish; never leave the UI spinning. */
+    data object SearchCouldNotFinish : PdfKeywordSearchPhase
 }
 
 @HiltViewModel
@@ -79,12 +93,22 @@ class PdfKeywordSearchViewModel(
         val generation = searchGeneration.incrementAndGet()
         viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(phase = PdfKeywordSearchPhase.Searching)
-            val outcome = searchPersistedPdfPageText(query)
+            val outcome = try {
+                searchPersistedPdfPageText(query)
+            } catch (_: Exception) {
+                if (generation != searchGeneration.get()) return@launch
+                mutableUiState.value = mutableUiState.value.copy(
+                    phase = PdfKeywordSearchPhase.SearchCouldNotFinish,
+                )
+                return@launch
+            }
             if (generation != searchGeneration.get()) return@launch
 
             mutableUiState.value = mutableUiState.value.copy(
                 phase = when (outcome) {
                     PdfKeywordSearchOutcome.BlankQuery -> PdfKeywordSearchPhase.EmptyQuery
+                    is PdfKeywordSearchOutcome.NothingSavedToSearch ->
+                        PdfKeywordSearchPhase.NothingSavedToSearch(query = outcome.query)
                     is PdfKeywordSearchOutcome.Matches -> if (outcome.hits.isEmpty()) {
                         PdfKeywordSearchPhase.NoMatches(query = outcome.query)
                     } else {

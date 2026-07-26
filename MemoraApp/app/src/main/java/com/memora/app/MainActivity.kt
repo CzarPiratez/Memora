@@ -133,6 +133,7 @@ class MainActivity : ComponentActivity() {
                             clearDerivedDataViewModel.onClearedAcknowledged()
                             mediaStoreSetupViewModel.onDerivedDataCleared()
                             documentTreeSetupViewModel.onDerivedDataCleared()
+                            pdfLocalReadingViewModel.onDerivedDataCleared()
                         },
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -524,6 +525,14 @@ fun PdfKeywordSearchScreen(
             PdfKeywordSearchPhase.Searching -> CircularProgressIndicator()
             is PdfKeywordSearchPhase.NoMatches -> Text(
                 text = PdfKeywordSearchCopy.noMatchesBody(phase.query),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            is PdfKeywordSearchPhase.NothingSavedToSearch -> Text(
+                text = PdfKeywordSearchCopy.NOTHING_SAVED_BODY,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            PdfKeywordSearchPhase.SearchCouldNotFinish -> Text(
+                text = PdfKeywordSearchCopy.SEARCH_COULD_NOT_FINISH_BODY,
                 style = MaterialTheme.typography.bodyMedium,
             )
             is PdfKeywordSearchPhase.Results -> {
@@ -1120,7 +1129,13 @@ private fun PdfLocalReadingRecoveryControl(
                     }
                 }
 
-                PdfLocalReadingState.Completed,
+                PdfLocalReadingState.Completed -> OutlinedButton(
+                    onClick = onStop,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(PdfLocalReadingCopy.DONE_LABEL)
+                }
+
                 PdfLocalReadingState.AccessRecoveryNeeded,
                 PdfLocalReadingState.PasswordProtected,
                 PdfLocalReadingState.Unavailable,
@@ -1128,7 +1143,7 @@ private fun PdfLocalReadingRecoveryControl(
                     onClick = onStop,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(PdfLocalReadingCopy.STOP_LABEL)
+                    Text(PdfLocalReadingCopy.BACK_TO_START_LABEL)
                 }
             }
         }

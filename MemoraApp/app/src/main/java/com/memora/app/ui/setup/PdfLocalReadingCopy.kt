@@ -35,6 +35,10 @@ object PdfLocalReadingCopy {
 
     const val STOP_LABEL = "Stop"
 
+    const val DONE_LABEL = "Done"
+
+    const val BACK_TO_START_LABEL = "Back to start"
+
     const val COMPLETED_BODY =
         "Memora finished reading PDFs from this folder and saved text for search on this phone " +
             "where reading succeeded. Your originals are unchanged."

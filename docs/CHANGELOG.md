@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Clear-index UI recovery (PDF Index + Local reading + live DB)
+
+- **Requirements:** P-04, P-05, P-14, P-15, P-17; A-02, A-06.
+- **Delivered:** Ignore stale finished SAF discovery work after clear/reconnect so
+  Index this folder returns; cancel Memora WorkManager tags on clear; Completed
+  local reading shows Done; reset local-reading session on clear; extract/search
+  use live MemoraDatabaseHandle (no closed-DB hang).
+- **Verification:** On 2026-07-27, DocumentTree/local-reading/search unit tests;
+  debug APK installed. User confirmed on Medium Phone: Index returns after
+  clear+reconnect; Done after reading; search works.
+- **Truthfulness:** Grants still survive clear; no AI/network.
+
+### Keyword empty-corpus honesty + search hang recovery
+
+- **Requirements:** P-01, P-11, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Distinct Nothing saved for search yet vs true no-match; live DB
+  resolution; SearchCouldNotFinish instead of endless spinner.
+- **Verification:** Unit tests; user confirmed search after clear/rebuild on
+  Medium Phone (2026-07-27).
+- **Truthfulness:** Interim keyword path only.
+
 ### Keyword search submitted-query coherence
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.

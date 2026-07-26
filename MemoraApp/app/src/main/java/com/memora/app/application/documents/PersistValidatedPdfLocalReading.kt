@@ -13,10 +13,14 @@ import com.memora.app.domain.extraction.PdfExtractionRequest
  *
  * Returns only content-free UI status. Partial sessions never reach this type because the
  * client omits [IsolatedPdfParserClientResult.validatedResult] unless assembly completed.
+ *
+ * Resolves the live database on each write so clear/reopen cannot leave a closed Room instance.
  */
 internal class PersistValidatedPdfLocalReading(
-    database: MemoraDatabase,
+    private val database: () -> MemoraDatabase,
 ) {
+    constructor(database: MemoraDatabase) : this(database = { database })
+
     private val mapper = ValidatedIsolatedPdfResultToExtractionMapper()
     private val preparePersistence = PrepareApprovedPdfExtractionPersistence()
     private val persistExtraction = PersistApprovedPdfExtraction(

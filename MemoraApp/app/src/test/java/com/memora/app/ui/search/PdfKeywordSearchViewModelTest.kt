@@ -137,6 +137,34 @@ class PdfKeywordSearchViewModelTest {
         assertEquals(PdfKeywordSearchPhase.NoMatches(query = "zzz"), viewModel.uiState.value.phase)
     }
 
+    @Test
+    fun nothing_saved_outcome_maps_to_distinct_phase() = runTest {
+        val viewModel = PdfKeywordSearchViewModel {
+            PdfKeywordSearchOutcome.NothingSavedToSearch(query = "meet mira")
+        }
+        viewModel.onQueryChanged("meet mira")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertEquals(
+            PdfKeywordSearchPhase.NothingSavedToSearch(query = "meet mira"),
+            viewModel.uiState.value.phase,
+        )
+    }
+
+    @Test
+    fun search_failure_leaves_recoverable_phase_not_spinning() = runTest {
+        val viewModel = PdfKeywordSearchViewModel {
+            error("simulated search failure")
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertEquals(
+            PdfKeywordSearchPhase.SearchCouldNotFinish,
+            viewModel.uiState.value.phase,
+        )
+    }
+
     private fun sampleHit(label: String = "fixture.pdf") = PdfKeywordSearchHit(
         label = label,
         pageNumber = 1,

@@ -3,6 +3,7 @@ package com.memora.app.application.privacy
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.work.WorkManager
 import com.memora.app.data.local.AssetEntity
 import com.memora.app.data.local.DiscoveryCheckpointEntity
 import com.memora.app.data.local.DocumentTreeApprovalEntity
@@ -36,7 +37,7 @@ class ClearMemoraDerivedDataIntegrationTest {
     fun setUp() {
         ProductionDatabaseTestCleanup.clearAll(context)
         handle = MemoraDatabaseHandle(context)
-        clearDerivedData = ClearMemoraDerivedData(handle)
+        clearDerivedData = ClearMemoraDerivedData(handle, WorkManager.getInstance(context))
     }
 
     @After

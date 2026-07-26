@@ -64,4 +64,19 @@ class PdfLocalReadingSessionTest {
             session.onEvent(PdfLocalReadingEvent.ShowRetryableDemo),
         )
     }
+
+    @Test
+    fun reset_after_derived_data_cleared_returns_to_needs_explanation() {
+        val session = PdfLocalReadingSession()
+        session.onEvent(PdfLocalReadingEvent.AcknowledgeScope)
+        session.onEvent(PdfLocalReadingEvent.Start)
+        session.onEvent(PdfLocalReadingEvent.FinishOk)
+        assertEquals(PdfLocalReadingState.Completed, session.state)
+
+        assertEquals(
+            PdfLocalReadingState.NeedsExplanation,
+            session.resetAfterDerivedDataCleared(),
+        )
+        assertEquals(PdfLocalReadingState.NeedsExplanation, session.state)
+    }
 }

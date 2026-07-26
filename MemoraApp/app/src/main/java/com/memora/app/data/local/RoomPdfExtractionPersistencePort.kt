@@ -14,13 +14,15 @@ import androidx.room.withTransaction
  * Local PDF reading Start path only; no WorkManager, AI, or network.
  */
 internal class RoomPdfExtractionPersistencePort(
-    private val database: MemoraDatabase,
+    private val database: () -> MemoraDatabase,
 ) : PdfExtractionPersistencePort {
-    private val dao = database.pdfExtractionDao()
+    constructor(database: MemoraDatabase) : this(database = { database })
 
     override suspend fun persist(
         request: PdfExtractionPersistenceWriteRequest,
     ): PdfExtractionPersistenceWriteOutcome {
+        val database = database()
+        val dao = database.pdfExtractionDao()
         val record = request.record
         val key = request.facts.key
         val sourceId = key.assetIdentity.sourceId.value
@@ -32,7 +34,16 @@ internal class RoomPdfExtractionPersistencePort(
             database.withTransaction {
                 val existing = dao.findHeader(sourceId, sourceAssetKey, fingerprint, schemaVersion)
                 if (existing != null) {
-                    return@withTransaction if (matchesExisting(existing, record, sourceId, sourceAssetKey, fingerprint, schemaVersion)) {
+                    return@withTransaction if (matchesExisting(
+                            dao,
+                            existing,
+                            record,
+                            sourceId,
+                            sourceAssetKey,
+                            fingerprint,
+                            schemaVersion,
+                        )
+                    ) {
                         PdfExtractionPersistenceWriteOutcome.Persisted
                     } else {
                         PdfExtractionPersistenceWriteOutcome.FailedSafely
@@ -97,6 +108,7 @@ internal class RoomPdfExtractionPersistencePort(
     }
 
     private suspend fun matchesExisting(
+        dao: PdfExtractionDao,
         existing: PdfExtractionEntity,
         record: PdfExtractionRecord,
         sourceId: String,

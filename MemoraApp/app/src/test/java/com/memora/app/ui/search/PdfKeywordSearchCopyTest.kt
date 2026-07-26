@@ -14,6 +14,7 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
             PdfKeywordSearchCopy.noMatchesBody("meet mira"),
+            PdfKeywordSearchCopy.NOTHING_SAVED_BODY,
             PdfKeywordSearchCopy.RESULTS_HINT,
             PdfKeywordSearchCopy.resultsSummary(
                 query = "meet mira",
@@ -121,6 +122,18 @@ class PdfKeywordSearchCopyTest {
                 "Try different words, or finish Local PDF reading for a document first.",
             PdfKeywordSearchCopy.noMatchesBody("zzz"),
         )
+    }
+
+    @Test
+    fun nothing_saved_copy_does_not_claim_a_keyword_miss() {
+        val body = PdfKeywordSearchCopy.NOTHING_SAVED_BODY.lowercase()
+        assertTrue(body.contains("nothing is saved"))
+        assertTrue(body.contains("local pdf reading"))
+        assertTrue(body.contains("keyword matching"))
+        assertFalse(body.contains("matched \""))
+        assertFalse(body.contains("try different words"))
+        assertFalse(body.contains("confidence"))
+        assertFalse(body.contains("ai "))
     }
 
     @Test(expected = IllegalArgumentException::class)

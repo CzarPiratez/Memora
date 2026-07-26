@@ -1,6 +1,7 @@
 package com.memora.app.application.documents
 
 import com.memora.app.data.local.MemoraDatabase
+import com.memora.app.data.security.MemoraDatabaseHandle
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,16 +11,34 @@ import kotlinx.coroutines.withContext
  *
  * Keyword / substring only. Does not reopen PDFs, invoke AI, use the network, or
  * claim meaning-based Memory recall.
+ *
+ * Always resolves the live database through [database] so a clear/reopen cannot
+ * leave this use case bound to a closed Room instance.
  */
-class SearchPersistedPdfPageText @Inject constructor(
-    private val database: MemoraDatabase,
+class SearchPersistedPdfPageText(
+    private val database: () -> MemoraDatabase,
 ) {
+    @Inject
+    constructor(
+        databaseHandle: MemoraDatabaseHandle,
+    ) : this(
+        database = { databaseHandle.database() },
+    )
+
+    /** Test helper bound to one in-memory / fixture database. */
+    constructor(database: MemoraDatabase) : this(database = { database })
+
     suspend operator fun invoke(rawQuery: String): PdfKeywordSearchOutcome =
         withContext(Dispatchers.IO) {
             val query = PdfKeywordSearchSupport.normalizeQuery(rawQuery)
                 ?: return@withContext PdfKeywordSearchOutcome.BlankQuery
 
-            val rows = database.pdfExtractionDao().searchCurrentPages(
+            val dao = database().pdfExtractionDao()
+            if (dao.countCurrentSearchablePages(PdfKeywordSearchSupport.SCHEMA_VERSION) == 0) {
+                return@withContext PdfKeywordSearchOutcome.NothingSavedToSearch(query = query)
+            }
+
+            val rows = dao.searchCurrentPages(
                 escapedNeedle = PdfKeywordSearchSupport.escapeForLike(query),
                 schemaVersion = PdfKeywordSearchSupport.SCHEMA_VERSION,
                 limit = PdfKeywordSearchSupport.MAX_RESULTS,
@@ -63,6 +82,17 @@ data class PdfKeywordSearchHit(
 
 sealed interface PdfKeywordSearchOutcome {
     data object BlankQuery : PdfKeywordSearchOutcome
+
+    /** Normalized query was submitted, but no current searchable PDF page text exists. */
+    data class NothingSavedToSearch(
+        val query: String,
+    ) : PdfKeywordSearchOutcome {
+        init {
+            require(query.isNotBlank()) {
+                "Nothing-saved outcome needs the submitted search query."
+            }
+        }
+    }
 
     data class Matches(
         val query: String,

@@ -106,6 +106,28 @@ interface PdfExtractionDao {
         limit: Int,
     ): List<PdfExtractionPageSearchRow>
 
+    /**
+     * Count of current-fingerprint pages that keyword search can read (ADR-022).
+     * Zero means empty corpus (nothing saved for search yet).
+     */
+    @Query(
+        """
+        SELECT COUNT(*)
+        FROM pdf_extraction_pages AS pages
+        INNER JOIN pdf_extractions AS headers
+            ON headers.source_id = pages.source_id
+            AND headers.source_asset_key = pages.source_asset_key
+            AND headers.fingerprint = pages.fingerprint
+            AND headers.schema_version = pages.schema_version
+        INNER JOIN assets AS assets
+            ON assets.source_id = pages.source_id
+            AND assets.source_asset_key = pages.source_asset_key
+            AND assets.fingerprint = pages.fingerprint
+        WHERE pages.schema_version = :schemaVersion
+        """,
+    )
+    suspend fun countCurrentSearchablePages(schemaVersion: String): Int
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: PdfExtractionEntity)
 

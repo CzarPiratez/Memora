@@ -29,6 +29,15 @@ object PdfKeywordSearchCopy {
             "Try different words, or finish Local PDF reading for a document first."
     }
 
+    const val NOTHING_SAVED_BODY =
+        "Nothing is saved for search yet. Finish Local PDF reading for a connected " +
+            "folder first. Memora only searches PDF text already saved on this phone — " +
+            "this is keyword matching, not meaning-based recall."
+
+    const val SEARCH_COULD_NOT_FINISH_BODY =
+        "Search could not finish on this phone. Try again in a moment. " +
+            "Memora does not reopen your original files for this search."
+
     const val RESULTS_HINT =
         "Matches show the page and a short excerpt from the saved text. " +
             "Open Why this result? to see the matching evidence."
