@@ -37,4 +37,4 @@ AI/network/PDF reopen.
   not keep cleared hits.
 - **Documentation/traceability/ADR updates:** This change-control; CONTINUE;
   CHANGELOG.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** `9327b19`
