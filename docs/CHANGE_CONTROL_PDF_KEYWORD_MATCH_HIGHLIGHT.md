@@ -35,4 +35,4 @@ AI/network/PDF reopen/SQL changes.
 - **Failure/recovery paths verified:** Absent span stays plain (unit-tested).
 - **Known limitation or follow-up:** First occurrence only; no SQL/ranking change.
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `f28104d`
