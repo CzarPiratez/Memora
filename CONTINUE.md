@@ -940,6 +940,15 @@ control: docs/CHANGE_CONTROL_PDF_KEYWORD_MATCH_HIGHLIGHT.md. No AI/network. On
 2026-07-27 the user confirmed on Medium Phone: search meet highlights meet in
 both fixture excerpts; Why this result? still works.
 
+## Verified engineering checkpoint
+
+Keyword **search clear invalidation** is implemented. After Clear Memora index,
+Find saved PDF text returns to Idle (typed query may remain) and ignores late
+in-flight search so Results/Why cannot cite deleted excerpts. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_CLEAR_INVALIDATION.md. No AI/network. On
+2026-07-27 the user confirmed on Medium Phone: clear drops stale Results/Why;
+rebuild+search still works.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

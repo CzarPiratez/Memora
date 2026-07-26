@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Keyword search clear invalidation
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Clear Memora index ack resets Find saved PDF text to Idle
+  (invalidates in-flight search) so Results/Why cannot cite deleted excerpts.
+- **Verification:** On 2026-07-27, ViewModel clear unit tests; debug APK
+  installed. User confirmed on Medium Phone: clear drops stale Results/Why.
+- **Truthfulness:** Interim keyword path; typed query may remain; no AI/network.
+
 ### Keyword excerpt match highlight
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.

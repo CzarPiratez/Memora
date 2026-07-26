@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -163,6 +164,51 @@ class PdfKeywordSearchViewModelTest {
             PdfKeywordSearchPhase.SearchCouldNotFinish,
             viewModel.uiState.value.phase,
         )
+    }
+
+    @Test
+    fun clear_derived_data_drops_results_so_why_cannot_cite_deleted_excerpts() = runTest {
+        val viewModel = PdfKeywordSearchViewModel {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
+
+        viewModel.onDerivedDataCleared()
+
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet", viewModel.uiState.value.query)
+    }
+
+    @Test
+    fun clear_derived_data_ignores_in_flight_search_completion() = runTest {
+        val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
+        val viewModel = PdfKeywordSearchViewModel { deferred.await() }
+
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+
+        viewModel.onDerivedDataCleared()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+
+        deferred.complete(
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            ),
+        )
+        advanceUntilIdle()
+
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
     }
 
     private fun sampleHit(label: String = "fixture.pdf") = PdfKeywordSearchHit(

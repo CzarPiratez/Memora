@@ -122,4 +122,15 @@ class PdfKeywordSearchViewModel(
             )
         }
     }
+
+    /**
+     * Drops Results/Why after user-confirmed index clear so Explain Mode cannot
+     * cite excerpts that no longer exist in Memora's private store.
+     */
+    fun onDerivedDataCleared() {
+        searchGeneration.incrementAndGet()
+        mutableUiState.value = mutableUiState.value.copy(
+            phase = PdfKeywordSearchPhase.Idle,
+        )
+    }
 }

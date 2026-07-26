@@ -135,6 +135,7 @@ class MainActivity : ComponentActivity() {
                             mediaStoreSetupViewModel.onDerivedDataCleared()
                             documentTreeSetupViewModel.onDerivedDataCleared()
                             pdfLocalReadingViewModel.onDerivedDataCleared()
+                            pdfKeywordSearchViewModel.onDerivedDataCleared()
                         },
                         modifier = Modifier.padding(innerPadding),
                     )
