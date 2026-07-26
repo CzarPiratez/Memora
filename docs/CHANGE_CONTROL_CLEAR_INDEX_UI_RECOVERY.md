@@ -41,4 +41,4 @@
 - **Known limitation or follow-up:** Empty-corpus vs no-match copy remains available
   for dedicated empty-index search check if needed later.
 - **Documentation/traceability/ADR updates:** CONTINUE checkpoint; CHANGELOG.
-- **Git commit:** _(pending)_
+- **Git commit:** `ad3aa54`

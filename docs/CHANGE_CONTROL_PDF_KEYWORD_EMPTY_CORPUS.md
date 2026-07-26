@@ -37,4 +37,4 @@ AI/network/PDF reopen. Only current-fingerprint saved page text counts.
 - **Known limitation or follow-up:** No document inventory counts in UI.
 - **Documentation/traceability/ADR updates:** CONTINUE/CHANGELOG with clear-index
   recovery checkpoint.
-- **Git commit:** _(pending)_
+- **Git commit:** `ad3aa54`
