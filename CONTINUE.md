@@ -911,6 +911,15 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_WHY_LABEL.md. No AI/network/PDF reopen. On
 2026-07-26 the user confirmed on Medium Phone: Why cites
 memora-persist-fixture.pdf and memora-real-source-fixture.pdf for meet mira.
 
+## Verified engineering checkpoint
+
+Keyword search **submitted-query coherence** is implemented. Editing the words
+field clears stale results/Why; summary says Results for "…"; Why matches the
+submitted query; superseded in-flight searches cannot overwrite. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_QUERY_COHERENCE.md. No AI/network. On 2026-07-26
+the user confirmed on Medium Phone: Results/Why for meet mira, then for meet
+without citing the prior query.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

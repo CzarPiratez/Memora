@@ -23,6 +23,12 @@ object PdfKeywordSearchCopy {
         "No saved PDF page text on this phone matched those words. " +
             "Try different words, or finish Local PDF reading for a document first."
 
+    fun noMatchesBody(query: String): String {
+        require(query.isNotBlank()) { "No-matches copy needs the submitted query." }
+        return "No saved PDF page text on this phone matched \"$query\". " +
+            "Try different words, or finish Local PDF reading for a document first."
+    }
+
     const val RESULTS_HINT =
         "Matches show the page and a short excerpt from the saved text. " +
             "Open Why this result? to see the matching evidence."
@@ -31,12 +37,13 @@ object PdfKeywordSearchCopy {
     const val MAX_LISTED_MATCHES = 20
 
     /**
-     * Honest results summary: listed count, optional cap disclosure, then hint.
+     * Honest results summary: submitted query, listed count, optional cap, then hint.
      *
      * When [limitReached] is true, Memora may have stopped early at
      * [MAX_LISTED_MATCHES]; it does not claim a total corpus match count.
      */
-    fun resultsSummary(matchCount: Int, limitReached: Boolean): String {
+    fun resultsSummary(query: String, matchCount: Int, limitReached: Boolean): String {
+        require(query.isNotBlank()) { "Results summary needs the submitted query." }
         require(matchCount > 0) { "Results summary needs at least one match." }
         if (limitReached) {
             require(matchCount >= MAX_LISTED_MATCHES) {
@@ -44,10 +51,11 @@ object PdfKeywordSearchCopy {
             }
         }
 
+        val forLine = "Results for \"$query\"."
         val countLine = if (matchCount == 1) {
-            "Showing 1 match."
+            " Showing 1 match."
         } else {
-            "Showing $matchCount matches."
+            " Showing $matchCount matches."
         }
         val capLine = if (limitReached) {
             " Memora lists at most $MAX_LISTED_MATCHES matches for now; " +
@@ -55,7 +63,7 @@ object PdfKeywordSearchCopy {
         } else {
             ""
         }
-        return countLine + capLine + " " + RESULTS_HINT
+        return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
     const val WHY_THIS_RESULT_LABEL = "Why this result?"

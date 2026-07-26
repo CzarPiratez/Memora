@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Keyword search submitted-query coherence
+
+- **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Editing the query clears stale Results/Why; results summary and
+  no-match copy name the submitted query; superseded in-flight searches ignored.
+- **Verification:** On 2026-07-26, search ViewModel/copy unit tests; debug APK
+  installed. User confirmed on Medium Phone: Results/Why for "meet mira", then for
+  "meet" without citing the prior query.
+- **Truthfulness:** Interim keyword path only; no AI/network.
+
 ### Keyword Why document-label provenance
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.

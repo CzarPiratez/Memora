@@ -6,6 +6,7 @@ import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.SearchPersistedPdfPageText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,29 +35,58 @@ sealed interface PdfKeywordSearchPhase {
             require(hits.isNotEmpty()) { "Results need at least one hit." }
         }
     }
-    data object NoMatches : PdfKeywordSearchPhase
+
+    /** No listed hits for the submitted [query]. */
+    data class NoMatches(
+        val query: String,
+    ) : PdfKeywordSearchPhase {
+        init {
+            require(query.isNotBlank()) { "No-matches needs the submitted search query." }
+        }
+    }
 }
 
 @HiltViewModel
-class PdfKeywordSearchViewModel @Inject constructor(
-    private val searchPersistedPdfPageText: SearchPersistedPdfPageText,
+class PdfKeywordSearchViewModel(
+    private val searchPersistedPdfPageText: suspend (String) -> PdfKeywordSearchOutcome,
 ) : ViewModel() {
+    @Inject
+    constructor(
+        searchPersistedPdfPageText: SearchPersistedPdfPageText,
+    ) : this(
+        searchPersistedPdfPageText = { rawQuery -> searchPersistedPdfPageText(rawQuery) },
+    )
+
     private val mutableUiState = MutableStateFlow(PdfKeywordSearchUiState())
     val uiState: StateFlow<PdfKeywordSearchUiState> = mutableUiState.asStateFlow()
 
+    private val searchGeneration = AtomicInteger(0)
+
     fun onQueryChanged(value: String) {
-        mutableUiState.value = mutableUiState.value.copy(query = value)
+        val current = mutableUiState.value
+        if (value == current.query) return
+
+        // Field and phase must stay coherent: never leave Why/results for a prior query.
+        searchGeneration.incrementAndGet()
+        mutableUiState.value = current.copy(
+            query = value,
+            phase = PdfKeywordSearchPhase.Idle,
+        )
     }
 
     fun onSearch() {
         val query = mutableUiState.value.query
+        val generation = searchGeneration.incrementAndGet()
         viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(phase = PdfKeywordSearchPhase.Searching)
+            val outcome = searchPersistedPdfPageText(query)
+            if (generation != searchGeneration.get()) return@launch
+
             mutableUiState.value = mutableUiState.value.copy(
-                phase = when (val outcome = searchPersistedPdfPageText(query)) {
+                phase = when (outcome) {
                     PdfKeywordSearchOutcome.BlankQuery -> PdfKeywordSearchPhase.EmptyQuery
                     is PdfKeywordSearchOutcome.Matches -> if (outcome.hits.isEmpty()) {
-                        PdfKeywordSearchPhase.NoMatches
+                        PdfKeywordSearchPhase.NoMatches(query = outcome.query)
                     } else {
                         PdfKeywordSearchPhase.Results(
                             query = outcome.query,

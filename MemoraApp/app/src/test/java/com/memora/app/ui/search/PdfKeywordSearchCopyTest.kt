@@ -13,9 +13,15 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.SCOPE_BODY,
             PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
+            PdfKeywordSearchCopy.noMatchesBody("meet mira"),
             PdfKeywordSearchCopy.RESULTS_HINT,
-            PdfKeywordSearchCopy.resultsSummary(matchCount = 2, limitReached = false),
             PdfKeywordSearchCopy.resultsSummary(
+                query = "meet mira",
+                matchCount = 2,
+                limitReached = false,
+            ),
+            PdfKeywordSearchCopy.resultsSummary(
+                query = "meet mira",
                 matchCount = PdfKeywordSearchCopy.MAX_LISTED_MATCHES,
                 limitReached = true,
             ),
@@ -30,6 +36,7 @@ class PdfKeywordSearchCopyTest {
 
         assertTrue(copy.contains("keyword"))
         assertTrue(copy.contains("not meaning-based"))
+        assertTrue(copy.contains("results for \"meet mira\""))
         assertTrue(copy.contains("memora-persist-fixture.pdf"))
         assertFalse(copy.contains("sqlcipher"))
         assertFalse(copy.contains("binder"))
@@ -68,25 +75,36 @@ class PdfKeywordSearchCopyTest {
     }
 
     @Test
-    fun results_summary_states_count_without_cap_when_under_limit() {
+    fun results_summary_names_submitted_query_and_count() {
         assertEquals(
-            "Showing 2 matches. " + PdfKeywordSearchCopy.RESULTS_HINT,
-            PdfKeywordSearchCopy.resultsSummary(matchCount = 2, limitReached = false),
+            "Results for \"meet mira\". Showing 2 matches. " +
+                PdfKeywordSearchCopy.RESULTS_HINT,
+            PdfKeywordSearchCopy.resultsSummary(
+                query = "meet mira",
+                matchCount = 2,
+                limitReached = false,
+            ),
         )
         assertEquals(
-            "Showing 1 match. " + PdfKeywordSearchCopy.RESULTS_HINT,
-            PdfKeywordSearchCopy.resultsSummary(matchCount = 1, limitReached = false),
+            "Results for \"cafe\". Showing 1 match. " + PdfKeywordSearchCopy.RESULTS_HINT,
+            PdfKeywordSearchCopy.resultsSummary(
+                query = "cafe",
+                matchCount = 1,
+                limitReached = false,
+            ),
         )
     }
 
     @Test
     fun results_summary_discloses_cap_when_limit_reached() {
         val summary = PdfKeywordSearchCopy.resultsSummary(
+            query = "meet mira",
             matchCount = PdfKeywordSearchCopy.MAX_LISTED_MATCHES,
             limitReached = true,
         )
         assertEquals(
-            "Showing 20 matches. Memora lists at most 20 matches for now; " +
+            "Results for \"meet mira\". Showing 20 matches. " +
+                "Memora lists at most 20 matches for now; " +
                 "more saved pages may also contain these words. " +
                 PdfKeywordSearchCopy.RESULTS_HINT,
             summary,
@@ -96,8 +114,21 @@ class PdfKeywordSearchCopyTest {
         assertFalse(summary.lowercase().contains("ai "))
     }
 
+    @Test
+    fun no_matches_body_names_submitted_query() {
+        assertEquals(
+            "No saved PDF page text on this phone matched \"zzz\". " +
+                "Try different words, or finish Local PDF reading for a document first.",
+            PdfKeywordSearchCopy.noMatchesBody("zzz"),
+        )
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun results_summary_rejects_zero_matches() {
-        PdfKeywordSearchCopy.resultsSummary(matchCount = 0, limitReached = false)
+        PdfKeywordSearchCopy.resultsSummary(
+            query = "meet mira",
+            matchCount = 0,
+            limitReached = false,
+        )
     }
 }

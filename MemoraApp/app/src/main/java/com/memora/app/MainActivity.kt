@@ -522,13 +522,14 @@ fun PdfKeywordSearchScreen(
                 style = MaterialTheme.typography.bodyMedium,
             )
             PdfKeywordSearchPhase.Searching -> CircularProgressIndicator()
-            PdfKeywordSearchPhase.NoMatches -> Text(
-                text = PdfKeywordSearchCopy.NO_MATCHES_BODY,
+            is PdfKeywordSearchPhase.NoMatches -> Text(
+                text = PdfKeywordSearchCopy.noMatchesBody(phase.query),
                 style = MaterialTheme.typography.bodyMedium,
             )
             is PdfKeywordSearchPhase.Results -> {
                 Text(
                     text = PdfKeywordSearchCopy.resultsSummary(
+                        query = phase.query,
                         matchCount = phase.hits.size,
                         limitReached = phase.limitReached,
                     ),
