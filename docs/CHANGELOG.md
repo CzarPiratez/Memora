@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Keyword search IME gate + Searching progress
+
+- **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Shared `canSubmitSearch` gate for button and keyboard Search;
+  field read-only while searching; calm Searching progress copy with spinner.
+- **Verification:** On 2026-07-27, search unit tests; debug APK installed. User
+  confirmed on Medium Phone: blank keyboard Search blocked; Searching progress
+  copy + locked field; results/Why unchanged.
+- **Truthfulness:** Interim keyword path only; no AI/network.
+
 ### Keyword blank-query guidance + Search button gating
 
 - **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.

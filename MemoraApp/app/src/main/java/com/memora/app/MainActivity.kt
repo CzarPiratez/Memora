@@ -530,15 +530,21 @@ fun PdfKeywordSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(PdfKeywordSearchCopy.QUERY_LABEL) },
             singleLine = true,
+            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    if (uiState.canSubmitSearch) {
+                        onSearch()
+                    }
+                },
+            ),
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = onSearch,
             modifier = Modifier.fillMaxWidth(),
-            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching &&
-                uiState.query.isNotBlank(),
+            enabled = uiState.canSubmitSearch,
         ) {
             Text(PdfKeywordSearchCopy.SEARCH_LABEL)
         }
@@ -558,7 +564,15 @@ fun PdfKeywordSearchScreen(
                 text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            PdfKeywordSearchPhase.Searching -> CircularProgressIndicator()
+            PdfKeywordSearchPhase.Searching -> {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = PdfKeywordSearchCopy.SEARCHING_BODY,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             is PdfKeywordSearchPhase.NoMatches -> Text(
                 text = PdfKeywordSearchCopy.noMatchesBody(phase.query),
                 style = MaterialTheme.typography.bodyMedium,

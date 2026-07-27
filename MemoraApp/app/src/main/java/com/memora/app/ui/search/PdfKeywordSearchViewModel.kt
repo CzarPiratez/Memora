@@ -19,7 +19,11 @@ data class PdfKeywordSearchUiState(
     val query: String = "",
     val phase: PdfKeywordSearchPhase = PdfKeywordSearchPhase.Idle,
     val readiness: PdfKeywordSearchReadinessUi = PdfKeywordSearchReadinessUi.Loading,
-)
+) {
+    /** Shared gate for the Search button and keyboard Search action. */
+    val canSubmitSearch: Boolean
+        get() = phase !is PdfKeywordSearchPhase.Searching && query.isNotBlank()
+}
 
 sealed interface PdfKeywordSearchReadinessUi {
     data object Loading : PdfKeywordSearchReadinessUi

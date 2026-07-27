@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -258,6 +259,32 @@ class PdfKeywordSearchViewModelTest {
         )
         advanceUntilIdle()
         assertEquals(PdfKeywordSearchReadinessUi.CouldNotLoad, viewModel.uiState.value.readiness)
+    }
+
+    @Test
+    fun can_submit_search_requires_non_blank_query_and_idle_from_searching() = runTest {
+        val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
+        val viewModel = viewModel { deferred.await() }
+
+        assertFalse(viewModel.uiState.value.canSubmitSearch)
+
+        viewModel.onQueryChanged("meet")
+        assertTrue(viewModel.uiState.value.canSubmitSearch)
+
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+        assertFalse(viewModel.uiState.value.canSubmitSearch)
+
+        deferred.complete(
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            ),
+        )
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.canSubmitSearch)
     }
 
     private fun viewModel(

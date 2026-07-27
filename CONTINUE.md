@@ -967,6 +967,15 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_QUERY_INPUT_GUIDANCE.md. No AI/network. On
 2026-07-27 the user confirmed on Medium Phone: blank → disabled Search +
 guidance; typed query → Search works as before.
 
+## Verified engineering checkpoint
+
+Keyword **IME gate + Searching progress** is implemented. Button and keyboard
+Search share `canSubmitSearch`; the query field is read-only while searching;
+Searching shows calm progress copy with the spinner. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH_PROGRESS.md. No AI/network. On
+2026-07-27 the user confirmed on Medium Phone: blank keyboard Search blocked;
+Searching progress + locked field; results/Why unchanged.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

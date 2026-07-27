@@ -12,6 +12,7 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.SCREEN_TITLE,
             PdfKeywordSearchCopy.SCOPE_BODY,
             PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
+            PdfKeywordSearchCopy.SEARCHING_BODY,
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
             PdfKeywordSearchCopy.noMatchesBody("meet mira"),
             PdfKeywordSearchCopy.NOTHING_SAVED_BODY,
@@ -155,6 +156,17 @@ class PdfKeywordSearchCopyTest {
                 "This is keyword matching, not meaning-based recall.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
         )
+    }
+
+    @Test
+    fun searching_copy_is_calm_and_local_only() {
+        val body = PdfKeywordSearchCopy.SEARCHING_BODY.lowercase()
+        assertTrue(body.contains("searching saved pdf text"))
+        assertTrue(body.contains("on this phone"))
+        assertFalse(body.contains("ai "))
+        assertFalse(body.contains("cloud"))
+        assertFalse(body.contains("meaning"))
+        assertFalse(body.contains("confidence"))
     }
 
     @Test(expected = IllegalArgumentException::class)

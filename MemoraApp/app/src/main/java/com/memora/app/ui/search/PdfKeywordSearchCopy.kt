@@ -19,6 +19,9 @@ object PdfKeywordSearchCopy {
 
     const val EMPTY_QUERY_BODY = "Type a word or short phrase, then search."
 
+    const val SEARCHING_BODY =
+        "Searching saved PDF text on this phone…"
+
     const val NO_MATCHES_BODY =
         "No saved PDF page text on this phone matched those words. " +
             "Try different words, or finish Local PDF reading for a document first."
