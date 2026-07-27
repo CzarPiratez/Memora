@@ -39,3 +39,4 @@ baseline remains Keyword v1 exit item 4.
 - **Emulator (2026-07-28):** User confirmed pass on Medium Phone — dedicated
   Cancel search stops Searching; query kept; no results; Search/Why/Open still
   work afterward.
+- **Git:** `996d610`.
