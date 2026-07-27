@@ -197,10 +197,56 @@ class PdfKeywordSearchViewModelTest {
         advanceUntilIdle()
 
         assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
-        assertEquals("meet", viewModel.uiState.value.query)
+        assertEquals("", viewModel.uiState.value.query)
         val readiness = viewModel.uiState.value.readiness as PdfKeywordSearchReadinessUi.Ready
         assertEquals(0, readiness.snapshot.pageCount)
         assertEquals(0, readiness.snapshot.documentCount)
+    }
+
+    @Test
+    fun clear_query_empties_field_and_returns_idle() = runTest {
+        val viewModel = viewModel {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet mira",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet mira")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.canClearQuery)
+
+        viewModel.onQueryCleared()
+        assertEquals("", viewModel.uiState.value.query)
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertFalse(viewModel.uiState.value.canClearQuery)
+        assertFalse(viewModel.uiState.value.canSubmitSearch)
+    }
+
+    @Test
+    fun clear_query_is_ignored_while_searching() = runTest {
+        val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
+        val viewModel = viewModel { deferred.await() }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+        assertFalse(viewModel.uiState.value.canClearQuery)
+
+        viewModel.onQueryCleared()
+        assertEquals("meet", viewModel.uiState.value.query)
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+
+        deferred.complete(
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            ),
+        )
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
     }
 
     @Test
@@ -215,6 +261,7 @@ class PdfKeywordSearchViewModelTest {
 
         viewModel.onDerivedDataCleared()
         assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("", viewModel.uiState.value.query)
 
         deferred.complete(
             PdfKeywordSearchOutcome.Matches(

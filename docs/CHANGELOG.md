@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Keyword search clear query
+
+- **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Clear control on the query field when text is present; clears
+  results/Why/open state; typed query also clears after Clear Memora index.
+- **Verification:** Unit tests green (`PdfKeywordSearch*`); `installDebug` succeeded;
+  emulator confirmation 2026-07-28 (user: all pass).
+- **Truthfulness:** Interim keyword path only; does not cancel in-flight search.
+
 ### Open original PDF from keyword result (in-app cited-page preview)
 
 - **Requirements:** P-01, P-11, P-13, P-17; A-02, A-05.

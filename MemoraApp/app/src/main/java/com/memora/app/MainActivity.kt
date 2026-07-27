@@ -136,6 +136,7 @@ class MainActivity : ComponentActivity() {
                         onPdfKeywordQueryChanged = pdfKeywordSearchViewModel::onQueryChanged,
                         onPdfKeywordSearch = pdfKeywordSearchViewModel::onSearch,
                         onPdfKeywordSearchScreenVisible = pdfKeywordSearchViewModel::onScreenVisible,
+                        onPdfKeywordQueryCleared = pdfKeywordSearchViewModel::onQueryCleared,
                         onPdfKeywordOpenOriginal = pdfKeywordSearchViewModel::onOpenOriginalPdf,
                         onPdfKeywordOpenFeedbackDismissed =
                             pdfKeywordSearchViewModel::onOpenFeedbackDismissed,
@@ -183,6 +184,7 @@ fun MemoraApp(
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
+    onPdfKeywordQueryCleared: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
@@ -224,6 +226,7 @@ fun MemoraApp(
             onPdfKeywordQueryChanged = onPdfKeywordQueryChanged,
             onPdfKeywordSearch = onPdfKeywordSearch,
             onPdfKeywordSearchScreenVisible = onPdfKeywordSearchScreenVisible,
+            onPdfKeywordQueryCleared = onPdfKeywordQueryCleared,
             onPdfKeywordOpenOriginal = onPdfKeywordOpenOriginal,
             onPdfKeywordOpenFeedbackDismissed = onPdfKeywordOpenFeedbackDismissed,
             onPdfKeywordPreviewClosed = onPdfKeywordPreviewClosed,
@@ -258,6 +261,7 @@ private fun MemoraAppReady(
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
+    onPdfKeywordQueryCleared: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
@@ -361,6 +365,7 @@ private fun MemoraAppReady(
                     PdfKeywordSearchScreen(
                         uiState = pdfKeywordSearchUiState,
                         onQueryChanged = onPdfKeywordQueryChanged,
+                        onQueryCleared = onPdfKeywordQueryCleared,
                         onSearch = onPdfKeywordSearch,
                         onOpenOriginalPdf = onPdfKeywordOpenOriginal,
                         onDismissOpenFeedback = onPdfKeywordOpenFeedbackDismissed,
@@ -516,6 +521,7 @@ fun MemoraWelcomeScreen(
 fun PdfKeywordSearchScreen(
     uiState: PdfKeywordSearchUiState,
     onQueryChanged: (String) -> Unit,
+    onQueryCleared: () -> Unit,
     onSearch: () -> Unit,
     onOpenOriginalPdf: (PdfKeywordSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
@@ -569,6 +575,13 @@ fun PdfKeywordSearchScreen(
             singleLine = true,
             enabled = uiState.phase !is PdfKeywordSearchPhase.Searching &&
                 uiState.openFeedback !is PdfOpenFeedbackUi.Opening,
+            trailingIcon = {
+                if (uiState.canClearQuery) {
+                    TextButton(onClick = onQueryCleared) {
+                        Text(PdfKeywordSearchCopy.CLEAR_QUERY_LABEL)
+                    }
+                }
+            },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {

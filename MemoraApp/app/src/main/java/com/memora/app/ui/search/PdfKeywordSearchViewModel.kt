@@ -29,6 +29,12 @@ data class PdfKeywordSearchUiState(
         get() = phase !is PdfKeywordSearchPhase.Searching &&
             query.isNotBlank() &&
             openFeedback !is PdfOpenFeedbackUi.Opening
+
+    /** Clear is available when there is typed text and no in-flight search/open. */
+    val canClearQuery: Boolean
+        get() = query.isNotBlank() &&
+            phase !is PdfKeywordSearchPhase.Searching &&
+            openFeedback !is PdfOpenFeedbackUi.Opening
 }
 
 sealed interface PdfKeywordSearchReadinessUi {
@@ -185,6 +191,13 @@ class PdfKeywordSearchViewModel(
         )
     }
 
+    /** Clears typed text and search/open UI; blocked while Searching or Opening. */
+    fun onQueryCleared() {
+        val current = mutableUiState.value
+        if (!current.canClearQuery) return
+        onQueryChanged("")
+    }
+
     fun onSearch() {
         val query = mutableUiState.value.query
         val generation = searchGeneration.incrementAndGet()
@@ -282,13 +295,15 @@ class PdfKeywordSearchViewModel(
     }
 
     /**
-     * Drops Results/Why after user-confirmed index clear so Explain Mode cannot
-     * cite excerpts that no longer exist in Memora's private store.
+     * Drops Results/Why and typed query after user-confirmed index clear so
+     * Explain Mode cannot cite excerpts that no longer exist, and the field
+     * does not keep a phrase that no longer matches a live corpus.
      */
     fun onDerivedDataCleared() {
         searchGeneration.incrementAndGet()
         openGeneration.incrementAndGet()
         mutableUiState.value = mutableUiState.value.copy(
+            query = "",
             phase = PdfKeywordSearchPhase.Idle,
             readiness = PdfKeywordSearchReadinessUi.Ready(
                 PdfKeywordSearchReadiness(pageCount = 0, documentCount = 0),

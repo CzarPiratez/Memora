@@ -985,13 +985,18 @@ unchanged. Change control: docs/CHANGE_CONTROL_PDF_KEYWORD_OPEN_ORIGINAL.md.
 Fixtures: MemoraApp/fixtures/. No AI/network. On 2026-07-28 the user confirmed
 on Medium Phone: all pass.
 
+## Keyword search clear query (2026-07-28)
+
+Clear control empties the query field and results/Why/open state; Clear Memora
+index also blanks typed text. Verified on Medium Phone (user: all pass).
+Change control: `docs/CHANGE_CONTROL_PDF_KEYWORD_CLEAR_QUERY.md`.
+Keyword v1 exit item 2 Done.
+
 ## Next approved engineering step
 
-Keyword PDF Recall v1 exit remaining: **clear-query control** (+ clear typed
-text on index clear), then cancel in-flight search, then accessibility baseline
-(`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). Do not add AI or network until
-separately approved. Do not claim Local-AI gate **exit** complete until measured
-pack proof exists.
+Keyword PDF Recall v1 exit remaining: **cancel in-flight search**, then
+accessibility baseline (`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). No AI/network
+until separately approved.
 
 ## Important open decision
 

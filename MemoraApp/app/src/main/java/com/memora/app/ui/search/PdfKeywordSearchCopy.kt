@@ -17,6 +17,8 @@ object PdfKeywordSearchCopy {
 
     const val SEARCH_LABEL = "Search on this phone"
 
+    const val CLEAR_QUERY_LABEL = "Clear"
+
     const val EMPTY_QUERY_BODY = "Type a word or short phrase, then search."
 
     const val SEARCHING_BODY =
