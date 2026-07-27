@@ -35,5 +35,5 @@ AI/network/PDF reopen. This change must not invent meaning-based recall.
 - **Known limitation or follow-up:** None expected.
 - **Documentation/traceability/ADR updates:** This change-control; CONTINUE;
   CHANGELOG.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** `36e96df`
 
