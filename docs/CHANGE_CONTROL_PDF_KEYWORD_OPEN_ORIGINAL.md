@@ -39,4 +39,4 @@ annotations, or external share in this slice). Folder grant must still be valid.
 - **Emulator (2026-07-28):** User confirmed all pass on Medium Phone with
   MemoraFixtures — search page labels, Open original in-app preview, Why still
   works.
-- **Git:** Pending local checkpoint after this acceptance.
+- **Git:** `d38a1c8`.
