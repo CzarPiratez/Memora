@@ -36,6 +36,14 @@ class PdfKeywordSearchCopyTest {
                 pageNumber = 2,
                 excerpt = "…meet mira tomorrow…",
             ),
+            PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_LABEL,
+            PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_HINT,
+            PdfKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
+            PdfKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY,
+            PdfKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY,
+            PdfKeywordSearchCopy.PREVIEW_TITLE,
+            PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+            PdfKeywordSearchCopy.previewPageCaption(pageNumber = 2, pageCount = 5),
         ).joinToString("\n").lowercase()
 
         assertTrue(copy.contains("keyword"))

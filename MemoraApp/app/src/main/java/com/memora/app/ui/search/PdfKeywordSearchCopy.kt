@@ -146,4 +146,34 @@ object PdfKeywordSearchCopy {
             "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."
     }
+
+    const val OPEN_ORIGINAL_PDF_LABEL = "Open original PDF"
+
+    const val OPEN_ORIGINAL_PDF_HINT =
+        "Opens a read-only preview of this page inside Memora. " +
+            "Your file stays where it is; Memora does not edit it."
+
+    const val OPEN_FEEDBACK_OPENING_BODY = "Opening a read-only preview of that page…"
+
+    const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
+        "Memora cannot open that original file right now. Reconnect the PDF folder " +
+            "if access was removed, then try again."
+
+    const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
+        "Memora could not render that PDF page. Try again, or reconnect the folder."
+
+    const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
+    const val PREVIEW_TITLE = "Original PDF page"
+
+    const val CLOSE_PREVIEW_LABEL = "Back to results"
+
+    const val PREVIEW_SCOPE_BODY =
+        "This is a read-only preview of the page Memora cited. " +
+            "Search still used saved text on this phone — not a live re-read of the whole file."
+
+    fun previewPageCaption(pageNumber: Int, pageCount: Int): String {
+        require(pageNumber > 0 && pageCount > 0 && pageNumber <= pageCount)
+        return "Page $pageNumber of $pageCount"
+    }
 }

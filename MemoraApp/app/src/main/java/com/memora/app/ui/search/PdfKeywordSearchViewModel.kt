@@ -3,9 +3,11 @@ package com.memora.app.ui.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.documents.LoadPersistedPdfKeywordSearchReadiness
+import com.memora.app.application.documents.OpenPersistedPdfForViewing
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
+import com.memora.app.application.documents.PdfPagePreviewRenderResult
 import com.memora.app.application.documents.SearchPersistedPdfPageText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,10 +21,14 @@ data class PdfKeywordSearchUiState(
     val query: String = "",
     val phase: PdfKeywordSearchPhase = PdfKeywordSearchPhase.Idle,
     val readiness: PdfKeywordSearchReadinessUi = PdfKeywordSearchReadinessUi.Loading,
+    val openFeedback: PdfOpenFeedbackUi = PdfOpenFeedbackUi.None,
+    val originalPreview: PdfOriginalPreviewUi? = null,
 ) {
     /** Shared gate for the Search button and keyboard Search action. */
     val canSubmitSearch: Boolean
-        get() = phase !is PdfKeywordSearchPhase.Searching && query.isNotBlank()
+        get() = phase !is PdfKeywordSearchPhase.Searching &&
+            query.isNotBlank() &&
+            openFeedback !is PdfOpenFeedbackUi.Opening
 }
 
 sealed interface PdfKeywordSearchReadinessUi {
@@ -77,18 +83,75 @@ sealed interface PdfKeywordSearchPhase {
     data object SearchCouldNotFinish : PdfKeywordSearchPhase
 }
 
+sealed interface PdfOpenFeedbackUi {
+    data object None : PdfOpenFeedbackUi
+
+    data object Opening : PdfOpenFeedbackUi
+
+    data object SourceUnavailable : PdfOpenFeedbackUi
+
+    data object CouldNotOpen : PdfOpenFeedbackUi
+}
+
+data class PdfOriginalPreviewUi(
+    val documentLabel: String,
+    val pageNumber: Int,
+    val pageCount: Int,
+    val widthPx: Int,
+    val heightPx: Int,
+    val argb8888: IntArray,
+) {
+    init {
+        require(documentLabel.isNotBlank()) { "Preview UI needs a document label." }
+        require(pageNumber > 0 && pageCount > 0 && pageNumber <= pageCount)
+        require(widthPx > 0 && heightPx > 0)
+        require(argb8888.size == widthPx * heightPx)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PdfOriginalPreviewUi) return false
+        return documentLabel == other.documentLabel &&
+            pageNumber == other.pageNumber &&
+            pageCount == other.pageCount &&
+            widthPx == other.widthPx &&
+            heightPx == other.heightPx &&
+            argb8888.contentEquals(other.argb8888)
+    }
+
+    override fun hashCode(): Int {
+        var result = documentLabel.hashCode()
+        result = 31 * result + pageNumber
+        result = 31 * result + pageCount
+        result = 31 * result + widthPx
+        result = 31 * result + heightPx
+        result = 31 * result + argb8888.contentHashCode()
+        return result
+    }
+}
+
 @HiltViewModel
 class PdfKeywordSearchViewModel(
     private val searchPersistedPdfPageText: suspend (String) -> PdfKeywordSearchOutcome,
     private val loadReadiness: suspend () -> PdfKeywordSearchReadiness,
+    private val openPersistedPdfForViewing: suspend (PdfKeywordSearchHit) -> PdfPagePreviewRenderResult,
 ) : ViewModel() {
     @Inject
     constructor(
         searchPersistedPdfPageText: SearchPersistedPdfPageText,
         loadPersistedPdfKeywordSearchReadiness: LoadPersistedPdfKeywordSearchReadiness,
+        openPersistedPdfForViewing: OpenPersistedPdfForViewing,
     ) : this(
         searchPersistedPdfPageText = { rawQuery -> searchPersistedPdfPageText(rawQuery) },
         loadReadiness = { loadPersistedPdfKeywordSearchReadiness() },
+        openPersistedPdfForViewing = { hit ->
+            openPersistedPdfForViewing(
+                sourceId = hit.sourceId,
+                sourceAssetKey = hit.sourceAssetKey,
+                pageNumber = hit.pageNumber,
+                documentLabel = hit.label,
+            )
+        },
     )
 
     private val mutableUiState = MutableStateFlow(PdfKeywordSearchUiState())
@@ -96,6 +159,7 @@ class PdfKeywordSearchViewModel(
 
     private val searchGeneration = AtomicInteger(0)
     private val readinessGeneration = AtomicInteger(0)
+    private val openGeneration = AtomicInteger(0)
 
     init {
         refreshReadiness()
@@ -112,17 +176,25 @@ class PdfKeywordSearchViewModel(
 
         // Field and phase must stay coherent: never leave Why/results for a prior query.
         searchGeneration.incrementAndGet()
+        openGeneration.incrementAndGet()
         mutableUiState.value = current.copy(
             query = value,
             phase = PdfKeywordSearchPhase.Idle,
+            openFeedback = PdfOpenFeedbackUi.None,
+            originalPreview = null,
         )
     }
 
     fun onSearch() {
         val query = mutableUiState.value.query
         val generation = searchGeneration.incrementAndGet()
+        openGeneration.incrementAndGet()
         viewModelScope.launch {
-            mutableUiState.value = mutableUiState.value.copy(phase = PdfKeywordSearchPhase.Searching)
+            mutableUiState.value = mutableUiState.value.copy(
+                phase = PdfKeywordSearchPhase.Searching,
+                openFeedback = PdfOpenFeedbackUi.None,
+                originalPreview = null,
+            )
             val outcome = try {
                 searchPersistedPdfPageText(query)
             } catch (_: Exception) {
@@ -153,17 +225,76 @@ class PdfKeywordSearchViewModel(
         }
     }
 
+    fun onOpenOriginalPdf(hit: PdfKeywordSearchHit) {
+        if (mutableUiState.value.openFeedback is PdfOpenFeedbackUi.Opening) return
+        val generation = openGeneration.incrementAndGet()
+        viewModelScope.launch {
+            mutableUiState.value = mutableUiState.value.copy(
+                openFeedback = PdfOpenFeedbackUi.Opening,
+                originalPreview = null,
+            )
+            val outcome = try {
+                openPersistedPdfForViewing(hit)
+            } catch (_: Exception) {
+                if (generation != openGeneration.get()) return@launch
+                mutableUiState.value = mutableUiState.value.copy(
+                    openFeedback = PdfOpenFeedbackUi.CouldNotOpen,
+                    originalPreview = null,
+                )
+                return@launch
+            }
+            if (generation != openGeneration.get()) return@launch
+            mutableUiState.value = when (outcome) {
+                is PdfPagePreviewRenderResult.Ready -> mutableUiState.value.copy(
+                    openFeedback = PdfOpenFeedbackUi.None,
+                    originalPreview = PdfOriginalPreviewUi(
+                        documentLabel = outcome.documentLabel,
+                        pageNumber = outcome.pageNumber,
+                        pageCount = outcome.pageCount,
+                        widthPx = outcome.widthPx,
+                        heightPx = outcome.heightPx,
+                        argb8888 = outcome.argb8888,
+                    ),
+                )
+                PdfPagePreviewRenderResult.SourceUnavailable -> mutableUiState.value.copy(
+                    openFeedback = PdfOpenFeedbackUi.SourceUnavailable,
+                    originalPreview = null,
+                )
+                PdfPagePreviewRenderResult.CouldNotOpen -> mutableUiState.value.copy(
+                    openFeedback = PdfOpenFeedbackUi.CouldNotOpen,
+                    originalPreview = null,
+                )
+            }
+        }
+    }
+
+    fun onOpenFeedbackDismissed() {
+        if (mutableUiState.value.openFeedback is PdfOpenFeedbackUi.Opening) return
+        mutableUiState.value = mutableUiState.value.copy(openFeedback = PdfOpenFeedbackUi.None)
+    }
+
+    fun onOriginalPreviewClosed() {
+        openGeneration.incrementAndGet()
+        mutableUiState.value = mutableUiState.value.copy(
+            originalPreview = null,
+            openFeedback = PdfOpenFeedbackUi.None,
+        )
+    }
+
     /**
      * Drops Results/Why after user-confirmed index clear so Explain Mode cannot
      * cite excerpts that no longer exist in Memora's private store.
      */
     fun onDerivedDataCleared() {
         searchGeneration.incrementAndGet()
+        openGeneration.incrementAndGet()
         mutableUiState.value = mutableUiState.value.copy(
             phase = PdfKeywordSearchPhase.Idle,
             readiness = PdfKeywordSearchReadinessUi.Ready(
                 PdfKeywordSearchReadiness(pageCount = 0, documentCount = 0),
             ),
+            openFeedback = PdfOpenFeedbackUi.None,
+            originalPreview = null,
         )
         refreshReadiness()
     }

@@ -976,19 +976,22 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH_PROGRESS.md. No AI/network. On
 2026-07-27 the user confirmed on Medium Phone: blank keyboard Search blocked;
 Searching progress + locked field; results/Why unchanged.
 
+## Verified engineering checkpoint
+
+Keyword **Open original PDF (in-app cited-page preview)** is implemented. Per-hit
+Open shows Opening then a read-only preview of the cited page via SAF +
+PdfRenderer; SourceUnavailable / CouldNotOpen feedback; Back to results; Why
+unchanged. Change control: docs/CHANGE_CONTROL_PDF_KEYWORD_OPEN_ORIGINAL.md.
+Fixtures: MemoraApp/fixtures/. No AI/network. On 2026-07-28 the user confirmed
+on Medium Phone: all pass.
+
 ## Next approved engineering step
 
-**Prep ready:** multi-page Open/keyword fixtures live in
-`MemoraApp/fixtures/` (`memora-open-2page.pdf`, `memora-open-3page.pdf`,
-`memora-open-5page.pdf`) and on the emulator at
-`/sdcard/Documents/MemoraFixtures/`. See `MemoraApp/fixtures/README.md`.
-
-Next product slice (when approved): **Open original PDF** from a keyword result,
-verified against those fixtures for page honesty — change-control first, then
-smallest safe implementation. Remaining recall polish after that: clear-query,
-cancel search, accessibility. Do not add AI or network until separately
-approved. Do not claim Local-AI gate **exit** complete until measured pack proof
-exists.
+Keyword PDF Recall v1 exit remaining: **clear-query control** (+ clear typed
+text on index clear), then cancel in-flight search, then accessibility baseline
+(`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). Do not add AI or network until
+separately approved. Do not claim Local-AI gate **exit** complete until measured
+pack proof exists.
 
 ## Important open decision
 

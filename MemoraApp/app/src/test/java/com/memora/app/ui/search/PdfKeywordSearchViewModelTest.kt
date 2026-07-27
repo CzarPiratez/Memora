@@ -3,6 +3,7 @@ package com.memora.app.ui.search
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
+import com.memora.app.application.documents.PdfPagePreviewRenderResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -287,19 +288,78 @@ class PdfKeywordSearchViewModelTest {
         assertTrue(viewModel.uiState.value.canSubmitSearch)
     }
 
+    @Test
+    fun open_original_shows_preview_for_ready_render() = runTest {
+        val pixels = intArrayOf(0xFFFFFFFF.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF000000.toInt())
+        val viewModel = viewModel(
+            open = {
+                PdfPagePreviewRenderResult.Ready(
+                    documentLabel = it.label,
+                    pageNumber = it.pageNumber,
+                    pageCount = 2,
+                    widthPx = 2,
+                    heightPx = 2,
+                    argb8888 = pixels,
+                )
+            },
+        ) {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet mira",
+                hits = listOf(sampleHit(pageNumber = 2)),
+                limitReached = false,
+            )
+        }
+
+        viewModel.onQueryChanged("meet mira")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        val hit = (viewModel.uiState.value.phase as PdfKeywordSearchPhase.Results).hits.first()
+        viewModel.onOpenOriginalPdf(hit)
+        advanceUntilIdle()
+
+        val preview = viewModel.uiState.value.originalPreview
+        assertEquals(2, preview?.pageNumber)
+        assertEquals(2, preview?.pageCount)
+        assertEquals(PdfOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
+    @Test
+    fun open_original_maps_source_unavailable_to_feedback() = runTest {
+        val viewModel = viewModel(
+            open = { PdfPagePreviewRenderResult.SourceUnavailable },
+        ) {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        viewModel.onOpenOriginalPdf(sampleHit())
+        advanceUntilIdle()
+        assertEquals(PdfOpenFeedbackUi.SourceUnavailable, viewModel.uiState.value.openFeedback)
+        assertEquals(null, viewModel.uiState.value.originalPreview)
+    }
+
     private fun viewModel(
         readiness: suspend () -> PdfKeywordSearchReadiness = {
             PdfKeywordSearchReadiness(pageCount = 0, documentCount = 0)
+        },
+        open: suspend (PdfKeywordSearchHit) -> PdfPagePreviewRenderResult = {
+            PdfPagePreviewRenderResult.CouldNotOpen
         },
         search: suspend (String) -> PdfKeywordSearchOutcome,
     ) = PdfKeywordSearchViewModel(
         searchPersistedPdfPageText = search,
         loadReadiness = readiness,
+        openPersistedPdfForViewing = open,
     )
 
-    private fun sampleHit(label: String = "fixture.pdf") = PdfKeywordSearchHit(
+    private fun sampleHit(label: String = "fixture.pdf", pageNumber: Int = 1) = PdfKeywordSearchHit(
         label = label,
-        pageNumber = 1,
+        pageNumber = pageNumber,
         excerpt = "meet mira excerpt",
         sourceId = "source-1",
         sourceAssetKey = "asset-1",

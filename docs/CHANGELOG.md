@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Open original PDF from keyword result (in-app cited-page preview)
+
+- **Requirements:** P-01, P-11, P-13, P-17; A-02, A-05.
+- **Delivered:** Per-hit Open original PDF opens a read-only in-app preview of the
+  cited page via SAF + `PdfRenderer`; Opening / SourceUnavailable / CouldNotOpen
+  feedback; Back returns to results. Search still uses stored text only.
+- **Verification:** On 2026-07-28, unit tests passed; debug APK installed. User
+  confirmed on Medium Phone (Documents/MemoraFixtures): keyword hit page labels,
+  Open original in-app cited-page preview, Back to results, Why unchanged.
+- **Truthfulness:** No external viewer page-jump promise; originals remain
+  read-only; no AI/network.
+
 ### Keyword search IME gate + Searching progress
 
 - **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.

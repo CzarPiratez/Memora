@@ -34,6 +34,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -78,6 +79,14 @@ import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import android.graphics.Bitmap
+import com.memora.app.application.documents.PdfKeywordSearchHit
+import com.memora.app.ui.search.PdfOpenFeedbackUi
+import com.memora.app.ui.search.PdfOriginalPreviewUi
+import androidx.activity.compose.BackHandler
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -127,6 +136,10 @@ class MainActivity : ComponentActivity() {
                         onPdfKeywordQueryChanged = pdfKeywordSearchViewModel::onQueryChanged,
                         onPdfKeywordSearch = pdfKeywordSearchViewModel::onSearch,
                         onPdfKeywordSearchScreenVisible = pdfKeywordSearchViewModel::onScreenVisible,
+                        onPdfKeywordOpenOriginal = pdfKeywordSearchViewModel::onOpenOriginalPdf,
+                        onPdfKeywordOpenFeedbackDismissed =
+                            pdfKeywordSearchViewModel::onOpenFeedbackDismissed,
+                        onPdfKeywordPreviewClosed = pdfKeywordSearchViewModel::onOriginalPreviewClosed,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -170,6 +183,9 @@ fun MemoraApp(
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
+    onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
+    onPdfKeywordOpenFeedbackDismissed: () -> Unit,
+    onPdfKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -208,6 +224,9 @@ fun MemoraApp(
             onPdfKeywordQueryChanged = onPdfKeywordQueryChanged,
             onPdfKeywordSearch = onPdfKeywordSearch,
             onPdfKeywordSearchScreenVisible = onPdfKeywordSearchScreenVisible,
+            onPdfKeywordOpenOriginal = onPdfKeywordOpenOriginal,
+            onPdfKeywordOpenFeedbackDismissed = onPdfKeywordOpenFeedbackDismissed,
+            onPdfKeywordPreviewClosed = onPdfKeywordPreviewClosed,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -239,6 +258,9 @@ private fun MemoraAppReady(
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
+    onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
+    onPdfKeywordOpenFeedbackDismissed: () -> Unit,
+    onPdfKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -327,13 +349,26 @@ private fun MemoraAppReady(
                 modifier = modifier,
             )
 
-            isShowingPdfKeywordSearch -> PdfKeywordSearchScreen(
-                uiState = pdfKeywordSearchUiState,
-                onQueryChanged = onPdfKeywordQueryChanged,
-                onSearch = onPdfKeywordSearch,
-                onBack = { isShowingPdfKeywordSearch = false },
-                modifier = modifier,
-            )
+            isShowingPdfKeywordSearch -> {
+                val preview = pdfKeywordSearchUiState.originalPreview
+                if (preview != null) {
+                    PdfOriginalPreviewScreen(
+                        preview = preview,
+                        onClose = onPdfKeywordPreviewClosed,
+                        modifier = modifier,
+                    )
+                } else {
+                    PdfKeywordSearchScreen(
+                        uiState = pdfKeywordSearchUiState,
+                        onQueryChanged = onPdfKeywordQueryChanged,
+                        onSearch = onPdfKeywordSearch,
+                        onOpenOriginalPdf = onPdfKeywordOpenOriginal,
+                        onDismissOpenFeedback = onPdfKeywordOpenFeedbackDismissed,
+                        onBack = { isShowingPdfKeywordSearch = false },
+                        modifier = modifier,
+                    )
+                }
+            }
 
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },
@@ -482,6 +517,8 @@ fun PdfKeywordSearchScreen(
     uiState: PdfKeywordSearchUiState,
     onQueryChanged: (String) -> Unit,
     onSearch: () -> Unit,
+    onOpenOriginalPdf: (PdfKeywordSearchHit) -> Unit,
+    onDismissOpenFeedback: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -530,7 +567,8 @@ fun PdfKeywordSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(PdfKeywordSearchCopy.QUERY_LABEL) },
             singleLine = true,
-            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching,
+            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching &&
+                uiState.openFeedback !is PdfOpenFeedbackUi.Opening,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
                 onSearch = {
@@ -595,6 +633,37 @@ fun PdfKeywordSearchScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                when (val feedback = uiState.openFeedback) {
+                    PdfOpenFeedbackUi.None -> Unit
+                    PdfOpenFeedbackUi.Opening -> {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = PdfKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    PdfOpenFeedbackUi.SourceUnavailable,
+                    PdfOpenFeedbackUi.CouldNotOpen,
+                    -> {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = when (feedback) {
+                                PdfOpenFeedbackUi.SourceUnavailable ->
+                                    PdfKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY
+                                else ->
+                                    PdfKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        TextButton(onClick = onDismissOpenFeedback) {
+                            Text(PdfKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 phase.hits.forEachIndexed { index, hit ->
                     var whyExpanded by remember(phase.query, index, hit.sourceId, hit.sourceAssetKey, hit.pageNumber) {
@@ -629,6 +698,20 @@ fun PdfKeywordSearchScreen(
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             Spacer(modifier = Modifier.height(12.dp))
+                            Button(
+                                onClick = { onOpenOriginalPdf(hit) },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = uiState.openFeedback !is PdfOpenFeedbackUi.Opening,
+                            ) {
+                                Text(PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_LABEL)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_HINT,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                             OutlinedButton(
                                 onClick = { whyExpanded = !whyExpanded },
                                 modifier = Modifier.fillMaxWidth(),
@@ -660,6 +743,71 @@ fun PdfKeywordSearchScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PdfOriginalPreviewScreen(
+    preview: PdfOriginalPreviewUi,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BackHandler(onBack = onClose)
+    val imageBitmap = remember(preview) {
+        Bitmap.createBitmap(
+            preview.argb8888,
+            preview.widthPx,
+            preview.heightPx,
+            Bitmap.Config.ARGB_8888,
+        ).asImageBitmap()
+    }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
+    ) {
+        Button(onClick = onClose) {
+            Text(PdfKeywordSearchCopy.CLOSE_PREVIEW_LABEL)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = PdfKeywordSearchCopy.PREVIEW_TITLE,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = preview.documentLabel,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = PdfKeywordSearchCopy.previewPageCaption(
+                pageNumber = preview.pageNumber,
+                pageCount = preview.pageCount,
+            ),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = PdfKeywordSearchCopy.previewPageCaption(
+                pageNumber = preview.pageNumber,
+                pageCount = preview.pageCount,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth,
+        )
     }
 }
 
