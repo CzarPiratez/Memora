@@ -33,3 +33,4 @@ Searching or Opening so state stays coherent.
 - **Emulator (2026-07-28):** User confirmed all pass on Medium Phone — Clear
   empties field + results; Clear resets after Why/Open; Clear Memora index blanks
   typed query; Search/Why/Open still work after Clear (not after index wipe).
+- **Git:** `bfb85f8`.
