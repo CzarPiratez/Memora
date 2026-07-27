@@ -958,6 +958,15 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH_READINESS.md. No AI/network. On
 2026-07-27 the user confirmed on Medium Phone: empty/searchable/clear
 readiness states display honestly, and search/Why still work.
 
+## Verified engineering checkpoint
+
+Keyword **blank-query guidance + seamless Search button** is implemented. Find
+saved PDF text disables Search while the query is blank and shows inline
+guidance; non-blank query restores prior search/Why behavior. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_QUERY_INPUT_GUIDANCE.md. No AI/network. On
+2026-07-27 the user confirmed on Medium Phone: blank → disabled Search +
+guidance; typed query → Search works as before.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness

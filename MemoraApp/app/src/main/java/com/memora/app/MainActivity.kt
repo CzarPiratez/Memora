@@ -537,13 +537,23 @@ fun PdfKeywordSearchScreen(
         Button(
             onClick = onSearch,
             modifier = Modifier.fillMaxWidth(),
-            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching,
+            enabled = uiState.phase !is PdfKeywordSearchPhase.Searching &&
+                uiState.query.isNotBlank(),
         ) {
             Text(PdfKeywordSearchCopy.SEARCH_LABEL)
         }
         Spacer(modifier = Modifier.height(20.dp))
         when (val phase = uiState.phase) {
-            PdfKeywordSearchPhase.Idle -> Unit
+            PdfKeywordSearchPhase.Idle -> {
+                if (uiState.query.isBlank()) {
+                    Text(
+                        text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    Unit
+                }
+            }
             PdfKeywordSearchPhase.EmptyQuery -> Text(
                 text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
                 style = MaterialTheme.typography.bodyMedium,

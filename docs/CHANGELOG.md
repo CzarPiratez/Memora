@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Keyword blank-query guidance + Search button gating
+
+- **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Find saved PDF text disables Search while the query is blank and
+  shows inline empty-query guidance in Idle; non-blank query unchanged.
+- **Verification:** On 2026-07-27, search unit tests; debug APK installed. User
+  confirmed on Medium Phone: blank → disabled Search + guidance; typed query →
+  Search/Why still work.
+- **Truthfulness:** Interim keyword path only; no AI/network.
+
 ### Keyword search corpus readiness
 
 - **Requirements:** P-01, P-11, P-14, P-15, P-17; A-02, A-05.
