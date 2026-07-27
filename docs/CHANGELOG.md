@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Keyword search corpus readiness
+
+- **Requirements:** P-01, P-11, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Find saved PDF text shows current-fingerprint page/document
+  counts ready for keyword search; refreshes on open and after clear.
+- **Verification:** On 2026-07-27, search readiness/copy/ViewModel unit tests;
+  debug APK installed. User confirmed on Medium Phone: empty/searchable/clear
+  readiness states all display honestly, and search/Why still work.
+- **Truthfulness:** Interim keyword inventory only; not Memory recall; no AI/network.
+
 ### Keyword search clear invalidation
 
 - **Requirements:** P-01, P-11, P-13, P-14, P-15, P-17; A-02, A-05.

@@ -2,6 +2,7 @@ package com.memora.app.ui.search
 
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
+import com.memora.app.application.documents.PdfKeywordSearchReadiness
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +33,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun editing_query_clears_stale_results_so_why_cannot_cite_a_prior_search() = runTest {
-        val viewModel = PdfKeywordSearchViewModel { raw ->
+        val viewModel = viewModel { raw ->
             PdfKeywordSearchOutcome.Matches(
                 query = raw.trim(),
                 hits = listOf(sampleHit()),
@@ -54,7 +55,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun results_phase_keeps_submitted_query_for_explain_mode() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             PdfKeywordSearchOutcome.Matches(
                 query = "meet mira",
                 hits = listOf(sampleHit()),
@@ -75,7 +76,7 @@ class PdfKeywordSearchViewModelTest {
     fun superseded_in_flight_search_does_not_overwrite_a_newer_edit() = runTest {
         val firstSearch = CompletableDeferred<PdfKeywordSearchOutcome>()
         var callCount = 0
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             callCount += 1
             if (callCount == 1) {
                 firstSearch.await()
@@ -114,7 +115,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun blank_query_maps_to_empty_query_phase() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             PdfKeywordSearchOutcome.BlankQuery
         }
         viewModel.onQueryChanged("   ")
@@ -125,7 +126,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun empty_hits_map_to_no_matches_with_submitted_query() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             PdfKeywordSearchOutcome.Matches(
                 query = "zzz",
                 hits = emptyList(),
@@ -140,7 +141,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun nothing_saved_outcome_maps_to_distinct_phase() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             PdfKeywordSearchOutcome.NothingSavedToSearch(query = "meet mira")
         }
         viewModel.onQueryChanged("meet mira")
@@ -154,7 +155,7 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun search_failure_leaves_recoverable_phase_not_spinning() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
+        val viewModel = viewModel {
             error("simulated search failure")
         }
         viewModel.onQueryChanged("meet")
@@ -168,28 +169,42 @@ class PdfKeywordSearchViewModelTest {
 
     @Test
     fun clear_derived_data_drops_results_so_why_cannot_cite_deleted_excerpts() = runTest {
-        val viewModel = PdfKeywordSearchViewModel {
-            PdfKeywordSearchOutcome.Matches(
-                query = "meet",
-                hits = listOf(sampleHit()),
-                limitReached = false,
-            )
-        }
+        var pageCount = 2
+        val viewModel = viewModel(
+            search = {
+                PdfKeywordSearchOutcome.Matches(
+                    query = "meet",
+                    hits = listOf(sampleHit()),
+                    limitReached = false,
+                )
+            },
+            readiness = {
+                PdfKeywordSearchReadiness(
+                    pageCount = pageCount,
+                    documentCount = if (pageCount == 0) 0 else 1,
+                )
+            },
+        )
         viewModel.onQueryChanged("meet")
         viewModel.onSearch()
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
 
+        pageCount = 0
         viewModel.onDerivedDataCleared()
+        advanceUntilIdle()
 
         assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
         assertEquals("meet", viewModel.uiState.value.query)
+        val readiness = viewModel.uiState.value.readiness as PdfKeywordSearchReadinessUi.Ready
+        assertEquals(0, readiness.snapshot.pageCount)
+        assertEquals(0, readiness.snapshot.documentCount)
     }
 
     @Test
     fun clear_derived_data_ignores_in_flight_search_completion() = runTest {
         val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
-        val viewModel = PdfKeywordSearchViewModel { deferred.await() }
+        val viewModel = viewModel { deferred.await() }
 
         viewModel.onQueryChanged("meet")
         viewModel.onSearch()
@@ -210,6 +225,50 @@ class PdfKeywordSearchViewModelTest {
 
         assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
     }
+
+    @Test
+    fun screen_visible_refreshes_readiness_counts() = runTest {
+        var pageCount = 0
+        val viewModel = viewModel(
+            search = { PdfKeywordSearchOutcome.BlankQuery },
+            readiness = {
+                PdfKeywordSearchReadiness(pageCount = pageCount, documentCount = if (pageCount == 0) 0 else 1)
+            },
+        )
+        advanceUntilIdle()
+        assertEquals(
+            PdfKeywordSearchReadinessUi.Ready(PdfKeywordSearchReadiness(0, 0)),
+            viewModel.uiState.value.readiness,
+        )
+
+        pageCount = 3
+        viewModel.onScreenVisible()
+        advanceUntilIdle()
+
+        val readiness = viewModel.uiState.value.readiness as PdfKeywordSearchReadinessUi.Ready
+        assertEquals(3, readiness.snapshot.pageCount)
+        assertEquals(1, readiness.snapshot.documentCount)
+    }
+
+    @Test
+    fun readiness_load_failure_is_recoverable() = runTest {
+        val viewModel = viewModel(
+            search = { PdfKeywordSearchOutcome.BlankQuery },
+            readiness = { error("simulated readiness failure") },
+        )
+        advanceUntilIdle()
+        assertEquals(PdfKeywordSearchReadinessUi.CouldNotLoad, viewModel.uiState.value.readiness)
+    }
+
+    private fun viewModel(
+        readiness: suspend () -> PdfKeywordSearchReadiness = {
+            PdfKeywordSearchReadiness(pageCount = 0, documentCount = 0)
+        },
+        search: suspend (String) -> PdfKeywordSearchOutcome,
+    ) = PdfKeywordSearchViewModel(
+        searchPersistedPdfPageText = search,
+        loadReadiness = readiness,
+    )
 
     private fun sampleHit(label: String = "fixture.pdf") = PdfKeywordSearchHit(
         label = label,

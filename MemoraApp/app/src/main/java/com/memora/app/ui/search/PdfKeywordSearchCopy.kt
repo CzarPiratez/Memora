@@ -34,6 +34,42 @@ object PdfKeywordSearchCopy {
             "folder first. Memora only searches PDF text already saved on this phone — " +
             "this is keyword matching, not meaning-based recall."
 
+    const val READINESS_LOADING_BODY = "Checking saved PDF text on this phone…"
+
+    const val READINESS_COULD_NOT_LOAD_BODY =
+        "Could not check how much PDF text is saved for search on this phone. " +
+            "Try opening this screen again in a moment."
+
+    /**
+     * Honest inventory of current-fingerprint pages ready for keyword search.
+     *
+     * Does not claim Memory, meaning, or that discovery alone is searchable.
+     */
+    fun readinessBody(pageCount: Int, documentCount: Int): String {
+        require(pageCount >= 0) { "Readiness page count cannot be negative." }
+        require(documentCount >= 0) { "Readiness document count cannot be negative." }
+        if (pageCount == 0) {
+            require(documentCount == 0) {
+                "Empty readiness cannot report documents."
+            }
+            return "Nothing is saved for keyword search yet. " +
+                "Finish Local PDF reading for a connected folder first."
+        }
+        require(documentCount > 0) {
+            "Non-empty readiness needs at least one document."
+        }
+
+        val pages = if (pageCount == 1) "1 saved page" else "$pageCount saved pages"
+        val documents = if (documentCount == 1) {
+            "1 PDF"
+        } else {
+            "$documentCount PDFs"
+        }
+        val verb = if (pageCount == 1) "is" else "are"
+        return "$pages from $documents $verb ready for keyword search on this phone. " +
+            "This is keyword matching, not meaning-based recall."
+    }
+
     const val SEARCH_COULD_NOT_FINISH_BODY =
         "Search could not finish on this phone. Try again in a moment. " +
             "Memora does not reopen your original files for this search."

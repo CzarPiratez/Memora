@@ -58,6 +58,7 @@ import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
 import com.memora.app.ui.search.PdfKeywordSearchCopy
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
 import com.memora.app.ui.search.PdfKeywordSearchPhase
+import com.memora.app.ui.search.PdfKeywordSearchReadinessUi
 import com.memora.app.ui.search.PdfKeywordSearchUiState
 import com.memora.app.ui.search.PdfKeywordSearchViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
@@ -125,6 +126,7 @@ class MainActivity : ComponentActivity() {
                         onShowLocalReadingRetryableDemo = pdfLocalReadingViewModel::onShowRetryableDemo,
                         onPdfKeywordQueryChanged = pdfKeywordSearchViewModel::onQueryChanged,
                         onPdfKeywordSearch = pdfKeywordSearchViewModel::onSearch,
+                        onPdfKeywordSearchScreenVisible = pdfKeywordSearchViewModel::onScreenVisible,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -167,6 +169,7 @@ fun MemoraApp(
     onShowLocalReadingRetryableDemo: () -> Unit,
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
+    onPdfKeywordSearchScreenVisible: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -204,6 +207,7 @@ fun MemoraApp(
             onShowLocalReadingRetryableDemo = onShowLocalReadingRetryableDemo,
             onPdfKeywordQueryChanged = onPdfKeywordQueryChanged,
             onPdfKeywordSearch = onPdfKeywordSearch,
+            onPdfKeywordSearchScreenVisible = onPdfKeywordSearchScreenVisible,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -234,6 +238,7 @@ private fun MemoraAppReady(
     onShowLocalReadingRetryableDemo: () -> Unit,
     onPdfKeywordQueryChanged: (String) -> Unit,
     onPdfKeywordSearch: () -> Unit,
+    onPdfKeywordSearchScreenVisible: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -333,7 +338,10 @@ private fun MemoraAppReady(
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
-                onFindSavedPdfText = { isShowingPdfKeywordSearch = true },
+                onFindSavedPdfText = {
+                    isShowingPdfKeywordSearch = true
+                    onPdfKeywordSearchScreenVisible()
+                },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
                 modifier = modifier,
@@ -498,6 +506,22 @@ fun PdfKeywordSearchScreen(
         Text(
             text = PdfKeywordSearchCopy.SCOPE_BODY,
             style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = when (val readiness = uiState.readiness) {
+                PdfKeywordSearchReadinessUi.Loading ->
+                    PdfKeywordSearchCopy.READINESS_LOADING_BODY
+                PdfKeywordSearchReadinessUi.CouldNotLoad ->
+                    PdfKeywordSearchCopy.READINESS_COULD_NOT_LOAD_BODY
+                is PdfKeywordSearchReadinessUi.Ready ->
+                    PdfKeywordSearchCopy.readinessBody(
+                        pageCount = readiness.snapshot.pageCount,
+                        documentCount = readiness.snapshot.documentCount,
+                    )
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(20.dp))
         OutlinedTextField(

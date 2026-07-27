@@ -128,6 +128,31 @@ interface PdfExtractionDao {
     )
     suspend fun countCurrentSearchablePages(schemaVersion: String): Int
 
+    /**
+     * Page and distinct-document counts for the same current-fingerprint corpus
+     * keyword search uses (ADR-022).
+     */
+    @Query(
+        """
+        SELECT
+            COUNT(*) AS page_count,
+            COUNT(DISTINCT pages.source_id || char(31) || pages.source_asset_key)
+                AS document_count
+        FROM pdf_extraction_pages AS pages
+        INNER JOIN pdf_extractions AS headers
+            ON headers.source_id = pages.source_id
+            AND headers.source_asset_key = pages.source_asset_key
+            AND headers.fingerprint = pages.fingerprint
+            AND headers.schema_version = pages.schema_version
+        INNER JOIN assets AS assets
+            ON assets.source_id = pages.source_id
+            AND assets.source_asset_key = pages.source_asset_key
+            AND assets.fingerprint = pages.fingerprint
+        WHERE pages.schema_version = :schemaVersion
+        """,
+    )
+    suspend fun countCurrentSearchableCorpus(schemaVersion: String): PdfSearchableCorpusCounts
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: PdfExtractionEntity)
 

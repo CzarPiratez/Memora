@@ -2,8 +2,10 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.documents.LoadPersistedPdfKeywordSearchReadiness
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
+import com.memora.app.application.documents.PdfKeywordSearchReadiness
 import com.memora.app.application.documents.SearchPersistedPdfPageText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -16,7 +18,18 @@ import kotlinx.coroutines.launch
 data class PdfKeywordSearchUiState(
     val query: String = "",
     val phase: PdfKeywordSearchPhase = PdfKeywordSearchPhase.Idle,
+    val readiness: PdfKeywordSearchReadinessUi = PdfKeywordSearchReadinessUi.Loading,
 )
+
+sealed interface PdfKeywordSearchReadinessUi {
+    data object Loading : PdfKeywordSearchReadinessUi
+
+    data object CouldNotLoad : PdfKeywordSearchReadinessUi
+
+    data class Ready(
+        val snapshot: PdfKeywordSearchReadiness,
+    ) : PdfKeywordSearchReadinessUi
+}
 
 sealed interface PdfKeywordSearchPhase {
     data object Idle : PdfKeywordSearchPhase
@@ -63,18 +76,31 @@ sealed interface PdfKeywordSearchPhase {
 @HiltViewModel
 class PdfKeywordSearchViewModel(
     private val searchPersistedPdfPageText: suspend (String) -> PdfKeywordSearchOutcome,
+    private val loadReadiness: suspend () -> PdfKeywordSearchReadiness,
 ) : ViewModel() {
     @Inject
     constructor(
         searchPersistedPdfPageText: SearchPersistedPdfPageText,
+        loadPersistedPdfKeywordSearchReadiness: LoadPersistedPdfKeywordSearchReadiness,
     ) : this(
         searchPersistedPdfPageText = { rawQuery -> searchPersistedPdfPageText(rawQuery) },
+        loadReadiness = { loadPersistedPdfKeywordSearchReadiness() },
     )
 
     private val mutableUiState = MutableStateFlow(PdfKeywordSearchUiState())
     val uiState: StateFlow<PdfKeywordSearchUiState> = mutableUiState.asStateFlow()
 
     private val searchGeneration = AtomicInteger(0)
+    private val readinessGeneration = AtomicInteger(0)
+
+    init {
+        refreshReadiness()
+    }
+
+    /** Call when Find saved PDF text becomes visible so counts stay current. */
+    fun onScreenVisible() {
+        refreshReadiness()
+    }
 
     fun onQueryChanged(value: String) {
         val current = mutableUiState.value
@@ -131,6 +157,32 @@ class PdfKeywordSearchViewModel(
         searchGeneration.incrementAndGet()
         mutableUiState.value = mutableUiState.value.copy(
             phase = PdfKeywordSearchPhase.Idle,
+            readiness = PdfKeywordSearchReadinessUi.Ready(
+                PdfKeywordSearchReadiness(pageCount = 0, documentCount = 0),
+            ),
         )
+        refreshReadiness()
+    }
+
+    private fun refreshReadiness() {
+        val generation = readinessGeneration.incrementAndGet()
+        mutableUiState.value = mutableUiState.value.copy(
+            readiness = PdfKeywordSearchReadinessUi.Loading,
+        )
+        viewModelScope.launch {
+            val snapshot = try {
+                loadReadiness()
+            } catch (_: Exception) {
+                if (generation != readinessGeneration.get()) return@launch
+                mutableUiState.value = mutableUiState.value.copy(
+                    readiness = PdfKeywordSearchReadinessUi.CouldNotLoad,
+                )
+                return@launch
+            }
+            if (generation != readinessGeneration.get()) return@launch
+            mutableUiState.value = mutableUiState.value.copy(
+                readiness = PdfKeywordSearchReadinessUi.Ready(snapshot),
+            )
+        }
     }
 }

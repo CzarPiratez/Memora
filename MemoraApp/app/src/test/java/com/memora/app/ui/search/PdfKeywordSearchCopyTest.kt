@@ -15,6 +15,8 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
             PdfKeywordSearchCopy.noMatchesBody("meet mira"),
             PdfKeywordSearchCopy.NOTHING_SAVED_BODY,
+            PdfKeywordSearchCopy.readinessBody(pageCount = 0, documentCount = 0),
+            PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
             PdfKeywordSearchCopy.RESULTS_HINT,
             PdfKeywordSearchCopy.resultsSummary(
                 query = "meet mira",
@@ -134,6 +136,25 @@ class PdfKeywordSearchCopyTest {
         assertFalse(body.contains("try different words"))
         assertFalse(body.contains("confidence"))
         assertFalse(body.contains("ai "))
+    }
+
+    @Test
+    fun readiness_body_reports_empty_and_non_empty_honestly() {
+        assertEquals(
+            "Nothing is saved for keyword search yet. " +
+                "Finish Local PDF reading for a connected folder first.",
+            PdfKeywordSearchCopy.readinessBody(pageCount = 0, documentCount = 0),
+        )
+        assertEquals(
+            "1 saved page from 1 PDF is ready for keyword search on this phone. " +
+                "This is keyword matching, not meaning-based recall.",
+            PdfKeywordSearchCopy.readinessBody(pageCount = 1, documentCount = 1),
+        )
+        assertEquals(
+            "3 saved pages from 2 PDFs are ready for keyword search on this phone. " +
+                "This is keyword matching, not meaning-based recall.",
+            PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)

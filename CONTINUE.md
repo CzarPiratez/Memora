@@ -949,6 +949,15 @@ docs/CHANGE_CONTROL_PDF_KEYWORD_CLEAR_INVALIDATION.md. No AI/network. On
 2026-07-27 the user confirmed on Medium Phone: clear drops stale Results/Why;
 rebuild+search still works.
 
+## Verified engineering checkpoint
+
+Keyword **search corpus readiness** is implemented. Find saved PDF text shows
+honest current-fingerprint saved page/document counts before search, refreshes
+on open, and returns to empty after clear. Change control:
+docs/CHANGE_CONTROL_PDF_KEYWORD_SEARCH_READINESS.md. No AI/network. On
+2026-07-27 the user confirmed on Medium Phone: empty/searchable/clear
+readiness states display honestly, and search/Why still work.
+
 ## Next approved engineering step
 
 Further recall polish, or a separately approved first AI Pack / harness
