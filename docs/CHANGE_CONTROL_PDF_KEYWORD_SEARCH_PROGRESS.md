@@ -39,4 +39,4 @@ AI/network/PDF reopen. Completes blank-query gating without shortcuts.
 - **Known limitation or follow-up:** None expected beyond interim keyword path.
 - **Documentation/traceability/ADR updates:** This change-control; CONTINUE;
   CHANGELOG.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** `57feb43`
