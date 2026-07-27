@@ -992,11 +992,17 @@ index also blanks typed text. Verified on Medium Phone (user: all pass).
 Change control: `docs/CHANGE_CONTROL_PDF_KEYWORD_CLEAR_QUERY.md`.
 Keyword v1 exit item 2 Done.
 
+## Keyword search cancel in-flight (2026-07-28)
+
+Cancel search stops Searching, keeps typed query, ignores late results. Search and
+Cancel are separate always-mounted buttons. Verified on Medium Phone (user: pass).
+Change control: `docs/CHANGE_CONTROL_PDF_KEYWORD_CANCEL_SEARCH.md`.
+Keyword v1 exit item 3 Done.
+
 ## Next approved engineering step
 
-Keyword PDF Recall v1 exit remaining: **cancel in-flight search**, then
-accessibility baseline (`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). No AI/network
-until separately approved.
+Keyword PDF Recall v1 exit remaining: **accessibility baseline**
+(`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). No AI/network until separately approved.
 
 ## Important open decision
 

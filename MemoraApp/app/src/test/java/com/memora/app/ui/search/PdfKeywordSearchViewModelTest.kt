@@ -8,6 +8,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -250,6 +251,126 @@ class PdfKeywordSearchViewModelTest {
     }
 
     @Test
+    fun cancel_search_returns_idle_keeps_query_and_ignores_late_completion() = runTest {
+        val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
+        val viewModel = viewModel { deferred.await() }
+        viewModel.onQueryChanged("meet mira")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+        assertTrue(viewModel.uiState.value.canCancelSearch)
+        assertFalse(viewModel.uiState.value.canSubmitSearch)
+
+        viewModel.onSearchCancelled()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet mira", viewModel.uiState.value.query)
+        assertFalse(viewModel.uiState.value.canCancelSearch)
+        assertTrue(viewModel.uiState.value.canSubmitSearch)
+        assertTrue(viewModel.uiState.value.canClearQuery)
+
+        deferred.complete(
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet mira",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            ),
+        )
+        advanceUntilIdle()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet mira", viewModel.uiState.value.query)
+    }
+
+    @Test
+    fun cancel_search_is_ignored_when_not_searching() = runTest {
+        val viewModel = viewModel {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearchCancelled()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet", viewModel.uiState.value.query)
+
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
+        viewModel.onSearchCancelled()
+        assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
+    }
+
+    @Test
+    fun fast_search_holds_searching_for_minimum_visible_time() = runTest {
+        val viewModel = viewModel(minSearchingVisibleMs = 500) {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+        assertTrue(viewModel.uiState.value.canCancelSearch)
+
+        advanceTimeBy(499)
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+
+        advanceTimeBy(1)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.phase is PdfKeywordSearchPhase.Results)
+    }
+
+    @Test
+    fun cancel_during_minimum_visible_hold_returns_idle() = runTest {
+        val viewModel = viewModel(minSearchingVisibleMs = 500) {
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+
+        viewModel.onSearchCancelled()
+        advanceUntilIdle()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet", viewModel.uiState.value.query)
+        assertFalse(viewModel.uiState.value.canCancelSearch)
+    }
+
+    @Test
+    fun cancelled_search_does_not_apply_results_after_idle() = runTest {
+        val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
+        val viewModel = viewModel(minSearchingVisibleMs = 0) { deferred.await() }
+        viewModel.onQueryChanged("meet")
+        viewModel.onSearch()
+        dispatcher.scheduler.runCurrent()
+        assertEquals(PdfKeywordSearchPhase.Searching, viewModel.uiState.value.phase)
+
+        viewModel.onSearchCancelled()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+
+        deferred.complete(
+            PdfKeywordSearchOutcome.Matches(
+                query = "meet",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            ),
+        )
+        advanceUntilIdle()
+        assertEquals(PdfKeywordSearchPhase.Idle, viewModel.uiState.value.phase)
+        assertEquals("meet", viewModel.uiState.value.query)
+    }
+
+    @Test
     fun clear_derived_data_ignores_in_flight_search_completion() = runTest {
         val deferred = CompletableDeferred<PdfKeywordSearchOutcome>()
         val viewModel = viewModel { deferred.await() }
@@ -397,11 +518,15 @@ class PdfKeywordSearchViewModelTest {
         open: suspend (PdfKeywordSearchHit) -> PdfPagePreviewRenderResult = {
             PdfPagePreviewRenderResult.CouldNotOpen
         },
+        minSearchingVisibleMs: Long = 0L,
+        monotonicMs: () -> Long = { 0L },
         search: suspend (String) -> PdfKeywordSearchOutcome,
     ) = PdfKeywordSearchViewModel(
         searchPersistedPdfPageText = search,
         loadReadiness = readiness,
         openPersistedPdfForViewing = open,
+        minSearchingVisibleMs = minSearchingVisibleMs,
+        monotonicMs = monotonicMs,
     )
 
     private fun sampleHit(label: String = "fixture.pdf", pageNumber: Int = 1) = PdfKeywordSearchHit(

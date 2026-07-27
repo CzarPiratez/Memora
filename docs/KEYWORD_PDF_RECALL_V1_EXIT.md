@@ -8,7 +8,7 @@ Bounded polish exit for interim keyword PDF recall (not Local-AI / Memory).
 |---|------|--------|
 | 1 | **Open original PDF** — in-app read-only preview of the cited page | Done (2026-07-28) |
 | 2 | Clear-query control + clear typed text on index clear | Done (2026-07-28) |
-| 3 | Cancel in-flight search | Pending |
+| 3 | Cancel in-flight search | Done (2026-07-28) |
 | 4 | Accessibility baseline | Pending |
 
 ## Open original truthfulness

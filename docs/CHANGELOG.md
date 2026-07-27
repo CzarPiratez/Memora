@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Cancel in-flight keyword search
+
+- **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.
+- **Delivered:** Dedicated Cancel search while Searching (separate from Search);
+  returns Idle keeping typed query; late completions ignored; search Job
+  cancelled; short minimum Searching visibility (~700ms) on tiny indexes.
+- **Verification:** Unit tests green (`PdfKeywordSearch*`); `installDebug` succeeded;
+  emulator confirmation 2026-07-28 (user: pass) — dedicated Cancel search stops
+  Searching; query kept; no results.
+- **Truthfulness:** Interim keyword path only; does not cancel PDF preview Opening.
+
 ### Keyword search clear query
 
 - **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.

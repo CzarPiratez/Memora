@@ -12,9 +12,13 @@ import com.memora.app.application.documents.SearchPersistedPdfPageText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class PdfKeywordSearchUiState(
@@ -35,6 +39,10 @@ data class PdfKeywordSearchUiState(
         get() = query.isNotBlank() &&
             phase !is PdfKeywordSearchPhase.Searching &&
             openFeedback !is PdfOpenFeedbackUi.Opening
+
+    /** Cancel is available only while a search is in progress. */
+    val canCancelSearch: Boolean
+        get() = phase is PdfKeywordSearchPhase.Searching
 }
 
 sealed interface PdfKeywordSearchReadinessUi {
@@ -141,6 +149,12 @@ class PdfKeywordSearchViewModel(
     private val searchPersistedPdfPageText: suspend (String) -> PdfKeywordSearchOutcome,
     private val loadReadiness: suspend () -> PdfKeywordSearchReadiness,
     private val openPersistedPdfForViewing: suspend (PdfKeywordSearchHit) -> PdfPagePreviewRenderResult,
+    /**
+     * Keeps Searching visible long enough to notice Cancel on small indexes.
+     * Does not invent progress; slow searches are not delayed further.
+     */
+    private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
+    private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
 ) : ViewModel() {
     @Inject
     constructor(
@@ -166,6 +180,7 @@ class PdfKeywordSearchViewModel(
     private val searchGeneration = AtomicInteger(0)
     private val readinessGeneration = AtomicInteger(0)
     private val openGeneration = AtomicInteger(0)
+    private var searchJob: Job? = null
 
     init {
         refreshReadiness()
@@ -202,40 +217,80 @@ class PdfKeywordSearchViewModel(
         val query = mutableUiState.value.query
         val generation = searchGeneration.incrementAndGet()
         openGeneration.incrementAndGet()
-        viewModelScope.launch {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
                 phase = PdfKeywordSearchPhase.Searching,
                 openFeedback = PdfOpenFeedbackUi.None,
                 originalPreview = null,
             )
+            val startedAtMs = monotonicMs()
             val outcome = try {
                 searchPersistedPdfPageText(query)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 if (generation != searchGeneration.get()) return@launch
-                mutableUiState.value = mutableUiState.value.copy(
-                    phase = PdfKeywordSearchPhase.SearchCouldNotFinish,
-                )
+                mutableUiState.update { state ->
+                    if (generation != searchGeneration.get()) return@update state
+                    if (state.phase !is PdfKeywordSearchPhase.Searching) return@update state
+                    state.copy(phase = PdfKeywordSearchPhase.SearchCouldNotFinish)
+                }
                 return@launch
             }
             if (generation != searchGeneration.get()) return@launch
 
-            mutableUiState.value = mutableUiState.value.copy(
-                phase = when (outcome) {
-                    PdfKeywordSearchOutcome.BlankQuery -> PdfKeywordSearchPhase.EmptyQuery
-                    is PdfKeywordSearchOutcome.NothingSavedToSearch ->
-                        PdfKeywordSearchPhase.NothingSavedToSearch(query = outcome.query)
-                    is PdfKeywordSearchOutcome.Matches -> if (outcome.hits.isEmpty()) {
-                        PdfKeywordSearchPhase.NoMatches(query = outcome.query)
-                    } else {
-                        PdfKeywordSearchPhase.Results(
-                            query = outcome.query,
-                            hits = outcome.hits,
-                            limitReached = outcome.limitReached,
-                        )
-                    }
-                },
+            val elapsedMs = monotonicMs() - startedAtMs
+            val remainingMs = minSearchingVisibleMs - elapsedMs
+            if (remainingMs > 0) {
+                delay(remainingMs)
+            }
+            if (generation != searchGeneration.get()) return@launch
+
+            val nextPhase = when (outcome) {
+                PdfKeywordSearchOutcome.BlankQuery -> PdfKeywordSearchPhase.EmptyQuery
+                is PdfKeywordSearchOutcome.NothingSavedToSearch ->
+                    PdfKeywordSearchPhase.NothingSavedToSearch(query = outcome.query)
+                is PdfKeywordSearchOutcome.Matches -> if (outcome.hits.isEmpty()) {
+                    PdfKeywordSearchPhase.NoMatches(query = outcome.query)
+                } else {
+                    PdfKeywordSearchPhase.Results(
+                        query = outcome.query,
+                        hits = outcome.hits,
+                        limitReached = outcome.limitReached,
+                    )
+                }
+            }
+            // Cancel may have moved Idle already; never overwrite a non-Searching phase.
+            mutableUiState.update { state ->
+                if (generation != searchGeneration.get()) return@update state
+                if (state.phase !is PdfKeywordSearchPhase.Searching) return@update state
+                state.copy(phase = nextPhase)
+            }
+        }
+    }
+
+    /**
+     * Stops an in-flight search and returns to Idle with the typed query kept
+     * so the user can edit or search again. Late completions are ignored.
+     */
+    fun onSearchCancelled() {
+        searchGeneration.incrementAndGet()
+        searchJob?.cancel()
+        searchJob = null
+        mutableUiState.update { state ->
+            if (state.phase !is PdfKeywordSearchPhase.Searching) return@update state
+            state.copy(
+                phase = PdfKeywordSearchPhase.Idle,
+                openFeedback = PdfOpenFeedbackUi.None,
+                originalPreview = null,
             )
         }
+    }
+
+    companion object {
+        /** Long enough to notice and tap Cancel on tiny indexes; not a progress claim. */
+        const val DEFAULT_MIN_SEARCHING_VISIBLE_MS = 700L
     }
 
     fun onOpenOriginalPdf(hit: PdfKeywordSearchHit) {
@@ -302,6 +357,8 @@ class PdfKeywordSearchViewModel(
     fun onDerivedDataCleared() {
         searchGeneration.incrementAndGet()
         openGeneration.incrementAndGet()
+        searchJob?.cancel()
+        searchJob = null
         mutableUiState.value = mutableUiState.value.copy(
             query = "",
             phase = PdfKeywordSearchPhase.Idle,

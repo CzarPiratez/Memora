@@ -14,6 +14,7 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
             PdfKeywordSearchCopy.SEARCHING_BODY,
             PdfKeywordSearchCopy.CLEAR_QUERY_LABEL,
+            PdfKeywordSearchCopy.CANCEL_SEARCH_LABEL,
             PdfKeywordSearchCopy.NO_MATCHES_BODY,
             PdfKeywordSearchCopy.noMatchesBody("meet mira"),
             PdfKeywordSearchCopy.NOTHING_SAVED_BODY,

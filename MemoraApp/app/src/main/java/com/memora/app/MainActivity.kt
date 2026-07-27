@@ -137,6 +137,7 @@ class MainActivity : ComponentActivity() {
                         onPdfKeywordSearch = pdfKeywordSearchViewModel::onSearch,
                         onPdfKeywordSearchScreenVisible = pdfKeywordSearchViewModel::onScreenVisible,
                         onPdfKeywordQueryCleared = pdfKeywordSearchViewModel::onQueryCleared,
+                        onPdfKeywordSearchCancelled = pdfKeywordSearchViewModel::onSearchCancelled,
                         onPdfKeywordOpenOriginal = pdfKeywordSearchViewModel::onOpenOriginalPdf,
                         onPdfKeywordOpenFeedbackDismissed =
                             pdfKeywordSearchViewModel::onOpenFeedbackDismissed,
@@ -185,6 +186,7 @@ fun MemoraApp(
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
     onPdfKeywordQueryCleared: () -> Unit,
+    onPdfKeywordSearchCancelled: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
@@ -227,6 +229,7 @@ fun MemoraApp(
             onPdfKeywordSearch = onPdfKeywordSearch,
             onPdfKeywordSearchScreenVisible = onPdfKeywordSearchScreenVisible,
             onPdfKeywordQueryCleared = onPdfKeywordQueryCleared,
+            onPdfKeywordSearchCancelled = onPdfKeywordSearchCancelled,
             onPdfKeywordOpenOriginal = onPdfKeywordOpenOriginal,
             onPdfKeywordOpenFeedbackDismissed = onPdfKeywordOpenFeedbackDismissed,
             onPdfKeywordPreviewClosed = onPdfKeywordPreviewClosed,
@@ -262,6 +265,7 @@ private fun MemoraAppReady(
     onPdfKeywordSearch: () -> Unit,
     onPdfKeywordSearchScreenVisible: () -> Unit,
     onPdfKeywordQueryCleared: () -> Unit,
+    onPdfKeywordSearchCancelled: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
@@ -367,6 +371,7 @@ private fun MemoraAppReady(
                         onQueryChanged = onPdfKeywordQueryChanged,
                         onQueryCleared = onPdfKeywordQueryCleared,
                         onSearch = onPdfKeywordSearch,
+                        onSearchCancelled = onPdfKeywordSearchCancelled,
                         onOpenOriginalPdf = onPdfKeywordOpenOriginal,
                         onDismissOpenFeedback = onPdfKeywordOpenFeedbackDismissed,
                         onBack = { isShowingPdfKeywordSearch = false },
@@ -523,6 +528,7 @@ fun PdfKeywordSearchScreen(
     onQueryChanged: (String) -> Unit,
     onQueryCleared: () -> Unit,
     onSearch: () -> Unit,
+    onSearchCancelled: () -> Unit,
     onOpenOriginalPdf: (PdfKeywordSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
     onBack: () -> Unit,
@@ -592,12 +598,22 @@ fun PdfKeywordSearchScreen(
             ),
         )
         Spacer(modifier = Modifier.height(12.dp))
+        // Keep both actions mounted. Swapping one button's role under a finger
+        // can re-fire as Search and look like Cancel failed.
         Button(
             onClick = onSearch,
             modifier = Modifier.fillMaxWidth(),
             enabled = uiState.canSubmitSearch,
         ) {
             Text(PdfKeywordSearchCopy.SEARCH_LABEL)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = onSearchCancelled,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = uiState.canCancelSearch,
+        ) {
+            Text(PdfKeywordSearchCopy.CANCEL_SEARCH_LABEL)
         }
         Spacer(modifier = Modifier.height(20.dp))
         when (val phase = uiState.phase) {
