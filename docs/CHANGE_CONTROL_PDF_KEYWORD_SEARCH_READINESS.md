@@ -41,4 +41,4 @@ current-fingerprint only; no AI/network/PDF reopen.
   only; not Memory inventory.
 - **Documentation/traceability/ADR updates:** This change-control; CONTINUE;
   CHANGELOG.
-- **Git commit:** _(filled after commit)_
+- **Git commit:** `d999393`
