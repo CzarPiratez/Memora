@@ -978,10 +978,17 @@ Searching progress + locked field; results/Why unchanged.
 
 ## Next approved engineering step
 
-Further recall polish, or a separately approved first AI Pack / harness
-implementation slice that produces measured baselines — each requiring its own
-change-control. Do not add AI or network until separately approved. Do not claim
-Local-AI gate **exit** complete until measured pack proof exists.
+**Prep ready:** multi-page Open/keyword fixtures live in
+`MemoraApp/fixtures/` (`memora-open-2page.pdf`, `memora-open-3page.pdf`,
+`memora-open-5page.pdf`) and on the emulator at
+`/sdcard/Documents/MemoraFixtures/`. See `MemoraApp/fixtures/README.md`.
+
+Next product slice (when approved): **Open original PDF** from a keyword result,
+verified against those fixtures for page honesty — change-control first, then
+smallest safe implementation. Remaining recall polish after that: clear-query,
+cancel search, accessibility. Do not add AI or network until separately
+approved. Do not claim Local-AI gate **exit** complete until measured pack proof
+exists.
 
 ## Important open decision
 
