@@ -408,5 +408,11 @@ class DocumentTreeSetupViewModelTest {
             schemaVersion: String,
             afterSourceAssetKey: String?,
         ): Asset? = null
+
+        override suspend fun findNextImagePendingExifExtract(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
     }
 }

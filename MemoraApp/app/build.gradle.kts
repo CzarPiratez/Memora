@@ -77,6 +77,7 @@ dependencies {
     // PersistenceModule still opens plaintext memora.db until the conversion gate.
     implementation(libs.sqlcipher.android)
     implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.exifinterface)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

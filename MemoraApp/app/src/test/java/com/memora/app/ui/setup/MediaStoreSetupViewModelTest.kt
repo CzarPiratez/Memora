@@ -9,8 +9,11 @@ import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.discovery.ImageLibraryAccessScope
+import com.memora.app.domain.extraction.ImageExifExtractionPersistence
+import com.memora.app.domain.extraction.ImageExifExtractionRecord
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorker
+import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +46,7 @@ class MediaStoreSetupViewModelTest {
     @Test
     fun doesNotIndexUntilTheUiReportsGrantedAccessAndTheUserExplicitlyRequestsIt() = runTest {
         val scheduler = RecordingScheduler()
-        val viewModel = MediaStoreSetupViewModel(scheduler, RecordingAssetRepository())
+        val viewModel = viewModel(discovery = scheduler)
 
         viewModel.onIndexRequested()
         assertEquals(0, scheduler.drainCount)
@@ -83,9 +86,9 @@ class MediaStoreSetupViewModelTest {
     @Test
     fun representsSelectedPhotoAccessWithoutCallingItFullLibraryAccess() = runTest {
         val scheduler = RecordingScheduler()
-        val viewModel = MediaStoreSetupViewModel(
-            scheduler,
-            RecordingAssetRepository(photoCount = 2),
+        val viewModel = viewModel(
+            discovery = scheduler,
+            assets = RecordingAssetRepository(photoCount = 2),
         )
 
         viewModel.onPhotoPermissionResult(isGranted = true)
@@ -115,7 +118,7 @@ class MediaStoreSetupViewModelTest {
     @Test
     fun mapsLostAccessAndFailuresToExplicitRecoveryStates() = runTest {
         val accessScheduler = RecordingScheduler()
-        val accessVm = MediaStoreSetupViewModel(accessScheduler, RecordingAssetRepository())
+        val accessVm = viewModel(discovery = accessScheduler)
         accessVm.onPhotoPermissionResult(isGranted = true)
         accessVm.onIndexRequested()
         accessScheduler.emit(
@@ -141,7 +144,7 @@ class MediaStoreSetupViewModelTest {
         )
 
         val failScheduler = RecordingScheduler()
-        val failVm = MediaStoreSetupViewModel(failScheduler, RecordingAssetRepository())
+        val failVm = viewModel(discovery = failScheduler)
         failVm.onPhotoPermissionResult(isGranted = true)
         failVm.onIndexRequested()
         failScheduler.emit(
@@ -169,7 +172,7 @@ class MediaStoreSetupViewModelTest {
     @Test
     fun ignoresRepeatedIndexRequestsWhileOneRequestIsInProgress() = runTest {
         val scheduler = RecordingScheduler()
-        val viewModel = MediaStoreSetupViewModel(scheduler, RecordingAssetRepository())
+        val viewModel = viewModel(discovery = scheduler)
         viewModel.onPhotoPermissionResult(isGranted = true)
 
         viewModel.onIndexRequested()
@@ -177,6 +180,18 @@ class MediaStoreSetupViewModelTest {
 
         assertEquals(1, scheduler.drainCount)
     }
+
+    private fun viewModel(
+        discovery: RecordingScheduler = RecordingScheduler(),
+        exif: RecordingExifScheduler = RecordingExifScheduler(),
+        assets: RecordingAssetRepository = RecordingAssetRepository(),
+        persistence: RecordingExifPersistence = RecordingExifPersistence(),
+    ) = MediaStoreSetupViewModel(
+        discoveryWorkScheduler = discovery,
+        exifExtractWorkScheduler = exif,
+        assetRepository = assets,
+        imageExifPersistence = persistence,
+    )
 
     private fun workInfo(state: WorkInfo.State, output: Data): WorkInfo =
         WorkInfo(
@@ -206,6 +221,21 @@ class MediaStoreSetupViewModelTest {
         }
     }
 
+    private class RecordingExifScheduler : MediaStoreImageExifExtractWorkScheduler {
+        var drainCount: Int = 0
+        private val infos = MutableStateFlow<List<WorkInfo>>(emptyList())
+
+        override fun enqueueDrain(sourceId: SourceId) {
+            drainCount += 1
+        }
+
+        override fun enqueueContinuation(sourceId: SourceId, afterSourceAssetKey: String) = Unit
+
+        override fun cancel(sourceId: SourceId) = Unit
+
+        override fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>> = infos
+    }
+
     private class RecordingAssetRepository(
         private val photoCount: Int = 1,
     ) : AssetRepository {
@@ -230,5 +260,19 @@ class MediaStoreSetupViewModelTest {
             schemaVersion: String,
             afterSourceAssetKey: String?,
         ): Asset? = null
+
+        override suspend fun findNextImagePendingExifExtract(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
+    }
+
+    private class RecordingExifPersistence : ImageExifExtractionPersistence {
+        override suspend fun findHeader(record: ImageExifExtractionRecord) = null
+
+        override suspend fun insert(record: ImageExifExtractionRecord) = Unit
+
+        override suspend fun countCurrentForSource(sourceId: String, schemaVersion: String): Int = 0
     }
 }

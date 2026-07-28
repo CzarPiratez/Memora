@@ -11,8 +11,9 @@ import androidx.room.RoomDatabase
         PdfExtractionEntity::class,
         PdfExtractionPageEntity::class,
         PdfExtractionMetadataEntity::class,
+        ImageExifExtractionEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -23,4 +24,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun documentTreeApprovalDao(): DocumentTreeApprovalDao
 
     abstract fun pdfExtractionDao(): PdfExtractionDao
+
+    abstract fun imageExifExtractionDao(): ImageExifExtractionDao
 }

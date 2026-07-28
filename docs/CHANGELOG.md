@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### MediaStore image EXIF extract
+
+- **Requirements:** P-04, P-05, P-06, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** After photo catalogue completes, Read photo facts drains PHOTO/
+  SCREENSHOT assets via WorkManager, opens permitted URIs read-only for ExifInterface,
+  persists `image_exif_extractions` (Room v5). Honest copy — no OCR/keyword/Memory claims.
+- **Verification:** Unit tests green; `installDebug` succeeded; emulator confirmation
+  2026-07-28 (3 fixture photos catalogued; Read photo facts saved basic facts;
+  honest EXIF-only copy).
+- **Truthfulness:** Discovery remains metadata-only (ADR-009); extract is a separate
+  explicit step. OCR remains a later governed capability.
+
 ### Keyword search accessibility baseline
 
 - **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05; Local-AI §11.

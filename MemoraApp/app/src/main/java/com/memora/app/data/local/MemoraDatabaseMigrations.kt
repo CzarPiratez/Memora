@@ -141,4 +141,43 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `image_exif_extractions` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `schema_version` TEXT NOT NULL,
+                    `asset_kind` TEXT NOT NULL,
+                    `datetime_original` TEXT,
+                    `image_width` INTEGER,
+                    `image_height` INTEGER,
+                    `orientation` INTEGER,
+                    `make` TEXT,
+                    `model` TEXT,
+                    `extracted_at_epoch_millis` INTEGER NOT NULL,
+                    `created_at_epoch_millis` INTEGER NOT NULL,
+                    `integrity` TEXT NOT NULL,
+                    PRIMARY KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `schema_version`
+                    )
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_image_exif_extractions_source_id_source_asset_key` " +
+                    "ON `image_exif_extractions` (`source_id`, `source_asset_key`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_image_exif_extractions_fingerprint` " +
+                    "ON `image_exif_extractions` (`fingerprint`)",
+            )
+        }
+    }
 }

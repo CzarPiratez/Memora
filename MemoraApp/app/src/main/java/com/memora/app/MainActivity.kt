@@ -78,10 +78,13 @@ import com.memora.app.ui.setup.PdfFolderIndexingState
 import com.memora.app.ui.setup.PdfLocalReadingCopy
 import com.memora.app.ui.setup.PdfLocalReadingState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
-import com.memora.app.ui.setup.completedIndexingSummary
-import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.ImageExifExtractUiState
+import com.memora.app.ui.setup.MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.completedImageExifExtractSummary
+import com.memora.app.ui.setup.completedIndexingSummary
+import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -127,6 +130,7 @@ class MainActivity : ComponentActivity() {
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
+                        onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
                         onDocumentTreeReadAccessReceived =
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
@@ -178,6 +182,7 @@ fun MemoraApp(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
+    onImageExifExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -221,6 +226,7 @@ fun MemoraApp(
             pdfKeywordSearchUiState = pdfKeywordSearchUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
+            onImageExifExtractRequested = onImageExifExtractRequested,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
@@ -257,6 +263,7 @@ private fun MemoraAppReady(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
+    onImageExifExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -343,6 +350,7 @@ private fun MemoraAppReady(
                 setupUiState = setupUiState,
                 onRequestPhotoAccess = { permissionLauncher.launch(requiredPermissions) },
                 onStartIndexing = onIndexRequested,
+                onStartExifExtract = onImageExifExtractRequested,
                 onBack = { isShowingPrivacyScreen = false },
                 modifier = modifier,
             )
@@ -1009,6 +1017,7 @@ fun PrivacyScreen(
     setupUiState: MediaStoreSetupUiState,
     onRequestPhotoAccess: () -> Unit,
     onStartIndexing: () -> Unit,
+    onStartExifExtract: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1016,7 +1025,9 @@ fun PrivacyScreen(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 32.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         Button(onClick = onBack) {
@@ -1080,6 +1091,22 @@ fun PrivacyScreen(
                     ) {
                         Text("Continue indexing")
                     }
+                } else if (setupUiState.indexing.discoveredAssetCount > 0) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ImageExifExtractSection(
+                        exifExtract = setupUiState.exifExtract,
+                        onStartExifExtract = onStartExifExtract,
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "No photos or screenshots were in the permitted library, " +
+                            "so there is nothing to read photo facts from yet. " +
+                            "Add a photo on this device (or grant access to photos that exist), " +
+                            "then tap Start indexing again.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
@@ -1136,6 +1163,77 @@ fun PrivacyScreen(
                 ) {
                     Text("Allow photo access")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageExifExtractSection(
+    exifExtract: ImageExifExtractUiState,
+    onStartExifExtract: () -> Unit,
+) {
+    when (exifExtract) {
+        ImageExifExtractUiState.NotStarted -> {
+            Text(
+                text = "Next, Memora can read basic facts from those photos (date and camera tags when present). " +
+                    "This opens permitted photos read-only. It does not read text from images or create searchable memories yet.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartExifExtract,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Read photo facts")
+            }
+        }
+
+        ImageExifExtractUiState.InProgress -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+
+        is ImageExifExtractUiState.Completed -> {
+            Text(
+                text = completedImageExifExtractSummary(
+                    extractedCount = exifExtract.extractedCount,
+                    catalogueCount = exifExtract.catalogueCount,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        ImageExifExtractUiState.AccessStopped -> {
+            Text(
+                text = "Photo access is needed before Memora can read photo facts.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+
+        is ImageExifExtractUiState.Failed -> {
+            Text(
+                text = exifExtract.message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartExifExtract,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Try reading photo facts again")
             }
         }
     }

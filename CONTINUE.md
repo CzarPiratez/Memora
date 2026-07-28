@@ -1006,12 +1006,18 @@ image descriptions on keyword search + cited-page preview. Sighted flow verified
 on Medium Phone (user: all pass). Change control:
 `docs/CHANGE_CONTROL_PDF_KEYWORD_ACCESSIBILITY.md`. Keyword v1 exit item 4 Done.
 
+## MediaStore image EXIF extract (2026-07-28)
+
+After photo catalogue, Read photo facts drains PHOTO/SCREENSHOT via WorkManager,
+opens permitted URIs read-only for ExifInterface, persists `image_exif_extractions`
+(Room v5). Honest EXIF-only copy. Verified on Medium Phone with 3 fixtures.
+Change control: `docs/CHANGE_CONTROL_MEDIASTORE_IMAGE_EXIF_EXTRACT.md`.
+
 ## Next approved engineering step
 
-Keyword PDF Recall v1 exit items 1–4 are Done. Do not add AI or network until
-separately approved. Do not claim Local-AI gate **exit** complete until measured
-pack proof exists. Choose the next product slice from CONTINUE / ROADMAP with
-governance pre-work.
+Photo track follow-on when approved: on-device OCR for screenshots (separate
+gate). Until then: no OCR / AI / network. Notes ADR-003 and Local-AI pack remain
+separate decisions.
 
 ## Important open decision
 

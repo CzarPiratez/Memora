@@ -42,4 +42,18 @@ class RoomAssetRepository(
             )
             ?.toDomain()
             ?.asset
+
+    override suspend fun findNextImagePendingExifExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String?,
+    ): Asset? =
+        assetDao()
+            .findNextImagePendingExifExtract(
+                sourceId = sourceId.value,
+                schemaVersion = schemaVersion,
+                afterSourceAssetKey = afterSourceAssetKey.orEmpty(),
+            )
+            ?.toDomain()
+            ?.asset
 }

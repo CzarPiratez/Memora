@@ -2,14 +2,18 @@ package com.memora.app.data.di
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.memora.app.application.documents.PendingPdfLocalReader
+import com.memora.app.application.documents.RunPendingPdfLocalReading
+import com.memora.app.application.images.PendingImageExifExtractor
+import com.memora.app.application.images.RunPendingImageExifExtract
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
+import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
+import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.SafPdfDiscoveryWorkScheduler
 import com.memora.app.work.SafPdfExtractWorkScheduler
-import com.memora.app.application.documents.PendingPdfLocalReader
-import com.memora.app.application.documents.RunPendingPdfLocalReading
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -50,7 +54,19 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
 
     @Binds
     @Singleton
+    abstract fun bindMediaStoreImageExifExtractWorkScheduler(
+        impl: DefaultMediaStoreImageExifExtractWorkScheduler,
+    ): MediaStoreImageExifExtractWorkScheduler
+
+    @Binds
+    @Singleton
     abstract fun bindPendingPdfLocalReader(
         impl: RunPendingPdfLocalReading,
     ): PendingPdfLocalReader
+
+    @Binds
+    @Singleton
+    abstract fun bindPendingImageExifExtractor(
+        impl: RunPendingImageExifExtract,
+    ): PendingImageExifExtractor
 }

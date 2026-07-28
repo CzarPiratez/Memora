@@ -32,3 +32,19 @@ internal fun completedIndexingSummary(
 internal const val MEDIASTORE_INDEXING_IN_PROGRESS_BODY =
     "Memora is reading photo and screenshot metadata on this phone. " +
         "This lists items only; it does not open photo contents or create searchable memories yet."
+
+internal const val MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY =
+    "Memora is reading basic photo facts (such as date and camera tags when present) " +
+        "from permitted photos on this phone. This does not read text from images, " +
+        "run OCR, or create searchable memories yet."
+
+internal fun completedImageExifExtractSummary(
+    extractedCount: Int,
+    catalogueCount: Int,
+): String {
+    require(extractedCount >= 0 && catalogueCount >= 0)
+    val items = if (extractedCount == 1) "photo" else "photos"
+    return "Memora saved basic facts for $extractedCount $items " +
+        "(from $catalogueCount catalogued items). " +
+        "This is EXIF and size metadata only — not OCR, keyword search, or meaning-based recall."
+}

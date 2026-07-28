@@ -3,6 +3,7 @@ package com.memora.app.application.privacy
 import androidx.work.WorkManager
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
+import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import javax.inject.Inject
@@ -22,6 +23,9 @@ class ClearMemoraDerivedData @Inject constructor(
         workManager.cancelAllWorkByTag(DefaultSafPdfDiscoveryWorkScheduler.TAG_SAF_PDF_DISCOVERY)
         workManager.cancelAllWorkByTag(DefaultSafPdfExtractWorkScheduler.TAG_SAF_PDF_EXTRACT)
         workManager.cancelAllWorkByTag(DefaultMediaStoreDiscoveryWorkScheduler.TAG_MEDIASTORE_DISCOVERY)
+        workManager.cancelAllWorkByTag(
+            DefaultMediaStoreImageExifExtractWorkScheduler.TAG_MEDIASTORE_IMAGE_EXIF_EXTRACT,
+        )
         databaseHandle.clearUserConfirmedDerivedData()
         ClearMemoraDerivedDataResult.Cleared(APPROVED_REBUILD_MESSAGE)
     } catch (_: Exception) {

@@ -28,4 +28,15 @@ interface AssetRepository {
         schemaVersion: String,
         afterSourceAssetKey: String? = null,
     ): Asset?
+
+    /**
+     * Returns the next PHOTO/SCREENSHOT that still needs EXIF extract for [schemaVersion].
+     *
+     * [afterSourceAssetKey] is exclusive; pass null/blank to start from the first pending.
+     */
+    suspend fun findNextImagePendingExifExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String? = null,
+    ): Asset?
 }

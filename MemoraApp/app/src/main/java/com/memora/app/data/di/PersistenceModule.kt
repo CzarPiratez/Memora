@@ -6,12 +6,14 @@ import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
+import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryPageStore
 import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
+import com.memora.app.domain.extraction.ImageExifExtractionPersistence
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,6 +40,13 @@ object PersistenceModule {
     @Singleton
     fun provideAssetRepository(handle: MemoraDatabaseHandle): AssetRepository =
         RoomAssetRepository(assetDao = { handle.database().assetDao() })
+
+    @Provides
+    @Singleton
+    fun provideImageExifExtractionPersistence(
+        handle: MemoraDatabaseHandle,
+    ): ImageExifExtractionPersistence =
+        RoomImageExifExtractionPersistencePort { handle.database() }
 
     @Provides
     @Singleton

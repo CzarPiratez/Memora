@@ -46,4 +46,18 @@ class IndexingSummaryTest {
             ),
         )
     }
+
+    @Test
+    fun exif_completion_never_claims_ocr_or_search() {
+        val summary = completedImageExifExtractSummary(
+            extractedCount = 3,
+            catalogueCount = 3,
+        )
+        assertEquals(
+            "Memora saved basic facts for 3 photos (from 3 catalogued items). " +
+                "This is EXIF and size metadata only — not OCR, keyword search, or meaning-based recall.",
+            summary,
+        )
+        assertEquals(false, summary.lowercase().contains("searchable memories"))
+    }
 }
