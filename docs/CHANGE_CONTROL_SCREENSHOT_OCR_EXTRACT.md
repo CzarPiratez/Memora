@@ -47,4 +47,4 @@ platform OCR adapter + AssetRepository + Room persistence port.
   then OCR text saved for 1 screenshot with honest OCR-only copy (not keyword/
   Memory). Follow-up fix: MediaStore URI load via `InputImage.fromFilePath`,
   no false access-revoked dead end, retry kept catalogue/EXIF.
-- **Git:** (filled after local commit)
+- **Git:** `d50c92c`.
