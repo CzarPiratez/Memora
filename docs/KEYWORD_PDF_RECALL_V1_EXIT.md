@@ -9,7 +9,17 @@ Bounded polish exit for interim keyword PDF recall (not Local-AI / Memory).
 | 1 | **Open original PDF** — in-app read-only preview of the cited page | Done (2026-07-28) |
 | 2 | Clear-query control + clear typed text on index clear | Done (2026-07-28) |
 | 3 | Cancel in-flight search | Done (2026-07-28) |
-| 4 | Accessibility baseline | Pending |
+| 4 | Accessibility baseline | Done (2026-07-28) |
+
+## Accessibility baseline
+
+Keyword search + cited-page preview only:
+
+- Screen / preview titles marked as headings for assistive services.
+- Searching, Opening, results, empty, and error statuses use polite live regions.
+- Progress + status merge into one announcement (no bare unlabeled spinner).
+- Preview image describes document label and page; search stays stored-text only.
+- Not a full-app TalkBack audit or WCAG certification claim.
 
 ## Open original truthfulness
 

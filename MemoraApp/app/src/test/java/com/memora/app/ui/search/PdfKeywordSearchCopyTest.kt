@@ -46,6 +46,11 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.PREVIEW_TITLE,
             PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
             PdfKeywordSearchCopy.previewPageCaption(pageNumber = 2, pageCount = 5),
+            PdfKeywordSearchCopy.previewImageContentDescription(
+                documentLabel = "memora-open-2page.pdf",
+                pageNumber = 2,
+                pageCount = 5,
+            ),
         ).joinToString("\n").lowercase()
 
         assertTrue(copy.contains("keyword"))
@@ -165,6 +170,27 @@ class PdfKeywordSearchCopyTest {
             "3 saved pages from 2 PDFs are ready for keyword search on this phone. " +
                 "This is keyword matching, not meaning-based recall.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
+        )
+    }
+
+    @Test
+    fun preview_image_description_names_document_and_page() {
+        assertEquals(
+            "Read-only preview of \"memora-open-2page.pdf\", Page 2 of 5.",
+            PdfKeywordSearchCopy.previewImageContentDescription(
+                documentLabel = "memora-open-2page.pdf",
+                pageNumber = 2,
+                pageCount = 5,
+            ),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun preview_image_description_rejects_blank_document_label() {
+        PdfKeywordSearchCopy.previewImageContentDescription(
+            documentLabel = " ",
+            pageNumber = 1,
+            pageCount = 1,
         )
     }
 

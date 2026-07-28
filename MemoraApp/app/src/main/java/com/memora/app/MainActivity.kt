@@ -47,6 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -550,6 +556,7 @@ fun PdfKeywordSearchScreen(
             text = PdfKeywordSearchCopy.SCREEN_TITLE,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() },
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
@@ -571,6 +578,7 @@ fun PdfKeywordSearchScreen(
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
         Spacer(modifier = Modifier.height(20.dp))
         OutlinedTextField(
@@ -622,6 +630,7 @@ fun PdfKeywordSearchScreen(
                     Text(
                         text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
                         style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                     )
                 } else {
                     Unit
@@ -630,27 +639,27 @@ fun PdfKeywordSearchScreen(
             PdfKeywordSearchPhase.EmptyQuery -> Text(
                 text = PdfKeywordSearchCopy.EMPTY_QUERY_BODY,
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             PdfKeywordSearchPhase.Searching -> {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = PdfKeywordSearchCopy.SEARCHING_BODY,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                PdfKeywordStatusProgress(
+                    statusText = PdfKeywordSearchCopy.SEARCHING_BODY,
                 )
             }
             is PdfKeywordSearchPhase.NoMatches -> Text(
                 text = PdfKeywordSearchCopy.noMatchesBody(phase.query),
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             is PdfKeywordSearchPhase.NothingSavedToSearch -> Text(
                 text = PdfKeywordSearchCopy.NOTHING_SAVED_BODY,
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             PdfKeywordSearchPhase.SearchCouldNotFinish -> Text(
                 text = PdfKeywordSearchCopy.SEARCH_COULD_NOT_FINISH_BODY,
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             is PdfKeywordSearchPhase.Results -> {
                 Text(
@@ -661,17 +670,14 @@ fun PdfKeywordSearchScreen(
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
                 when (val feedback = uiState.openFeedback) {
                     PdfOpenFeedbackUi.None -> Unit
                     PdfOpenFeedbackUi.Opening -> {
                         Spacer(modifier = Modifier.height(12.dp))
-                        CircularProgressIndicator()
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = PdfKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        PdfKeywordStatusProgress(
+                            statusText = PdfKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
                         )
                     }
                     PdfOpenFeedbackUi.SourceUnavailable,
@@ -687,6 +693,7 @@ fun PdfKeywordSearchScreen(
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                         )
                         TextButton(onClick = onDismissOpenFeedback) {
                             Text(PdfKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
@@ -806,6 +813,7 @@ fun PdfOriginalPreviewScreen(
             text = PdfKeywordSearchCopy.PREVIEW_TITLE,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() },
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -830,12 +838,36 @@ fun PdfOriginalPreviewScreen(
         Spacer(modifier = Modifier.height(20.dp))
         Image(
             bitmap = imageBitmap,
-            contentDescription = PdfKeywordSearchCopy.previewPageCaption(
+            contentDescription = PdfKeywordSearchCopy.previewImageContentDescription(
+                documentLabel = preview.documentLabel,
                 pageNumber = preview.pageNumber,
                 pageCount = preview.pageCount,
             ),
             modifier = Modifier.fillMaxWidth(),
             contentScale = ContentScale.FillWidth,
+        )
+    }
+}
+
+/** Spinner + status as one polite TalkBack announcement (sighted layout unchanged). */
+@Composable
+private fun PdfKeywordStatusProgress(
+    statusText: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.semantics(mergeDescendants = true) {
+            liveRegion = LiveRegionMode.Polite
+            contentDescription = statusText
+        },
+    ) {
+        CircularProgressIndicator(modifier = Modifier.clearAndSetSemantics { })
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = statusText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.clearAndSetSemantics { },
         )
     }
 }

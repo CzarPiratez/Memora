@@ -999,10 +999,19 @@ Cancel are separate always-mounted buttons. Verified on Medium Phone (user: pass
 Change control: `docs/CHANGE_CONTROL_PDF_KEYWORD_CANCEL_SEARCH.md`.
 Keyword v1 exit item 3 Done.
 
+## Keyword search accessibility baseline (2026-07-28)
+
+Headings, polite live regions, merged progress announcements, and richer preview
+image descriptions on keyword search + cited-page preview. Sighted flow verified
+on Medium Phone (user: all pass). Change control:
+`docs/CHANGE_CONTROL_PDF_KEYWORD_ACCESSIBILITY.md`. Keyword v1 exit item 4 Done.
+
 ## Next approved engineering step
 
-Keyword PDF Recall v1 exit remaining: **accessibility baseline**
-(`docs/KEYWORD_PDF_RECALL_V1_EXIT.md`). No AI/network until separately approved.
+Keyword PDF Recall v1 exit items 1–4 are Done. Do not add AI or network until
+separately approved. Do not claim Local-AI gate **exit** complete until measured
+pack proof exists. Choose the next product slice from CONTINUE / ROADMAP with
+governance pre-work.
 
 ## Important open decision
 

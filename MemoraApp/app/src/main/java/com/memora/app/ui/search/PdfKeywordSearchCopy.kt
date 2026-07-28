@@ -180,4 +180,17 @@ object PdfKeywordSearchCopy {
         require(pageNumber > 0 && pageCount > 0 && pageNumber <= pageCount)
         return "Page $pageNumber of $pageCount"
     }
+
+    /**
+     * TalkBack description for the read-only cited-page image.
+     * Names the document and page; does not claim OCR or meaning.
+     */
+    fun previewImageContentDescription(
+        documentLabel: String,
+        pageNumber: Int,
+        pageCount: Int,
+    ): String {
+        require(documentLabel.isNotBlank()) { "Preview image description needs a document label." }
+        return "Read-only preview of \"$documentLabel\", ${previewPageCaption(pageNumber, pageCount)}."
+    }
 }

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Keyword search accessibility baseline
+
+- **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05; Local-AI §11.
+- **Delivered:** Headings, polite live regions for search/open statuses, merged
+  progress announcements, richer preview image content description on keyword
+  search + cited-page preview screens.
+- **Verification:** Unit tests green (`PdfKeywordSearch*`); `installDebug` succeeded;
+  emulator confirmation 2026-07-28 (user: all pass on sighted flow).
+- **Truthfulness:** Keyword search + preview only; not a full-app TalkBack audit.
+
 ### Cancel in-flight keyword search
 
 - **Requirements:** P-01, P-14, P-15, P-17; A-02, A-05.
