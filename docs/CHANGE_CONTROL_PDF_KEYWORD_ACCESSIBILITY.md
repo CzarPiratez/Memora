@@ -35,3 +35,4 @@ document order. Does not claim WCAG certification.
 - **Emulator (2026-07-28):** User confirmed all pass on Medium Phone for sighted
   flow — Find saved PDF text looks normal; Search / Why / Open / Cancel / Clear;
   preview Back to results.
+- **Git:** `afdfb6b`.
