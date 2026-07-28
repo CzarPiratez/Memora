@@ -81,10 +81,13 @@ import com.memora.app.ui.setup.PdfLocalReadingViewModel
 import com.memora.app.ui.setup.ImageExifExtractUiState
 import com.memora.app.ui.setup.MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_INDEXING_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.MEDIASTORE_SCREENSHOT_OCR_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.ScreenshotOcrExtractUiState
 import com.memora.app.ui.setup.completedImageExifExtractSummary
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.completedScreenshotOcrExtractSummary
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -131,6 +134,8 @@ class MainActivity : ComponentActivity() {
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
+                        onScreenshotOcrExtractRequested =
+                            mediaStoreSetupViewModel::onScreenshotOcrExtractRequested,
                         onDocumentTreeReadAccessReceived =
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
@@ -183,6 +188,7 @@ fun MemoraApp(
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
+    onScreenshotOcrExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -227,6 +233,7 @@ fun MemoraApp(
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
+            onScreenshotOcrExtractRequested = onScreenshotOcrExtractRequested,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
@@ -264,6 +271,7 @@ private fun MemoraAppReady(
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
+    onScreenshotOcrExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -351,6 +359,7 @@ private fun MemoraAppReady(
                 onRequestPhotoAccess = { permissionLauncher.launch(requiredPermissions) },
                 onStartIndexing = onIndexRequested,
                 onStartExifExtract = onImageExifExtractRequested,
+                onStartScreenshotOcr = onScreenshotOcrExtractRequested,
                 onBack = { isShowingPrivacyScreen = false },
                 modifier = modifier,
             )
@@ -1018,6 +1027,7 @@ fun PrivacyScreen(
     onRequestPhotoAccess: () -> Unit,
     onStartIndexing: () -> Unit,
     onStartExifExtract: () -> Unit,
+    onStartScreenshotOcr: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1097,6 +1107,14 @@ fun PrivacyScreen(
                         exifExtract = setupUiState.exifExtract,
                         onStartExifExtract = onStartExifExtract,
                     )
+                    if (setupUiState.exifExtract is ImageExifExtractUiState.Completed) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ScreenshotOcrExtractSection(
+                            screenshotCatalogueCount = setupUiState.screenshotCatalogueCount,
+                            screenshotOcr = setupUiState.screenshotOcr,
+                            onStartScreenshotOcr = onStartScreenshotOcr,
+                        )
+                    }
                 } else {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
@@ -1234,6 +1252,96 @@ private fun ImageExifExtractSection(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Try reading photo facts again")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScreenshotOcrExtractSection(
+    screenshotCatalogueCount: Int,
+    screenshotOcr: ScreenshotOcrExtractUiState,
+    onStartScreenshotOcr: () -> Unit,
+) {
+    when (screenshotOcr) {
+        ScreenshotOcrExtractUiState.NotStarted -> {
+            if (screenshotCatalogueCount <= 0) {
+                Text(
+                    text = "No screenshots were catalogued, so there is nothing to read text from yet. " +
+                        "Ordinary photos are not OCR’d in this step.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    text = "Next, Memora can read text from catalogued screenshots on this phone. " +
+                        "This opens those screenshots read-only and stores OCR text on-device. " +
+                        "It does not open keyword search or create meaning-based memories yet.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onStartScreenshotOcr,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Read text from screenshots")
+                }
+            }
+        }
+
+        ScreenshotOcrExtractUiState.InProgress -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = MEDIASTORE_SCREENSHOT_OCR_IN_PROGRESS_BODY,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+
+        is ScreenshotOcrExtractUiState.Completed -> {
+            Text(
+                text = completedScreenshotOcrExtractSummary(
+                    extractedCount = screenshotOcr.extractedCount,
+                    screenshotCatalogueCount = screenshotOcr.screenshotCatalogueCount,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        ScreenshotOcrExtractUiState.AccessStopped -> {
+            Text(
+                text = "Memora could not open screenshots for text reading. " +
+                    "Photo access may have been limited. You can try again.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartScreenshotOcr,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Try reading screenshot text again")
+            }
+        }
+
+        is ScreenshotOcrExtractUiState.Failed -> {
+            Text(
+                text = screenshotOcr.message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartScreenshotOcr,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Try reading screenshot text again")
             }
         }
     }

@@ -39,4 +39,15 @@ interface AssetRepository {
         schemaVersion: String,
         afterSourceAssetKey: String? = null,
     ): Asset?
+
+    /**
+     * Returns the next SCREENSHOT that still needs OCR extract for [schemaVersion].
+     *
+     * [afterSourceAssetKey] is exclusive; pass null/blank to start from the first pending.
+     */
+    suspend fun findNextScreenshotPendingOcrExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String? = null,
+    ): Asset?
 }

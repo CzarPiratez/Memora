@@ -7,6 +7,7 @@ import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
+import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
@@ -14,6 +15,7 @@ import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryPageStore
 import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.extraction.ImageExifExtractionPersistence
+import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,6 +49,13 @@ object PersistenceModule {
         handle: MemoraDatabaseHandle,
     ): ImageExifExtractionPersistence =
         RoomImageExifExtractionPersistencePort { handle.database() }
+
+    @Provides
+    @Singleton
+    fun provideScreenshotOcrExtractionPersistence(
+        handle: MemoraDatabaseHandle,
+    ): ScreenshotOcrExtractionPersistence =
+        RoomScreenshotOcrExtractionPersistencePort { handle.database() }
 
     @Provides
     @Singleton

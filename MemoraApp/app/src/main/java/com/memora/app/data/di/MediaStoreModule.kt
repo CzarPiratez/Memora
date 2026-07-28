@@ -4,6 +4,8 @@ import android.content.Context
 import com.memora.app.data.mediastore.ContentResolverImageExifReader
 import com.memora.app.data.mediastore.ImageExifReader
 import com.memora.app.data.mediastore.MediaStoreImageDiscoverySource
+import com.memora.app.data.mediastore.MlKitScreenshotOcrReader
+import com.memora.app.data.mediastore.ScreenshotOcrReader
 import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import dagger.Binds
 import dagger.Module
@@ -32,4 +34,10 @@ abstract class MediaStoreImageExifModule {
     abstract fun bindImageExifReader(
         impl: ContentResolverImageExifReader,
     ): ImageExifReader
+
+    @Binds
+    @Singleton
+    abstract fun bindScreenshotOcrReader(
+        impl: MlKitScreenshotOcrReader,
+    ): ScreenshotOcrReader
 }

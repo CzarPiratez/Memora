@@ -414,5 +414,11 @@ class DocumentTreeSetupViewModelTest {
             schemaVersion: String,
             afterSourceAssetKey: String?,
         ): Asset? = null
+
+        override suspend fun findNextScreenshotPendingOcrExtract(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
     }
 }

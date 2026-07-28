@@ -738,5 +738,27 @@ promise may cite planning targets alone. First measured baselines require a
 separately approved pack/harness slice. Architecture-gate **planning** deliverables
 are complete; measured pack proof remains open for A-01.
 
+## ADR-026: Screenshot OCR is Phase 2 deterministic extract via bundled ML Kit
+
+**Status:** Accepted
+
+**Decision:** On-device OCR for catalogued `SCREENSHOT` assets is Phase 2
+deterministic extraction, not Local-AI pack activation. Memora uses the bundled
+Latin `com.google.mlkit:text-recognition` library behind a data-layer reader
+interface. Discovery stays metadata-only (ADR-009). Extract is a separate
+user-started WorkManager drain that opens permitted URIs read-only, persists OCR
+text with engine provenance, and never adds INTERNET permission or uploads content.
+
+**Scope for this ADR:** SCREENSHOT only. PHOTO OCR, non-Latin scripts, keyword
+search over OCR text, Spec §4 `OcrEngine` availability, and AI Pack delivery remain
+separate change-controlled slices.
+
+**Reason:** Screenshots are text-heavy recall targets. Bundled ML Kit keeps OCR
+offline and independent of the AI Pack download path, while still satisfying P-06’s
+deterministic OCR requirement for screenshots.
+
+**Consequences:** UI and docs must not claim searchable Memory or keyword recall
+until a later OCR-search slice lands. LocalIntelligence `OcrEngine` remains
+unavailable until an approved Local-AI capability path exists.
 
 

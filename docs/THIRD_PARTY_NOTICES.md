@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Screenshot OCR (Phase 2 deterministic extract)
+
+| Component | Exact version | Purpose | Licence / notice source |
+|---|---:|---|---|
+| `com.google.mlkit:text-recognition` | 16.0.1 | Bundled Latin on-device OCR for catalogued screenshots | [ML Kit terms / notices](https://developers.google.com/ml-kit/terms); Maven Central artifact |
+
+Review record: `docs/dependency-review/mlkit-text-recognition-16.0.1-review.md`.
+This does not authorize network access, AI Pack download, or PHOTO OCR.
+
 ## PDF extraction validation dependency set
 
 This inventory applies to the synthetic-fixture validation step only. It does not

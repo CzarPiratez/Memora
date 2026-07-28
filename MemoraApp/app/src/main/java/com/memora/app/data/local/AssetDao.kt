@@ -95,6 +95,33 @@ interface AssetDao {
         afterSourceAssetKey: String,
     ): AssetEntity?
 
+    /**
+     * Next SCREENSHOT still needing OCR extract for [schemaVersion], ordered
+     * after [afterSourceAssetKey] (exclusive). Empty [afterSourceAssetKey] starts first.
+     */
+    @Query(
+        """
+        SELECT * FROM assets
+        WHERE source_id = :sourceId
+          AND asset_type = 'SCREENSHOT'
+          AND (:afterSourceAssetKey = '' OR source_asset_key > :afterSourceAssetKey)
+          AND NOT EXISTS (
+            SELECT 1 FROM screenshot_ocr_extractions AS extractions
+            WHERE extractions.source_id = assets.source_id
+              AND extractions.source_asset_key = assets.source_asset_key
+              AND extractions.fingerprint = assets.fingerprint
+              AND extractions.schema_version = :schemaVersion
+          )
+        ORDER BY source_asset_key ASC
+        LIMIT 1
+        """,
+    )
+    suspend fun findNextScreenshotPendingOcrExtract(
+        sourceId: String,
+        schemaVersion: String,
+        afterSourceAssetKey: String,
+    ): AssetEntity?
+
     @Query("SELECT COUNT(*) FROM assets")
     suspend fun count(): Int
 }

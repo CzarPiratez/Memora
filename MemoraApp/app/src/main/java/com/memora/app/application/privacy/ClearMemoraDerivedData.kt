@@ -4,6 +4,7 @@ import androidx.work.WorkManager
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
+import com.memora.app.work.DefaultMediaStoreScreenshotOcrExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import javax.inject.Inject
@@ -25,6 +26,9 @@ class ClearMemoraDerivedData @Inject constructor(
         workManager.cancelAllWorkByTag(DefaultMediaStoreDiscoveryWorkScheduler.TAG_MEDIASTORE_DISCOVERY)
         workManager.cancelAllWorkByTag(
             DefaultMediaStoreImageExifExtractWorkScheduler.TAG_MEDIASTORE_IMAGE_EXIF_EXTRACT,
+        )
+        workManager.cancelAllWorkByTag(
+            DefaultMediaStoreScreenshotOcrExtractWorkScheduler.TAG_MEDIASTORE_SCREENSHOT_OCR_EXTRACT,
         )
         databaseHandle.clearUserConfirmedDerivedData()
         ClearMemoraDerivedDataResult.Cleared(APPROVED_REBUILD_MESSAGE)

@@ -11,9 +11,12 @@ import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.discovery.ImageLibraryAccessScope
 import com.memora.app.domain.extraction.ImageExifExtractionPersistence
 import com.memora.app.domain.extraction.ImageExifExtractionRecord
+import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
+import com.memora.app.domain.extraction.ScreenshotOcrExtractionRecord
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorker
 import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
+import com.memora.app.work.MediaStoreScreenshotOcrExtractWorkScheduler
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -184,13 +187,17 @@ class MediaStoreSetupViewModelTest {
     private fun viewModel(
         discovery: RecordingScheduler = RecordingScheduler(),
         exif: RecordingExifScheduler = RecordingExifScheduler(),
+        ocr: RecordingOcrScheduler = RecordingOcrScheduler(),
         assets: RecordingAssetRepository = RecordingAssetRepository(),
         persistence: RecordingExifPersistence = RecordingExifPersistence(),
+        ocrPersistence: RecordingOcrPersistence = RecordingOcrPersistence(),
     ) = MediaStoreSetupViewModel(
         discoveryWorkScheduler = discovery,
         exifExtractWorkScheduler = exif,
+        screenshotOcrWorkScheduler = ocr,
         assetRepository = assets,
         imageExifPersistence = persistence,
+        screenshotOcrPersistence = ocrPersistence,
     )
 
     private fun workInfo(state: WorkInfo.State, output: Data): WorkInfo =
@@ -236,8 +243,24 @@ class MediaStoreSetupViewModelTest {
         override fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>> = infos
     }
 
+    private class RecordingOcrScheduler : MediaStoreScreenshotOcrExtractWorkScheduler {
+        var drainCount: Int = 0
+        private val infos = MutableStateFlow<List<WorkInfo>>(emptyList())
+
+        override fun enqueueDrain(sourceId: SourceId) {
+            drainCount += 1
+        }
+
+        override fun enqueueContinuation(sourceId: SourceId, afterSourceAssetKey: String) = Unit
+
+        override fun cancel(sourceId: SourceId) = Unit
+
+        override fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>> = infos
+    }
+
     private class RecordingAssetRepository(
         private val photoCount: Int = 1,
+        private val screenshotCount: Int = 0,
     ) : AssetRepository {
         override suspend fun save(record: AssetIndexRecord) = Unit
 
@@ -251,7 +274,7 @@ class MediaStoreSetupViewModelTest {
         override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int =
             when (type) {
                 AssetType.PHOTO -> photoCount
-                AssetType.SCREENSHOT -> 0
+                AssetType.SCREENSHOT -> screenshotCount
                 else -> 0
             }
 
@@ -266,12 +289,26 @@ class MediaStoreSetupViewModelTest {
             schemaVersion: String,
             afterSourceAssetKey: String?,
         ): Asset? = null
+
+        override suspend fun findNextScreenshotPendingOcrExtract(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
     }
 
     private class RecordingExifPersistence : ImageExifExtractionPersistence {
         override suspend fun findHeader(record: ImageExifExtractionRecord) = null
 
         override suspend fun insert(record: ImageExifExtractionRecord) = Unit
+
+        override suspend fun countCurrentForSource(sourceId: String, schemaVersion: String): Int = 0
+    }
+
+    private class RecordingOcrPersistence : ScreenshotOcrExtractionPersistence {
+        override suspend fun findHeader(record: ScreenshotOcrExtractionRecord) = null
+
+        override suspend fun insert(record: ScreenshotOcrExtractionRecord) = Unit
 
         override suspend fun countCurrentForSource(sourceId: String, schemaVersion: String): Int = 0
     }

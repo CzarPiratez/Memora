@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Screenshot OCR extract
+
+- **Requirements:** P-04, P-05, P-06, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** After photo catalogue + EXIF facts, Read text from screenshots
+  drains `SCREENSHOT` assets via WorkManager, opens permitted URIs read-only for
+  bundled ML Kit Latin OCR, persists `screenshot_ocr_extractions` (Room v6). Honest
+  copy — no keyword/Memory claims; PHOTO OCR out of scope.
+- **Verification:** Unit tests green; `installDebug` succeeded; emulator
+  confirmation 2026-07-28 (3 catalogued; EXIF for 3; OCR text for 1 screenshot;
+  honest OCR-only copy).
+- **Truthfulness:** Discovery remains metadata-only (ADR-009); OCR is a separate
+  explicit step (ADR-026). Keyword search over OCR remains later.
+
 ### MediaStore image EXIF extract
 
 - **Requirements:** P-04, P-05, P-06, P-14, P-15, P-17; A-01, A-02, A-06.

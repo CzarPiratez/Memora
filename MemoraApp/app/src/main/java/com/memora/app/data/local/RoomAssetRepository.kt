@@ -56,4 +56,18 @@ class RoomAssetRepository(
             )
             ?.toDomain()
             ?.asset
+
+    override suspend fun findNextScreenshotPendingOcrExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String?,
+    ): Asset? =
+        assetDao()
+            .findNextScreenshotPendingOcrExtract(
+                sourceId = sourceId.value,
+                schemaVersion = schemaVersion,
+                afterSourceAssetKey = afterSourceAssetKey.orEmpty(),
+            )
+            ?.toDomain()
+            ?.asset
 }

@@ -48,3 +48,20 @@ internal fun completedImageExifExtractSummary(
         "(from $catalogueCount catalogued items). " +
         "This is EXIF and size metadata only — not OCR, keyword search, or meaning-based recall."
 }
+
+internal const val MEDIASTORE_SCREENSHOT_OCR_IN_PROGRESS_BODY =
+    "Memora is reading text from permitted screenshots on this phone. " +
+        "This stores OCR text on-device only. It does not open a keyword search " +
+        "or create meaning-based memories yet."
+
+internal fun completedScreenshotOcrExtractSummary(
+    extractedCount: Int,
+    screenshotCatalogueCount: Int,
+): String {
+    require(extractedCount >= 0 && screenshotCatalogueCount >= 0)
+    val items = if (extractedCount == 1) "screenshot" else "screenshots"
+    return "Memora saved on-device text from $extractedCount $items " +
+        "(from $screenshotCatalogueCount catalogued screenshots). " +
+        "This is OCR text only — not keyword search or meaning-based recall yet. " +
+        "Ordinary photos are not OCR’d in this step."
+}

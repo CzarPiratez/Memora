@@ -1013,11 +1013,19 @@ opens permitted URIs read-only for ExifInterface, persists `image_exif_extractio
 (Room v5). Honest EXIF-only copy. Verified on Medium Phone with 3 fixtures.
 Change control: `docs/CHANGE_CONTROL_MEDIASTORE_IMAGE_EXIF_EXTRACT.md`.
 
+## Screenshot OCR extract (2026-07-28)
+
+After EXIF facts, Read text from screenshots drains SCREENSHOT assets via
+WorkManager, opens permitted URIs read-only for bundled ML Kit Latin OCR,
+persists `screenshot_ocr_extractions` (Room v6). Honest OCR-only copy; no keyword
+search / Memory yet. ADR-026. Change control:
+`docs/CHANGE_CONTROL_SCREENSHOT_OCR_EXTRACT.md`.
+
 ## Next approved engineering step
 
-Photo track follow-on when approved: on-device OCR for screenshots (separate
-gate). Until then: no OCR / AI / network. Notes ADR-003 and Local-AI pack remain
-separate decisions.
+Keyword search over stored screenshot OCR text (separate gate), or PHOTO OCR /
+non-Latin scripts when approved. Until then: no AI Pack / network / Memory ranking.
+Notes ADR-003 and Local-AI pack remain separate decisions.
 
 ## Important open decision
 
