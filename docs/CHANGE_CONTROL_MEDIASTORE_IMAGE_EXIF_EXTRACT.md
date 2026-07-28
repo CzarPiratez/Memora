@@ -36,3 +36,4 @@ strings already on the file. Screenshot vs photo remains discovery classificatio
 - **Unit:** mapper, IndexingSummary EXIF honesty, MediaStoreSetupViewModel — passed.
 - **Emulator (2026-07-28):** User confirmed catalogue of 3 fixture photos then
   Read photo facts completed with honest EXIF-only copy (not OCR/search).
+- **Git:** `05c866a`.
