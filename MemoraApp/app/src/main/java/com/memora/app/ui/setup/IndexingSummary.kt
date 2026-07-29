@@ -62,6 +62,7 @@ internal fun completedScreenshotOcrExtractSummary(
     val items = if (extractedCount == 1) "screenshot" else "screenshots"
     return "Memora saved on-device text from $extractedCount $items " +
         "(from $screenshotCatalogueCount catalogued screenshots). " +
-        "This is OCR text only — not keyword search or meaning-based recall yet. " +
+        "This is OCR text only — not meaning-based recall. " +
+        "You can search those words from Find saved screenshot text on the welcome screen. " +
         "Ordinary photos are not OCR’d in this step."
 }

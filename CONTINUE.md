@@ -1017,15 +1017,20 @@ Change control: `docs/CHANGE_CONTROL_MEDIASTORE_IMAGE_EXIF_EXTRACT.md`.
 
 After EXIF facts, Read text from screenshots drains SCREENSHOT assets via
 WorkManager, opens permitted URIs read-only for bundled ML Kit Latin OCR,
-persists `screenshot_ocr_extractions` (Room v6). Honest OCR-only copy; no keyword
-search / Memory yet. ADR-026. Change control:
+persists `screenshot_ocr_extractions` (Room v6). Honest OCR-only copy; keyword
+search landed as a follow-on. ADR-026. Change control:
 `docs/CHANGE_CONTROL_SCREENSHOT_OCR_EXTRACT.md`.
+
+## Screenshot OCR keyword search (2026-07-29)
+
+Welcome → Find saved screenshot text searches saved OCR text on-device (keyword /
+substring, current fingerprint only). Change control:
+`docs/CHANGE_CONTROL_SCREENSHOT_OCR_KEYWORD_SEARCH.md`.
 
 ## Next approved engineering step
 
-Keyword search over stored screenshot OCR text (separate gate), or PHOTO OCR /
-non-Latin scripts when approved. Until then: no AI Pack / network / Memory ranking.
-Notes ADR-003 and Local-AI pack remain separate decisions.
+Open-original preview for screenshot OCR hits, PHOTO OCR, or Notes ADR-003 /
+Local-AI pack when approved. No AI Pack / network / Memory ranking until then.
 
 ## Important open decision
 

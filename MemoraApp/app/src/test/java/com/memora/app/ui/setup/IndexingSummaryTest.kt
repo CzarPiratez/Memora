@@ -62,7 +62,7 @@ class IndexingSummaryTest {
     }
 
     @Test
-    fun screenshot_ocr_completion_never_claims_keyword_or_memory_search() {
+    fun screenshot_ocr_completion_points_to_keyword_search_without_memory_claim() {
         val summary = completedScreenshotOcrExtractSummary(
             extractedCount = 1,
             screenshotCatalogueCount = 1,
@@ -70,10 +70,12 @@ class IndexingSummaryTest {
         assertEquals(
             "Memora saved on-device text from 1 screenshot " +
                 "(from 1 catalogued screenshots). " +
-                "This is OCR text only — not keyword search or meaning-based recall yet. " +
+                "This is OCR text only — not meaning-based recall. " +
+                "You can search those words from Find saved screenshot text on the welcome screen. " +
                 "Ordinary photos are not OCR’d in this step.",
             summary,
         )
-        assertEquals(false, summary.lowercase().contains("searchable"))
+        assertEquals(false, summary.lowercase().contains("meaning-based recall yet"))
+        assertEquals(true, summary.contains("Find saved screenshot text"))
     }
 }

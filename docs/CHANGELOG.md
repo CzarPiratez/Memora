@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Screenshot OCR keyword search
+
+- **Requirements:** P-01, P-06, P-11, P-14, P-15, P-17; A-01, A-02, A-06.
+- **Delivered:** Welcome → Find saved screenshot text searches current-fingerprint
+  `screenshot_ocr_extractions.full_text` (LIKE, ADR-022). Readiness, cancel, clear,
+  Why citation, highlight. No open-original / PHOTO / Memory.
+- **Verification:** Unit tests green; emulator confirmation 2026-07-29 (query
+  `note` → 1 match with excerpt + Why on Medium Phone).
+- **Truthfulness:** Keyword matching only; ordinary photos excluded.
+
 ### Screenshot OCR extract
 
 - **Requirements:** P-04, P-05, P-06, P-14, P-15, P-17; A-01, A-02, A-06.

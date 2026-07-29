@@ -68,6 +68,10 @@ import com.memora.app.ui.search.PdfKeywordSearchPhase
 import com.memora.app.ui.search.PdfKeywordSearchReadinessUi
 import com.memora.app.ui.search.PdfKeywordSearchUiState
 import com.memora.app.ui.search.PdfKeywordSearchViewModel
+import com.memora.app.ui.search.ScreenshotOcrKeywordSearchCopy
+import com.memora.app.ui.search.ScreenshotOcrKeywordSearchScreen
+import com.memora.app.ui.search.ScreenshotOcrKeywordSearchUiState
+import com.memora.app.ui.search.ScreenshotOcrKeywordSearchViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -110,6 +114,7 @@ class MainActivity : ComponentActivity() {
     private val databaseAvailabilityViewModel: DatabaseAvailabilityViewModel by viewModels()
     private val pdfLocalReadingViewModel: PdfLocalReadingViewModel by viewModels()
     private val pdfKeywordSearchViewModel: PdfKeywordSearchViewModel by viewModels()
+    private val screenshotOcrKeywordSearchViewModel: ScreenshotOcrKeywordSearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +126,8 @@ class MainActivity : ComponentActivity() {
             val databaseAvailabilityUiState by databaseAvailabilityViewModel.uiState.collectAsState()
             val pdfLocalReadingState by pdfLocalReadingViewModel.uiState.collectAsState()
             val pdfKeywordSearchUiState by pdfKeywordSearchViewModel.uiState.collectAsState()
+            val screenshotOcrKeywordSearchUiState by
+                screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -131,6 +138,7 @@ class MainActivity : ComponentActivity() {
                         clearDerivedDataUiState = clearDerivedDataUiState,
                         pdfLocalReadingState = pdfLocalReadingState,
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
+                        screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
@@ -157,6 +165,15 @@ class MainActivity : ComponentActivity() {
                         onPdfKeywordOpenFeedbackDismissed =
                             pdfKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onPdfKeywordPreviewClosed = pdfKeywordSearchViewModel::onOriginalPreviewClosed,
+                        onScreenshotOcrKeywordQueryChanged =
+                            screenshotOcrKeywordSearchViewModel::onQueryChanged,
+                        onScreenshotOcrKeywordSearch = screenshotOcrKeywordSearchViewModel::onSearch,
+                        onScreenshotOcrKeywordSearchScreenVisible =
+                            screenshotOcrKeywordSearchViewModel::onScreenVisible,
+                        onScreenshotOcrKeywordQueryCleared =
+                            screenshotOcrKeywordSearchViewModel::onQueryCleared,
+                        onScreenshotOcrKeywordSearchCancelled =
+                            screenshotOcrKeywordSearchViewModel::onSearchCancelled,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -168,6 +185,7 @@ class MainActivity : ComponentActivity() {
                             documentTreeSetupViewModel.onDerivedDataCleared()
                             pdfLocalReadingViewModel.onDerivedDataCleared()
                             pdfKeywordSearchViewModel.onDerivedDataCleared()
+                            screenshotOcrKeywordSearchViewModel.onDerivedDataCleared()
                         },
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -185,6 +203,7 @@ fun MemoraApp(
     clearDerivedDataUiState: ClearDerivedDataUiState,
     pdfLocalReadingState: PdfLocalReadingState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
+    screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -207,6 +226,11 @@ fun MemoraApp(
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
+    onScreenshotOcrKeywordQueryChanged: (String) -> Unit,
+    onScreenshotOcrKeywordSearch: () -> Unit,
+    onScreenshotOcrKeywordSearchScreenVisible: () -> Unit,
+    onScreenshotOcrKeywordQueryCleared: () -> Unit,
+    onScreenshotOcrKeywordSearchCancelled: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -230,6 +254,7 @@ fun MemoraApp(
             clearDerivedDataUiState = clearDerivedDataUiState,
             pdfLocalReadingState = pdfLocalReadingState,
             pdfKeywordSearchUiState = pdfKeywordSearchUiState,
+            screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
@@ -252,6 +277,11 @@ fun MemoraApp(
             onPdfKeywordOpenOriginal = onPdfKeywordOpenOriginal,
             onPdfKeywordOpenFeedbackDismissed = onPdfKeywordOpenFeedbackDismissed,
             onPdfKeywordPreviewClosed = onPdfKeywordPreviewClosed,
+            onScreenshotOcrKeywordQueryChanged = onScreenshotOcrKeywordQueryChanged,
+            onScreenshotOcrKeywordSearch = onScreenshotOcrKeywordSearch,
+            onScreenshotOcrKeywordSearchScreenVisible = onScreenshotOcrKeywordSearchScreenVisible,
+            onScreenshotOcrKeywordQueryCleared = onScreenshotOcrKeywordQueryCleared,
+            onScreenshotOcrKeywordSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -268,6 +298,7 @@ private fun MemoraAppReady(
     clearDerivedDataUiState: ClearDerivedDataUiState,
     pdfLocalReadingState: PdfLocalReadingState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
+    screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -290,6 +321,11 @@ private fun MemoraAppReady(
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
+    onScreenshotOcrKeywordQueryChanged: (String) -> Unit,
+    onScreenshotOcrKeywordSearch: () -> Unit,
+    onScreenshotOcrKeywordSearchScreenVisible: () -> Unit,
+    onScreenshotOcrKeywordQueryCleared: () -> Unit,
+    onScreenshotOcrKeywordSearchCancelled: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -320,6 +356,7 @@ private fun MemoraAppReady(
     var isShowingPrivacyScreen by rememberSaveable { mutableStateOf(false) }
     var isShowingDocumentTreeScreen by rememberSaveable { mutableStateOf(false) }
     var isShowingPdfKeywordSearch by rememberSaveable { mutableStateOf(false) }
+    var isShowingScreenshotOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -403,12 +440,26 @@ private fun MemoraAppReady(
                 }
             }
 
+            isShowingScreenshotOcrKeywordSearch -> ScreenshotOcrKeywordSearchScreen(
+                uiState = screenshotOcrKeywordSearchUiState,
+                onQueryChanged = onScreenshotOcrKeywordQueryChanged,
+                onQueryCleared = onScreenshotOcrKeywordQueryCleared,
+                onSearch = onScreenshotOcrKeywordSearch,
+                onSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
+                onBack = { isShowingScreenshotOcrKeywordSearch = false },
+                modifier = modifier,
+            )
+
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
                 onFindSavedPdfText = {
                     isShowingPdfKeywordSearch = true
                     onPdfKeywordSearchScreenVisible()
+                },
+                onFindSavedScreenshotText = {
+                    isShowingScreenshotOcrKeywordSearch = true
+                    onScreenshotOcrKeywordSearchScreenVisible()
                 },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
@@ -459,6 +510,7 @@ fun MemoraWelcomeScreen(
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
     onFindSavedPdfText: () -> Unit,
+    onFindSavedScreenshotText: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
@@ -513,6 +565,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(PdfKeywordSearchCopy.SCREEN_TITLE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onFindSavedScreenshotText,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(ScreenshotOcrKeywordSearchCopy.SCREEN_TITLE)
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(
