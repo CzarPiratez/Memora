@@ -38,4 +38,4 @@ UI → ViewModel → application search/readiness use cases → Room DAO on
 - **Emulator (2026-07-29):** User confirmed Find saved screenshot text → query
   `note` → 1 match (`Screenshot_memora_note.png`) with highlighted excerpt and
   Why this result? citation (keyword-not-meaning).
-- **Git:** (filled after local commit)
+- **Git:** `091bd67`.
