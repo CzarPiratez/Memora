@@ -66,9 +66,46 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val RESULTS_HINT =
         "Matches show the screenshot name and a short excerpt from the saved OCR text. " +
-            "Open Why this result? to see the matching evidence."
+            "Open Why this result? to see the matching evidence. " +
+            "Open original shows a read-only preview inside Memora."
 
     const val MAX_LISTED_MATCHES = 20
+
+    const val OPEN_ORIGINAL_SCREENSHOT_LABEL = "Open original"
+
+    const val OPEN_ORIGINAL_SCREENSHOT_HINT =
+        "Opens a read-only preview of this screenshot inside Memora. " +
+            "Your file stays where it is; Memora does not edit it. " +
+            "Search still used saved OCR text on this phone."
+
+    const val OPEN_FEEDBACK_OPENING_BODY =
+        "Opening a read-only preview of that screenshot…"
+
+    const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
+        "Memora cannot open that screenshot right now. The saved link may be stale " +
+            "after a phone restart, or photo access may have been removed. " +
+            "Try Start indexing again in photo setup, then Open original once more."
+
+    const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
+        "Memora could not show that screenshot. Try again in a moment."
+
+    const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
+    const val PREVIEW_TITLE = "Original screenshot"
+
+    const val CLOSE_PREVIEW_LABEL = "Back to results"
+
+    const val PREVIEW_SCOPE_BODY =
+        "This is a read-only preview of the screenshot Memora cited. " +
+            "Search still used saved OCR text on this phone — not a live re-read " +
+            "of the image for keywords."
+
+    fun previewImageContentDescription(screenshotLabel: String): String {
+        require(screenshotLabel.isNotBlank()) {
+            "Preview image description needs a screenshot label."
+        }
+        return "Read-only preview of \"$screenshotLabel\"."
+    }
 
     fun resultsSummary(query: String, matchCount: Int, limitReached: Boolean): String {
         require(query.isNotBlank()) { "Results summary needs the submitted query." }

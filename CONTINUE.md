@@ -1029,8 +1029,15 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-Open-original preview for screenshot OCR hits, PHOTO OCR, or Notes ADR-003 /
-Local-AI pack when approved. No AI Pack / network / Memory ranking until then.
+PHOTO OCR, Notes ADR-003, or Local-AI pack when approved. No AI Pack / network /
+Memory ranking until then.
+
+## Screenshot OCR open-original (in progress 2026-07-30)
+
+From Find saved screenshot text hits: Open original loads a **capped** read-only
+in-app preview (max edge 960px) via MediaStore URI. Search still uses saved OCR
+only. Change control: `docs/CHANGE_CONTROL_SCREENSHOT_OCR_OPEN_ORIGINAL.md`.
+Emulator confirmation pending.
 
 ## Important open decision
 

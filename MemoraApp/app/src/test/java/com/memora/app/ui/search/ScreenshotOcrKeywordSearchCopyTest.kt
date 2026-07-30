@@ -40,4 +40,22 @@ class ScreenshotOcrKeywordSearchCopyTest {
         assertEquals(true, summary.contains("at most 20"))
         assertEquals(false, summary.lowercase().contains("total"))
     }
+
+    @Test
+    fun open_and_preview_copy_stay_read_only_and_keyword_honest() {
+        assertEquals(
+            true,
+            ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL_SCREENSHOT_HINT.contains("read-only"),
+        )
+        assertEquals(
+            true,
+            ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY.contains("saved OCR text"),
+        )
+        assertEquals(
+            "Read-only preview of \"Screenshot_memora_note.png\".",
+            ScreenshotOcrKeywordSearchCopy.previewImageContentDescription(
+                "Screenshot_memora_note.png",
+            ),
+        )
+    }
 }

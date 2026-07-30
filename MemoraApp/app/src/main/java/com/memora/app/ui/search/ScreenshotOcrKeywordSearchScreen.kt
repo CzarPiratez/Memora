@@ -1,5 +1,8 @@
 package com.memora.app.ui.search
 
+import android.graphics.Bitmap
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -44,6 +51,8 @@ fun ScreenshotOcrKeywordSearchScreen(
     onQueryCleared: () -> Unit,
     onSearch: () -> Unit,
     onSearchCancelled: () -> Unit,
+    onOpenOriginalScreenshot: (ScreenshotOcrKeywordSearchHit) -> Unit,
+    onDismissOpenFeedback: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -93,7 +102,8 @@ fun ScreenshotOcrKeywordSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(ScreenshotOcrKeywordSearchCopy.QUERY_LABEL) },
             singleLine = true,
-            enabled = uiState.phase !is ScreenshotOcrKeywordSearchPhase.Searching,
+            enabled = uiState.phase !is ScreenshotOcrKeywordSearchPhase.Searching &&
+                uiState.openFeedback !is ScreenshotOpenFeedbackUi.Opening,
             trailingIcon = {
                 if (uiState.canClearQuery) {
                     TextButton(onClick = onQueryCleared) {
@@ -144,15 +154,19 @@ fun ScreenshotOcrKeywordSearchScreen(
             )
             ScreenshotOcrKeywordSearchPhase.Searching -> {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics(mergeDescendants = true) {
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = ScreenshotOcrKeywordSearchCopy.SEARCHING_BODY
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(modifier = Modifier.clearAndSetSemantics { })
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = ScreenshotOcrKeywordSearchCopy.SEARCHING_BODY,
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                     )
                 }
             }
@@ -182,12 +196,58 @@ fun ScreenshotOcrKeywordSearchScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
+                when (val feedback = uiState.openFeedback) {
+                    ScreenshotOpenFeedbackUi.None -> Unit
+                    ScreenshotOpenFeedbackUi.Opening -> {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics(mergeDescendants = true) {
+                                    liveRegion = LiveRegionMode.Polite
+                                    contentDescription =
+                                        ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.clearAndSetSemantics { },
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                    ScreenshotOpenFeedbackUi.SourceUnavailable,
+                    ScreenshotOpenFeedbackUi.CouldNotOpen,
+                    -> {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = when (feedback) {
+                                ScreenshotOpenFeedbackUi.SourceUnavailable ->
+                                    ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY
+                                else ->
+                                    ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                        )
+                        TextButton(onClick = onDismissOpenFeedback) {
+                            Text(ScreenshotOcrKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 phase.hits.forEachIndexed { index, hit ->
                     ScreenshotOcrKeywordHitCard(
                         hit = hit,
                         query = phase.query,
                         index = index,
+                        openEnabled = uiState.openFeedback !is ScreenshotOpenFeedbackUi.Opening,
+                        onOpenOriginal = { onOpenOriginalScreenshot(hit) },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -197,10 +257,68 @@ fun ScreenshotOcrKeywordSearchScreen(
 }
 
 @Composable
+fun ScreenshotOriginalPreviewScreen(
+    preview: ScreenshotOriginalPreviewUi,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BackHandler(onBack = onClose)
+    val imageBitmap = remember(preview.widthPx, preview.heightPx, preview.screenshotLabel) {
+        Bitmap.createBitmap(
+            preview.argb8888,
+            preview.widthPx,
+            preview.heightPx,
+            Bitmap.Config.ARGB_8888,
+        ).asImageBitmap()
+    }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(vertical = 24.dp),
+    ) {
+        Button(onClick = onClose) {
+            Text(ScreenshotOcrKeywordSearchCopy.CLOSE_PREVIEW_LABEL)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = ScreenshotOcrKeywordSearchCopy.PREVIEW_TITLE,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() },
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = preview.screenshotLabel,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = ScreenshotOcrKeywordSearchCopy.previewImageContentDescription(
+                screenshotLabel = preview.screenshotLabel,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth,
+        )
+    }
+}
+
+@Composable
 private fun ScreenshotOcrKeywordHitCard(
     hit: ScreenshotOcrKeywordSearchHit,
     query: String,
     index: Int,
+    openEnabled: Boolean,
+    onOpenOriginal: () -> Unit,
 ) {
     var whyExpanded by remember(query, index, hit.sourceId, hit.sourceAssetKey) {
         mutableStateOf(false)
@@ -227,6 +345,20 @@ private fun ScreenshotOcrKeywordHitCard(
                 ),
                 style = MaterialTheme.typography.bodySmall,
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL_SCREENSHOT_HINT,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onOpenOriginal,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = openEnabled,
+            ) {
+                Text(ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL_SCREENSHOT_LABEL)
+            }
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedButton(
                 onClick = { whyExpanded = !whyExpanded },

@@ -3,6 +3,7 @@ package com.memora.app.ui.search
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchOutcome
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchReadiness
+import com.memora.app.application.images.ScreenshotPreviewRenderResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -32,25 +33,13 @@ class ScreenshotOcrKeywordSearchViewModelTest {
 
     @Test
     fun search_maps_matches_and_keeps_query_on_cancel() = runTest {
-        val viewModel = ScreenshotOcrKeywordSearchViewModel(
-            searchPersistedScreenshotOcrText = {
-                ScreenshotOcrKeywordSearchOutcome.Matches(
-                    query = "note",
-                    hits = listOf(
-                        ScreenshotOcrKeywordSearchHit(
-                            label = "Screenshot_memora_note.png",
-                            excerpt = "Screenshot note",
-                            sourceId = "android-media-store-images",
-                            sourceAssetKey = "external_primary:1",
-                        ),
-                    ),
-                    limitReached = false,
-                )
-            },
-            loadReadiness = { ScreenshotOcrKeywordSearchReadiness(screenshotCount = 1) },
-            minSearchingVisibleMs = 5_000L,
-            monotonicMs = { 0L },
-        )
+        val viewModel = viewModel(minSearchingVisibleMs = 5_000L) {
+            ScreenshotOcrKeywordSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
         advanceUntilIdle()
 
         viewModel.onQueryChanged("note")
@@ -72,18 +61,15 @@ class ScreenshotOcrKeywordSearchViewModelTest {
 
     @Test
     fun blank_query_and_nothing_saved_are_distinct() = runTest {
-        val viewModel = ScreenshotOcrKeywordSearchViewModel(
-            searchPersistedScreenshotOcrText = { raw ->
-                if (raw.isBlank()) {
-                    ScreenshotOcrKeywordSearchOutcome.BlankQuery
-                } else {
-                    ScreenshotOcrKeywordSearchOutcome.NothingSavedToSearch(query = raw.trim())
-                }
-            },
-            loadReadiness = { ScreenshotOcrKeywordSearchReadiness(screenshotCount = 0) },
-            minSearchingVisibleMs = 0L,
-            monotonicMs = { 0L },
-        )
+        val viewModel = viewModel(
+            readiness = { ScreenshotOcrKeywordSearchReadiness(screenshotCount = 0) },
+        ) { raw ->
+            if (raw.isBlank()) {
+                ScreenshotOcrKeywordSearchOutcome.BlankQuery
+            } else {
+                ScreenshotOcrKeywordSearchOutcome.NothingSavedToSearch(query = raw.trim())
+            }
+        }
         advanceUntilIdle()
 
         viewModel.onSearch()
@@ -97,4 +83,91 @@ class ScreenshotOcrKeywordSearchViewModelTest {
             viewModel.uiState.value.phase is ScreenshotOcrKeywordSearchPhase.NothingSavedToSearch,
         )
     }
+
+    @Test
+    fun open_original_shows_preview_for_ready_render() = runTest {
+        val pixels = intArrayOf(
+            0xFFFFFFFF.toInt(),
+            0xFF000000.toInt(),
+            0xFFFFFFFF.toInt(),
+            0xFF000000.toInt(),
+        )
+        val viewModel = viewModel(
+            open = {
+                ScreenshotPreviewRenderResult.Ready(
+                    screenshotLabel = it.label,
+                    widthPx = 2,
+                    heightPx = 2,
+                    argb8888 = pixels,
+                )
+            },
+        ) {
+            ScreenshotOcrKeywordSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        val hit = (viewModel.uiState.value.phase as ScreenshotOcrKeywordSearchPhase.Results)
+            .hits.first()
+        viewModel.onOpenOriginalScreenshot(hit)
+        advanceUntilIdle()
+
+        val preview = viewModel.uiState.value.originalPreview
+        assertEquals("Screenshot_memora_note.png", preview?.screenshotLabel)
+        assertEquals(2, preview?.widthPx)
+        assertEquals(ScreenshotOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
+    @Test
+    fun open_original_maps_source_unavailable_to_feedback() = runTest {
+        val viewModel = viewModel(
+            open = { ScreenshotPreviewRenderResult.SourceUnavailable },
+        ) {
+            ScreenshotOcrKeywordSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        viewModel.onOpenOriginalScreenshot(sampleHit())
+        advanceUntilIdle()
+        assertEquals(
+            ScreenshotOpenFeedbackUi.SourceUnavailable,
+            viewModel.uiState.value.openFeedback,
+        )
+        assertEquals(null, viewModel.uiState.value.originalPreview)
+    }
+
+    private fun viewModel(
+        readiness: suspend () -> ScreenshotOcrKeywordSearchReadiness = {
+            ScreenshotOcrKeywordSearchReadiness(screenshotCount = 1)
+        },
+        open: suspend (ScreenshotOcrKeywordSearchHit) -> ScreenshotPreviewRenderResult = {
+            ScreenshotPreviewRenderResult.CouldNotOpen
+        },
+        minSearchingVisibleMs: Long = 0L,
+        monotonicMs: () -> Long = { 0L },
+        search: suspend (String) -> ScreenshotOcrKeywordSearchOutcome,
+    ) = ScreenshotOcrKeywordSearchViewModel(
+        searchPersistedScreenshotOcrText = search,
+        loadReadiness = readiness,
+        openPersistedScreenshotForViewing = open,
+        minSearchingVisibleMs = minSearchingVisibleMs,
+        monotonicMs = monotonicMs,
+    )
+
+    private fun sampleHit() = ScreenshotOcrKeywordSearchHit(
+        label = "Screenshot_memora_note.png",
+        excerpt = "Screenshot note",
+        sourceId = "android-media-store-images",
+        sourceAssetKey = "external_primary:1",
+    )
 }

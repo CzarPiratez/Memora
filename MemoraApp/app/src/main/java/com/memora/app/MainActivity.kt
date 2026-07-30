@@ -68,10 +68,12 @@ import com.memora.app.ui.search.PdfKeywordSearchPhase
 import com.memora.app.ui.search.PdfKeywordSearchReadinessUi
 import com.memora.app.ui.search.PdfKeywordSearchUiState
 import com.memora.app.ui.search.PdfKeywordSearchViewModel
+import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchCopy
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchScreen
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchUiState
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchViewModel
+import com.memora.app.ui.search.ScreenshotOriginalPreviewScreen
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -174,6 +176,12 @@ class MainActivity : ComponentActivity() {
                             screenshotOcrKeywordSearchViewModel::onQueryCleared,
                         onScreenshotOcrKeywordSearchCancelled =
                             screenshotOcrKeywordSearchViewModel::onSearchCancelled,
+                        onScreenshotOcrKeywordOpenOriginal =
+                            screenshotOcrKeywordSearchViewModel::onOpenOriginalScreenshot,
+                        onScreenshotOcrKeywordOpenFeedbackDismissed =
+                            screenshotOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
+                        onScreenshotOcrKeywordPreviewClosed =
+                            screenshotOcrKeywordSearchViewModel::onOriginalPreviewClosed,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -231,6 +239,9 @@ fun MemoraApp(
     onScreenshotOcrKeywordSearchScreenVisible: () -> Unit,
     onScreenshotOcrKeywordQueryCleared: () -> Unit,
     onScreenshotOcrKeywordSearchCancelled: () -> Unit,
+    onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
+    onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
+    onScreenshotOcrKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -282,6 +293,10 @@ fun MemoraApp(
             onScreenshotOcrKeywordSearchScreenVisible = onScreenshotOcrKeywordSearchScreenVisible,
             onScreenshotOcrKeywordQueryCleared = onScreenshotOcrKeywordQueryCleared,
             onScreenshotOcrKeywordSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
+            onScreenshotOcrKeywordOpenOriginal = onScreenshotOcrKeywordOpenOriginal,
+            onScreenshotOcrKeywordOpenFeedbackDismissed =
+                onScreenshotOcrKeywordOpenFeedbackDismissed,
+            onScreenshotOcrKeywordPreviewClosed = onScreenshotOcrKeywordPreviewClosed,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -326,6 +341,9 @@ private fun MemoraAppReady(
     onScreenshotOcrKeywordSearchScreenVisible: () -> Unit,
     onScreenshotOcrKeywordQueryCleared: () -> Unit,
     onScreenshotOcrKeywordSearchCancelled: () -> Unit,
+    onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
+    onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
+    onScreenshotOcrKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -440,15 +458,28 @@ private fun MemoraAppReady(
                 }
             }
 
-            isShowingScreenshotOcrKeywordSearch -> ScreenshotOcrKeywordSearchScreen(
-                uiState = screenshotOcrKeywordSearchUiState,
-                onQueryChanged = onScreenshotOcrKeywordQueryChanged,
-                onQueryCleared = onScreenshotOcrKeywordQueryCleared,
-                onSearch = onScreenshotOcrKeywordSearch,
-                onSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
-                onBack = { isShowingScreenshotOcrKeywordSearch = false },
-                modifier = modifier,
-            )
+            isShowingScreenshotOcrKeywordSearch -> {
+                val preview = screenshotOcrKeywordSearchUiState.originalPreview
+                if (preview != null) {
+                    ScreenshotOriginalPreviewScreen(
+                        preview = preview,
+                        onClose = onScreenshotOcrKeywordPreviewClosed,
+                        modifier = modifier,
+                    )
+                } else {
+                    ScreenshotOcrKeywordSearchScreen(
+                        uiState = screenshotOcrKeywordSearchUiState,
+                        onQueryChanged = onScreenshotOcrKeywordQueryChanged,
+                        onQueryCleared = onScreenshotOcrKeywordQueryCleared,
+                        onSearch = onScreenshotOcrKeywordSearch,
+                        onSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
+                        onOpenOriginalScreenshot = onScreenshotOcrKeywordOpenOriginal,
+                        onDismissOpenFeedback = onScreenshotOcrKeywordOpenFeedbackDismissed,
+                        onBack = { isShowingScreenshotOcrKeywordSearch = false },
+                        modifier = modifier,
+                    )
+                }
+            }
 
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },

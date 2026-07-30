@@ -2,14 +2,25 @@
 
 ## Unreleased
 
+### Screenshot OCR open-original preview
+
+- **Requirements:** P-01, P-06, P-11, P-13, P-17; A-01, A-02, A-05.
+- **Delivered:** From Find saved screenshot text hits, Open original shows a
+  hard-capped (960px long edge) read-only in-app preview (or honest
+  SourceUnavailable / CouldNotOpen). Search still uses saved OCR text only.
+- **Verification:** Unit tests + install pending; emulator confirmation pending.
+- **Truthfulness:** Read-only; no edit/upload; keyword search does not reopen
+  images for matching; PHOTO out of scope.
+
 ### Screenshot OCR keyword search
 
 - **Requirements:** P-01, P-06, P-11, P-14, P-15, P-17; A-01, A-02, A-06.
 - **Delivered:** Welcome → Find saved screenshot text searches current-fingerprint
   `screenshot_ocr_extractions.full_text` (LIKE, ADR-022). Readiness, cancel, clear,
-  Why citation, highlight. No open-original / PHOTO / Memory.
+  Why citation, highlight. Open-original preview is a follow-on slice.
 - **Verification:** Unit tests green; emulator confirmation 2026-07-29 (query
-  `note` → 1 match with excerpt + Why on Medium Phone).
+  `note` → 1 match with excerpt + Why on Medium Phone). Reconfirmed 2026-07-30
+  after emulator recovery.
 - **Truthfulness:** Keyword matching only; ordinary photos excluded.
 
 ### Screenshot OCR extract
