@@ -31,3 +31,4 @@ No `INTERNET` permission, upload, source mutation, or Local-AI availability clai
 - Targeted `MemoraDatabaseMigrationTest` could not start because emulator package
   installation failed with Android service `Broken pipe (32)`; rerun after emulator
   recovery. Visible PHOTO OCR verification also remains required.
+- **Git:** `e5668d3`.
