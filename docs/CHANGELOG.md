@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Public positioning and CI maturity
+
+- **Requirements:** Docs / delivery hygiene; ADR-027.
+- **Delivered:** README and GitHub About use the approved on-device personal AI
+  memory positioning copy. Lightweight GitHub Actions CI runs
+  `testDebugUnitTest` on `main` pushes and PRs.
+- **Verification:** Workflow file present; first green run pending after push.
+- **Truthfulness:** Public category examples do not expand MVP delivery scope
+  (ADR-027).
+
 ### Screenshot OCR open-original preview
 
 - **Requirements:** P-01, P-06, P-11, P-13, P-17; A-01, A-02, A-05.

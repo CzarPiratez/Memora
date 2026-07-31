@@ -1039,6 +1039,12 @@ in-app preview (max edge 960px) via MediaStore URI. Search still uses saved OCR
 only. Change control: `docs/CHANGE_CONTROL_SCREENSHOT_OCR_OPEN_ORIGINAL.md`.
 Emulator confirmation pending.
 
+## Public positioning and GitHub CI (2026-07-31)
+
+README and GitHub About use the approved on-device personal AI memory positioning
+copy. ADR-027 keeps that messaging separate from MVP delivery scope. Lightweight
+GitHub Actions CI runs `MemoraApp` `testDebugUnitTest` on `main` pushes/PRs.
+
 ## Important open decision
 
 The PRD requires automatic indexing of existing notes but also excludes user accounts

@@ -1,15 +1,29 @@
 # Memora
 
-Memora is an Android memory retrieval engine. It discovers permitted personal assets,
-extracts their existing information, creates structured memories, and helps people
-recall them through natural language with evidence-based explanations.
+[![CI](https://github.com/CzarPiratez/Memora/actions/workflows/ci.yml/badge.svg)](https://github.com/CzarPiratez/Memora/actions/workflows/ci.yml)
 
-It is not a file manager and it never takes ownership of original user files.
+Memora is on-device personal AI memory infrastructure that helps people regain
+access to their own digital information by simply describing what they remember.
+It enables natural-language retrieval of photos, videos, screenshots, documents,
+notes, medical records, receipts, and more—without relying on filenames, folders,
+or cloud services. Designed for privacy from the ground up, Memora processes
+information entirely on-device and provides clear evidence for why each result was
+found.
+
+Whether it's "the photo of my granddaughter wearing a red jacket" or "the
+prescription after my heart surgery," people simply describe what they remember,
+and Memora finds the right information without your private information ever
+leaving your phone.
+
+Memora does not take ownership of original user files. Source content stays where
+the user already keeps it; Memora stores references and derived memory data only.
 
 ## Current status
 
-The Android project is in the foundation stage. It runs in Android Studio, but source
-discovery, storage, semantic understanding, and recall are not implemented yet.
+The Android app is in active foundation build-out: permissioned discovery,
+deterministic extract paths, local persistence, and early keyword recall slices
+are landing under the product contract. Full natural-language memory recall and
+broader source coverage remain in progress.
 
 ## Open the app
 

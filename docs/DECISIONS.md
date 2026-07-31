@@ -761,4 +761,23 @@ deterministic OCR requirement for screenshots.
 until a later OCR-search slice lands. LocalIntelligence `OcrEngine` remains
 unavailable until an approved Local-AI capability path exists.
 
+## ADR-027: Public positioning copy versus current MVP delivery scope
+
+**Status:** Accepted
+
+**Decision:** The repository README and GitHub About use investor-facing product
+positioning: on-device personal AI memory infrastructure, natural-language recall
+with evidence, and privacy that keeps private information on the phone. That copy
+may mention long-term target categories (for example videos, medical records, and
+receipts).
+
+**Rule:** Public positioning does not expand the binding MVP delivery scope.
+Current engineering still follows the product registry and ADRs: photos,
+screenshots, PDFs, and notes as the MVP asset types, with source adapters and
+permissions landed only when change-controlled. App UI and changelog truthfulness
+rules still forbid claiming unfinished capabilities inside the product.
+
+**Reason:** Investors need a clear product definition, while delivery must stay
+honest about what ships today.
+
 
