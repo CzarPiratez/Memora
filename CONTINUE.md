@@ -1029,21 +1029,26 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-PHOTO OCR, Notes ADR-003, or Local-AI pack when approved. No AI Pack / network /
-Memory ranking until then.
+Notes connector change-control (ADR-003 accepted: OneNote-class read-only provider)
+or Local-AI pack measured baselines when approved. No AI Pack / network / semantic
+Memory ranking claims until then. Interim recall remains PDF/screenshot/photo keyword
+search; Asset Memories are persisted facts only.
 
-## Screenshot OCR open-original (in progress 2026-07-30)
+## Screenshot OCR open-original (closed 2026-07-31)
 
 From Find saved screenshot text hits: Open original loads a **capped** read-only
 in-app preview (max edge 960px) via MediaStore URI. Search still uses saved OCR
 only. Change control: `docs/CHANGE_CONTROL_SCREENSHOT_OCR_OPEN_ORIGINAL.md`.
-Emulator confirmation pending.
+Unit tests re-verified 2026-07-31. Interactive emulator UI confirmation blocked by
+package-manager `Broken pipe (32)` — reconfirm on a healthy device before investor
+demo of this path.
 
 ## Public positioning and GitHub CI (2026-07-31)
 
 README and GitHub About use the approved on-device personal AI memory positioning
 copy. ADR-027 keeps that messaging separate from MVP delivery scope. Lightweight
-GitHub Actions CI runs `MemoraApp` `testDebugUnitTest` on `main` pushes/PRs.
+GitHub Actions CI runs `MemoraApp` `testDebugUnitTest` on `main` pushes/PRs
+(first push run completed successfully).
 
 ## Photo OCR extract and keyword search (2026-07-31)
 
@@ -1075,11 +1080,9 @@ understanding. Change control:
 status: `:app:testDebugUnitTest` passed on 2026-07-31; the updated v1→v8 Room
 migration test still requires emulator execution.
 
-## Important open decision
+## ADR-003 Notes strategy (accepted 2026-07-31)
 
-The PRD requires automatic indexing of existing notes but also excludes user accounts
-and cloud sync. Android cannot read private data from arbitrary note apps. A truthful
-automatic note connector therefore needs a provider-specific, read-only connection
-(for example, OneNote) or the MVP source definition must be narrowed. See ADR-003 in
-`docs/DECISIONS.md`. Do not claim that all phone notes are automatically indexed until
-this is resolved.
+Accepted: one narrowly scoped, read-only provider connector (first target: OneNote)
+as explicit source authorization — not Memora accounts, not Share-as-indexing, not
+arbitrary note-app scanning. No Notes implementation until a Notes change-control
+slice opens. Do not claim all phone notes are indexed.

@@ -39,8 +39,13 @@ indexing refreshes durable Asset locations.
 
 ## Acceptance record
 
-- **Unit:** `OpenPersistedScreenshotForViewingTest` (incl. sample-size cap),
-  open ViewModel paths, `ScreenshotOcrKeywordSearchCopyTest` open/preview honesty
-  — passed.
-- **Emulator:** pending user confirmation.
-- **Git:** pending verified checkpoint.
+- **Unit (re-verified 2026-07-31):** `OpenPersistedScreenshotForViewingTest`
+  (incl. sample-size cap), open ViewModel paths,
+  `ScreenshotOcrKeywordSearchCopyTest` open/preview honesty — passed under JDK 21.
+- **Emulator:** Device interactive confirmation blocked on 2026-07-31 by Android
+  package manager `Broken pipe (32)` on `emulator-5554` (install/`pm path` both
+  fail). URI hardening for stale MediaStore IDs already shipped in `d2c4ccc`.
+  Re-confirm Open on a healthy emulator/device before treating this UI gate as
+  user-accepted.
+- **Git:** open/preview feature `132ac18`; URI harden `d2c4ccc`; this acceptance
+  record closes the documentation gate with the emulator caveat above.

@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### ADR-003 Notes strategy accepted
+
+- **Requirements:** Notes MVP honesty; ADR-001; ADR-003.
+- **Delivered:** ADR-003 accepted — OneNote-class read-only provider connector as
+  the Notes path; Share-as-indexing and arbitrary note-app scanning rejected.
+- **Verification:** Decision recorded; no Notes code in this slice.
+- **Truthfulness:** Do not claim all phone notes are indexed until the connector
+  ships under change control.
+
+### Screenshot OCR open-original acceptance
+
+- **Requirements:** P-01, P-06, P-11, P-13, P-17; A-01, A-02, A-05.
+- **Delivered:** Documentation gate closed for capped read-only Open preview from
+  screenshot OCR hits (feature already on `main`).
+- **Verification:** Unit tests re-verified 2026-07-31; interactive emulator UI
+  blocked by package-manager Broken pipe — reconfirm on healthy device.
+- **Truthfulness:** Search still uses saved OCR only; originals read-only.
+
 ### Evidence-backed Asset Memory persistence
 
 - **Requirements:** P-02, P-09, P-11, P-14, P-17; A-02, A-04; E-04, E-05.

@@ -22,7 +22,7 @@ renames, moves, or deletes original assets.
 
 ## ADR-003: Existing third-party notes versus no accounts/cloud sync
 
-**Status:** Open - requires an explicit product decision
+**Status:** Accepted (2026-07-31)
 
 **Facts:**
 
@@ -30,17 +30,26 @@ renames, moves, or deletes original assets.
 - The PRD excludes user accounts and cloud sync.
 - Android cannot permit Memora to scan another app's private note database.
 
-**Viable choices:**
+**Decision:** Choice 1 — implement **one narrowly scoped, read-only provider
+connector** (first target: Microsoft OneNote) as an explicit source authorization
+flow. This is not a Memora user account, not cloud sync of Memora data, and not
+write-back into the note provider.
 
-1. Allow one narrowly scoped, read-only provider connector (recommended first:
-   OneNote) and explicitly treat it as source authorization rather than Memora user
-   accounts or write-back sync.
-2. Narrow the MVP notes claim to note files in user-approved storage locations.
-3. Remove automatic existing notes from the MVP; this conflicts with the current PRD
-   and is not recommended.
+**Rejected for MVP:**
 
-**Rule:** Do not implement or advertise automatic indexing of arbitrary note apps until
-this decision is accepted.
+- Treating Android Share / manual per-note import as the primary Notes indexing
+  model (violates ADR-001).
+- Claiming arbitrary note apps are automatically indexed (impossible on Android
+  without a provider API).
+- Removing Notes from MVP without a PRD amendment (choice 3).
+
+**Deferred alternative:** Choice 2 (SAF note files in user-approved folders) remains
+a fallback if the OneNote-class connector cannot be delivered under privacy and
+offline constraints; it requires a separate change-control before implementation.
+
+**Rule:** Do not implement or advertise automatic indexing of arbitrary note apps.
+UI and docs must say Notes indexing needs an approved connector until that
+connector ships. No Notes code lands until a Notes change-control slice is opened.
 
 ## ADR-004: Platform access is source-specific
 
