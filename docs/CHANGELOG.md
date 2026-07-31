@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Photo OCR extract and keyword search
+
+- **Requirements:** P-01, P-04, P-05, P-06, P-11, P-13, P-14, P-15, P-17;
+  A-01, A-02, A-05, A-06; ADR-028.
+- **Delivered:** Room v7 adds separate `photo_ocr_extractions`; explicit Read text
+  from photos drains PHOTO assets through bundled on-device Latin OCR. Welcome →
+  Find saved photo text provides current-fingerprint keyword search, readiness,
+  cancel, clear, Why citation, and capped read-only Open original preview.
+- **Verification:** `:app:testDebugUnitTest`, Android-test compilation, and debug
+  assembly passed on 2026-07-31. Targeted migration execution was blocked before
+  tests by emulator package-service `Broken pipe (32)`; visible verification pending.
+- **Truthfulness:** PHOTO and SCREENSHOT tables/flows remain separate. Keyword
+  matching is not natural-language or semantic Memory recall; no network or AI Pack.
+
 ### Public positioning and CI maturity
 
 - **Requirements:** Docs / delivery hygiene; ADR-027.

@@ -1045,6 +1045,19 @@ README and GitHub About use the approved on-device personal AI memory positionin
 copy. ADR-027 keeps that messaging separate from MVP delivery scope. Lightweight
 GitHub Actions CI runs `MemoraApp` `testDebugUnitTest` on `main` pushes/PRs.
 
+## Photo OCR extract and keyword search (2026-07-31)
+
+ADR-028 extends bundled Latin OCR to ordinary `PHOTO` assets through a separate
+user-started WorkManager drain and Room v7 `photo_ocr_extractions`. Welcome →
+**Find saved photo text** searches only saved current-fingerprint PHOTO OCR by
+keyword, provides Why evidence, and can open a capped read-only preview. PHOTO and
+SCREENSHOT storage/search remain separate. No network, AI Pack, semantic Memory
+ranking, or natural-language claim. Unit-test and emulator verification remain
+separate: `:app:testDebugUnitTest` passed on 2026-07-31; emulator verification
+remains pending. Android-test compilation and debug assembly passed; targeted Room
+migration execution was blocked before test start by emulator Android-service
+`Broken pipe (32)` during APK installation.
+
 ## Important open decision
 
 The PRD requires automatic indexing of existing notes but also excludes user accounts

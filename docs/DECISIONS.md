@@ -780,4 +780,22 @@ rules still forbid claiming unfinished capabilities inside the product.
 **Reason:** Investors need a clear product definition, while delivery must stay
 honest about what ships today.
 
+## ADR-028: Photo OCR parallels screenshot OCR as separate deterministic extraction
+
+**Status:** Accepted
+
+**Decision:** Extend ADR-026's bundled, on-device ML Kit Latin OCR pattern to
+catalogued `PHOTO` assets through a separate explicit WorkManager drain and separate
+Room `photo_ocr_extractions` table. PHOTO records, pending selection, readiness, and
+keyword search remain distinct from SCREENSHOT equivalents.
+
+**Privacy and truthfulness:** Original photos are opened read-only only after the
+user starts text reading. OCR and keyword search run on-device without `INTERNET`,
+upload, AI Pack activation, semantic Memory ranking, or natural-language claims.
+Search reads persisted current-fingerprint OCR; only the separate Open original
+action reopens a photo for a capped read-only preview.
+
+**Reason:** P-06 requires OCR for images, while separate source-type provenance
+prevents ordinary-photo text from being misrepresented as screenshot evidence.
+
 

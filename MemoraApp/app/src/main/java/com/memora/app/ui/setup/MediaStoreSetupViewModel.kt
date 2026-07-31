@@ -4,17 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.memora.app.application.images.RunPendingImageExifExtract
+import com.memora.app.application.images.RunPendingPhotoOcrExtract
 import com.memora.app.application.images.RunPendingScreenshotOcrExtract
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.discovery.ImageLibraryAccessScope
 import com.memora.app.domain.extraction.ImageExifExtractionPersistence
+import com.memora.app.domain.extraction.PhotoOcrExtractionPersistence
 import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorker
 import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.MediaStoreImageExifExtractWorker
+import com.memora.app.work.MediaStorePhotoOcrExtractWorkScheduler
+import com.memora.app.work.MediaStorePhotoOcrExtractWorker
 import com.memora.app.work.MediaStoreScreenshotOcrExtractWorkScheduler
 import com.memora.app.work.MediaStoreScreenshotOcrExtractWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +36,8 @@ data class MediaStoreSetupUiState(
     val exifExtract: ImageExifExtractUiState = ImageExifExtractUiState.NotStarted,
     val screenshotCatalogueCount: Int = 0,
     val screenshotOcr: ScreenshotOcrExtractUiState = ScreenshotOcrExtractUiState.NotStarted,
+    val photoCatalogueCount: Int = 0,
+    val photoOcr: PhotoOcrExtractUiState = PhotoOcrExtractUiState.NotStarted,
 )
 
 /** Android permission facts reported by UI; the ViewModel never requests them itself. */
@@ -97,6 +103,17 @@ sealed interface ScreenshotOcrExtractUiState {
     ) : ScreenshotOcrExtractUiState
 }
 
+sealed interface PhotoOcrExtractUiState {
+    data object NotStarted : PhotoOcrExtractUiState
+    data object InProgress : PhotoOcrExtractUiState
+    data class Completed(
+        val extractedCount: Int,
+        val photoCatalogueCount: Int,
+    ) : PhotoOcrExtractUiState
+    data object AccessStopped : PhotoOcrExtractUiState
+    data class Failed(val message: String) : PhotoOcrExtractUiState
+}
+
 /**
  * Presentation boundary for the photo setup flow.
  *
@@ -108,14 +125,17 @@ class MediaStoreSetupViewModel @Inject constructor(
     private val discoveryWorkScheduler: MediaStoreDiscoveryWorkScheduler,
     private val exifExtractWorkScheduler: MediaStoreImageExifExtractWorkScheduler,
     private val screenshotOcrWorkScheduler: MediaStoreScreenshotOcrExtractWorkScheduler,
+    private val photoOcrWorkScheduler: MediaStorePhotoOcrExtractWorkScheduler,
     private val assetRepository: AssetRepository,
     private val imageExifPersistence: ImageExifExtractionPersistence,
     private val screenshotOcrPersistence: ScreenshotOcrExtractionPersistence,
+    private val photoOcrPersistence: PhotoOcrExtractionPersistence,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(MediaStoreSetupUiState())
     private var discoveryObservationJob: Job? = null
     private var exifObservationJob: Job? = null
     private var ocrObservationJob: Job? = null
+    private var photoOcrObservationJob: Job? = null
 
     val uiState: StateFlow<MediaStoreSetupUiState> = mutableUiState.asStateFlow()
 
@@ -123,6 +143,7 @@ class MediaStoreSetupViewModel @Inject constructor(
         discoveryObservationJob?.cancel()
         exifObservationJob?.cancel()
         ocrObservationJob?.cancel()
+        photoOcrObservationJob?.cancel()
         mutableUiState.value = if (isGranted) {
             MediaStoreSetupUiState(photoAccess = PhotoAccessState.GRANTED)
         } else {
@@ -134,6 +155,7 @@ class MediaStoreSetupViewModel @Inject constructor(
         discoveryObservationJob?.cancel()
         exifObservationJob?.cancel()
         ocrObservationJob?.cancel()
+        photoOcrObservationJob?.cancel()
         val photoAccess = mutableUiState.value.photoAccess
         mutableUiState.value = MediaStoreSetupUiState(photoAccess = photoAccess)
     }
@@ -144,6 +166,7 @@ class MediaStoreSetupViewModel @Inject constructor(
             current.indexing == MediaStoreIndexingState.IN_PROGRESS ||
             current.exifExtract is ImageExifExtractUiState.InProgress ||
             current.screenshotOcr is ScreenshotOcrExtractUiState.InProgress
+            || current.photoOcr is PhotoOcrExtractUiState.InProgress
         ) {
             return
         }
@@ -153,6 +176,8 @@ class MediaStoreSetupViewModel @Inject constructor(
             exifExtract = ImageExifExtractUiState.NotStarted,
             screenshotCatalogueCount = 0,
             screenshotOcr = ScreenshotOcrExtractUiState.NotStarted,
+            photoCatalogueCount = 0,
+            photoOcr = PhotoOcrExtractUiState.NotStarted,
         )
         discoveryWorkScheduler.enqueueDrain()
         observeDiscoveryWork()
@@ -167,6 +192,7 @@ class MediaStoreSetupViewModel @Inject constructor(
             indexing.discoveredAssetCount <= 0 ||
             current.exifExtract is ImageExifExtractUiState.InProgress ||
             current.screenshotOcr is ScreenshotOcrExtractUiState.InProgress
+            || current.photoOcr is PhotoOcrExtractUiState.InProgress
         ) {
             return
         }
@@ -174,6 +200,7 @@ class MediaStoreSetupViewModel @Inject constructor(
         mutableUiState.value = current.copy(
             exifExtract = ImageExifExtractUiState.InProgress,
             screenshotOcr = ScreenshotOcrExtractUiState.NotStarted,
+            photoOcr = PhotoOcrExtractUiState.NotStarted,
         )
         val sourceId = DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID
         exifExtractWorkScheduler.enqueueDrain(sourceId)
@@ -194,6 +221,23 @@ class MediaStoreSetupViewModel @Inject constructor(
         val sourceId = DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID
         screenshotOcrWorkScheduler.enqueueDrain(sourceId)
         observeScreenshotOcrWork()
+    }
+
+    fun onPhotoOcrExtractRequested() {
+        val current = mutableUiState.value
+        val screenshotsDone = current.screenshotCatalogueCount == 0 ||
+            current.screenshotOcr is ScreenshotOcrExtractUiState.Completed
+        if (current.photoAccess != PhotoAccessState.GRANTED ||
+            current.exifExtract !is ImageExifExtractUiState.Completed ||
+            !screenshotsDone ||
+            current.photoCatalogueCount <= 0 ||
+            current.photoOcr is PhotoOcrExtractUiState.InProgress
+        ) {
+            return
+        }
+        mutableUiState.value = current.copy(photoOcr = PhotoOcrExtractUiState.InProgress)
+        photoOcrWorkScheduler.enqueueDrain(DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID)
+        observePhotoOcrWork()
     }
 
     private fun observeDiscoveryWork() {
@@ -224,6 +268,15 @@ class MediaStoreSetupViewModel @Inject constructor(
                 .collect { infos ->
                     applyScreenshotOcrWorkInfos(infos)
                 }
+        }
+    }
+
+    private fun observePhotoOcrWork() {
+        photoOcrObservationJob?.cancel()
+        photoOcrObservationJob = viewModelScope.launch {
+            photoOcrWorkScheduler
+                .observeUniqueWork(DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID)
+                .collect { applyPhotoOcrWorkInfos(it) }
         }
     }
 
@@ -290,6 +343,7 @@ class MediaStoreSetupViewModel @Inject constructor(
                         accessScope = accessScope,
                     ),
                     screenshotCatalogueCount = screenshotCount,
+                    photoCatalogueCount = photoCount,
                 )
             }
         }
@@ -337,6 +391,9 @@ class MediaStoreSetupViewModel @Inject constructor(
                 val screenshotCount = runCatching {
                     assetRepository.countBySourceAndType(sourceId, AssetType.SCREENSHOT)
                 }.getOrDefault(0)
+                val photoCount = runCatching {
+                    assetRepository.countBySourceAndType(sourceId, AssetType.PHOTO)
+                }.getOrDefault(0)
                 val extractedCount = runCatching {
                     imageExifPersistence.countCurrentForSource(
                         sourceId = sourceId.value,
@@ -349,7 +406,9 @@ class MediaStoreSetupViewModel @Inject constructor(
                         catalogueCount = catalogueCount,
                     ),
                     screenshotCatalogueCount = screenshotCount,
+                    photoCatalogueCount = photoCount,
                     screenshotOcr = ScreenshotOcrExtractUiState.NotStarted,
+                    photoOcr = PhotoOcrExtractUiState.NotStarted,
                 )
             }
         }
@@ -406,6 +465,45 @@ class MediaStoreSetupViewModel @Inject constructor(
                         extractedCount = extractedCount,
                         screenshotCatalogueCount = screenshotCount,
                     ),
+                    photoOcr = PhotoOcrExtractUiState.NotStarted,
+                )
+            }
+        }
+    }
+
+    private suspend fun applyPhotoOcrWorkInfos(infos: List<WorkInfo>) {
+        if (infos.isEmpty() || mutableUiState.value.photoAccess != PhotoAccessState.GRANTED) return
+        when {
+            infos.any { !it.state.isFinished } -> mutableUiState.value = mutableUiState.value.copy(
+                photoOcr = PhotoOcrExtractUiState.InProgress,
+            )
+            infos.any { it.state == WorkInfo.State.FAILED } -> {
+                val reason = infos.lastOrNull { it.state == WorkInfo.State.FAILED }
+                    ?.outputData?.getString(MediaStorePhotoOcrExtractWorker.KEY_FAILURE_REASON)
+                mutableUiState.value = mutableUiState.value.copy(
+                    photoOcr = if (reason == MediaStorePhotoOcrExtractWorker.REASON_ACCESS_STOPPED) {
+                        PhotoOcrExtractUiState.AccessStopped
+                    } else {
+                        PhotoOcrExtractUiState.Failed(
+                            "Memora could not finish reading text from photos. You can try again.",
+                        )
+                    },
+                )
+            }
+            infos.all { it.state.isFinished } -> {
+                val sourceId = DefaultMediaStoreDiscoveryWorkScheduler.SOURCE_ID
+                val photoCount = runCatching {
+                    assetRepository.countBySourceAndType(sourceId, AssetType.PHOTO)
+                }.getOrDefault(0)
+                val extracted = runCatching {
+                    photoOcrPersistence.countCurrentForSource(
+                        sourceId.value,
+                        RunPendingPhotoOcrExtract.SCHEMA.value,
+                    )
+                }.getOrDefault(0)
+                mutableUiState.value = mutableUiState.value.copy(
+                    photoCatalogueCount = photoCount,
+                    photoOcr = PhotoOcrExtractUiState.Completed(extracted, photoCount),
                 )
             }
         }

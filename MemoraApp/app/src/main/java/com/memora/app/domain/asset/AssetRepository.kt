@@ -50,4 +50,11 @@ interface AssetRepository {
         schemaVersion: String,
         afterSourceAssetKey: String? = null,
     ): Asset?
+
+    /** Returns the next PHOTO still needing its separate OCR extraction. */
+    suspend fun findNextPhotoPendingOcrExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String? = null,
+    ): Asset?
 }

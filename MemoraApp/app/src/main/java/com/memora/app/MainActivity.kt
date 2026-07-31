@@ -74,6 +74,12 @@ import com.memora.app.ui.search.ScreenshotOcrKeywordSearchScreen
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchUiState
 import com.memora.app.ui.search.ScreenshotOcrKeywordSearchViewModel
 import com.memora.app.ui.search.ScreenshotOriginalPreviewScreen
+import com.memora.app.application.images.PhotoOcrKeywordSearchHit
+import com.memora.app.ui.search.PhotoOcrKeywordSearchCopy
+import com.memora.app.ui.search.PhotoOcrKeywordSearchScreen
+import com.memora.app.ui.search.PhotoOcrKeywordSearchUiState
+import com.memora.app.ui.search.PhotoOcrKeywordSearchViewModel
+import com.memora.app.ui.search.PhotoOriginalPreviewScreen
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -88,12 +94,15 @@ import com.memora.app.ui.setup.ImageExifExtractUiState
 import com.memora.app.ui.setup.MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_SCREENSHOT_OCR_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.MEDIASTORE_PHOTO_OCR_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.ScreenshotOcrExtractUiState
+import com.memora.app.ui.setup.PhotoOcrExtractUiState
 import com.memora.app.ui.setup.completedImageExifExtractSummary
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
 import com.memora.app.ui.setup.completedScreenshotOcrExtractSummary
+import com.memora.app.ui.setup.completedPhotoOcrExtractSummary
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -117,6 +126,7 @@ class MainActivity : ComponentActivity() {
     private val pdfLocalReadingViewModel: PdfLocalReadingViewModel by viewModels()
     private val pdfKeywordSearchViewModel: PdfKeywordSearchViewModel by viewModels()
     private val screenshotOcrKeywordSearchViewModel: ScreenshotOcrKeywordSearchViewModel by viewModels()
+    private val photoOcrKeywordSearchViewModel: PhotoOcrKeywordSearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +140,7 @@ class MainActivity : ComponentActivity() {
             val pdfKeywordSearchUiState by pdfKeywordSearchViewModel.uiState.collectAsState()
             val screenshotOcrKeywordSearchUiState by
                 screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
+            val photoOcrKeywordSearchUiState by photoOcrKeywordSearchViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -141,11 +152,13 @@ class MainActivity : ComponentActivity() {
                         pdfLocalReadingState = pdfLocalReadingState,
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
+                        photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
                         onScreenshotOcrExtractRequested =
                             mediaStoreSetupViewModel::onScreenshotOcrExtractRequested,
+                        onPhotoOcrExtractRequested = mediaStoreSetupViewModel::onPhotoOcrExtractRequested,
                         onDocumentTreeReadAccessReceived =
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
@@ -182,6 +195,20 @@ class MainActivity : ComponentActivity() {
                             screenshotOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onScreenshotOcrKeywordPreviewClosed =
                             screenshotOcrKeywordSearchViewModel::onOriginalPreviewClosed,
+                        onPhotoOcrKeywordQueryChanged = photoOcrKeywordSearchViewModel::onQueryChanged,
+                        onPhotoOcrKeywordSearch = photoOcrKeywordSearchViewModel::onSearch,
+                        onPhotoOcrKeywordSearchScreenVisible =
+                            photoOcrKeywordSearchViewModel::onScreenVisible,
+                        onPhotoOcrKeywordQueryCleared =
+                            photoOcrKeywordSearchViewModel::onQueryCleared,
+                        onPhotoOcrKeywordSearchCancelled =
+                            photoOcrKeywordSearchViewModel::onSearchCancelled,
+                        onPhotoOcrKeywordOpenOriginal =
+                            photoOcrKeywordSearchViewModel::onOpenOriginalPhoto,
+                        onPhotoOcrKeywordOpenFeedbackDismissed =
+                            photoOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
+                        onPhotoOcrKeywordPreviewClosed =
+                            photoOcrKeywordSearchViewModel::onOriginalPreviewClosed,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -194,6 +221,7 @@ class MainActivity : ComponentActivity() {
                             pdfLocalReadingViewModel.onDerivedDataCleared()
                             pdfKeywordSearchViewModel.onDerivedDataCleared()
                             screenshotOcrKeywordSearchViewModel.onDerivedDataCleared()
+                            photoOcrKeywordSearchViewModel.onDerivedDataCleared()
                         },
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -212,10 +240,12 @@ fun MemoraApp(
     pdfLocalReadingState: PdfLocalReadingState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
+    photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
     onScreenshotOcrExtractRequested: () -> Unit,
+    onPhotoOcrExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -242,6 +272,14 @@ fun MemoraApp(
     onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
     onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onScreenshotOcrKeywordPreviewClosed: () -> Unit,
+    onPhotoOcrKeywordQueryChanged: (String) -> Unit,
+    onPhotoOcrKeywordSearch: () -> Unit,
+    onPhotoOcrKeywordSearchScreenVisible: () -> Unit,
+    onPhotoOcrKeywordQueryCleared: () -> Unit,
+    onPhotoOcrKeywordSearchCancelled: () -> Unit,
+    onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
+    onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
+    onPhotoOcrKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -266,10 +304,12 @@ fun MemoraApp(
             pdfLocalReadingState = pdfLocalReadingState,
             pdfKeywordSearchUiState = pdfKeywordSearchUiState,
             screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
+            photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
             onScreenshotOcrExtractRequested = onScreenshotOcrExtractRequested,
+            onPhotoOcrExtractRequested = onPhotoOcrExtractRequested,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
@@ -297,6 +337,14 @@ fun MemoraApp(
             onScreenshotOcrKeywordOpenFeedbackDismissed =
                 onScreenshotOcrKeywordOpenFeedbackDismissed,
             onScreenshotOcrKeywordPreviewClosed = onScreenshotOcrKeywordPreviewClosed,
+            onPhotoOcrKeywordQueryChanged = onPhotoOcrKeywordQueryChanged,
+            onPhotoOcrKeywordSearch = onPhotoOcrKeywordSearch,
+            onPhotoOcrKeywordSearchScreenVisible = onPhotoOcrKeywordSearchScreenVisible,
+            onPhotoOcrKeywordQueryCleared = onPhotoOcrKeywordQueryCleared,
+            onPhotoOcrKeywordSearchCancelled = onPhotoOcrKeywordSearchCancelled,
+            onPhotoOcrKeywordOpenOriginal = onPhotoOcrKeywordOpenOriginal,
+            onPhotoOcrKeywordOpenFeedbackDismissed = onPhotoOcrKeywordOpenFeedbackDismissed,
+            onPhotoOcrKeywordPreviewClosed = onPhotoOcrKeywordPreviewClosed,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -314,10 +362,12 @@ private fun MemoraAppReady(
     pdfLocalReadingState: PdfLocalReadingState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
+    photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
     onScreenshotOcrExtractRequested: () -> Unit,
+    onPhotoOcrExtractRequested: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -344,6 +394,14 @@ private fun MemoraAppReady(
     onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
     onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onScreenshotOcrKeywordPreviewClosed: () -> Unit,
+    onPhotoOcrKeywordQueryChanged: (String) -> Unit,
+    onPhotoOcrKeywordSearch: () -> Unit,
+    onPhotoOcrKeywordSearchScreenVisible: () -> Unit,
+    onPhotoOcrKeywordQueryCleared: () -> Unit,
+    onPhotoOcrKeywordSearchCancelled: () -> Unit,
+    onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
+    onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
+    onPhotoOcrKeywordPreviewClosed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -375,6 +433,7 @@ private fun MemoraAppReady(
     var isShowingDocumentTreeScreen by rememberSaveable { mutableStateOf(false) }
     var isShowingPdfKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingScreenshotOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
+    var isShowingPhotoOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -415,6 +474,7 @@ private fun MemoraAppReady(
                 onStartIndexing = onIndexRequested,
                 onStartExifExtract = onImageExifExtractRequested,
                 onStartScreenshotOcr = onScreenshotOcrExtractRequested,
+                onStartPhotoOcr = onPhotoOcrExtractRequested,
                 onBack = { isShowingPrivacyScreen = false },
                 modifier = modifier,
             )
@@ -481,6 +541,29 @@ private fun MemoraAppReady(
                 }
             }
 
+            isShowingPhotoOcrKeywordSearch -> {
+                val preview = photoOcrKeywordSearchUiState.originalPreview
+                if (preview != null) {
+                    PhotoOriginalPreviewScreen(
+                        preview = preview,
+                        onClose = onPhotoOcrKeywordPreviewClosed,
+                        modifier = modifier,
+                    )
+                } else {
+                    PhotoOcrKeywordSearchScreen(
+                        uiState = photoOcrKeywordSearchUiState,
+                        onQueryChanged = onPhotoOcrKeywordQueryChanged,
+                        onQueryCleared = onPhotoOcrKeywordQueryCleared,
+                        onSearch = onPhotoOcrKeywordSearch,
+                        onSearchCancelled = onPhotoOcrKeywordSearchCancelled,
+                        onOpenOriginalPhoto = onPhotoOcrKeywordOpenOriginal,
+                        onDismissOpenFeedback = onPhotoOcrKeywordOpenFeedbackDismissed,
+                        onBack = { isShowingPhotoOcrKeywordSearch = false },
+                        modifier = modifier,
+                    )
+                }
+            }
+
             else -> MemoraWelcomeScreen(
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
@@ -491,6 +574,10 @@ private fun MemoraAppReady(
                 onFindSavedScreenshotText = {
                     isShowingScreenshotOcrKeywordSearch = true
                     onScreenshotOcrKeywordSearchScreenVisible()
+                },
+                onFindSavedPhotoText = {
+                    isShowingPhotoOcrKeywordSearch = true
+                    onPhotoOcrKeywordSearchScreenVisible()
                 },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
@@ -542,6 +629,7 @@ fun MemoraWelcomeScreen(
     onConnectPdfFolder: () -> Unit,
     onFindSavedPdfText: () -> Unit,
     onFindSavedScreenshotText: () -> Unit,
+    onFindSavedPhotoText: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
@@ -603,6 +691,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(ScreenshotOcrKeywordSearchCopy.SCREEN_TITLE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onFindSavedPhotoText,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(PhotoOcrKeywordSearchCopy.SCREEN_TITLE)
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(
@@ -1118,6 +1213,7 @@ fun PrivacyScreen(
     onStartIndexing: () -> Unit,
     onStartExifExtract: () -> Unit,
     onStartScreenshotOcr: () -> Unit,
+    onStartPhotoOcr: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1204,6 +1300,16 @@ fun PrivacyScreen(
                             screenshotOcr = setupUiState.screenshotOcr,
                             onStartScreenshotOcr = onStartScreenshotOcr,
                         )
+                        val screenshotsDone = setupUiState.screenshotCatalogueCount == 0 ||
+                            setupUiState.screenshotOcr is ScreenshotOcrExtractUiState.Completed
+                        if (screenshotsDone) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            PhotoOcrExtractSection(
+                                photoCatalogueCount = setupUiState.photoCatalogueCount,
+                                photoOcr = setupUiState.photoOcr,
+                                onStartPhotoOcr = onStartPhotoOcr,
+                            )
+                        }
                     }
                 } else {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -1432,6 +1538,60 @@ private fun ScreenshotOcrExtractSection(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Try reading screenshot text again")
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhotoOcrExtractSection(
+    photoCatalogueCount: Int,
+    photoOcr: PhotoOcrExtractUiState,
+    onStartPhotoOcr: () -> Unit,
+) {
+    when (photoOcr) {
+        PhotoOcrExtractUiState.NotStarted -> {
+            if (photoCatalogueCount <= 0) {
+                Text(
+                    "No ordinary photos were catalogued, so there is no photo text to read.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    "Memora can read Latin text visible in catalogued ordinary photos. " +
+                        "It opens photos read-only and stores OCR text on-device. " +
+                        "This is keyword text extraction, not meaning-based recall.",
+                )
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = onStartPhotoOcr, modifier = Modifier.fillMaxWidth()) {
+                    Text("Read text from photos")
+                }
+            }
+        }
+        PhotoOcrExtractUiState.InProgress -> {
+            CircularProgressIndicator()
+            Text(MEDIASTORE_PHOTO_OCR_IN_PROGRESS_BODY)
+        }
+        is PhotoOcrExtractUiState.Completed -> Text(
+            completedPhotoOcrExtractSummary(
+                photoOcr.extractedCount,
+                photoOcr.photoCatalogueCount,
+            ),
+            color = MaterialTheme.colorScheme.primary,
+        )
+        PhotoOcrExtractUiState.AccessStopped -> {
+            Text(
+                "Memora could not open photos for text reading. Check photo access and try again.",
+                color = MaterialTheme.colorScheme.error,
+            )
+            Button(onClick = onStartPhotoOcr, modifier = Modifier.fillMaxWidth()) {
+                Text("Try reading photo text again")
+            }
+        }
+        is PhotoOcrExtractUiState.Failed -> {
+            Text(photoOcr.message, color = MaterialTheme.colorScheme.error)
+            Button(onClick = onStartPhotoOcr, modifier = Modifier.fillMaxWidth()) {
+                Text("Try reading photo text again")
             }
         }
     }

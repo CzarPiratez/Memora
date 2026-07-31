@@ -5,16 +5,20 @@ import androidx.work.WorkManager
 import com.memora.app.application.documents.PendingPdfLocalReader
 import com.memora.app.application.documents.RunPendingPdfLocalReading
 import com.memora.app.application.images.PendingImageExifExtractor
+import com.memora.app.application.images.PendingPhotoOcrExtractor
 import com.memora.app.application.images.PendingScreenshotOcrExtractor
 import com.memora.app.application.images.RunPendingImageExifExtract
+import com.memora.app.application.images.RunPendingPhotoOcrExtract
 import com.memora.app.application.images.RunPendingScreenshotOcrExtract
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
+import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStoreScreenshotOcrExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
+import com.memora.app.work.MediaStorePhotoOcrExtractWorkScheduler
 import com.memora.app.work.MediaStoreScreenshotOcrExtractWorkScheduler
 import com.memora.app.work.SafPdfDiscoveryWorkScheduler
 import com.memora.app.work.SafPdfExtractWorkScheduler
@@ -70,6 +74,12 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
 
     @Binds
     @Singleton
+    abstract fun bindMediaStorePhotoOcrExtractWorkScheduler(
+        impl: DefaultMediaStorePhotoOcrExtractWorkScheduler,
+    ): MediaStorePhotoOcrExtractWorkScheduler
+
+    @Binds
+    @Singleton
     abstract fun bindPendingPdfLocalReader(
         impl: RunPendingPdfLocalReading,
     ): PendingPdfLocalReader
@@ -85,4 +95,10 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
     abstract fun bindPendingScreenshotOcrExtractor(
         impl: RunPendingScreenshotOcrExtract,
     ): PendingScreenshotOcrExtractor
+
+    @Binds
+    @Singleton
+    abstract fun bindPendingPhotoOcrExtractor(
+        impl: RunPendingPhotoOcrExtract,
+    ): PendingPhotoOcrExtractor
 }

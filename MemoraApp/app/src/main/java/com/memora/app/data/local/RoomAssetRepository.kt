@@ -70,4 +70,18 @@ class RoomAssetRepository(
             )
             ?.toDomain()
             ?.asset
+
+    override suspend fun findNextPhotoPendingOcrExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String?,
+    ): Asset? =
+        assetDao()
+            .findNextPhotoPendingOcrExtract(
+                sourceId = sourceId.value,
+                schemaVersion = schemaVersion,
+                afterSourceAssetKey = afterSourceAssetKey.orEmpty(),
+            )
+            ?.toDomain()
+            ?.asset
 }

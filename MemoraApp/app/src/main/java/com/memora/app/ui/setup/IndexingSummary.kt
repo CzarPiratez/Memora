@@ -66,3 +66,19 @@ internal fun completedScreenshotOcrExtractSummary(
         "You can search those words from Find saved screenshot text on the welcome screen. " +
         "Ordinary photos are not OCR’d in this step."
 }
+
+internal const val MEDIASTORE_PHOTO_OCR_IN_PROGRESS_BODY =
+    "Memora is reading text from permitted ordinary photos on this phone. " +
+        "OCR text stays on-device. This is not meaning-based recall."
+
+internal fun completedPhotoOcrExtractSummary(
+    extractedCount: Int,
+    photoCatalogueCount: Int,
+): String {
+    require(extractedCount >= 0 && photoCatalogueCount >= 0)
+    val items = if (extractedCount == 1) "photo" else "photos"
+    return "Memora saved on-device text from $extractedCount $items " +
+        "(from $photoCatalogueCount catalogued photos). " +
+        "This is OCR text only — not meaning-based recall. " +
+        "You can search those words from Find saved photo text on the welcome screen."
+}

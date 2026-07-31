@@ -5,6 +5,8 @@ import com.memora.app.data.mediastore.ContentResolverImageExifReader
 import com.memora.app.data.mediastore.ImageExifReader
 import com.memora.app.data.mediastore.MediaStoreImageDiscoverySource
 import com.memora.app.data.mediastore.MlKitScreenshotOcrReader
+import com.memora.app.data.mediastore.MlKitPhotoOcrReader
+import com.memora.app.data.mediastore.PhotoOcrReader
 import com.memora.app.data.mediastore.ScreenshotOcrReader
 import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import dagger.Binds
@@ -40,4 +42,10 @@ abstract class MediaStoreImageExifModule {
     abstract fun bindScreenshotOcrReader(
         impl: MlKitScreenshotOcrReader,
     ): ScreenshotOcrReader
+
+    @Binds
+    @Singleton
+    abstract fun bindPhotoOcrReader(
+        impl: MlKitPhotoOcrReader,
+    ): PhotoOcrReader
 }
