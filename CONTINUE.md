@@ -1029,10 +1029,12 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-Notes connector change-control (ADR-003 accepted: OneNote-class read-only provider)
-or Local-AI pack measured baselines when approved. No AI Pack / network / semantic
-Memory ranking claims until then. Interim recall remains PDF/screenshot/photo keyword
-search; Asset Memories are persisted facts only.
+**Notes N0 opened** (`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`). After user
+accepts the phase plan, implement **N1 only** (honesty + setup entry; no MSAL/Graph).
+N2+ needs Microsoft app registration and a separate verification gate. Local-AI pack
+measured baselines remain an alternate track when approved. No AI Pack / semantic
+Memory ranking claims. Interim recall remains PDF/screenshot/photo keyword search;
+Asset Memories are persisted facts only.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 
@@ -1082,5 +1084,11 @@ remains optional follow-up if needed.
 
 Accepted: one narrowly scoped, read-only provider connector (first target: OneNote)
 as explicit source authorization — not Memora accounts, not Share-as-indexing, not
-arbitrary note-app scanning. No Notes implementation until a Notes change-control
-slice opens. Do not claim all phone notes are indexed.
+arbitrary note-app scanning. Change-control **opened** 2026-07-31:
+`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` (N0 docs; N1 is the first code
+slice after plan acceptance). Do not claim all phone notes are indexed.
+
+## Notes connector N0 (opened 2026-07-31)
+
+Phased OneNote-class plan with explicit network/token honesty and Azure app
+registration as an external N2 gate. No Notes implementation code in N0.

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Notes connector N0 opened (OneNote-class)
+
+- **Requirements:** P-03, P-08, P-15, P-19; ADR-001, ADR-003, ADR-004.
+- **Delivered:** `docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` — phased plan
+  N0–N5, network/token honesty, Azure app-registration as N2 external gate.
+  Traceability P-08/P-19 and ADR-003 rule updated; CONTINUE points next code at N1.
+- **Verification:** Docs-only; no Notes implementation code.
+- **Truthfulness:** Do not claim phone-wide notes indexing; OneNote connector only.
+
 ### ADR-003 Notes strategy accepted
 
 - **Requirements:** Notes MVP honesty; ADR-001; ADR-003.
@@ -17,7 +26,7 @@
 - **Delivered:** Documentation gate closed for capped read-only Open preview from
   screenshot OCR hits (feature already on `main`).
 - **Verification:** Unit tests re-verified 2026-07-31; interactive emulator UI
-  blocked by package-manager Broken pipe — reconfirm on healthy device.
+  accepted same day (SwiftShader; user pass).
 - **Truthfulness:** Search still uses saved OCR only; originals read-only.
 
 ### Evidence-backed Asset Memory persistence

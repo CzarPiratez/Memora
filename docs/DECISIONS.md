@@ -49,7 +49,9 @@ offline constraints; it requires a separate change-control before implementation
 
 **Rule:** Do not implement or advertise automatic indexing of arbitrary note apps.
 UI and docs must say Notes indexing needs an approved connector until that
-connector ships. No Notes code lands until a Notes change-control slice is opened.
+connector ships. Notes implementation code may land only under
+`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` (opened 2026-07-31), phase by
+phase after acceptance.
 
 ## ADR-004: Platform access is source-specific
 
