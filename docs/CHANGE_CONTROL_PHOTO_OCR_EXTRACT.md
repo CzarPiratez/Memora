@@ -28,7 +28,8 @@ No `INTERNET` permission, upload, source mutation, or Local-AI availability clai
 
 - `:app:testDebugUnitTest`: passed on 2026-07-31.
 - `:app:compileDebugAndroidTestKotlin :app:assembleDebug`: passed.
-- Targeted `MemoraDatabaseMigrationTest` could not start because emulator package
-  installation failed with Android service `Broken pipe (32)`; rerun after emulator
-  recovery. Visible PHOTO OCR verification also remains required.
+- **Emulator (accepted 2026-07-31):** User-started **Read text from photos**
+  completed with honest OCR-only summary (saved text from 2 catalogued photos).
+  Keyword path verified via `cafe` hit. User confirmed pass.
+  `MemoraDatabaseMigrationTest` remains a separate instrumentation gate if needed.
 - **Git:** `e5668d3`.

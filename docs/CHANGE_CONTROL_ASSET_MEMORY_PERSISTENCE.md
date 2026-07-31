@@ -34,8 +34,11 @@
   persistence and migration; Hilt; setup readiness/action; tests and governance docs.
 - **Automated verification:** `:app:testDebugUnitTest` passed on 2026-07-31,
   including deterministic assembly, revision-history, and normalized Room mapping.
-- **Emulator/manual verification:** Pending. `MemoraDatabaseMigrationTest` is updated
-  for v8 but was not required by this local unit-test checkpoint.
+- **Emulator/manual verification (accepted 2026-07-31):** Welcome → **Build
+  memories from saved facts** reported Built 3 in this step and 3 current
+  evidence-backed Asset Memories, with interim keyword-search honesty retained.
+  User confirmed pass. `MemoraDatabaseMigrationTest` remains a separate
+  instrumentation gate if needed.
 - **Failure/recovery:** Missing Asset and blank evidence skip safely; immutable-key
   conflicts and persistence exceptions fail safely; the foreground drain is capped;
   Clear Memora index deletes the entire Memora-owned encrypted database, including
@@ -45,4 +48,5 @@
   photo keyword search remains the truthful interim recall path.
 - **Decision record:** No ADR-029 is needed. This implements accepted ADR-007,
   ADR-019, and ADR-022 without changing product direction.
-- **Git commit:** Recorded in the final handoff after verification.
+- **Git commit:** Feature `9aaa5f2`; acceptance docs recorded after 2026-07-31
+  user pass.

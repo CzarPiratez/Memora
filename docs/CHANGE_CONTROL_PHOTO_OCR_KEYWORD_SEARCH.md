@@ -25,7 +25,9 @@ substring matching, not semantic recall; no network, AI Pack, or screenshot corp
 ## Verification
 
 - `:app:testDebugUnitTest`: passed on 2026-07-31.
-- Android-test compilation and debug assembly passed. Emulator search/open remains
-  pending because the available emulator failed APK installation with Android
-  service `Broken pipe (32)`.
+- Android-test compilation and debug assembly passed.
+- **Emulator (accepted 2026-07-31):** After Read text from photos, **Find saved
+  photo text** query `cafe` → `memora-photo-cafe.jpg` + OCR excerpt + Why.
+  User confirmed pass. (Screenshot fixture `note` correctly stays on screenshot
+  search, not photo search.)
 - **Git:** `e5668d3`.

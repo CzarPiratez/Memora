@@ -1039,9 +1039,8 @@ search; Asset Memories are persisted facts only.
 From Find saved screenshot text hits: Open original loads a **capped** read-only
 in-app preview (max edge 960px) via MediaStore URI. Search still uses saved OCR
 only. Change control: `docs/CHANGE_CONTROL_SCREENSHOT_OCR_OPEN_ORIGINAL.md`.
-Unit tests re-verified 2026-07-31. Interactive emulator UI confirmation blocked by
-package-manager `Broken pipe (32)` — reconfirm on a healthy device before investor
-demo of this path.
+Unit tests re-verified 2026-07-31. Interactive emulator UI **accepted** same day
+on SwiftShader cold-boot Medium Phone (`note` → preview); user confirmed pass.
 
 ## Public positioning and GitHub CI (2026-07-31)
 
@@ -1057,11 +1056,9 @@ user-started WorkManager drain and Room v7 `photo_ocr_extractions`. Welcome →
 **Find saved photo text** searches only saved current-fingerprint PHOTO OCR by
 keyword, provides Why evidence, and can open a capped read-only preview. PHOTO and
 SCREENSHOT storage/search remain separate. No network, AI Pack, semantic Memory
-ranking, or natural-language claim. Unit-test and emulator verification remain
-separate: `:app:testDebugUnitTest` passed on 2026-07-31; emulator verification
-remains pending. Android-test compilation and debug assembly passed; targeted Room
-migration execution was blocked before test start by emulator Android-service
-`Broken pipe (32)` during APK installation.
+ranking, or natural-language claim. `:app:testDebugUnitTest` passed on 2026-07-31.
+Emulator extract + **Find saved photo text** (`cafe`) **accepted** same day on
+SwiftShader cold-boot; user confirmed pass.
 
 ## Evidence-backed Asset Memory persistence (2026-07-31)
 
@@ -1076,9 +1073,10 @@ This is the Phase 3 storage foundation, not semantic recall. Existing PDF,
 screenshot, and photo keyword search remains the interim recall UI. There are no
 embeddings, natural-language ranking, confidence claims, Notes, or model-backed
 understanding. Change control:
-`docs/CHANGE_CONTROL_ASSET_MEMORY_PERSISTENCE.md`. Unit-test and migration execution
-status: `:app:testDebugUnitTest` passed on 2026-07-31; the updated v1→v8 Room
-migration test still requires emulator execution.
+`docs/CHANGE_CONTROL_ASSET_MEMORY_PERSISTENCE.md`. `:app:testDebugUnitTest` passed
+on 2026-07-31. Emulator **Build memories from saved facts** (Built 3 / 3 current)
+**accepted** same day; user confirmed pass. v1→v8 Room migration instrumentation
+remains optional follow-up if needed.
 
 ## ADR-003 Notes strategy (accepted 2026-07-31)
 
