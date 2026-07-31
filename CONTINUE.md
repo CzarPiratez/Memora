@@ -1058,6 +1058,23 @@ remains pending. Android-test compilation and debug assembly passed; targeted Ro
 migration execution was blocked before test start by emulator Android-service
 `Broken pipe (32)` during APK installation.
 
+## Evidence-backed Asset Memory persistence (2026-07-31)
+
+Room v8 now stores immutable Asset Memory revisions with stable identity,
+current-fingerprint provenance, normalized deterministic evidence, extraction-schema
+versions, TEXT anchors, and explicit summary/anchor citations. The user-started
+**Build memories from saved facts** action drains at most 25 eligible assets per tap
+from already-saved PDF text/metadata, screenshot/photo OCR, and useful EXIF fields.
+It never reopens a source, invokes AI, downloads a pack, or uses network.
+
+This is the Phase 3 storage foundation, not semantic recall. Existing PDF,
+screenshot, and photo keyword search remains the interim recall UI. There are no
+embeddings, natural-language ranking, confidence claims, Notes, or model-backed
+understanding. Change control:
+`docs/CHANGE_CONTROL_ASSET_MEMORY_PERSISTENCE.md`. Unit-test and migration execution
+status: `:app:testDebugUnitTest` passed on 2026-07-31; the updated v1→v8 Room
+migration test still requires emulator execution.
+
 ## Important open decision
 
 The PRD requires automatic indexing of existing notes but also excludes user accounts

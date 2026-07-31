@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Evidence-backed Asset Memory persistence
+
+- **Requirements:** P-02, P-09, P-11, P-14, P-17; A-02, A-04; E-04, E-05.
+- **Delivered:** Room v8 persists immutable current-fingerprint Asset Memory revisions
+  with normalized evidence, extraction schemas, TEXT anchors, and citation joins.
+  An explicit bounded setup action assembles them only from saved PDF text/metadata,
+  screenshot/photo OCR, and useful EXIF fields.
+- **Verification:** `:app:testDebugUnitTest` passed on 2026-07-31, including
+  deterministic assembler, revision-history, and normalized Room mapping tests.
+  The v1→v8 migration test is updated; emulator execution remains pending.
+- **Truthfulness:** No source reopen, network, Local-AI pack, embeddings, semantic
+  ranking, natural-language recall, or confidence claim. Existing keyword search
+  remains the interim recall UI.
+
 ### Photo OCR extract and keyword search
 
 - **Requirements:** P-01, P-04, P-05, P-06, P-11, P-13, P-14, P-15, P-17;

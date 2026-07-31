@@ -252,4 +252,134 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_7_8: Migration = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memories` (
+                    `revision_id` TEXT NOT NULL,
+                    `memory_id` TEXT NOT NULL,
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `assembly_schema_version` TEXT NOT NULL,
+                    `integrity_state` TEXT NOT NULL,
+                    `summary_text` TEXT NOT NULL,
+                    `created_at_epoch_millis` INTEGER NOT NULL,
+                    `updated_at_epoch_millis` INTEGER NOT NULL,
+                    PRIMARY KEY(`revision_id`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_memories_memory_id` ON `memories` (`memory_id`)")
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS " +
+                    "`index_memories_source_id_source_asset_key_fingerprint_assembly_schema_version` " +
+                    "ON `memories` (`source_id`, `source_asset_key`, `fingerprint`, `assembly_schema_version`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memories_source_id_source_asset_key` " +
+                    "ON `memories` (`source_id`, `source_asset_key`)",
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_memories_fingerprint` ON `memories` (`fingerprint`)")
+
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_extraction_schemas` (
+                    `revision_id` TEXT NOT NULL,
+                    `schema_version` TEXT NOT NULL,
+                    PRIMARY KEY(`revision_id`, `schema_version`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_extraction_schemas_revision_id` " +
+                    "ON `memory_extraction_schemas` (`revision_id`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_evidence` (
+                    `revision_id` TEXT NOT NULL,
+                    `evidence_id` TEXT NOT NULL,
+                    `evidence_kind` TEXT NOT NULL,
+                    `locator` TEXT NOT NULL,
+                    `excerpt` TEXT NOT NULL,
+                    PRIMARY KEY(`revision_id`, `evidence_id`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_evidence_revision_id` " +
+                    "ON `memory_evidence` (`revision_id`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_anchors` (
+                    `revision_id` TEXT NOT NULL,
+                    `anchor_id` TEXT NOT NULL,
+                    `anchor_kind` TEXT NOT NULL,
+                    `anchor_text` TEXT NOT NULL,
+                    PRIMARY KEY(`revision_id`, `anchor_id`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_anchors_revision_id` " +
+                    "ON `memory_anchors` (`revision_id`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_anchor_evidence` (
+                    `revision_id` TEXT NOT NULL,
+                    `anchor_id` TEXT NOT NULL,
+                    `evidence_id` TEXT NOT NULL,
+                    PRIMARY KEY(`revision_id`, `anchor_id`, `evidence_id`),
+                    FOREIGN KEY(`revision_id`, `anchor_id`)
+                        REFERENCES `memory_anchors`(`revision_id`, `anchor_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE,
+                    FOREIGN KEY(`revision_id`, `evidence_id`)
+                        REFERENCES `memory_evidence`(`revision_id`, `evidence_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_anchor_evidence_revision_id_anchor_id` " +
+                    "ON `memory_anchor_evidence` (`revision_id`, `anchor_id`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_anchor_evidence_revision_id_evidence_id` " +
+                    "ON `memory_anchor_evidence` (`revision_id`, `evidence_id`)",
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_summary_evidence` (
+                    `revision_id` TEXT NOT NULL,
+                    `evidence_id` TEXT NOT NULL,
+                    PRIMARY KEY(`revision_id`, `evidence_id`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE,
+                    FOREIGN KEY(`revision_id`, `evidence_id`)
+                        REFERENCES `memory_evidence`(`revision_id`, `evidence_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_summary_evidence_revision_id` " +
+                    "ON `memory_summary_evidence` (`revision_id`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_summary_evidence_revision_id_evidence_id` " +
+                    "ON `memory_summary_evidence` (`revision_id`, `evidence_id`)",
+            )
+        }
+    }
 }

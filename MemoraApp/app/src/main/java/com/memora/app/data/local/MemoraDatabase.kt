@@ -14,8 +14,14 @@ import androidx.room.RoomDatabase
         ImageExifExtractionEntity::class,
         ScreenshotOcrExtractionEntity::class,
         PhotoOcrExtractionEntity::class,
+        MemoryEntity::class,
+        MemoryExtractionSchemaEntity::class,
+        MemoryEvidenceEntity::class,
+        MemoryAnchorEntity::class,
+        MemoryAnchorEvidenceEntity::class,
+        MemorySummaryEvidenceEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -32,4 +38,8 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun screenshotOcrExtractionDao(): ScreenshotOcrExtractionDao
 
     abstract fun photoOcrExtractionDao(): PhotoOcrExtractionDao
+
+    abstract fun memoryDao(): MemoryDao
+
+    abstract fun assetMemoryFactDao(): AssetMemoryFactDao
 }

@@ -103,6 +103,9 @@ import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
 import com.memora.app.ui.setup.completedScreenshotOcrExtractSummary
 import com.memora.app.ui.setup.completedPhotoOcrExtractSummary
+import com.memora.app.ui.setup.AssetMemorySetupCopy
+import com.memora.app.ui.setup.AssetMemorySetupState
+import com.memora.app.ui.setup.AssetMemorySetupViewModel
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.MemoraTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -127,6 +130,7 @@ class MainActivity : ComponentActivity() {
     private val pdfKeywordSearchViewModel: PdfKeywordSearchViewModel by viewModels()
     private val screenshotOcrKeywordSearchViewModel: ScreenshotOcrKeywordSearchViewModel by viewModels()
     private val photoOcrKeywordSearchViewModel: PhotoOcrKeywordSearchViewModel by viewModels()
+    private val assetMemorySetupViewModel: AssetMemorySetupViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,6 +145,7 @@ class MainActivity : ComponentActivity() {
             val screenshotOcrKeywordSearchUiState by
                 screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
             val photoOcrKeywordSearchUiState by photoOcrKeywordSearchViewModel.uiState.collectAsState()
+            val assetMemorySetupState by assetMemorySetupViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -153,12 +158,14 @@ class MainActivity : ComponentActivity() {
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
+                        assetMemorySetupState = assetMemorySetupState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
                         onScreenshotOcrExtractRequested =
                             mediaStoreSetupViewModel::onScreenshotOcrExtractRequested,
                         onPhotoOcrExtractRequested = mediaStoreSetupViewModel::onPhotoOcrExtractRequested,
+                        onBuildAssetMemories = assetMemorySetupViewModel::onBuildRequested,
                         onDocumentTreeReadAccessReceived =
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
@@ -222,6 +229,7 @@ class MainActivity : ComponentActivity() {
                             pdfKeywordSearchViewModel.onDerivedDataCleared()
                             screenshotOcrKeywordSearchViewModel.onDerivedDataCleared()
                             photoOcrKeywordSearchViewModel.onDerivedDataCleared()
+                            assetMemorySetupViewModel.onDerivedDataCleared()
                         },
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -241,11 +249,13 @@ fun MemoraApp(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
+    assetMemorySetupState: AssetMemorySetupState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
     onScreenshotOcrExtractRequested: () -> Unit,
     onPhotoOcrExtractRequested: () -> Unit,
+    onBuildAssetMemories: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -305,11 +315,13 @@ fun MemoraApp(
             pdfKeywordSearchUiState = pdfKeywordSearchUiState,
             screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
             photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
+            assetMemorySetupState = assetMemorySetupState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
             onScreenshotOcrExtractRequested = onScreenshotOcrExtractRequested,
             onPhotoOcrExtractRequested = onPhotoOcrExtractRequested,
+            onBuildAssetMemories = onBuildAssetMemories,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
@@ -363,11 +375,13 @@ private fun MemoraAppReady(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
+    assetMemorySetupState: AssetMemorySetupState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
     onScreenshotOcrExtractRequested: () -> Unit,
     onPhotoOcrExtractRequested: () -> Unit,
+    onBuildAssetMemories: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -565,6 +579,8 @@ private fun MemoraAppReady(
             }
 
             else -> MemoraWelcomeScreen(
+                assetMemorySetupState = assetMemorySetupState,
+                onBuildAssetMemories = onBuildAssetMemories,
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
                 onFindSavedPdfText = {
@@ -624,7 +640,67 @@ fun UnlockRequiredScreen(
 }
 
 @Composable
+private fun AssetMemorySetupCard(
+    state: AssetMemorySetupState,
+    onBuild: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+        shape = RoundedCornerShape(20.dp),
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = AssetMemorySetupCopy.TITLE,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(AssetMemorySetupCopy.BODY, style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            when (state) {
+                AssetMemorySetupState.Loading -> Text("Checking saved memories…")
+                is AssetMemorySetupState.Building -> {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(AssetMemorySetupCopy.BUILDING)
+                }
+                is AssetMemorySetupState.Failed -> {
+                    Text(AssetMemorySetupCopy.FAILED, color = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = onBuild, modifier = Modifier.fillMaxWidth()) {
+                        Text(AssetMemorySetupCopy.BUILD_LABEL)
+                    }
+                }
+                is AssetMemorySetupState.Ready -> {
+                    Text(
+                        if (state.assembledInLastRun > 0) {
+                            AssetMemorySetupCopy.completed(
+                                state.assembledInLastRun,
+                                state.currentReadyCount,
+                            )
+                        } else {
+                            AssetMemorySetupCopy.readiness(state.currentReadyCount)
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = onBuild, modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            if (state.hasMore) AssetMemorySetupCopy.CONTINUE_LABEL
+                            else AssetMemorySetupCopy.BUILD_LABEL,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun MemoraWelcomeScreen(
+    assetMemorySetupState: AssetMemorySetupState,
+    onBuildAssetMemories: () -> Unit,
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
     onFindSavedPdfText: () -> Unit,
@@ -678,6 +754,11 @@ fun MemoraWelcomeScreen(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        AssetMemorySetupCard(
+            state = assetMemorySetupState,
+            onBuild = onBuildAssetMemories,
+        )
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = onFindSavedPdfText,

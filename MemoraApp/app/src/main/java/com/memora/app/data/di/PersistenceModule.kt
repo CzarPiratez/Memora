@@ -7,6 +7,8 @@ import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
+import com.memora.app.data.local.RoomAssetMemoryFactSource
+import com.memora.app.data.local.RoomMemoryRepository
 import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
 import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
 import com.memora.app.data.security.MemoraDatabaseHandle
@@ -18,6 +20,8 @@ import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.extraction.ImageExifExtractionPersistence
 import com.memora.app.domain.extraction.PhotoOcrExtractionPersistence
 import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
+import com.memora.app.domain.memory.AssetMemoryFactSource
+import com.memora.app.domain.memory.MemoryRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -65,6 +69,16 @@ object PersistenceModule {
         handle: MemoraDatabaseHandle,
     ): PhotoOcrExtractionPersistence =
         RoomPhotoOcrExtractionPersistencePort { handle.database() }
+
+    @Provides
+    @Singleton
+    fun provideMemoryRepository(handle: MemoraDatabaseHandle): MemoryRepository =
+        RoomMemoryRepository { handle.database() }
+
+    @Provides
+    @Singleton
+    fun provideAssetMemoryFactSource(handle: MemoraDatabaseHandle): AssetMemoryFactSource =
+        RoomAssetMemoryFactSource { handle.database() }
 
     @Provides
     @Singleton

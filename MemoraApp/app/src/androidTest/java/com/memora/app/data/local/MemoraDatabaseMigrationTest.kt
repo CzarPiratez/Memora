@@ -41,6 +41,7 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_4_5,
             MemoraDatabaseMigrations.MIGRATION_5_6,
             MemoraDatabaseMigrations.MIGRATION_6_7,
+            MemoraDatabaseMigrations.MIGRATION_7_8,
         ).build()
 
         try {
@@ -52,7 +53,7 @@ class MemoraDatabaseMigrationTest {
             assertEquals("lake.jpg", preservedAsset?.displayName)
             assertEquals(null, migratedDatabase.discoveryCheckpointDao().find("android-media-store-images"))
             assertTrue(migratedDatabase.documentTreeApprovalDao().findAll().isEmpty())
-            assertEquals(7, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(8, migratedDatabase.openHelper.readableDatabase.version)
             assertEquals(
                 0,
                 migratedDatabase.pdfExtractionDao().countForAsset(
@@ -65,6 +66,7 @@ class MemoraDatabaseMigrationTest {
                 migratedDatabase.photoOcrExtractionDao()
                     .countCurrentSearchablePhotos("photo-ocr-v1"),
             )
+            assertEquals(0, migratedDatabase.memoryDao().countCurrentReady())
         } finally {
             migratedDatabase.close()
         }

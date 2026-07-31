@@ -49,11 +49,16 @@ class MemoryTest {
         createdAt: Instant = Instant.parse("2026-07-18T10:00:00Z"),
         updatedAt: Instant = Instant.parse("2026-07-18T10:05:00Z"),
     ): Memory = Memory(
+        id = MemoryId("memory-1"),
+        revisionId = MemoryRevisionId("revision-1"),
         assetIdentity = AssetIdentity(
             sourceId = SourceId("android-media-store"),
             sourceAssetKey = SourceAssetKey("image-42"),
         ),
         assetFingerprint = AssetFingerprint("media:42:1000:2048"),
+        assemblySchemaVersion = MemoryAssemblySchemaVersion("asset-memory-v1"),
+        extractionSchemaVersions = setOf("ocr-v1"),
+        integrityState = MemoryIntegrityState.READY,
         signature = MemorySignature(
             summary = MemorySummary(
                 text = MemoryText("Lake picnic with Ana"),
