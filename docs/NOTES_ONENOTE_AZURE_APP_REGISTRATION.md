@@ -37,12 +37,24 @@ requires it for the chosen scopes):
 
 | Scope | Why |
 |-------|-----|
-| `Notes.Read` | Read OneNote notebooks/pages (N3+) |
-| `offline_access` | Refresh token so the user is not forced to sign in every session |
-| `User.Read` | Minimal signed-in identity for MSAL account display (optional but common) |
+| `Notes.Read` | **Required** — read OneNote notebooks/pages (N3+) |
+| `User.Read` | Signed-in identity for account label (usually already present) |
+
+`offline_access` / OpenID scopes are requested by MSAL automatically. Do **not**
+rely on listing `offline_access` in the Android acquire-token scope list (doing so
+can trigger “scopes have been declined by the Server”).
 
 Do **not** add `Notes.ReadWrite`, `Notes.Create`, or application (app-only)
 permissions. OneNote Graph access for this product is **delegated + read-only**.
+
+### If Connect shows “scopes have been declined”
+
+1. Confirm **Microsoft Graph → Notes.Read (Delegated)** is on the registration.
+2. For work/school tenants, click **Grant admin consent** if the portal requires it.
+3. Supported account types must include **personal Microsoft accounts** if you sign
+   in with `@outlook.com` / `@hotmail.com`.
+4. Sign out of the Microsoft session in the emulator browser if an old consent
+   is stuck, then Connect again.
 
 ## Wire into a local Memora debug build
 

@@ -1,8 +1,8 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0–N2b accepted (Connect/Disconnect with MSAL). Next code is **N3**
-  (Graph discovery → NOTE Asset placeholders).  
+**Status:** N0–N3 accepted. **N4 next** (OneNote page text extract) when approved.
+  Extract/search remain N4–N5.  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -142,8 +142,9 @@ Split so the Azure external gate does not block vault honesty work.
 ### N2 scopes (delegated Graph only)
 
 - `Notes.Read` — OneNote read (used from N3+)
-- `offline_access` — refresh without re-prompt every cold start
 - `User.Read` — optional minimal signed-in identity for account label
+- `offline_access` — provided by MSAL by default (do **not** also pass it in the
+  Android scope list; that can trigger DeclinedScope)
 
 No write scopes. No app-only / client secret.
 
@@ -179,3 +180,22 @@ OneNoteAuthConfiguration ← BuildConfig from local.properties (public client ID
   returned to not-connected (2026-08-01). Google Custom Tab intermediary is
   expected; Microsoft account completes the flow.
 - **Git:** Record in the N2b acceptance commit.
+
+## N3 continuation — Discovery → NOTE placeholders
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Bounded Graph page list → `AssetType.NOTE` placeholders | Yes — Graph GET only; user-started Discover; stable page id identity; **per-section** pages walk (avoids global `/pages` error 20266) | Connected = vaulted token; no write APIs; no HTML extract; UI must not claim searchable notes |
+
+### Acceptance record — N3 (accepted 2026-08-01)
+
+- **Delivered:** `OneNotePagesDiscoverySource` (sections → pages), Graph gateway,
+  `IndexOneNotePages`, Notes **Discover / Discover more**, `ensureSession` +
+  vault-only Connected honesty, MSAL `signInAgain` when account already present,
+  scopes without duplicate `offline_access`.
+- **Not delivered:** Page HTML extract (N4), note keyword search (N5).
+- **Automated:** `OneNotePagesDiscoverySourceTest`, `IndexOneNotePagesTest`,
+  Graph parse tests passed.
+- **Emulator smoke (user):** Connect `mir.m@outlook.com` → Discover saved 25
+  placeholders → Discover more → 28 total; honesty “not searchable yet”
+  (**accepted** 2026-08-01).

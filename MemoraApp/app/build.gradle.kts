@@ -109,6 +109,8 @@ dependencies {
     // Notes N2b: Microsoft identity for read-only OneNote connector (ADR-003).
     // Reviewed in docs/dependency-review/msal-android-8.4.1-review.md.
     implementation(libs.msal.android)
+    // Explicit for OneNote Graph JSON parse (also a MSAL transitive; pin for unit tests).
+    implementation(libs.gson)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

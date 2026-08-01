@@ -20,14 +20,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * Notes setup screen (N1 honesty + N2b Connect/Disconnect).
- * Does not claim notes are indexed.
+ * Notes setup screen (N1–N3): Connect/Disconnect + bounded page discovery.
+ * Does not claim note text is searchable.
  */
 @Composable
 fun NotesConnectorHonestyScreen(
     uiState: NotesConnectorUiState,
     onConnect: () -> Unit,
     onDisconnect: () -> Unit,
+    onDiscover: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -106,6 +107,16 @@ fun NotesConnectorHonestyScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(NotesConnectorHonestyCopy.CONNECT_LABEL)
+            }
+        }
+        if (uiState.showDiscover) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onDiscover,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(uiState.discoverLabel)
             }
         }
         if (uiState.showDisconnect) {

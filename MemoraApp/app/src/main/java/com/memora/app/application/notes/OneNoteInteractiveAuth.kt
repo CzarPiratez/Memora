@@ -12,7 +12,17 @@ interface OneNoteInteractiveAuth {
 
     suspend fun disconnect()
 
+    /**
+     * Label only when Memora has a vaulted Graph access token.
+     * MSAL account cache alone is not enough to show Connected.
+     */
     suspend fun restoreAccountLabel(): String?
+
+    /**
+     * Ensures a vaulted access token exists (reuse vault, else silent MSAL refresh).
+     * Returns null when the user must Connect interactively again.
+     */
+    suspend fun ensureSession(): NotesProviderSession?
 }
 
 sealed interface OneNoteAuthOutcome {

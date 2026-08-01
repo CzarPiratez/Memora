@@ -2,9 +2,14 @@ package com.memora.app.data.di
 
 import android.content.Context
 import com.memora.app.BuildConfig
+import com.memora.app.application.notes.IndexOneNotePages
+import com.memora.app.application.notes.OneNoteInteractiveAuth
+import com.memora.app.application.notes.OneNotePagesIndexer
+import com.memora.app.data.notes.HttpOneNotePagesGraphGateway
 import com.memora.app.data.notes.KeystoreNotesProviderTokenVault
 import com.memora.app.data.notes.MsalOneNoteInteractiveAuth
-import com.memora.app.application.notes.OneNoteInteractiveAuth
+import com.memora.app.data.notes.OneNotePagesDiscoverySource
+import com.memora.app.data.notes.OneNotePagesGraphGateway
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
 import dagger.Module
@@ -42,4 +47,24 @@ object NotesConnectorModule {
         configuration = configuration,
         tokenVault = tokenVault,
     )
+
+    @Provides
+    @Singleton
+    fun provideOneNotePagesGraphGateway(): OneNotePagesGraphGateway =
+        HttpOneNotePagesGraphGateway()
+
+    @Provides
+    @Singleton
+    fun provideOneNotePagesDiscoverySource(
+        tokenVault: NotesProviderTokenVault,
+        graphGateway: OneNotePagesGraphGateway,
+    ): OneNotePagesDiscoverySource = OneNotePagesDiscoverySource(
+        tokenVault = tokenVault,
+        graphGateway = graphGateway,
+    )
+
+    @Provides
+    @Singleton
+    fun provideOneNotePagesIndexer(indexOneNotePages: IndexOneNotePages): OneNotePagesIndexer =
+        indexOneNotePages
 }

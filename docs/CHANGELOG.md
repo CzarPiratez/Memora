@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Notes connector N3 page discovery placeholders
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** User-started Discover OneNote pages via Graph (sections →
+  per-section pages) into `AssetType.NOTE` placeholders; bounded pages; vaulted
+  session + `ensureSession`; honest “not searchable yet.”
+- **Verification:** Unit tests passed; emulator Connect + Discover (25 then 28
+  placeholders) **accepted** by user 2026-08-01.
+- **Truthfulness:** Placeholders ≠ extracted text ≠ searchable notes.
+
 ### Notes connector N2b MSAL Connect / Disconnect
 
 - **Requirements:** P-03, P-08, P-19; ADR-003.

@@ -26,6 +26,7 @@ mlkitTextRecognition = "16.0.1"
 # Notes N2b Microsoft identity. Reviewed in
 # docs/dependency-review/msal-android-8.4.1-review.md.
 msalAndroid = "8.4.1"
+gson = "2.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +68,7 @@ androidx-sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "a
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
 msal-android = { group = "com.microsoft.identity.client", name = "msal", version.ref = "msalAndroid" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

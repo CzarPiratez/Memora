@@ -18,6 +18,7 @@ import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.SignInParameters
 import com.microsoft.identity.client.SilentAuthenticationCallback
 import com.microsoft.identity.client.exception.MsalClientException
+import com.microsoft.identity.client.exception.MsalDeclinedScopeException
 import com.microsoft.identity.client.exception.MsalException
 import com.microsoft.identity.client.exception.MsalUserCancelException
 import java.io.File
@@ -33,8 +34,9 @@ import org.json.JSONObject
  * MSAL single-account auth for OneNote. Tokens are mirrored into
  * [NotesProviderTokenVault] for Memora-owned disconnect/clear semantics.
  *
- * First connect uses [ISingleAccountPublicClientApplication.signIn]. Reconnect
- * uses silent acquire; account-mismatch clears the session and signs in again.
+ * First connect uses [ISingleAccountPublicClientApplication.signIn]. When an
+ * MSAL account already exists, uses silent acquire then [signInAgain] — never
+ * [signIn] again (that returns "An account is already signed in.").
  */
 class MsalOneNoteInteractiveAuth(
     context: Context,
@@ -49,60 +51,84 @@ class MsalOneNoteInteractiveAuth(
         }
         return try {
             var app = obtainApplication()
-            var account = currentAccount(app)
+            val account = currentAccount(app)
             val attempt = if (account == null) {
                 signInInteractive(activity, app)
             } else {
                 when (val silent = acquireTokenSilent(app, account)) {
                     is TokenAttempt.Success -> silent
-                    else -> {
-                        val interactive = signInInteractive(activity, app)
-                        if (interactive is TokenAttempt.Failed && isAccountMismatch(interactive.message)) {
+                    is TokenAttempt.Failed -> {
+                        if (isAccountMismatch(silent.message)) {
                             signOut(app)
                             tokenVault.clearSession()
                             app = obtainApplication()
                             signInInteractive(activity, app)
                         } else {
-                            interactive
+                            signInAgainInteractive(activity, app)
                         }
                     }
+                    TokenAttempt.Cancelled, null -> signInAgainInteractive(activity, app)
                 }
             }
-            when (attempt) {
-                is TokenAttempt.Success -> {
-                    val session = toSession(attempt.auth)
-                    withContext(Dispatchers.IO) { tokenVault.writeSession(session) }
-                    OneNoteAuthOutcome.Connected(session)
-                }
-                TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
-                is TokenAttempt.Failed -> {
-                    if (isAccountMismatch(attempt.message)) {
-                        signOut(app)
-                        tokenVault.clearSession()
-                        app = obtainApplication()
-                        when (val retry = signInInteractive(activity, app)) {
-                            is TokenAttempt.Success -> {
-                                val session = toSession(retry.auth)
-                                withContext(Dispatchers.IO) { tokenVault.writeSession(session) }
-                                OneNoteAuthOutcome.Connected(session)
-                            }
-                            TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
-                            is TokenAttempt.Failed -> OneNoteAuthOutcome.Failed(
-                                "Microsoft sign-in hit an account conflict. " +
-                                    "Tap Connect OneNote once more and choose your Microsoft account.",
-                            )
-                        }
-                    } else {
-                        OneNoteAuthOutcome.Failed(attempt.message)
-                    }
-                }
-            }
+            outcomeFromAttempt(activity, app, attempt)
         } catch (error: Exception) {
             OneNoteAuthOutcome.Failed(
                 error.message?.takeIf { it.isNotBlank() }
                     ?: "Microsoft sign-in failed. Try again when you have a network connection.",
             )
         }
+    }
+
+    private suspend fun outcomeFromAttempt(
+        activity: Activity,
+        app: ISingleAccountPublicClientApplication,
+        attempt: TokenAttempt,
+    ): OneNoteAuthOutcome {
+        var client = app
+        return when (attempt) {
+            is TokenAttempt.Success -> persistConnected(attempt.auth)
+            TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
+            is TokenAttempt.Failed -> {
+                when {
+                    isAlreadySignedIn(attempt.message) -> {
+                        when (val retry = signInAgainInteractive(activity, client)) {
+                            is TokenAttempt.Success -> persistConnected(retry.auth)
+                            TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
+                            is TokenAttempt.Failed -> {
+                                signOut(client)
+                                tokenVault.clearSession()
+                                client = obtainApplication()
+                                when (val fresh = signInInteractive(activity, client)) {
+                                    is TokenAttempt.Success -> persistConnected(fresh.auth)
+                                    TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
+                                    is TokenAttempt.Failed -> OneNoteAuthOutcome.Failed(fresh.message)
+                                }
+                            }
+                        }
+                    }
+                    isAccountMismatch(attempt.message) -> {
+                        signOut(client)
+                        tokenVault.clearSession()
+                        client = obtainApplication()
+                        when (val retry = signInInteractive(activity, client)) {
+                            is TokenAttempt.Success -> persistConnected(retry.auth)
+                            TokenAttempt.Cancelled -> OneNoteAuthOutcome.Cancelled
+                            is TokenAttempt.Failed -> OneNoteAuthOutcome.Failed(
+                                "Microsoft sign-in hit an account conflict. " +
+                                    "Tap Connect OneNote once more and choose your Microsoft account.",
+                            )
+                        }
+                    }
+                    else -> OneNoteAuthOutcome.Failed(attempt.message)
+                }
+            }
+        }
+    }
+
+    private suspend fun persistConnected(auth: IAuthenticationResult): OneNoteAuthOutcome {
+        val session = toSession(auth)
+        withContext(Dispatchers.IO) { tokenVault.writeSession(session) }
+        return OneNoteAuthOutcome.Connected(session)
     }
 
     override suspend fun disconnect() {
@@ -117,11 +143,26 @@ class MsalOneNoteInteractiveAuth(
     }
 
     override suspend fun restoreAccountLabel(): String? = withContext(Dispatchers.IO) {
-        tokenVault.readSession()?.accountDisplayLabel
-            ?: runCatching {
-                if (!configuration.isRegistrationConfigured) return@runCatching null
-                currentAccount(obtainApplication())?.username?.takeIf { it.isNotBlank() }
-            }.getOrNull()
+        tokenVault.readSession()
+            ?.takeIf { it.accessToken.isNotBlank() }
+            ?.accountDisplayLabel
+    }
+
+    override suspend fun ensureSession(): NotesProviderSession? = withContext(Dispatchers.IO) {
+        tokenVault.readSession()?.takeIf { it.accessToken.isNotBlank() }?.let { return@withContext it }
+        if (!configuration.isRegistrationConfigured) return@withContext null
+        runCatching {
+            val app = obtainApplication()
+            val account = currentAccount(app) ?: return@runCatching null
+            when (val silent = acquireTokenSilent(app, account)) {
+                is TokenAttempt.Success -> {
+                    val session = toSession(silent.auth)
+                    tokenVault.writeSession(session)
+                    session
+                }
+                else -> null
+            }
+        }.getOrNull()
     }
 
     private suspend fun obtainApplication(): ISingleAccountPublicClientApplication {
@@ -208,15 +249,16 @@ class MsalOneNoteInteractiveAuth(
                     }
 
                     override fun onError(exception: MsalException) {
-                        if (cont.isActive) {
-                            cont.resume(
-                                if (isAccountMismatch(exception.message)) {
+                        if (!cont.isActive) return
+                        cont.resume(
+                            when {
+                                exception is MsalDeclinedScopeException ->
+                                    TokenAttempt.Failed(messageForDeclinedScopes(exception))
+                                isAccountMismatch(exception.message) ->
                                     TokenAttempt.Failed(exception.message ?: ACCOUNT_MISMATCH)
-                                } else {
-                                    null
-                                },
-                            )
-                        }
+                                else -> null
+                            },
+                        )
                     }
                 },
             )
@@ -227,6 +269,25 @@ class MsalOneNoteInteractiveAuth(
     private suspend fun signInInteractive(
         activity: Activity,
         app: ISingleAccountPublicClientApplication,
+    ): TokenAttempt = runSignInParameters(activity) { parameters ->
+        app.signIn(parameters)
+    }
+
+    /**
+     * Interactive token for an account that is already present in single-account mode.
+     * Calling [ISingleAccountPublicClientApplication.signIn] here fails with
+     * "An account is already signed in."
+     */
+    private suspend fun signInAgainInteractive(
+        activity: Activity,
+        app: ISingleAccountPublicClientApplication,
+    ): TokenAttempt = runSignInParameters(activity) { parameters ->
+        app.signInAgain(parameters)
+    }
+
+    private suspend fun runSignInParameters(
+        activity: Activity,
+        invoke: (SignInParameters) -> Unit,
     ): TokenAttempt = suspendCancellableCoroutine { cont ->
         val callback = object : AuthenticationCallback {
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
@@ -238,6 +299,8 @@ class MsalOneNoteInteractiveAuth(
                 cont.resume(
                     when (exception) {
                         is MsalUserCancelException -> TokenAttempt.Cancelled
+                        is MsalDeclinedScopeException ->
+                            TokenAttempt.Failed(messageForDeclinedScopes(exception))
                         is MsalClientException -> TokenAttempt.Failed(
                             exception.message
                                 ?: "Microsoft sign-in could not start on this device.",
@@ -259,7 +322,7 @@ class MsalOneNoteInteractiveAuth(
             .withScopes(SCOPES.toList())
             .withCallback(callback)
             .build()
-        app.signIn(parameters)
+        invoke(parameters)
     }
 
     private suspend fun signOut(app: ISingleAccountPublicClientApplication) {
@@ -301,6 +364,28 @@ class MsalOneNoteInteractiveAuth(
             text.contains(MsalClientException.CURRENT_ACCOUNT_MISMATCH.lowercase())
     }
 
+    private fun isAlreadySignedIn(message: String?): Boolean {
+        val text = message?.lowercase().orEmpty()
+        return text.contains("account is already signed in")
+    }
+
+    private fun messageForDeclinedScopes(exception: MsalDeclinedScopeException): String {
+        val declined = exception.declinedScopes.orEmpty().joinToString(", ")
+        val granted = exception.grantedScopes.orEmpty().joinToString(", ")
+        val notesGranted = exception.grantedScopes.orEmpty().any { scope ->
+            scope.contains("Notes.Read", ignoreCase = true)
+        }
+        return if (notesGranted) {
+            SCOPE_PARTIAL_MESSAGE
+        } else {
+            buildString {
+                append(SCOPE_DECLINED_MESSAGE)
+                if (declined.isNotBlank()) append(" Declined: ").append(declined).append('.')
+                if (granted.isNotBlank()) append(" Granted: ").append(granted).append('.')
+            }
+        }
+    }
+
     private sealed interface TokenAttempt {
         data class Success(val auth: IAuthenticationResult) : TokenAttempt
         data object Cancelled : TokenAttempt
@@ -313,10 +398,21 @@ class MsalOneNoteInteractiveAuth(
         private const val DEFAULT_AUTHORITY = "https://login.microsoftonline.com/common"
         private const val ACCOUNT_MISMATCH =
             "The signed in account does not match with the provided account."
+        private const val SCOPE_DECLINED_MESSAGE =
+            "Microsoft did not grant OneNote read access. In Entra → App registration → " +
+                "API permissions, add Microsoft Graph delegated Notes.Read (and User.Read), " +
+                "grant consent if required, then tap Connect OneNote again."
+        private const val SCOPE_PARTIAL_MESSAGE =
+            "Microsoft granted some permissions but Memora could not finish Connect. " +
+                "Tap Connect OneNote once more."
+
+        /**
+         * Explicit Graph scopes only. Do not list `offline_access` / `openid` / `profile` —
+         * MSAL adds those by default; requesting them again often causes DeclinedScope.
+         */
         val SCOPES = arrayOf(
             "User.Read",
             "Notes.Read",
-            "offline_access",
         )
     }
 }

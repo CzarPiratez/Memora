@@ -17,8 +17,10 @@ class NotesConnectorHonestyCopyTest {
             NotesConnectorHonestyCopy.STATUS_REGISTRATION_REQUIRED,
             NotesConnectorHonestyCopy.STATUS_DISCONNECTED,
             NotesConnectorHonestyCopy.STATUS_CONNECTED_PREFIX,
+            NotesConnectorHonestyCopy.STATUS_CONNECTED_MID,
             NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX,
             NotesConnectorHonestyCopy.CONNECT_LABEL,
+            NotesConnectorHonestyCopy.DISCOVER_LABEL,
             NotesConnectorHonestyCopy.FEEDBACK_CONNECTED,
         ).joinToString(" ").lowercase()
 
@@ -27,40 +29,23 @@ class NotesConnectorHonestyCopyTest {
         assertTrue(all.contains("network"))
         assertTrue(NotesConnectorHonestyCopy.SCOPE_BODY.contains("not a Memora account"))
         assertTrue(
-            NotesConnectorHonestyCopy.STATUS_REGISTRATION_REQUIRED.contains("not configured"),
+            NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("not extracted"),
         )
-        assertTrue(
-            NotesConnectorHonestyCopy.STATUS_DISCONNECTED.contains("Connect OneNote"),
-        )
-        assertTrue(
-            NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("not indexed"),
-        )
-        assertTrue(NotesConnectorHonestyCopy.FEEDBACK_CONNECTED.contains("not indexed"))
+        assertTrue(NotesConnectorHonestyCopy.FEEDBACK_CONNECTED.contains("not searchable"))
 
         assertFalse(all.contains("all notes on"))
         assertFalse(all.contains("memory ranking"))
     }
 
     @Test
-    fun statusBodyTracksRegistrationAndSessionWithoutClaimingSearch() {
-        val registration = NotesConnectorHonestyCopy.statusBody(
-            registrationConfigured = false,
-            connectedAccountLabel = null,
-        )
-        assertTrue(registration.contains("not configured"))
+    fun discoveredFeedbackStaysPlaceholderHonest() {
+        val done = NotesConnectorHonestyCopy.discoveredFeedback(2, 5, hasMore = false)
+        assertTrue(done.contains("2 page placeholder"))
+        assertTrue(done.contains("5 OneNote placeholder"))
+        assertTrue(done.contains("not extracted or searchable"))
+        assertTrue(done.contains("complete"))
 
-        val disconnected = NotesConnectorHonestyCopy.statusBody(
-            registrationConfigured = true,
-            connectedAccountLabel = null,
-        )
-        assertTrue(disconnected.contains("not connected"))
-        assertTrue(disconnected.contains("Connect OneNote"))
-
-        val connected = NotesConnectorHonestyCopy.statusBody(
-            registrationConfigured = true,
-            connectedAccountLabel = "user@example.com",
-        )
-        assertTrue(connected.contains("user@example.com"))
-        assertTrue(connected.contains("not indexed"))
+        val more = NotesConnectorHonestyCopy.discoveredFeedback(2, 5, hasMore = true)
+        assertTrue(more.contains("Discover more"))
     }
 }

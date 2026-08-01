@@ -3,8 +3,8 @@ package com.memora.app.ui.setup
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
 
 /**
- * Notes connection honesty copy (N1–N2b).
- * Must not claim notes are indexed or searchable until N3–N5 ship.
+ * Notes connection + discovery honesty copy (N1–N3).
+ * Must not claim note text is searchable until N5.
  */
 object NotesConnectorHonestyCopy {
     const val ENTRY_LABEL = "About Notes indexing"
@@ -39,18 +39,25 @@ object NotesConnectorHonestyCopy {
 
     const val STATUS_DISCONNECTED =
         "Microsoft app registration is present, but OneNote is not connected on this phone. " +
-            "Use Connect OneNote to sign in with Microsoft. No notes are indexed or searchable here yet."
+            "Use Connect OneNote to sign in with Microsoft. No notes are searchable here yet."
 
     const val STATUS_CONNECTED_PREFIX =
         "OneNote is connected on this phone for account "
 
+    const val STATUS_CONNECTED_MID =
+        ". Saved note placeholders: "
+
     const val STATUS_CONNECTED_SUFFIX =
-        ". Notes are still not indexed or searchable until discovery and extract ship. " +
+        ". Discover creates placeholders only — note text is not extracted or searchable yet. " +
             "Disconnect clears the Microsoft session on this phone."
 
     const val CONNECT_LABEL = "Connect OneNote"
 
     const val DISCONNECT_LABEL = "Disconnect OneNote"
+
+    const val DISCOVER_LABEL = "Discover OneNote pages"
+
+    const val DISCOVER_CONTINUE_LABEL = "Discover more OneNote pages"
 
     const val BACK_LABEL = "Back"
 
@@ -59,7 +66,7 @@ object NotesConnectorHonestyCopy {
     const val FEEDBACK_DISCONNECTING = "Disconnecting OneNote…"
 
     const val FEEDBACK_CONNECTED =
-        "Connected. Notes are not indexed yet — discovery comes in a later step."
+        "Connected. Discover OneNote pages to save placeholders. Notes are not searchable yet."
 
     const val FEEDBACK_DISCONNECTED = "OneNote disconnected on this phone."
 
@@ -68,19 +75,48 @@ object NotesConnectorHonestyCopy {
     const val FEEDBACK_REGISTRATION_REQUIRED =
         "OneNote sign-in is not configured on this build yet."
 
+    const val FEEDBACK_DISCOVERING = "Discovering OneNote pages…"
+
+    const val FEEDBACK_ACCESS_REQUIRED =
+        "Memora needs a Connect OneNote token on this phone before discovering pages. " +
+            "Tap Connect OneNote, finish sign-in, then Discover again."
+
+    const val FEEDBACK_ACCESS_REVOKED =
+        "Microsoft access was revoked or expired. Connect OneNote again."
+
     fun statusBody(
         registrationConfigured: Boolean,
         connectedAccountLabel: String?,
+        notePlaceholderCount: Int = 0,
     ): String = when {
         connectedAccountLabel != null ->
-            STATUS_CONNECTED_PREFIX + connectedAccountLabel + STATUS_CONNECTED_SUFFIX
+            STATUS_CONNECTED_PREFIX +
+                connectedAccountLabel +
+                STATUS_CONNECTED_MID +
+                notePlaceholderCount +
+                STATUS_CONNECTED_SUFFIX
         registrationConfigured -> STATUS_DISCONNECTED
         else -> STATUS_REGISTRATION_REQUIRED
     }
 
-    fun statusBody(configuration: OneNoteAuthConfiguration, connectedAccountLabel: String?): String =
-        statusBody(
-            registrationConfigured = configuration.isRegistrationConfigured,
-            connectedAccountLabel = connectedAccountLabel,
-        )
+    fun statusBody(
+        configuration: OneNoteAuthConfiguration,
+        connectedAccountLabel: String?,
+        notePlaceholderCount: Int = 0,
+    ): String = statusBody(
+        registrationConfigured = configuration.isRegistrationConfigured,
+        connectedAccountLabel = connectedAccountLabel,
+        notePlaceholderCount = notePlaceholderCount,
+    )
+
+    fun discoveredFeedback(pageCount: Int, totalCount: Int, hasMore: Boolean): String {
+        val base = "Saved $pageCount page placeholder(s) this run. " +
+            "$totalCount OneNote placeholder(s) total. " +
+            "Note text is not extracted or searchable yet."
+        return if (hasMore) {
+            "$base Tap Discover more to continue."
+        } else {
+            "$base Discovery is complete for now."
+        }
+    }
 }
