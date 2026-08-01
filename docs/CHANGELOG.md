@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Notes connector N5 Find saved note text
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** Welcome **Find saved note text**; Room keyword search over
+  saved OneNote page text; Why evidence; offline after extract; no Graph in search.
+- **Verification:** Unit tests passed; emulator readiness 28 pages + `pass` →
+  1 match + Why **accepted** by user 2026-08-02.
+- **Truthfulness:** Keyword matching ≠ meaning-based Memory recall.
+
 ### Notes connector N4 page text extract
 
 - **Requirements:** P-03, P-08, P-19; ADR-003.
@@ -9,7 +18,8 @@
   user-started Extract drain; honesty “not searchable yet.”
 - **Verification:** Unit tests passed; emulator Extract 29/29 for
   `mir.m@outlook.com` **accepted** by user 2026-08-01.
-- **Truthfulness:** Extracted text ≠ searchable notes (N5).
+- **Truthfulness:** Extracted text becomes keyword-searchable in N5; still not
+  meaning-based Memory recall.
 
 ### Notes connector N3 page discovery placeholders
 

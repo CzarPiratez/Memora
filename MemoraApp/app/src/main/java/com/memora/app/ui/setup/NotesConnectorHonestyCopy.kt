@@ -3,8 +3,8 @@ package com.memora.app.ui.setup
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
 
 /**
- * Notes connection + discovery + extract honesty copy (N1–N4).
- * Must not claim note text is searchable until N5.
+ * Notes connection + discovery + extract honesty copy (N1–N5).
+ * Keyword search is on Welcome → Find saved note text; not meaning-based recall.
  */
 object NotesConnectorHonestyCopy {
     const val ENTRY_LABEL = "About Notes indexing"
@@ -28,7 +28,8 @@ object NotesConnectorHonestyCopy {
     const val NETWORK_BODY =
         "Signing in, discovering pages, and extracting note text need a network connection. " +
             "That is source access, not Memora cloud sync. After note text is saved on " +
-            "this phone, search over those saved facts can work offline (not in this step)."
+            "this phone, Find saved note text can search those words offline. " +
+            "That search is keyword matching, not meaning-based recall."
 
     const val STATUS_TITLE = "Status right now"
 
@@ -51,7 +52,8 @@ object NotesConnectorHonestyCopy {
         ". Saved note text extracts: "
 
     const val STATUS_CONNECTED_SUFFIX =
-        ". Note text is not searchable yet. Disconnect clears the Microsoft session on this phone."
+        ". Use Find saved note text on the Welcome screen for keyword search on this phone " +
+            "(not meaning-based recall). Disconnect clears the Microsoft session on this phone."
 
     const val CONNECT_LABEL = "Connect OneNote"
 
@@ -70,7 +72,8 @@ object NotesConnectorHonestyCopy {
     const val FEEDBACK_DISCONNECTING = "Disconnecting OneNote…"
 
     const val FEEDBACK_CONNECTED =
-        "Connected. Discover OneNote pages to save placeholders. Notes are not searchable yet."
+        "Connected. Discover OneNote pages, then Extract text. " +
+            "Find saved note text on Welcome searches keywords on this phone."
 
     const val FEEDBACK_DISCONNECTED = "OneNote disconnected on this phone."
 
@@ -128,8 +131,7 @@ object NotesConnectorHonestyCopy {
 
     fun discoveredFeedback(pageCount: Int, totalCount: Int, hasMore: Boolean): String {
         val base = "Saved $pageCount page placeholder(s) this run. " +
-            "$totalCount OneNote placeholder(s) total. " +
-            "Note text is not searchable yet."
+            "$totalCount OneNote placeholder(s) total."
         return if (hasMore) {
             "$base Tap Discover more to continue, or Extract when ready."
         } else {
@@ -141,11 +143,11 @@ object NotesConnectorHonestyCopy {
         val pending = (placeholderCount - extractCount).coerceAtLeast(0)
         return if (pending == 0) {
             "Saved note text for $extractCount page(s). " +
-                "Note text is not searchable yet."
+                "Use Find saved note text on Welcome for keyword search on this phone."
         } else {
             "Saved note text for $extractCount of $placeholderCount page(s). " +
                 "$pending still pending. Tap Extract again if needed. " +
-                "Note text is not searchable yet."
+                "Use Find saved note text on Welcome when extracts are ready."
         }
     }
 }

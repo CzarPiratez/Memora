@@ -1029,12 +1029,12 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-**Notes N4 accepted** (`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`,
-2026-08-01): OneNote page text extracts in Room. **N5 next when approved** —
-Find saved note text (keyword). Local-AI pack measured baselines remain an
-alternate track when approved. No AI Pack / semantic Memory ranking claims.
-Interim recall remains PDF/screenshot/photo keyword search; Asset Memories are
-persisted facts only.
+**Notes N5 keyword search accepted** 2026-08-02
+(`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`). Interim recall now covers
+PDF / screenshot / photo / note keyword paths. Optional next Notes slices
+(approve before code): open original note, or Build-memories NOTE facts.
+Memory assembly from notes and semantic ranking remain deferred. Local-AI pack
+measured baselines remain an alternate track when approved.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

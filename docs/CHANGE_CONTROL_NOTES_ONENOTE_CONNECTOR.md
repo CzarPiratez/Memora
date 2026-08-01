@@ -1,7 +1,8 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0–N4 accepted. **N5 next** (Find saved note text) when approved.  
+**Status:** N0–N5 accepted (Find saved note text keyword search). Memory assembly
+from notes remains deferred.  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -220,10 +221,30 @@ UI Extract OneNote page text
 
 - **Delivered:** Room `note_page_extractions` (v9); pending NOTE drain via
   WorkManager; Graph HTML → plain text; Notes **Extract OneNote page text** +
-  counts; honesty “not searchable yet.”
-- **Not delivered:** Keyword Find saved note text (N5); Memory assembly from notes.
+  counts; honesty “not searchable yet” (superseded by N5 Find saved note text).
+- **Not delivered at N4 close:** Keyword Find saved note text (N5); Memory
+  assembly from notes.
 - **Automated:** HTML plain-text + extract decision-mapper + Notes copy tests
   passed; Room schema `9.json` exported.
 - **Emulator smoke (user):** Connected `mir.m@outlook.com`; 29 placeholders →
   Extract → **29 text extracts**; feedback “Saved note text for 29 page(s)”
   (**accepted** 2026-08-01 via screenshot).
+
+## N5 continuation — Find saved note text (keyword)
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Keyword search over saved note page text | Yes — Welcome **Find saved note text**; Room LIKE on `note_page_extractions`; Why evidence; offline after extract | Same honesty as PDF/OCR keyword path; no Graph during search; no semantic ranking; Memory assembly deferred |
+
+### Acceptance record — N5 (**accepted** 2026-08-02)
+
+- **Delivered (this slice):** `SearchPersistedNotePageText`, readiness, ViewModel/Screen,
+  Welcome entry, Why this result?, Notes honesty points to Find saved note text.
+- **Not delivered:** Open original in OneNote/browser; Build-memories NOTE facts;
+  semantic ranking.
+- **Automated:** Note keyword search copy/ViewModel + Notes honesty copy unit tests
+  passed; `:app:installDebug` on emulator.
+- **Emulator smoke (user):** Welcome → Find saved note text; readiness **28 note
+  pages** ready; query `pass` → 1 match with title + excerpt highlight; Why this
+  result? showed keyword evidence and honesty line (**accepted** 2026-08-02 via
+  screenshot).

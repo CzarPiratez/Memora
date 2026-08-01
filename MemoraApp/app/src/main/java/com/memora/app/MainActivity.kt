@@ -80,6 +80,10 @@ import com.memora.app.ui.search.PhotoOcrKeywordSearchScreen
 import com.memora.app.ui.search.PhotoOcrKeywordSearchUiState
 import com.memora.app.ui.search.PhotoOcrKeywordSearchViewModel
 import com.memora.app.ui.search.PhotoOriginalPreviewScreen
+import com.memora.app.ui.search.NotePageKeywordSearchCopy
+import com.memora.app.ui.search.NotePageKeywordSearchScreen
+import com.memora.app.ui.search.NotePageKeywordSearchUiState
+import com.memora.app.ui.search.NotePageKeywordSearchViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -134,6 +138,7 @@ class MainActivity : ComponentActivity() {
     private val pdfKeywordSearchViewModel: PdfKeywordSearchViewModel by viewModels()
     private val screenshotOcrKeywordSearchViewModel: ScreenshotOcrKeywordSearchViewModel by viewModels()
     private val photoOcrKeywordSearchViewModel: PhotoOcrKeywordSearchViewModel by viewModels()
+    private val notePageKeywordSearchViewModel: NotePageKeywordSearchViewModel by viewModels()
     private val assetMemorySetupViewModel: AssetMemorySetupViewModel by viewModels()
     private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
 
@@ -150,6 +155,7 @@ class MainActivity : ComponentActivity() {
             val screenshotOcrKeywordSearchUiState by
                 screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
             val photoOcrKeywordSearchUiState by photoOcrKeywordSearchViewModel.uiState.collectAsState()
+            val notePageKeywordSearchUiState by notePageKeywordSearchViewModel.uiState.collectAsState()
             val assetMemorySetupState by assetMemorySetupViewModel.uiState.collectAsState()
             val notesConnectorUiState by notesConnectorViewModel.uiState.collectAsState()
 
@@ -164,6 +170,7 @@ class MainActivity : ComponentActivity() {
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
+                        notePageKeywordSearchUiState = notePageKeywordSearchUiState,
                         assetMemorySetupState = assetMemorySetupState,
                         notesConnectorUiState = notesConnectorUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
@@ -223,6 +230,15 @@ class MainActivity : ComponentActivity() {
                             photoOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onPhotoOcrKeywordPreviewClosed =
                             photoOcrKeywordSearchViewModel::onOriginalPreviewClosed,
+                        onNotePageKeywordQueryChanged =
+                            notePageKeywordSearchViewModel::onQueryChanged,
+                        onNotePageKeywordSearch = notePageKeywordSearchViewModel::onSearch,
+                        onNotePageKeywordSearchScreenVisible =
+                            notePageKeywordSearchViewModel::onScreenVisible,
+                        onNotePageKeywordQueryCleared =
+                            notePageKeywordSearchViewModel::onQueryCleared,
+                        onNotePageKeywordSearchCancelled =
+                            notePageKeywordSearchViewModel::onSearchCancelled,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -236,6 +252,7 @@ class MainActivity : ComponentActivity() {
                             pdfKeywordSearchViewModel.onDerivedDataCleared()
                             screenshotOcrKeywordSearchViewModel.onDerivedDataCleared()
                             photoOcrKeywordSearchViewModel.onDerivedDataCleared()
+                            notePageKeywordSearchViewModel.onDerivedDataCleared()
                             assetMemorySetupViewModel.onDerivedDataCleared()
                             notesConnectorViewModel.onDerivedDataCleared()
                         },
@@ -262,6 +279,7 @@ fun MemoraApp(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
+    notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
@@ -304,6 +322,11 @@ fun MemoraApp(
     onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
     onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onPhotoOcrKeywordPreviewClosed: () -> Unit,
+    onNotePageKeywordQueryChanged: (String) -> Unit,
+    onNotePageKeywordSearch: () -> Unit,
+    onNotePageKeywordSearchScreenVisible: () -> Unit,
+    onNotePageKeywordQueryCleared: () -> Unit,
+    onNotePageKeywordSearchCancelled: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -334,6 +357,7 @@ fun MemoraApp(
             pdfKeywordSearchUiState = pdfKeywordSearchUiState,
             screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
             photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
+            notePageKeywordSearchUiState = notePageKeywordSearchUiState,
             assetMemorySetupState = assetMemorySetupState,
             notesConnectorUiState = notesConnectorUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
@@ -377,6 +401,11 @@ fun MemoraApp(
             onPhotoOcrKeywordOpenOriginal = onPhotoOcrKeywordOpenOriginal,
             onPhotoOcrKeywordOpenFeedbackDismissed = onPhotoOcrKeywordOpenFeedbackDismissed,
             onPhotoOcrKeywordPreviewClosed = onPhotoOcrKeywordPreviewClosed,
+            onNotePageKeywordQueryChanged = onNotePageKeywordQueryChanged,
+            onNotePageKeywordSearch = onNotePageKeywordSearch,
+            onNotePageKeywordSearchScreenVisible = onNotePageKeywordSearchScreenVisible,
+            onNotePageKeywordQueryCleared = onNotePageKeywordQueryCleared,
+            onNotePageKeywordSearchCancelled = onNotePageKeywordSearchCancelled,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -400,6 +429,7 @@ private fun MemoraAppReady(
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
+    notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
@@ -442,6 +472,11 @@ private fun MemoraAppReady(
     onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
     onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onPhotoOcrKeywordPreviewClosed: () -> Unit,
+    onNotePageKeywordQueryChanged: (String) -> Unit,
+    onNotePageKeywordSearch: () -> Unit,
+    onNotePageKeywordSearchScreenVisible: () -> Unit,
+    onNotePageKeywordQueryCleared: () -> Unit,
+    onNotePageKeywordSearchCancelled: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -479,6 +514,7 @@ private fun MemoraAppReady(
     var isShowingPdfKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingScreenshotOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingPhotoOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
+    var isShowingNotePageKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
     var isShowingNotesHonesty by rememberSaveable { mutableStateOf(false) }
 
@@ -626,6 +662,18 @@ private fun MemoraAppReady(
                 }
             }
 
+            isShowingNotePageKeywordSearch -> {
+                NotePageKeywordSearchScreen(
+                    uiState = notePageKeywordSearchUiState,
+                    onQueryChanged = onNotePageKeywordQueryChanged,
+                    onQueryCleared = onNotePageKeywordQueryCleared,
+                    onSearch = onNotePageKeywordSearch,
+                    onSearchCancelled = onNotePageKeywordSearchCancelled,
+                    onBack = { isShowingNotePageKeywordSearch = false },
+                    modifier = modifier,
+                )
+            }
+
             else -> MemoraWelcomeScreen(
                 assetMemorySetupState = assetMemorySetupState,
                 onBuildAssetMemories = onBuildAssetMemories,
@@ -642,6 +690,10 @@ private fun MemoraAppReady(
                 onFindSavedPhotoText = {
                     isShowingPhotoOcrKeywordSearch = true
                     onPhotoOcrKeywordSearchScreenVisible()
+                },
+                onFindSavedNoteText = {
+                    isShowingNotePageKeywordSearch = true
+                    onNotePageKeywordSearchScreenVisible()
                 },
                 onAboutNotesIndexing = { isShowingNotesHonesty = true },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
@@ -755,6 +807,7 @@ fun MemoraWelcomeScreen(
     onFindSavedPdfText: () -> Unit,
     onFindSavedScreenshotText: () -> Unit,
     onFindSavedPhotoText: () -> Unit,
+    onFindSavedNoteText: () -> Unit,
     onAboutNotesIndexing: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
@@ -829,6 +882,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(PhotoOcrKeywordSearchCopy.SCREEN_TITLE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onFindSavedNoteText,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(NotePageKeywordSearchCopy.ENTRY_LABEL)
         }
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedButton(
