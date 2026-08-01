@@ -1034,10 +1034,11 @@ substring, current fingerprint only). Change control:
 → Find saved note text → Build-memories NOTE facts → Open original. Interim
 keyword recall covers PDF / screenshot / photo / note.
 
-**Next approved engineering step:** Local-AI **measured pack baselines** (open
-change-control before code; ADR-025 / `docs/LOCAL_AI_BENCHMARK_PLAN.md`). No
-AVAILABLE intelligence or semantic ranking claims until measured. Semantic
-Memory ranking remains deferred until that track lands.
+**Next approved engineering step:** Local-AI measured pack baselines **L0 opened**
+(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`). Docs-only phase plan
+awaiting user acceptance; first code is **L1** (synthetic pack + aggregate harness
+on emulator). No AVAILABLE intelligence or semantic ranking claims until a later
+measured slice. Keyword recall and Asset Memories remain the interim product path.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

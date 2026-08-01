@@ -104,4 +104,4 @@ Direct claim.
 | AI Pack delivery/security plan | Accepted (ADR-023) |
 | Compatibility/fallback policy | Accepted (ADR-024) |
 | Local-AI benchmark plan | Accepted (this doc / ADR-025) |
-| Measured pack baseline + AVAILABLE claim | Not started — separate slices |
+| Measured pack baseline + AVAILABLE claim | Baseline track **opened** 2026-08-02 (L0 docs); AVAILABLE still a later slice — `docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md` |

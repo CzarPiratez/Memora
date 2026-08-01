@@ -12,8 +12,10 @@ plan, and Local-AI traceability IDs.
 **Status (2026-07-25):** Local-AI architecture gate **planning** deliverables are
 complete: Spec; Spec §4 capability interfaces; AI Pack delivery/security plan
 (ADR-023); compatibility/fallback policy (ADR-024); Local-AI benchmark plan
-(ADR-025). Measured pack baselines and any AVAILABLE intelligence claim remain
-separate implementation slices. A-01 offline end-to-end proof is still open.
+(ADR-025). Measured pack baselines change-control **opened** 2026-08-02
+(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`, L0 docs). Any
+AVAILABLE intelligence claim remains a later slice. A-01 offline end-to-end proof
+is still open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Local-AI measured pack baselines L0 opened
+
+- **Requirements:** A-01, A-03, A-05, A-07, E-06; ADR-023, ADR-024, ADR-025.
+- **Delivered:** Change-control opened with L0/L1/L2 phase plan; honesty gates;
+  no pack/harness code.
+- **Verification:** Docs-only; user acceptance of L0 pending.
+- **Truthfulness:** No AVAILABLE intelligence claim; Notes/keyword recall ≠ Local AI.
+
 ### Notes connector N7 Open original OneNote page
 
 - **Requirements:** P-03, P-08, P-19; ADR-002, ADR-003.
