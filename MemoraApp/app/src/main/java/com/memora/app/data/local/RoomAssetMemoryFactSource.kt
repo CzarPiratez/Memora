@@ -3,6 +3,7 @@ package com.memora.app.data.local
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.extraction.ImageExifSchemaVersion
+import com.memora.app.domain.extraction.NotePageSchemaVersion
 import com.memora.app.domain.extraction.PhotoOcrSchemaVersion
 import com.memora.app.domain.extraction.ScreenshotOcrSchemaVersion
 import com.memora.app.domain.memory.AssetMemoryFact
@@ -105,7 +106,36 @@ class RoomAssetMemoryFactSource(
                 ))?.let(::add)
             }
 
-            AssetType.NOTE -> emptyList()
+            AssetType.NOTE -> buildList {
+                val noteText = dao.findNotePage(
+                    sourceId,
+                    sourceAssetKey,
+                    fingerprint,
+                    NotePageSchemaVersion.V1.value,
+                )?.fullText?.takeIf(String::isNotBlank)
+                if (noteText != null) {
+                    add(
+                        AssetMemoryFact(
+                            kind = MemoryEvidenceKind.NOTE_TEXT,
+                            locator = "note:page",
+                            excerpt = noteText,
+                            extractionSchemaVersion = NotePageSchemaVersion.V1.value,
+                        ),
+                    )
+                    asset.displayName
+                        ?.takeIf(String::isNotBlank)
+                        ?.let { title ->
+                            add(
+                                AssetMemoryFact(
+                                    kind = MemoryEvidenceKind.SOURCE_METADATA,
+                                    locator = "note:title",
+                                    excerpt = "Title: $title",
+                                    extractionSchemaVersion = NotePageSchemaVersion.V1.value,
+                                ),
+                            )
+                        }
+                }
+            }
         }
     }
 
@@ -117,6 +147,7 @@ class RoomAssetMemoryFactSource(
         screenshotOcrSchemaVersion = ScreenshotOcrSchemaVersion.V1.value,
         photoOcrSchemaVersion = PhotoOcrSchemaVersion.V1.value,
         exifSchemaVersion = ImageExifSchemaVersion.V1.value,
+        notePageSchemaVersion = NotePageSchemaVersion.V1.value,
     )?.toDomain()?.asset
 
     private fun exifFact(entity: ImageExifExtractionEntity?): AssetMemoryFact? {

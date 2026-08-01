@@ -1,8 +1,8 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0–N5 accepted (Find saved note text keyword search). Memory assembly
-from notes remains deferred.  
+**Status:** N0–N6 accepted. **N7 in progress** (Open original note in
+OneNote/browser).  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -240,11 +240,42 @@ UI Extract OneNote page text
 
 - **Delivered (this slice):** `SearchPersistedNotePageText`, readiness, ViewModel/Screen,
   Welcome entry, Why this result?, Notes honesty points to Find saved note text.
-- **Not delivered:** Open original in OneNote/browser; Build-memories NOTE facts;
-  semantic ranking.
+- **Not delivered at N5 close:** Open original in OneNote/browser; Build-memories
+  NOTE facts; semantic ranking.
 - **Automated:** Note keyword search copy/ViewModel + Notes honesty copy unit tests
   passed; `:app:installDebug` on emulator.
 - **Emulator smoke (user):** Welcome → Find saved note text; readiness **28 note
   pages** ready; query `pass` → 1 match with title + excerpt highlight; Why this
   result? showed keyword evidence and honesty line (**accepted** 2026-08-02 via
   screenshot).
+
+## N6 continuation — Build-memories NOTE facts
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Asset Memory from saved note page text | Yes — `NOTE_TEXT` + optional `note:title` from Room `note_page_extractions`; pending drain includes NOTES; setup copy updated | Offline assembly only; blank extracts skipped; no Graph; no semantic ranking |
+
+### Acceptance record — N6 (**accepted** 2026-08-02)
+
+- **Delivered (this slice):** `AssetMemoryFact` allows `NOTE_TEXT`;
+  `RoomAssetMemoryFactSource` + `AssetMemoryFactDao` pending/load for notes;
+  Saved fact memories copy mentions OneNote page text.
+- **Not delivered at N6 close:** Open original in OneNote/browser (N7); semantic
+  ranking.
+- **Automated:** NOTE assembly + Asset Memory setup copy unit tests passed;
+  `:app:installDebug` on emulator.
+- **Emulator smoke (user):** Welcome Saved fact memories body includes OneNote
+  page text; **28** current evidence-backed Asset Memories saved (**accepted**
+  2026-08-02 via screenshot).
+
+## N7 continuation — Open original in OneNote/browser
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Open hit’s original OneNote page externally | Yes — on-demand Graph `links` (`oneNoteWebUrl` then client URL); ACTION_VIEW; vaulted `ensureSession` | Never ACTION_VIEW `contentUrl`/location; search stays offline; honesty that Open may need network |
+
+### Acceptance record — N7 (pending user pass)
+
+- **Delivered (this slice):** TBD during implementation.
+- **Not delivered:** In-app note preview; persisting open URLs into Room; semantic
+  ranking.

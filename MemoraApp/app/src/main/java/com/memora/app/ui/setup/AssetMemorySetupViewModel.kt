@@ -84,7 +84,8 @@ class AssetMemorySetupViewModel @Inject constructor(
 object AssetMemorySetupCopy {
     const val TITLE = "Saved fact memories"
     const val BODY =
-        "Build evidence-backed memories from saved PDF text, image OCR, and useful photo facts. " +
+        "Build evidence-backed memories from saved PDF text, image OCR, " +
+            "useful photo facts, and saved OneNote page text. " +
             "This runs on-device without an AI pack. It does not provide meaning-based ranking yet."
     const val BUILD_LABEL = "Build memories from saved facts"
     const val CONTINUE_LABEL = "Continue building saved fact memories"
@@ -97,5 +98,5 @@ object AssetMemorySetupCopy {
 
     fun completed(assembledCount: Int, currentReadyCount: Int): String =
         "Built $assembledCount in this step. ${readiness(currentReadyCount)} " +
-            "Existing PDF and image keyword search remains the interim recall path."
+            "PDF, image, and note keyword search remain the interim recall path."
 }

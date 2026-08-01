@@ -78,6 +78,41 @@ class AssembleAssetMemoryFromExtractionFactsTest {
     }
 
     @Test
+    fun `assembles NOTE_TEXT and note title as cited deterministic evidence`() = runTest {
+        val noteAsset = asset(type = AssetType.NOTE)
+        val facts = listOf(
+            AssetMemoryFact(
+                MemoryEvidenceKind.NOTE_TEXT,
+                "note:page",
+                "  Meeting notes for Project Atlas  ",
+                "onenote-page-text-v1",
+            ),
+            AssetMemoryFact(
+                MemoryEvidenceKind.SOURCE_METADATA,
+                "note:title",
+                "Title: Project Atlas",
+                "onenote-page-text-v1",
+            ),
+        )
+        val repository = FakeMemoryRepository()
+        val result = AssembleAssetMemoryFromExtractionFacts(
+            FakeAssetRepository(noteAsset),
+            FakeFactSource(facts),
+            repository,
+            Clock.fixed(Instant.parse("2026-08-02T10:00:00Z"), ZoneOffset.UTC),
+        )(noteAsset.identity)
+
+        assertTrue(result is AssetMemoryAssemblyResult.Persisted)
+        val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
+        assertEquals(
+            listOf(MemoryEvidenceKind.NOTE_TEXT, MemoryEvidenceKind.SOURCE_METADATA),
+            memory.evidence.map { it.kind },
+        )
+        assertEquals("Meeting notes for Project Atlas", memory.signature.summary.text.value)
+        assertEquals(setOf("onenote-page-text-v1"), memory.extractionSchemaVersions)
+    }
+
+    @Test
     fun `skips persistence when extracts contain no usable evidence`() = runTest {
         val asset = asset()
         val repository = FakeMemoryRepository()
@@ -119,12 +154,16 @@ class AssembleAssetMemoryFromExtractionFactsTest {
         assertEquals(2, repository.history.size)
     }
 
-    private fun asset(fingerprint: String = "fp-1") = Asset(
+    private fun asset(
+        fingerprint: String = "fp-1",
+        type: AssetType = AssetType.PDF,
+    ) = Asset(
         identity = AssetIdentity(SourceId("source"), SourceAssetKey("asset")),
-        type = AssetType.PDF,
+        type = type,
         location = AssetLocation("opaque"),
         fingerprint = AssetFingerprint(fingerprint),
         discoveredAt = Instant.parse("2026-07-31T09:00:00Z"),
+        displayName = if (type == AssetType.NOTE) "Project Atlas" else null,
     )
 }
 

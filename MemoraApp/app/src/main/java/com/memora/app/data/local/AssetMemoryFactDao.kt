@@ -85,6 +85,15 @@ interface AssetMemoryFactDao {
                     OR x.make IS NOT NULL OR x.model IS NOT NULL
                   )
             )
+            OR EXISTS (
+                SELECT 1 FROM note_page_extractions AS n
+                WHERE n.source_id = a.source_id
+                  AND n.source_asset_key = a.source_asset_key
+                  AND n.fingerprint = a.fingerprint
+                  AND n.schema_version = :notePageSchemaVersion
+                  AND n.integrity = 'VERIFIED'
+                  AND TRIM(n.full_text) != ''
+            )
         )
         ORDER BY a.source_id, a.source_asset_key
         LIMIT 1
@@ -96,6 +105,7 @@ interface AssetMemoryFactDao {
         screenshotOcrSchemaVersion: String,
         photoOcrSchemaVersion: String,
         exifSchemaVersion: String,
+        notePageSchemaVersion: String,
     ): AssetEntity?
 
     @Query(
@@ -199,4 +209,21 @@ interface AssetMemoryFactDao {
         fingerprint: String,
         schemaVersion: String,
     ): ImageExifExtractionEntity?
+
+    @Query(
+        """
+        SELECT * FROM note_page_extractions
+        WHERE source_id = :sourceId AND source_asset_key = :sourceAssetKey
+          AND fingerprint = :fingerprint AND schema_version = :schemaVersion
+          AND integrity = 'VERIFIED'
+          AND TRIM(full_text) != ''
+        LIMIT 1
+        """,
+    )
+    suspend fun findNotePage(
+        sourceId: String,
+        sourceAssetKey: String,
+        fingerprint: String,
+        schemaVersion: String,
+    ): NotePageExtractionEntity?
 }

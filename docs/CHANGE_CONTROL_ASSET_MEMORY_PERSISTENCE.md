@@ -43,9 +43,10 @@
   conflicts and persistence exceptions fail safely; the foreground drain is capped;
   Clear Memora index deletes the entire Memora-owned encrypted database, including
   Memory tables, and resets the setup count.
-- **Known limitations:** No Notes, AI Pack, embeddings, semantic ranking,
-  natural-language recall, confidence, or Memory search UI. Existing PDF/screenshot/
-  photo keyword search remains the truthful interim recall path.
+- **Known limitations:** AI Pack, embeddings, semantic ranking, natural-language
+  recall, confidence, or Memory search UI. Notes page text is included via Notes
+  N6 (`NOTE_TEXT` from `note_page_extractions`). Existing PDF/screenshot/photo/
+  note keyword search remains the truthful interim recall path.
 - **Decision record:** No ADR-029 is needed. This implements accepted ADR-007,
   ADR-019, and ADR-022 without changing product direction.
 - **Git commit:** Feature `9aaa5f2`; acceptance docs recorded after 2026-07-31

@@ -13,6 +13,7 @@ data class AssetMemoryFact(
         require(
             kind == MemoryEvidenceKind.OCR_TEXT ||
                 kind == MemoryEvidenceKind.DOCUMENT_TEXT ||
+                kind == MemoryEvidenceKind.NOTE_TEXT ||
                 kind == MemoryEvidenceKind.SOURCE_METADATA,
         ) { "Pre-AI Asset Memories may use deterministic evidence only." }
         require(locator.isNotBlank())

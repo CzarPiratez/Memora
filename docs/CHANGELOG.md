@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Notes connector N7 Open original OneNote page
+
+- **Requirements:** P-03, P-08, P-19; ADR-002, ADR-003.
+- **Delivered:** (in progress) Find saved note text → Open original via Graph
+  page links + external browser/OneNote; search remains offline.
+- **Verification:** Pending.
+- **Truthfulness:** Open may need network and Microsoft session; not in-app preview.
+
+### Notes connector N6 Build-memories NOTE facts
+
+- **Requirements:** P-03, P-08, P-19; ADR-003, ADR-007, ADR-019.
+- **Delivered:** Build memories from saved OneNote page text (`NOTE_TEXT` /
+  `note:page`, optional title metadata); pending drain includes notes with
+  non-blank extracts; setup honesty updated.
+- **Verification:** Unit tests passed; emulator **28** Asset Memories + OneNote
+  copy **accepted** by user 2026-08-02.
+- **Truthfulness:** Pre-AI cited facts only — not meaning-based ranking.
+
 ### Notes connector N5 Find saved note text
 
 - **Requirements:** P-03, P-08, P-19; ADR-003.
