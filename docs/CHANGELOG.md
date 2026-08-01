@@ -5,9 +5,11 @@
 ### Notes connector N7 Open original OneNote page
 
 - **Requirements:** P-03, P-08, P-19; ADR-002, ADR-003.
-- **Delivered:** (in progress) Find saved note text → Open original via Graph
-  page links + external browser/OneNote; search remains offline.
-- **Verification:** Pending.
+- **Delivered:** Find saved note text → Open original note via Graph page
+  `links`; prefers OneNote app when installed, else browser; MSAL WebView Connect;
+  silent token refresh; IO timeout against ANR; search remains offline Room-only.
+- **Verification:** Unit tests passed; emulator Open → OneDrive web **accepted**
+  by user 2026-08-02 (no OneNote app on AVD).
 - **Truthfulness:** Open may need network and Microsoft session; not in-app preview.
 
 ### Notes connector N6 Build-memories NOTE facts

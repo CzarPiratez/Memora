@@ -2,10 +2,13 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.notes.ExternalUrlLauncher
 import com.memora.app.application.notes.LoadPersistedNotePageKeywordSearchReadiness
 import com.memora.app.application.notes.NotePageKeywordSearchHit
 import com.memora.app.application.notes.NotePageKeywordSearchOutcome
 import com.memora.app.application.notes.NotePageKeywordSearchReadiness
+import com.memora.app.application.notes.OpenPersistedNotePageInOneNote
+import com.memora.app.application.notes.OpenPersistedNotePageResult
 import com.memora.app.application.notes.SearchPersistedNotePageText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -23,12 +26,17 @@ data class NotePageKeywordSearchUiState(
     val query: String = "",
     val phase: NotePageKeywordSearchPhase = NotePageKeywordSearchPhase.Idle,
     val readiness: NotePageKeywordSearchReadinessUi = NotePageKeywordSearchReadinessUi.Loading,
+    val openFeedback: NotePageOpenFeedbackUi = NotePageOpenFeedbackUi.None,
 ) {
     val canSubmitSearch: Boolean
-        get() = phase !is NotePageKeywordSearchPhase.Searching && query.isNotBlank()
+        get() = phase !is NotePageKeywordSearchPhase.Searching &&
+            query.isNotBlank() &&
+            openFeedback !is NotePageOpenFeedbackUi.Opening
 
     val canClearQuery: Boolean
-        get() = query.isNotBlank() && phase !is NotePageKeywordSearchPhase.Searching
+        get() = query.isNotBlank() &&
+            phase !is NotePageKeywordSearchPhase.Searching &&
+            openFeedback !is NotePageOpenFeedbackUi.Opening
 
     val canCancelSearch: Boolean
         get() = phase is NotePageKeywordSearchPhase.Searching
@@ -42,6 +50,16 @@ sealed interface NotePageKeywordSearchReadinessUi {
     data class Ready(
         val snapshot: NotePageKeywordSearchReadiness,
     ) : NotePageKeywordSearchReadinessUi
+}
+
+sealed interface NotePageOpenFeedbackUi {
+    data object None : NotePageOpenFeedbackUi
+
+    data object Opening : NotePageOpenFeedbackUi
+
+    data object SourceUnavailable : NotePageOpenFeedbackUi
+
+    data object CouldNotOpen : NotePageOpenFeedbackUi
 }
 
 sealed interface NotePageKeywordSearchPhase {
@@ -87,6 +105,8 @@ sealed interface NotePageKeywordSearchPhase {
 class NotePageKeywordSearchViewModel(
     private val searchPersistedNotePageText: suspend (String) -> NotePageKeywordSearchOutcome,
     private val loadReadiness: suspend () -> NotePageKeywordSearchReadiness,
+    private val openPersistedNotePage: suspend (String, String) -> OpenPersistedNotePageResult,
+    private val launchOneNoteOriginal: (webUrl: String?, clientUrl: String?) -> Boolean,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
 ) : ViewModel() {
@@ -94,9 +114,17 @@ class NotePageKeywordSearchViewModel(
     constructor(
         searchPersistedNotePageText: SearchPersistedNotePageText,
         loadPersistedNotePageKeywordSearchReadiness: LoadPersistedNotePageKeywordSearchReadiness,
+        openPersistedNotePageInOneNote: OpenPersistedNotePageInOneNote,
+        externalUrlLauncher: ExternalUrlLauncher,
     ) : this(
         searchPersistedNotePageText = { rawQuery -> searchPersistedNotePageText(rawQuery) },
         loadReadiness = { loadPersistedNotePageKeywordSearchReadiness() },
+        openPersistedNotePage = { sourceId, sourceAssetKey ->
+            openPersistedNotePageInOneNote(sourceId, sourceAssetKey)
+        },
+        launchOneNoteOriginal = { webUrl, clientUrl ->
+            externalUrlLauncher.launchOneNoteOriginal(webUrl, clientUrl)
+        },
     )
 
     private val mutableUiState = MutableStateFlow(NotePageKeywordSearchUiState())
@@ -104,6 +132,7 @@ class NotePageKeywordSearchViewModel(
 
     private val searchGeneration = AtomicInteger(0)
     private val readinessGeneration = AtomicInteger(0)
+    private val openGeneration = AtomicInteger(0)
     private var searchJob: Job? = null
 
     init {
@@ -121,6 +150,7 @@ class NotePageKeywordSearchViewModel(
         mutableUiState.value = current.copy(
             query = value,
             phase = NotePageKeywordSearchPhase.Idle,
+            openFeedback = NotePageOpenFeedbackUi.None,
         )
     }
 
@@ -131,12 +161,14 @@ class NotePageKeywordSearchViewModel(
     }
 
     fun onSearch() {
+        if (mutableUiState.value.openFeedback is NotePageOpenFeedbackUi.Opening) return
         val query = mutableUiState.value.query
         val generation = searchGeneration.incrementAndGet()
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
                 phase = NotePageKeywordSearchPhase.Searching,
+                openFeedback = NotePageOpenFeedbackUi.None,
             )
             val startedAtMs = monotonicMs()
             val outcome = try {
@@ -196,8 +228,60 @@ class NotePageKeywordSearchViewModel(
         }
     }
 
+    fun onOpenOriginalNote(hit: NotePageKeywordSearchHit) {
+        if (mutableUiState.value.openFeedback is NotePageOpenFeedbackUi.Opening) return
+        val generation = openGeneration.incrementAndGet()
+        viewModelScope.launch {
+            mutableUiState.value = mutableUiState.value.copy(
+                openFeedback = NotePageOpenFeedbackUi.Opening,
+            )
+            val outcome = try {
+                openPersistedNotePage(hit.sourceId, hit.sourceAssetKey)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (generation != openGeneration.get()) return@launch
+                mutableUiState.value = mutableUiState.value.copy(
+                    openFeedback = NotePageOpenFeedbackUi.CouldNotOpen,
+                )
+                return@launch
+            }
+            if (generation != openGeneration.get()) return@launch
+            mutableUiState.value = when (outcome) {
+                is OpenPersistedNotePageResult.Ready -> {
+                    val launched = try {
+                        launchOneNoteOriginal(outcome.webUrl, outcome.clientUrl)
+                    } catch (_: Exception) {
+                        false
+                    }
+                    mutableUiState.value.copy(
+                        openFeedback = if (launched) {
+                            NotePageOpenFeedbackUi.None
+                        } else {
+                            NotePageOpenFeedbackUi.CouldNotOpen
+                        },
+                    )
+                }
+                OpenPersistedNotePageResult.SourceUnavailable ->
+                    mutableUiState.value.copy(
+                        openFeedback = NotePageOpenFeedbackUi.SourceUnavailable,
+                    )
+                OpenPersistedNotePageResult.CouldNotOpen ->
+                    mutableUiState.value.copy(
+                        openFeedback = NotePageOpenFeedbackUi.CouldNotOpen,
+                    )
+            }
+        }
+    }
+
+    fun onOpenFeedbackDismissed() {
+        if (mutableUiState.value.openFeedback is NotePageOpenFeedbackUi.Opening) return
+        mutableUiState.value = mutableUiState.value.copy(openFeedback = NotePageOpenFeedbackUi.None)
+    }
+
     fun onDerivedDataCleared() {
         searchGeneration.incrementAndGet()
+        openGeneration.incrementAndGet()
         searchJob?.cancel()
         searchJob = null
         mutableUiState.value = mutableUiState.value.copy(
@@ -206,6 +290,7 @@ class NotePageKeywordSearchViewModel(
             readiness = NotePageKeywordSearchReadinessUi.Ready(
                 NotePageKeywordSearchReadiness(noteCount = 0),
             ),
+            openFeedback = NotePageOpenFeedbackUi.None,
         )
         refreshReadiness()
     }

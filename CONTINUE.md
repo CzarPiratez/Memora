@@ -1029,11 +1029,15 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-**Notes N7 in progress** (`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`):
-Open original OneNote page from Find saved note text (Graph links + browser).
-N6 Build-memories NOTE facts **accepted** 2026-08-02 (28 Asset Memories).
-Semantic ranking remains deferred. Local-AI pack measured baselines remain an
-alternate track when approved.
+**Notes connector N0–N7 accepted** 2026-08-02
+(`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`): Connect → Discover → Extract
+→ Find saved note text → Build-memories NOTE facts → Open original. Interim
+keyword recall covers PDF / screenshot / photo / note.
+
+**Next approved engineering step:** Local-AI **measured pack baselines** (open
+change-control before code; ADR-025 / `docs/LOCAL_AI_BENCHMARK_PLAN.md`). No
+AVAILABLE intelligence or semantic ranking claims until measured. Semantic
+Memory ranking remains deferred until that track lands.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

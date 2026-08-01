@@ -5,6 +5,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,6 +54,22 @@ class HttpOneNotePagesGraphGateway(
             GraphHttp.Unauthorized -> OneNotePageContentGraphResult.Unauthorized
             is GraphHttp.Failed -> OneNotePageContentGraphResult.Failed(raw.message)
             is GraphHttp.Ok -> OneNotePageContentGraphResult.Ok(raw.body)
+        }
+    }
+
+    override suspend fun getPageLinks(
+        accessToken: String,
+        pageId: String,
+    ): OneNotePageLinksGraphResult = withContext(Dispatchers.IO) {
+        val trimmedId = pageId.trim()
+        if (trimmedId.isEmpty()) {
+            return@withContext OneNotePageLinksGraphResult.Failed("Page id is blank.")
+        }
+        val requestUrl = pageLinksRequestUrl(trimmedId)
+        when (val raw = get(accessToken, requestUrl, accept = "application/json")) {
+            GraphHttp.Unauthorized -> OneNotePageLinksGraphResult.Unauthorized
+            is GraphHttp.Failed -> OneNotePageLinksGraphResult.Failed(raw.message)
+            is GraphHttp.Ok -> OneNotePageLinksGraphResult.Ok(parsePageLinksResponse(raw.body))
         }
     }
 
@@ -106,6 +123,24 @@ class HttpOneNotePagesGraphGateway(
     }
 
     companion object {
+        fun pageLinksRequestUrl(pageId: String): String {
+            val encodedId = URLEncoder.encode(pageId, StandardCharsets.UTF_8)
+                .replace("+", "%20")
+            return "https://graph.microsoft.com/v1.0/me/onenote/pages/" +
+                "$encodedId?\$select=links"
+        }
+
+        fun parsePageLinksResponse(json: String): OneNotePageLinks {
+            val root = JsonParser.parseString(json).asJsonObject
+            val links = root.getAsJsonObject("links")
+            return OneNotePageLinks(
+                oneNoteWebUrl = links?.getAsJsonObject("oneNoteWebUrl")
+                    ?.get("href")?.asString?.takeIf { it.isNotBlank() },
+                oneNoteClientUrl = links?.getAsJsonObject("oneNoteClientUrl")
+                    ?.get("href")?.asString?.takeIf { it.isNotBlank() },
+            )
+        }
+
         fun parseSectionsResponse(json: String): OneNoteSectionsListResponse {
             val root = JsonParser.parseString(json).asJsonObject
             val values = root.getAsJsonArray("value")

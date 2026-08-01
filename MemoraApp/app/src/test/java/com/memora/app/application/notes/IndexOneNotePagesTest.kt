@@ -8,6 +8,7 @@ import com.memora.app.data.notes.OneNotePageSummary
 import com.memora.app.data.notes.OneNotePagesDiscoverySource
 import com.memora.app.data.notes.OneNotePagesGraphGateway
 import com.memora.app.data.notes.OneNotePageContentGraphResult
+import com.memora.app.data.notes.OneNotePageLinksGraphResult
 import com.memora.app.data.notes.OneNotePagesGraphResult
 import com.memora.app.data.notes.OneNotePagesListResponse
 import com.memora.app.data.notes.OneNoteSectionsGraphResult
@@ -81,6 +82,11 @@ class IndexOneNotePagesTest {
                     accessToken: String,
                     contentUrl: String,
                 ) = OneNotePageContentGraphResult.Failed("unused")
+
+                override suspend fun getPageLinks(
+                    accessToken: String,
+                    pageId: String,
+                ) = OneNotePageLinksGraphResult.Failed("unused")
             },
         )
         val assets = CountingAssetRepository()
@@ -98,7 +104,7 @@ class IndexOneNotePagesTest {
                     OneNoteAuthOutcome.RegistrationRequired
                 override suspend fun disconnect() = Unit
                 override suspend fun restoreAccountLabel(): String? = "u@example.com"
-                override suspend fun ensureSession(): NotesProviderSession? =
+                override suspend fun ensureSession(forceRefresh: Boolean): NotesProviderSession? =
                     vault.readSession()
             },
         )

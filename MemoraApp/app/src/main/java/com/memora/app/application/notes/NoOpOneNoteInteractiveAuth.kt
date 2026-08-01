@@ -12,5 +12,5 @@ class NoOpOneNoteInteractiveAuth : OneNoteInteractiveAuth {
 
     override suspend fun restoreAccountLabel(): String? = null
 
-    override suspend fun ensureSession(): NotesProviderSession? = null
+    override suspend fun ensureSession(forceRefresh: Boolean): NotesProviderSession? = null
 }

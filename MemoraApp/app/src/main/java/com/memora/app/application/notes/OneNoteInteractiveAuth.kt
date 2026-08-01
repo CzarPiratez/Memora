@@ -20,9 +20,11 @@ interface OneNoteInteractiveAuth {
 
     /**
      * Ensures a vaulted access token exists (reuse vault, else silent MSAL refresh).
+     * When [forceRefresh] is true, always attempts a silent refresh even if a vaulted
+     * token is still present (e.g. after Graph Unauthorized).
      * Returns null when the user must Connect interactively again.
      */
-    suspend fun ensureSession(): NotesProviderSession?
+    suspend fun ensureSession(forceRefresh: Boolean = false): NotesProviderSession?
 }
 
 sealed interface OneNoteAuthOutcome {

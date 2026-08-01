@@ -95,6 +95,28 @@ object NotePageKeywordSearchCopy {
 
     const val HIDE_WHY_LABEL = "Hide explanation"
 
+    const val OPEN_ORIGINAL_NOTE_LABEL = "Open original note"
+
+    const val OPEN_ORIGINAL_NOTE_HINT =
+        "Opens this page in the OneNote app when it is installed on this phone; " +
+            "otherwise it opens in your browser. That step may need a network connection " +
+            "and your Microsoft OneNote connection. Memora does not edit the original."
+
+    const val OPEN_FEEDBACK_OPENING_BODY =
+        "Opening that page in OneNote or your browser…"
+
+    const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
+        "Memora could not open that original note because the Microsoft OneNote connection " +
+            "needs to be renewed. Open Notes indexing, tap Connect OneNote, finish sign-in " +
+            "inside Memora, then try Open original note again. " +
+            "Keyword search still uses text saved on this phone."
+
+    const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
+        "Memora could not open that page in OneNote or a browser. Check your network and try again. " +
+            "Keyword search still uses text saved on this phone."
+
+    const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
     const val BACK_LABEL = "Back"
 
     fun whyThisResultBody(

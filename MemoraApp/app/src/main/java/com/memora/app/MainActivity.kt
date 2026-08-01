@@ -80,6 +80,7 @@ import com.memora.app.ui.search.PhotoOcrKeywordSearchScreen
 import com.memora.app.ui.search.PhotoOcrKeywordSearchUiState
 import com.memora.app.ui.search.PhotoOcrKeywordSearchViewModel
 import com.memora.app.ui.search.PhotoOriginalPreviewScreen
+import com.memora.app.application.notes.NotePageKeywordSearchHit
 import com.memora.app.ui.search.NotePageKeywordSearchCopy
 import com.memora.app.ui.search.NotePageKeywordSearchScreen
 import com.memora.app.ui.search.NotePageKeywordSearchUiState
@@ -239,6 +240,10 @@ class MainActivity : ComponentActivity() {
                             notePageKeywordSearchViewModel::onQueryCleared,
                         onNotePageKeywordSearchCancelled =
                             notePageKeywordSearchViewModel::onSearchCancelled,
+                        onNotePageKeywordOpenOriginal =
+                            notePageKeywordSearchViewModel::onOpenOriginalNote,
+                        onNotePageKeywordOpenFeedbackDismissed =
+                            notePageKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onClearIndexRequested = clearDerivedDataViewModel::onClearRequested,
                         onClearIndexConfirmDismissed = clearDerivedDataViewModel::onConfirmDismissed,
                         onClearIndexConfirmed = {
@@ -327,6 +332,8 @@ fun MemoraApp(
     onNotePageKeywordSearchScreenVisible: () -> Unit,
     onNotePageKeywordQueryCleared: () -> Unit,
     onNotePageKeywordSearchCancelled: () -> Unit,
+    onNotePageKeywordOpenOriginal: (NotePageKeywordSearchHit) -> Unit,
+    onNotePageKeywordOpenFeedbackDismissed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -406,6 +413,8 @@ fun MemoraApp(
             onNotePageKeywordSearchScreenVisible = onNotePageKeywordSearchScreenVisible,
             onNotePageKeywordQueryCleared = onNotePageKeywordQueryCleared,
             onNotePageKeywordSearchCancelled = onNotePageKeywordSearchCancelled,
+            onNotePageKeywordOpenOriginal = onNotePageKeywordOpenOriginal,
+            onNotePageKeywordOpenFeedbackDismissed = onNotePageKeywordOpenFeedbackDismissed,
             onClearIndexRequested = onClearIndexRequested,
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
@@ -477,6 +486,8 @@ private fun MemoraAppReady(
     onNotePageKeywordSearchScreenVisible: () -> Unit,
     onNotePageKeywordQueryCleared: () -> Unit,
     onNotePageKeywordSearchCancelled: () -> Unit,
+    onNotePageKeywordOpenOriginal: (NotePageKeywordSearchHit) -> Unit,
+    onNotePageKeywordOpenFeedbackDismissed: () -> Unit,
     onClearIndexRequested: () -> Unit,
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
@@ -669,6 +680,8 @@ private fun MemoraAppReady(
                     onQueryCleared = onNotePageKeywordQueryCleared,
                     onSearch = onNotePageKeywordSearch,
                     onSearchCancelled = onNotePageKeywordSearchCancelled,
+                    onOpenOriginalNote = onNotePageKeywordOpenOriginal,
+                    onDismissOpenFeedback = onNotePageKeywordOpenFeedbackDismissed,
                     onBack = { isShowingNotePageKeywordSearch = false },
                     modifier = modifier,
                 )

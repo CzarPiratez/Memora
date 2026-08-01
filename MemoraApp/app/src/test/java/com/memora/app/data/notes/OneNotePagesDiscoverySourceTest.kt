@@ -119,5 +119,10 @@ class OneNotePagesDiscoverySourceTest {
             accessToken: String,
             contentUrl: String,
         ): OneNotePageContentGraphResult = OneNotePageContentGraphResult.Failed("unused")
+
+        override suspend fun getPageLinks(
+            accessToken: String,
+            pageId: String,
+        ): OneNotePageLinksGraphResult = OneNotePageLinksGraphResult.Failed("unused")
     }
 }

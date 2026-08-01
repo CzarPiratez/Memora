@@ -39,4 +39,29 @@ class HttpOneNotePagesGraphGatewayParseTest {
         assertEquals(0, parsed.pages.size)
         assertNull(parsed.nextLink)
     }
+
+    @Test
+    fun parsesOneNoteWebAndClientLinks() {
+        val json = """
+            {
+              "links": {
+                "oneNoteClientUrl": { "href": "onenote:https://example/client" },
+                "oneNoteWebUrl": { "href": "https://example/web" }
+              }
+            }
+        """.trimIndent()
+        val links = HttpOneNotePagesGraphGateway.parsePageLinksResponse(json)
+        assertEquals("https://example/web", links.oneNoteWebUrl)
+        assertEquals("onenote:https://example/client", links.oneNoteClientUrl)
+        assertEquals("https://example/web", links.preferredOpenUrl())
+    }
+
+    @Test
+    fun pageLinksRequestUrlEncodesPageId() {
+        val url = HttpOneNotePagesGraphGateway.pageLinksRequestUrl("page id/1")
+        assertEquals(
+            "https://graph.microsoft.com/v1.0/me/onenote/pages/page%20id%2F1?\$select=links",
+            url,
+        )
+    }
 }

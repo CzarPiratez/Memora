@@ -25,6 +25,8 @@ import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -37,6 +39,9 @@ import org.json.JSONObject
  * First connect uses [ISingleAccountPublicClientApplication.signIn]. When an
  * MSAL account already exists, uses silent acquire then [signInAgain] — never
  * [signIn] again (that returns "An account is already signed in.").
+ *
+ * Reuses one [ISingleAccountPublicClientApplication] instance so browser/WebView
+ * redirects still match an in-progress interactive call.
  */
 class MsalOneNoteInteractiveAuth(
     context: Context,
@@ -44,6 +49,8 @@ class MsalOneNoteInteractiveAuth(
     private val tokenVault: NotesProviderTokenVault,
 ) : OneNoteInteractiveAuth {
     private val appContext = context.applicationContext
+    private val applicationMutex = Mutex()
+    private var cachedApplication: ISingleAccountPublicClientApplication? = null
 
     override suspend fun connect(activity: Activity): OneNoteAuthOutcome {
         if (!configuration.isRegistrationConfigured) {
@@ -148,10 +155,18 @@ class MsalOneNoteInteractiveAuth(
             ?.accountDisplayLabel
     }
 
-    override suspend fun ensureSession(): NotesProviderSession? = withContext(Dispatchers.IO) {
-        tokenVault.readSession()?.takeIf { it.accessToken.isNotBlank() }?.let { return@withContext it }
-        if (!configuration.isRegistrationConfigured) return@withContext null
-        runCatching {
+    override suspend fun ensureSession(forceRefresh: Boolean): NotesProviderSession? =
+        withContext(Dispatchers.IO) {
+            if (!configuration.isRegistrationConfigured) return@withContext null
+            val existing = tokenVault.readSession()?.takeIf { it.accessToken.isNotBlank() }
+            if (!forceRefresh && existing != null && !isExpiredOrNearExpiry(existing)) {
+                return@withContext existing
+            }
+            refreshSessionSilently() ?: existing?.takeUnless { forceRefresh || isExpiredOrNearExpiry(it) }
+        }
+
+    private suspend fun refreshSessionSilently(): NotesProviderSession? {
+        return runCatching {
             val app = obtainApplication()
             val account = currentAccount(app) ?: return@runCatching null
             when (val silent = acquireTokenSilent(app, account)) {
@@ -165,7 +180,22 @@ class MsalOneNoteInteractiveAuth(
         }.getOrNull()
     }
 
+    private fun isExpiredOrNearExpiry(session: NotesProviderSession): Boolean {
+        val skewMs = TOKEN_EXPIRY_SKEW_MS
+        return session.accessTokenExpiresAtEpochMs <= System.currentTimeMillis() + skewMs
+    }
+
     private suspend fun obtainApplication(): ISingleAccountPublicClientApplication {
+        cachedApplication?.let { return it }
+        return applicationMutex.withLock {
+            cachedApplication?.let { return it }
+            val created = createApplication()
+            cachedApplication = created
+            created
+        }
+    }
+
+    private suspend fun createApplication(): ISingleAccountPublicClientApplication {
         val configFile = writeConfigFile()
         return suspendCancellableCoroutine { cont ->
             PublicClientApplication.createSingleAccountPublicClientApplication(
@@ -189,7 +219,9 @@ class MsalOneNoteInteractiveAuth(
             Uri.encode(configuration.signatureHash)
         val json = JSONObject()
             .put("client_id", configuration.clientId)
-            .put("authorization_user_agent", "DEFAULT")
+            // WEBVIEW keeps interactive Connect inside Memora and avoids BrowserTabActivity
+            // "no interactive call in progress" when the external browser handoff desyncs.
+            .put("authorization_user_agent", "WEBVIEW")
             .put("redirect_uri", redirectUri)
             .put("account_mode", "SINGLE")
             .put("broker_redirect_uri_registered", false)
@@ -395,6 +427,7 @@ class MsalOneNoteInteractiveAuth(
     companion object {
         private const val MSAL_CONFIG_FILE = "msal_onenote_config.json"
         private const val DEFAULT_TOKEN_TTL_MS = 3_600_000L
+        private const val TOKEN_EXPIRY_SKEW_MS = 120_000L
         private const val DEFAULT_AUTHORITY = "https://login.microsoftonline.com/common"
         private const val ACCOUNT_MISMATCH =
             "The signed in account does not match with the provided account."

@@ -2,10 +2,12 @@ package com.memora.app.data.di
 
 import android.content.Context
 import com.memora.app.BuildConfig
+import com.memora.app.application.notes.ExternalUrlLauncher
 import com.memora.app.application.notes.IndexOneNotePages
 import com.memora.app.application.notes.OneNoteInteractiveAuth
 import com.memora.app.application.notes.OneNotePagesIndexer
 import com.memora.app.data.local.RoomNotePageExtractionPersistencePort
+import com.memora.app.data.notes.AndroidExternalUrlLauncher
 import com.memora.app.data.notes.GraphOneNotePageContentReader
 import com.memora.app.data.notes.HttpOneNotePagesGraphGateway
 import com.memora.app.data.notes.KeystoreNotesProviderTokenVault
@@ -58,6 +60,12 @@ object NotesConnectorModule {
     @Singleton
     fun provideOneNotePagesGraphGateway(): OneNotePagesGraphGateway =
         HttpOneNotePagesGraphGateway()
+
+    @Provides
+    @Singleton
+    fun provideExternalUrlLauncher(
+        launcher: AndroidExternalUrlLauncher,
+    ): ExternalUrlLauncher = launcher
 
     @Provides
     @Singleton

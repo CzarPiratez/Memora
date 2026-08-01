@@ -3,6 +3,7 @@ package com.memora.app.ui.search
 import com.memora.app.application.notes.NotePageKeywordSearchHit
 import com.memora.app.application.notes.NotePageKeywordSearchOutcome
 import com.memora.app.application.notes.NotePageKeywordSearchReadiness
+import com.memora.app.application.notes.OpenPersistedNotePageResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -83,15 +84,80 @@ class NotePageKeywordSearchViewModelTest {
         )
     }
 
+    @Test
+    fun open_original_launches_ready_url_and_clears_feedback() = runTest {
+        val launched = mutableListOf<Pair<String?, String?>>()
+        val viewModel = viewModel(
+            open = { _, _ ->
+                OpenPersistedNotePageResult.Ready(
+                    webUrl = "https://onenote.example/web",
+                    clientUrl = "onenote:https://onenote.example/client",
+                )
+            },
+            launch = { web, client ->
+                launched += web to client
+                true
+            },
+        ) {
+            NotePageKeywordSearchOutcome.Matches(
+                query = "plan",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("plan")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onOpenOriginalNote(sampleHit())
+        advanceUntilIdle()
+        assertEquals(
+            listOf("https://onenote.example/web" to "onenote:https://onenote.example/client"),
+            launched,
+        )
+        assertEquals(NotePageOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
+    @Test
+    fun open_original_maps_source_unavailable() = runTest {
+        val viewModel = viewModel(
+            open = { _, _ -> OpenPersistedNotePageResult.SourceUnavailable },
+        ) {
+            NotePageKeywordSearchOutcome.Matches(
+                query = "plan",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("plan")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onOpenOriginalNote(sampleHit())
+        advanceUntilIdle()
+        assertEquals(
+            NotePageOpenFeedbackUi.SourceUnavailable,
+            viewModel.uiState.value.openFeedback,
+        )
+    }
+
     private fun viewModel(
         readiness: suspend () -> NotePageKeywordSearchReadiness = {
             NotePageKeywordSearchReadiness(noteCount = 2)
         },
         minSearchingVisibleMs: Long = 0L,
+        open: suspend (String, String) -> OpenPersistedNotePageResult = { _, _ ->
+            OpenPersistedNotePageResult.CouldNotOpen
+        },
+        launch: (String?, String?) -> Boolean = { _, _ -> true },
         search: suspend (String) -> NotePageKeywordSearchOutcome,
     ) = NotePageKeywordSearchViewModel(
         searchPersistedNotePageText = search,
         loadReadiness = readiness,
+        openPersistedNotePage = open,
+        launchOneNoteOriginal = launch,
         minSearchingVisibleMs = minSearchingVisibleMs,
         monotonicMs = { 0L },
     )

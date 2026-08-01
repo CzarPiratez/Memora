@@ -24,4 +24,12 @@ class NotePageKeywordSearchCopyTest {
         assertFalse(all.contains("cloud search"))
         assertFalse(all.contains("memory ranking"))
     }
+
+    @Test
+    fun openOriginalCopySeparatesNetworkOpenFromOfflineSearch() {
+        assertTrue(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT.contains("network"))
+        assertTrue(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT.contains("does not edit"))
+        assertTrue(NotePageKeywordSearchCopy.SCOPE_BODY.contains("does not call Microsoft"))
+        assertFalse(NotePageKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY.contains("preview inside"))
+    }
 }

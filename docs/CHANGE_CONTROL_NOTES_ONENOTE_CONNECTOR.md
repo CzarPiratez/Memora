@@ -1,8 +1,9 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0–N6 accepted. **N7 in progress** (Open original note in
-OneNote/browser).  
+**Status:** N0–N7 accepted. OneNote-class Notes connector MVP path closed for
+this change-control (discover → extract → keyword recall → Build-memories →
+open original). Semantic ranking remains deferred to Local-AI track.  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -274,8 +275,23 @@ UI Extract OneNote page text
 |------|-------|-----------|
 | Open hit’s original OneNote page externally | Yes — on-demand Graph `links` (`oneNoteWebUrl` then client URL); ACTION_VIEW; vaulted `ensureSession` | Never ACTION_VIEW `contentUrl`/location; search stays offline; honesty that Open may need network |
 
-### Acceptance record — N7 (pending user pass)
+### Acceptance record — N7 (**accepted** 2026-08-02)
 
-- **Delivered (this slice):** TBD during implementation.
+- **Delivered (this slice):** Graph `getPageLinks`; `OpenPersistedNotePageInOneNote`;
+  Find saved note text → **Open original note** via ACTION_VIEW; vaulted
+  `ensureSession`; honest Opening / SourceUnavailable / CouldNotOpen feedback.
+  Never ACTION_VIEW `contentUrl` / Asset.location.
+- **Auth reliability (same slice):** Reuse one MSAL PCA instance; silent refresh
+  when vault token is expired/near expiry; Open retries once after Graph 401;
+  interactive Connect uses `authorization_user_agent: WEBVIEW` so sign-in stays
+  in Memora (avoids BrowserTabActivity “no interactive call in progress” toast).
+- **Open target:** Prefer OneNote app deep link (`oneNoteClientUrl`) when the
+  device can resolve it; otherwise browser web URL. Open work runs on IO with a
+  timeout to avoid ANR when Graph/MSAL is slow.
 - **Not delivered:** In-app note preview; persisting open URLs into Room; semantic
   ranking.
+- **Automated:** Open use case, links parse, VM/copy unit tests passed;
+  `:app:installDebug` on emulator.
+- **Emulator smoke (user):** Open original note opened the page in browser
+  (`onedrive.live.com`) — expected without OneNote app on emulator; real phones
+  with OneNote prefer the app deep link (**accepted** 2026-08-02).

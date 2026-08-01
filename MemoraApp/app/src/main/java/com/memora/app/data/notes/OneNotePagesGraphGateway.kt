@@ -39,6 +39,34 @@ interface OneNotePagesGraphGateway {
         accessToken: String,
         contentUrl: String,
     ): OneNotePageContentGraphResult
+
+    /**
+     * GET page `links` only (read-only). Used to open the original in OneNote/browser.
+     * Never treat [contentUrl] / Asset.location as a browser URL.
+     */
+    suspend fun getPageLinks(
+        accessToken: String,
+        pageId: String,
+    ): OneNotePageLinksGraphResult
+}
+
+data class OneNotePageLinks(
+    val oneNoteWebUrl: String?,
+    val oneNoteClientUrl: String?,
+) {
+    val webUrlOrNull: String? = oneNoteWebUrl?.takeIf { it.isNotBlank() }
+    val clientUrlOrNull: String? = oneNoteClientUrl?.takeIf { it.isNotBlank() }
+
+    /** Fallback when no package manager is available: web first, then client. */
+    fun preferredOpenUrl(): String? = webUrlOrNull ?: clientUrlOrNull
+}
+
+sealed interface OneNotePageLinksGraphResult {
+    data class Ok(val links: OneNotePageLinks) : OneNotePageLinksGraphResult
+
+    data object Unauthorized : OneNotePageLinksGraphResult
+
+    data class Failed(val message: String) : OneNotePageLinksGraphResult
 }
 
 sealed interface OneNotePageContentGraphResult {
