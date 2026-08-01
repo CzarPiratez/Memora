@@ -5,13 +5,19 @@ import com.memora.app.BuildConfig
 import com.memora.app.application.notes.IndexOneNotePages
 import com.memora.app.application.notes.OneNoteInteractiveAuth
 import com.memora.app.application.notes.OneNotePagesIndexer
+import com.memora.app.data.local.RoomNotePageExtractionPersistencePort
+import com.memora.app.data.notes.GraphOneNotePageContentReader
 import com.memora.app.data.notes.HttpOneNotePagesGraphGateway
 import com.memora.app.data.notes.KeystoreNotesProviderTokenVault
 import com.memora.app.data.notes.MsalOneNoteInteractiveAuth
+import com.memora.app.data.notes.OneNotePageContentReader
 import com.memora.app.data.notes.OneNotePagesDiscoverySource
 import com.memora.app.data.notes.OneNotePagesGraphGateway
+import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.domain.extraction.NotePageExtractionPersistence
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -67,4 +73,21 @@ object NotesConnectorModule {
     @Singleton
     fun provideOneNotePagesIndexer(indexOneNotePages: IndexOneNotePages): OneNotePagesIndexer =
         indexOneNotePages
+
+    @Provides
+    @Singleton
+    fun provideNotePageExtractionPersistence(
+        handle: MemoraDatabaseHandle,
+    ): NotePageExtractionPersistence =
+        RoomNotePageExtractionPersistencePort { handle.database() }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class NotesExtractBindingsModule {
+    @Binds
+    @Singleton
+    abstract fun bindOneNotePageContentReader(
+        impl: GraphOneNotePageContentReader,
+    ): OneNotePageContentReader
 }

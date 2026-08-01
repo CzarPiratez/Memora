@@ -114,5 +114,10 @@ class OneNotePagesDiscoverySourceTest {
             lastPagesUrl = requestUrl
             return pages
         }
+
+        override suspend fun fetchPageContent(
+            accessToken: String,
+            contentUrl: String,
+        ): OneNotePageContentGraphResult = OneNotePageContentGraphResult.Failed("unused")
     }
 }

@@ -3,7 +3,7 @@ package com.memora.app.ui.setup
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
 
 /**
- * Notes connection + discovery honesty copy (N1–N3).
+ * Notes connection + discovery + extract honesty copy (N1–N4).
  * Must not claim note text is searchable until N5.
  */
 object NotesConnectorHonestyCopy {
@@ -26,9 +26,9 @@ object NotesConnectorHonestyCopy {
     const val NETWORK_TITLE = "Network"
 
     const val NETWORK_BODY =
-        "Signing in and reading OneNote pages needs a network connection. " +
+        "Signing in, discovering pages, and extracting note text need a network connection. " +
             "That is source access, not Memora cloud sync. After note text is saved on " +
-            "this phone, search over those saved facts can work offline."
+            "this phone, search over those saved facts can work offline (not in this step)."
 
     const val STATUS_TITLE = "Status right now"
 
@@ -47,9 +47,11 @@ object NotesConnectorHonestyCopy {
     const val STATUS_CONNECTED_MID =
         ". Saved note placeholders: "
 
+    const val STATUS_CONNECTED_EXTRACT_MID =
+        ". Saved note text extracts: "
+
     const val STATUS_CONNECTED_SUFFIX =
-        ". Discover creates placeholders only — note text is not extracted or searchable yet. " +
-            "Disconnect clears the Microsoft session on this phone."
+        ". Note text is not searchable yet. Disconnect clears the Microsoft session on this phone."
 
     const val CONNECT_LABEL = "Connect OneNote"
 
@@ -58,6 +60,8 @@ object NotesConnectorHonestyCopy {
     const val DISCOVER_LABEL = "Discover OneNote pages"
 
     const val DISCOVER_CONTINUE_LABEL = "Discover more OneNote pages"
+
+    const val EXTRACT_LABEL = "Extract OneNote page text"
 
     const val BACK_LABEL = "Back"
 
@@ -77,9 +81,17 @@ object NotesConnectorHonestyCopy {
 
     const val FEEDBACK_DISCOVERING = "Discovering OneNote pages…"
 
+    const val FEEDBACK_EXTRACTING = "Extracting OneNote page text…"
+
+    const val FEEDBACK_EXTRACT_NO_PLACEHOLDERS =
+        "Discover OneNote pages first, then extract text."
+
+    const val FEEDBACK_EXTRACT_FAILED =
+        "Memora could not finish extracting OneNote page text. Check your network and try again."
+
     const val FEEDBACK_ACCESS_REQUIRED =
-        "Memora needs a Connect OneNote token on this phone before discovering pages. " +
-            "Tap Connect OneNote, finish sign-in, then Discover again."
+        "Memora needs a Connect OneNote token on this phone before discovering or extracting. " +
+            "Tap Connect OneNote, finish sign-in, then try again."
 
     const val FEEDBACK_ACCESS_REVOKED =
         "Microsoft access was revoked or expired. Connect OneNote again."
@@ -88,12 +100,15 @@ object NotesConnectorHonestyCopy {
         registrationConfigured: Boolean,
         connectedAccountLabel: String?,
         notePlaceholderCount: Int = 0,
+        noteExtractCount: Int = 0,
     ): String = when {
         connectedAccountLabel != null ->
             STATUS_CONNECTED_PREFIX +
                 connectedAccountLabel +
                 STATUS_CONNECTED_MID +
                 notePlaceholderCount +
+                STATUS_CONNECTED_EXTRACT_MID +
+                noteExtractCount +
                 STATUS_CONNECTED_SUFFIX
         registrationConfigured -> STATUS_DISCONNECTED
         else -> STATUS_REGISTRATION_REQUIRED
@@ -103,20 +118,34 @@ object NotesConnectorHonestyCopy {
         configuration: OneNoteAuthConfiguration,
         connectedAccountLabel: String?,
         notePlaceholderCount: Int = 0,
+        noteExtractCount: Int = 0,
     ): String = statusBody(
         registrationConfigured = configuration.isRegistrationConfigured,
         connectedAccountLabel = connectedAccountLabel,
         notePlaceholderCount = notePlaceholderCount,
+        noteExtractCount = noteExtractCount,
     )
 
     fun discoveredFeedback(pageCount: Int, totalCount: Int, hasMore: Boolean): String {
         val base = "Saved $pageCount page placeholder(s) this run. " +
             "$totalCount OneNote placeholder(s) total. " +
-            "Note text is not extracted or searchable yet."
+            "Note text is not searchable yet."
         return if (hasMore) {
-            "$base Tap Discover more to continue."
+            "$base Tap Discover more to continue, or Extract when ready."
         } else {
-            "$base Discovery is complete for now."
+            "$base Discovery is complete for now. Extract saves page text next."
+        }
+    }
+
+    fun extractedFeedback(extractCount: Int, placeholderCount: Int): String {
+        val pending = (placeholderCount - extractCount).coerceAtLeast(0)
+        return if (pending == 0) {
+            "Saved note text for $extractCount page(s). " +
+                "Note text is not searchable yet."
+        } else {
+            "Saved note text for $extractCount of $placeholderCount page(s). " +
+                "$pending still pending. Tap Extract again if needed. " +
+                "Note text is not searchable yet."
         }
     }
 }

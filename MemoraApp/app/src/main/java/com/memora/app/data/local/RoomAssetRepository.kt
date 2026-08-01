@@ -84,4 +84,18 @@ class RoomAssetRepository(
             )
             ?.toDomain()
             ?.asset
+
+    override suspend fun findNextNotePendingPageExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String?,
+    ): Asset? =
+        assetDao()
+            .findNextNotePendingPageExtract(
+                sourceId = sourceId.value,
+                schemaVersion = schemaVersion,
+                afterSourceAssetKey = afterSourceAssetKey.orEmpty(),
+            )
+            ?.toDomain()
+            ?.asset
 }

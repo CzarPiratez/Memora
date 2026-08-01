@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Notes connector N4 page text extract
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** Room `note_page_extractions` (v9); Graph HTML → plain text;
+  user-started Extract drain; honesty “not searchable yet.”
+- **Verification:** Unit tests passed; emulator Extract 29/29 for
+  `mir.m@outlook.com` **accepted** by user 2026-08-01.
+- **Truthfulness:** Extracted text ≠ searchable notes (N5).
+
 ### Notes connector N3 page discovery placeholders
 
 - **Requirements:** P-03, P-08, P-19; ADR-003.

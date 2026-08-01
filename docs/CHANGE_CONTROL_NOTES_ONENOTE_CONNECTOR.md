@@ -1,8 +1,7 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0–N3 accepted. **N4 next** (OneNote page text extract) when approved.
-  Extract/search remain N4–N5.  
+**Status:** N0–N4 accepted. **N5 next** (Find saved note text) when approved.  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -199,3 +198,32 @@ OneNoteAuthConfiguration ← BuildConfig from local.properties (public client ID
 - **Emulator smoke (user):** Connect `mir.m@outlook.com` → Discover saved 25
   placeholders → Discover more → 28 total; honesty “not searchable yet”
   (**accepted** 2026-08-01).
+
+## N4 continuation — Extract note page text
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Graph GET page HTML → plain text in Room | Yes — `note_page_extractions` (Room v9); user-started extract drain; one page per worker step | Connected vaulted token; empty text = completed extract; UI must not claim searchable notes (N5) |
+
+### N4 architecture
+
+```
+UI Extract OneNote page text
+  → WorkManager (unique drain)
+    → RunPendingOneNotePageExtract
+      → findNext NOTE pending extract
+      → Graph GET contentUrl (HTML) → plain text
+      → Room note_page_extractions
+```
+
+### Acceptance record — N4 (accepted 2026-08-01)
+
+- **Delivered:** Room `note_page_extractions` (v9); pending NOTE drain via
+  WorkManager; Graph HTML → plain text; Notes **Extract OneNote page text** +
+  counts; honesty “not searchable yet.”
+- **Not delivered:** Keyword Find saved note text (N5); Memory assembly from notes.
+- **Automated:** HTML plain-text + extract decision-mapper + Notes copy tests
+  passed; Room schema `9.json` exported.
+- **Emulator smoke (user):** Connected `mir.m@outlook.com`; 29 placeholders →
+  Extract → **29 text extracts**; feedback “Saved note text for 29 page(s)”
+  (**accepted** 2026-08-01 via screenshot).

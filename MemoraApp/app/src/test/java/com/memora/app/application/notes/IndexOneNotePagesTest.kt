@@ -7,6 +7,7 @@ import com.memora.app.data.notes.InMemoryNotesProviderTokenVault
 import com.memora.app.data.notes.OneNotePageSummary
 import com.memora.app.data.notes.OneNotePagesDiscoverySource
 import com.memora.app.data.notes.OneNotePagesGraphGateway
+import com.memora.app.data.notes.OneNotePageContentGraphResult
 import com.memora.app.data.notes.OneNotePagesGraphResult
 import com.memora.app.data.notes.OneNotePagesListResponse
 import com.memora.app.data.notes.OneNoteSectionsGraphResult
@@ -75,6 +76,11 @@ class IndexOneNotePagesTest {
                             "https://graph.microsoft.com/v1.0/me/onenote/sections/sec1/pages?skiptoken=1",
                     ),
                 )
+
+                override suspend fun fetchPageContent(
+                    accessToken: String,
+                    contentUrl: String,
+                ) = OneNotePageContentGraphResult.Failed("unused")
             },
         )
         val assets = CountingAssetRepository()
@@ -142,6 +148,12 @@ class IndexOneNotePagesTest {
             afterSourceAssetKey: String?,
         ): Asset? = null
         override suspend fun findNextPhotoPendingOcrExtract(
+            sourceId: SourceId,
+            schemaVersion: String,
+            afterSourceAssetKey: String?,
+        ): Asset? = null
+
+        override suspend fun findNextNotePendingPageExtract(
             sourceId: SourceId,
             schemaVersion: String,
             afterSourceAssetKey: String?,

@@ -8,6 +8,7 @@ import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStoreScreenshotOcrExtractWorkScheduler
+import com.memora.app.work.DefaultOneNotePageExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import javax.inject.Inject
@@ -38,6 +39,9 @@ class ClearMemoraDerivedData @Inject constructor(
         )
         workManager.cancelAllWorkByTag(
             DefaultMediaStorePhotoOcrExtractWorkScheduler.TAG_MEDIASTORE_PHOTO_OCR_EXTRACT,
+        )
+        workManager.cancelAllWorkByTag(
+            DefaultOneNotePageExtractWorkScheduler.TAG_ONENOTE_PAGE_EXTRACT,
         )
         runBlocking {
             oneNoteAuth.disconnect()

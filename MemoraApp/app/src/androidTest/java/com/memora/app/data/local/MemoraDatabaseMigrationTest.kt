@@ -42,6 +42,7 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_5_6,
             MemoraDatabaseMigrations.MIGRATION_6_7,
             MemoraDatabaseMigrations.MIGRATION_7_8,
+            MemoraDatabaseMigrations.MIGRATION_8_9,
         ).build()
 
         try {

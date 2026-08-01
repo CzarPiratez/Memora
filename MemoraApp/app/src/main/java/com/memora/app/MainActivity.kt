@@ -242,6 +242,7 @@ class MainActivity : ComponentActivity() {
                         onNotesDisconnect = notesConnectorViewModel::onDisconnectRequested,
                         onNotesConnect = notesConnectorViewModel::onConnectRequested,
                         onNotesDiscover = notesConnectorViewModel::onDiscoverRequested,
+                        onNotesExtract = notesConnectorViewModel::onExtractRequested,
                         onNotesHonestyOpened = notesConnectorViewModel::refresh,
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -310,6 +311,7 @@ fun MemoraApp(
     onNotesDisconnect: () -> Unit,
     onNotesConnect: (android.app.Activity) -> Unit,
     onNotesDiscover: () -> Unit,
+    onNotesExtract: () -> Unit,
     onNotesHonestyOpened: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -382,6 +384,7 @@ fun MemoraApp(
             onNotesDisconnect = onNotesDisconnect,
             onNotesConnect = onNotesConnect,
             onNotesDiscover = onNotesDiscover,
+            onNotesExtract = onNotesExtract,
             onNotesHonestyOpened = onNotesHonestyOpened,
             modifier = modifier,
         )
@@ -446,6 +449,7 @@ private fun MemoraAppReady(
     onNotesDisconnect: () -> Unit,
     onNotesConnect: (android.app.Activity) -> Unit,
     onNotesDiscover: () -> Unit,
+    onNotesExtract: () -> Unit,
     onNotesHonestyOpened: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -520,6 +524,7 @@ private fun MemoraAppReady(
                     onConnect = { onNotesConnect(activity) },
                     onDisconnect = onNotesDisconnect,
                     onDiscover = onNotesDiscover,
+                    onExtract = onNotesExtract,
                     onBack = { isShowingNotesHonesty = false },
                     modifier = modifier,
                 )

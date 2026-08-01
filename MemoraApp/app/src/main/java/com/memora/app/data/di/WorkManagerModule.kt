@@ -10,16 +10,20 @@ import com.memora.app.application.images.PendingScreenshotOcrExtractor
 import com.memora.app.application.images.RunPendingImageExifExtract
 import com.memora.app.application.images.RunPendingPhotoOcrExtract
 import com.memora.app.application.images.RunPendingScreenshotOcrExtract
+import com.memora.app.application.notes.PendingOneNotePageExtractor
+import com.memora.app.application.notes.RunPendingOneNotePageExtract
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStoreScreenshotOcrExtractWorkScheduler
+import com.memora.app.work.DefaultOneNotePageExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import com.memora.app.work.MediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.MediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.MediaStorePhotoOcrExtractWorkScheduler
 import com.memora.app.work.MediaStoreScreenshotOcrExtractWorkScheduler
+import com.memora.app.work.OneNotePageExtractWorkScheduler
 import com.memora.app.work.SafPdfDiscoveryWorkScheduler
 import com.memora.app.work.SafPdfExtractWorkScheduler
 import dagger.Binds
@@ -101,4 +105,16 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
     abstract fun bindPendingPhotoOcrExtractor(
         impl: RunPendingPhotoOcrExtract,
     ): PendingPhotoOcrExtractor
+
+    @Binds
+    @Singleton
+    abstract fun bindOneNotePageExtractWorkScheduler(
+        impl: DefaultOneNotePageExtractWorkScheduler,
+    ): OneNotePageExtractWorkScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindPendingOneNotePageExtractor(
+        impl: RunPendingOneNotePageExtract,
+    ): PendingOneNotePageExtractor
 }

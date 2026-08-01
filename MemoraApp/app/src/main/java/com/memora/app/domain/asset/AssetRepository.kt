@@ -57,4 +57,11 @@ interface AssetRepository {
         schemaVersion: String,
         afterSourceAssetKey: String? = null,
     ): Asset?
+
+    /** Returns the next NOTE still needing OneNote page text extract. */
+    suspend fun findNextNotePendingPageExtract(
+        sourceId: SourceId,
+        schemaVersion: String,
+        afterSourceAssetKey: String? = null,
+    ): Asset?
 }

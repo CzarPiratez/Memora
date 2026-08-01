@@ -21,7 +21,7 @@ class HttpOneNotePagesGraphGateway(
         accessToken: String,
         requestUrl: String,
     ): OneNoteSectionsGraphResult = withContext(Dispatchers.IO) {
-        when (val raw = get(accessToken, requestUrl)) {
+        when (val raw = get(accessToken, requestUrl, accept = "application/json")) {
             GraphHttp.Unauthorized -> OneNoteSectionsGraphResult.Unauthorized
             is GraphHttp.Failed -> OneNoteSectionsGraphResult.Failed(raw.message)
             is GraphHttp.Ok -> OneNoteSectionsGraphResult.Ok(parseSectionsResponse(raw.body))
@@ -32,21 +32,38 @@ class HttpOneNotePagesGraphGateway(
         accessToken: String,
         requestUrl: String,
     ): OneNotePagesGraphResult = withContext(Dispatchers.IO) {
-        when (val raw = get(accessToken, requestUrl)) {
+        when (val raw = get(accessToken, requestUrl, accept = "application/json")) {
             GraphHttp.Unauthorized -> OneNotePagesGraphResult.Unauthorized
             is GraphHttp.Failed -> OneNotePagesGraphResult.Failed(raw.message)
             is GraphHttp.Ok -> OneNotePagesGraphResult.Ok(parseListResponse(raw.body))
         }
     }
 
-    private fun get(accessToken: String, requestUrl: String): GraphHttp {
+    override suspend fun fetchPageContent(
+        accessToken: String,
+        contentUrl: String,
+    ): OneNotePageContentGraphResult = withContext(Dispatchers.IO) {
+        when (
+            val raw = get(
+                accessToken,
+                contentUrl,
+                accept = "text/html",
+            )
+        ) {
+            GraphHttp.Unauthorized -> OneNotePageContentGraphResult.Unauthorized
+            is GraphHttp.Failed -> OneNotePageContentGraphResult.Failed(raw.message)
+            is GraphHttp.Ok -> OneNotePageContentGraphResult.Ok(raw.body)
+        }
+    }
+
+    private fun get(accessToken: String, requestUrl: String, accept: String): GraphHttp {
         return try {
             val connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
                 connectTimeout = connectTimeoutMs
                 readTimeout = readTimeoutMs
                 setRequestProperty("Authorization", "Bearer $accessToken")
-                setRequestProperty("Accept", "application/json")
+                setRequestProperty("Accept", accept)
             }
             try {
                 when (val code = connection.responseCode) {

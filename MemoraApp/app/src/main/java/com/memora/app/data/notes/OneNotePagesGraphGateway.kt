@@ -33,6 +33,20 @@ interface OneNotePagesGraphGateway {
     suspend fun listSections(accessToken: String, requestUrl: String): OneNoteSectionsGraphResult
 
     suspend fun listPages(accessToken: String, requestUrl: String): OneNotePagesGraphResult
+
+    /** GET page HTML body (read-only). [contentUrl] is typically `…/pages/{id}/content`. */
+    suspend fun fetchPageContent(
+        accessToken: String,
+        contentUrl: String,
+    ): OneNotePageContentGraphResult
+}
+
+sealed interface OneNotePageContentGraphResult {
+    data class Ok(val html: String) : OneNotePageContentGraphResult
+
+    data object Unauthorized : OneNotePageContentGraphResult
+
+    data class Failed(val message: String) : OneNotePageContentGraphResult
 }
 
 sealed interface OneNoteSectionsGraphResult {
