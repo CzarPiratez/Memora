@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Notes connector auth (N2b)
+
+| Component | Exact version | Purpose | Licence / notice source |
+|---|---:|---|---|
+| `com.microsoft.identity.client:msal` | 8.4.1 | Microsoft sign-in for read-only OneNote connector | MIT; [MSAL Android](https://github.com/AzureAD/microsoft-authentication-library-for-android) |
+
+Review record: `docs/dependency-review/msal-android-8.4.1-review.md`.
+INTERNET is for this source-access path only — not Local-AI and not Memora cloud sync.
+
 ## Screenshot OCR (Phase 2 deterministic extract)
 
 | Component | Exact version | Purpose | Licence / notice source |

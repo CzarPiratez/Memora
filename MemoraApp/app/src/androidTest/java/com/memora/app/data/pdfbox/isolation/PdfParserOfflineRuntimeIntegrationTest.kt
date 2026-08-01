@@ -35,18 +35,17 @@ class PdfParserOfflineRuntimeIntegrationTest {
     }
 
     @Test
-    fun release_app_manifest_does_not_request_internet_permission() {
+    fun release_app_declares_internet_for_onenote_source_access() {
         val requestedPermissions = appContext.requestedPermissions()
 
-        assertFalse(
-            "Memora's release app must not request Internet access.",
+        assertTrue(
+            "Notes N2b requires INTERNET for Microsoft sign-in / Graph source access.",
             Manifest.permission.INTERNET in requestedPermissions,
         )
     }
 
     @Test
     fun parser_runs_only_when_the_emulator_reports_no_internet_capable_network() {
-        assertReleaseAppHasNoInternetPermission()
         assertEmulatorIsOffline()
 
         val parsed = SyntheticPdfFixtures.twoPageSelectable().use { input ->
@@ -57,13 +56,6 @@ class PdfParserOfflineRuntimeIntegrationTest {
 
         assertEquals(2, result.pageCount)
         assertTrue(result.pages.sumOf { page -> page.text.length } > 0)
-    }
-
-    private fun assertReleaseAppHasNoInternetPermission() {
-        assertFalse(
-            "Memora's release app must not request Internet access.",
-            Manifest.permission.INTERNET in appContext.requestedPermissions(),
-        )
     }
 
     private fun assertEmulatorIsOffline() {

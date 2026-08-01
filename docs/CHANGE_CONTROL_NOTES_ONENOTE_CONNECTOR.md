@@ -1,8 +1,8 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** N0 accepted; **N1 honesty UI accepted** (user pass 2026-08-01).
-  No MSAL/Graph yet. Next code slice is N2.  
+**Status:** N0–N2b accepted (Connect/Disconnect with MSAL). Next code is **N3**
+  (Graph discovery → NOTE Asset placeholders).  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -128,4 +128,54 @@ bounded drains. Understanding/AI Pack remain out of scope for these phases.
 - **Automated:** `NotesConnectorHonestyCopyTest` passed.
 - **Emulator/manual:** User confirmed Notes indexing copy and Back returns to
   welcome (2026-08-01).
-- **Git:** Record in the N1 commit after this acceptance update.
+- **Git:** `67beb21`.
+
+## N2 continuation — Auth + secure token vault
+
+Split so the Azure external gate does not block vault honesty work.
+
+| Sub-phase | Goal | Ships | Hard gate |
+|-----------|------|-------|-----------|
+| **N2a** | Secure session vault + registration-config gate + honest status UI | Yes — Keystore-backed vault, BuildConfig/local.properties client ID plumbing, Disconnect clears vault; **no** MSAL, **no** INTERNET, **no** fake Connected | Unit tests: vault clear; no client_secret in resources; status copy never claims notes indexed |
+| **N2b** | MSAL sign-in + token into vault + live Disconnect/revoke | Yes — MSAL dep, INTERNET, Connect | Azure Android registration (`docs/NOTES_ONENOTE_AZURE_APP_REGISTRATION.md`); dependency review pinned; throwaway-account emulator smoke |
+
+### N2 scopes (delegated Graph only)
+
+- `Notes.Read` — OneNote read (used from N3+)
+- `offline_access` — refresh without re-prompt every cold start
+- `User.Read` — optional minimal signed-in identity for account label
+
+No write scopes. No app-only / client secret.
+
+### N2a architecture
+
+```
+UI (Notes status / Disconnect)
+  → presentation copy + ViewModel/use of vault snapshot
+    → NotesProviderTokenVault (domain port)
+      → Keystore-backed encrypted session store (platform)
+OneNoteAuthConfiguration ← BuildConfig from local.properties (public client ID)
+```
+
+### Acceptance record — N2a (accepted 2026-08-01)
+
+- **Delivered:** Registration runbook; Keystore session vault; BuildConfig /
+  local.properties client ID + signature hash; Notes status for registration
+  required / disconnected; Disconnect + clear-index vault clear. No MSAL yet in
+  N2a itself.
+- **Automated:** Copy/config/vault/secret-absence unit tests passed.
+- **Emulator:** Registration-present status confirmed after local.properties
+  wiring (2026-08-01).
+- **Git:** Include with N2b or prior N2a checkpoint as applicable.
+
+### Acceptance record — N2b (accepted 2026-08-01)
+
+- **Delivered:** MSAL 8.4.1; INTERNET for Microsoft source access; Connect uses
+  single-account `signIn` (with mismatch recovery); Disconnect clears MSAL +
+  Keystore vault; honest connected copy without indexing claims.
+- **Not delivered:** Graph discovery, note extract, note keyword search (N3–N5).
+- **Automated:** Notes honesty/config/vault/secret-absence unit tests passed.
+- **Emulator/manual:** User connected as `mir.m@outlook.com`, then Disconnect
+  returned to not-connected (2026-08-01). Google Custom Tab intermediary is
+  expected; Microsoft account completes the flow.
+- **Git:** Record in the N2b acceptance commit.

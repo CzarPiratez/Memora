@@ -1,7 +1,9 @@
 package com.memora.app.application.privacy
 
 import androidx.work.WorkManager
+import com.memora.app.application.notes.OneNoteInteractiveAuth
 import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
@@ -9,6 +11,7 @@ import com.memora.app.work.DefaultMediaStoreScreenshotOcrExtractWorkScheduler
 import com.memora.app.work.DefaultSafPdfDiscoveryWorkScheduler
 import com.memora.app.work.DefaultSafPdfExtractWorkScheduler
 import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
 
 /**
  * User-confirmed clearing of Memora-owned derived index state only.
@@ -20,6 +23,8 @@ import javax.inject.Inject
 class ClearMemoraDerivedData @Inject constructor(
     private val databaseHandle: MemoraDatabaseHandle,
     private val workManager: WorkManager,
+    private val notesProviderTokenVault: NotesProviderTokenVault,
+    private val oneNoteAuth: OneNoteInteractiveAuth,
 ) {
     operator fun invoke(): ClearMemoraDerivedDataResult = try {
         workManager.cancelAllWorkByTag(DefaultSafPdfDiscoveryWorkScheduler.TAG_SAF_PDF_DISCOVERY)
@@ -34,6 +39,10 @@ class ClearMemoraDerivedData @Inject constructor(
         workManager.cancelAllWorkByTag(
             DefaultMediaStorePhotoOcrExtractWorkScheduler.TAG_MEDIASTORE_PHOTO_OCR_EXTRACT,
         )
+        runBlocking {
+            oneNoteAuth.disconnect()
+        }
+        notesProviderTokenVault.clearSession()
         databaseHandle.clearUserConfirmedDerivedData()
         ClearMemoraDerivedDataResult.Cleared(APPROVED_REBUILD_MESSAGE)
     } catch (_: Exception) {

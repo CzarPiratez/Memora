@@ -6,6 +6,22 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// Public Microsoft client identifiers only (N2). Prefer local.properties;
+// empty keeps Notes UI in registration-required honesty mode.
+fun readMemoraLocalProperty(key: String): String {
+    val file = rootProject.file("local.properties")
+    if (!file.exists()) return ""
+    val prefix = "$key="
+    return file.readLines()
+        .map { it.trim() }
+        .firstOrNull { it.isNotEmpty() && !it.startsWith("#") && it.startsWith(prefix) }
+        ?.substringAfter("=", missingDelimiterValue = "")
+        ?.trim()
+        .orEmpty()
+}
+val oneNoteClientId = readMemoraLocalProperty("memora.onenote.clientId")
+val oneNoteSignatureHash = readMemoraLocalProperty("memora.onenote.signatureHash")
+
 android {
     namespace = "com.memora.app"
     compileSdk {
@@ -22,6 +38,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "ONENOTE_CLIENT_ID", "\"${oneNoteClientId.replace("\"", "\\\"")}\"")
+        buildConfigField(
+            "String",
+            "ONENOTE_SIGNATURE_HASH",
+            "\"${oneNoteSignatureHash.replace("\"", "\\\"")}\"",
+        )
+        // BrowserTabActivity path must use the raw signature hash (not URL-encoded).
+        manifestPlaceholders["onenoteSignatureHash"] =
+            oneNoteSignatureHash.ifBlank { "UNCONFIGURED" }
     }
 
     buildTypes {
@@ -37,6 +63,7 @@ android {
     }
     buildFeatures {
         aidl = true
+        buildConfig = true
         compose = true
     }
 }
@@ -79,6 +106,9 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.exifinterface)
     implementation(libs.mlkit.text.recognition)
+    // Notes N2b: Microsoft identity for read-only OneNote connector (ADR-003).
+    // Reviewed in docs/dependency-review/msal-android-8.4.1-review.md.
+    implementation(libs.msal.android)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

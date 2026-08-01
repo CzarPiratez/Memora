@@ -23,6 +23,9 @@ exifinterface = "1.3.7"
 # Bundled Latin OCR for screenshot extract (ADR-026). Reviewed in
 # docs/dependency-review/mlkit-text-recognition-16.0.1-review.md.
 mlkitTextRecognition = "16.0.1"
+# Notes N2b Microsoft identity. Reviewed in
+# docs/dependency-review/msal-android-8.4.1-review.md.
+msalAndroid = "8.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +66,7 @@ sqlcipher-android = { group = "net.zetetic", name = "sqlcipher-android", version
 androidx-sqlite = { group = "androidx.sqlite", name = "sqlite", version.ref = "androidxSqlite" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+msal-android = { group = "com.microsoft.identity.client", name = "msal", version.ref = "msalAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -37,7 +37,12 @@ class ClearMemoraDerivedDataIntegrationTest {
     fun setUp() {
         ProductionDatabaseTestCleanup.clearAll(context)
         handle = MemoraDatabaseHandle(context)
-        clearDerivedData = ClearMemoraDerivedData(handle, WorkManager.getInstance(context))
+        clearDerivedData = ClearMemoraDerivedData(
+            handle,
+            WorkManager.getInstance(context),
+            com.memora.app.data.notes.KeystoreNotesProviderTokenVault(context),
+            com.memora.app.application.notes.NoOpOneNoteInteractiveAuth(),
+        )
     }
 
     @After

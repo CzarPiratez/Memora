@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,10 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * Honesty-only Notes setup entry (N1). No Connect action and no provider SDK.
+ * Notes setup screen (N1 honesty + N2b Connect/Disconnect).
+ * Does not claim notes are indexed.
  */
 @Composable
 fun NotesConnectorHonestyScreen(
+    uiState: NotesConnectorUiState,
+    onConnect: () -> Unit,
+    onDisconnect: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -33,7 +39,7 @@ fun NotesConnectorHonestyScreen(
             .padding(horizontal = 32.dp)
             .padding(vertical = 24.dp),
     ) {
-        Button(onClick = onBack) {
+        Button(onClick = onBack, enabled = !uiState.isBusy) {
             Text(NotesConnectorHonestyCopy.BACK_LABEL)
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -77,12 +83,45 @@ fun NotesConnectorHonestyScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = NotesConnectorHonestyCopy.STATUS_BODY,
+            text = uiState.statusBody,
             style = MaterialTheme.typography.bodyMedium,
         )
+        uiState.feedbackMessage?.let { message ->
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        if (uiState.isBusy) {
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator()
+        }
+        if (uiState.showConnect) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onConnect,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(NotesConnectorHonestyCopy.CONNECT_LABEL)
+            }
+        }
+        if (uiState.showDisconnect) {
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                onClick = onDisconnect,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(NotesConnectorHonestyCopy.DISCONNECT_LABEL)
+            }
+        }
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = onBack,
+            enabled = !uiState.isBusy,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(NotesConnectorHonestyCopy.BACK_LABEL)

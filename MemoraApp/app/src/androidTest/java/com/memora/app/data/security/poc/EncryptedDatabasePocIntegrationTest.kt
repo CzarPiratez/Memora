@@ -50,15 +50,16 @@ class EncryptedDatabasePocIntegrationTest {
     }
 
     @Test
-    fun release_app_still_requests_no_internet_permission() {
+    fun release_app_declares_internet_for_notes_connector_not_for_database_poc() {
         val requested = context.packageManager
             .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
             .requestedPermissions
             ?.toList()
             .orEmpty()
 
-        assertFalse(
-            "Memora must not request INTERNET for the encrypted-database PoC.",
+        assertTrue(
+            "Notes N2b adds INTERNET for Microsoft OneNote source access; " +
+                "the encrypted-database PoC still must not perform network I/O.",
             Manifest.permission.INTERNET in requested,
         )
     }

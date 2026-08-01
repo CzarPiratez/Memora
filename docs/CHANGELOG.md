@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Notes connector N2b MSAL Connect / Disconnect
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** MSAL 8.4.1; INTERNET for Microsoft source access; Connect /
+  Disconnect OneNote; Keystore vault + MSAL cache clear; scopes Notes.Read,
+  User.Read, offline_access. No Graph discovery yet (N3).
+- **Verification:** Unit tests passed; emulator Connect (`mir.m@outlook.com`) +
+  Disconnect accepted by user 2026-08-01.
+- **Truthfulness:** Connected ≠ notes indexed/searchable.
+
+### Notes connector N2a vault + registration gate
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** Keystore-backed OneNote session vault; `BuildConfig` client ID /
+  signature hash from `local.properties`; Notes status copy for registration
+  required / disconnected / session-present; Disconnect + clear-index clears
+  vault. Azure runbook + planned MSAL review. **No** MSAL, INTERNET, or Graph.
+- **Verification:** Unit tests for copy, config, in-memory vault, secret absence.
+  Emulator smoke pending user.
+- **Truthfulness:** Does not claim notes are searchable; Connect not offered until
+  N2b after Azure registration.
+
 ### Notes connector N1 honesty UI
 
 - **Requirements:** P-03, P-08, P-19; ADR-003.

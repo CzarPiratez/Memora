@@ -89,6 +89,8 @@ import com.memora.app.ui.setup.DocumentTreeSetupViewModel
 import com.memora.app.ui.setup.PdfFolderIndexingState
 import com.memora.app.ui.setup.NotesConnectorHonestyCopy
 import com.memora.app.ui.setup.NotesConnectorHonestyScreen
+import com.memora.app.ui.setup.NotesConnectorUiState
+import com.memora.app.ui.setup.NotesConnectorViewModel
 import com.memora.app.ui.setup.PdfLocalReadingCopy
 import com.memora.app.ui.setup.PdfLocalReadingState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
@@ -133,6 +135,7 @@ class MainActivity : ComponentActivity() {
     private val screenshotOcrKeywordSearchViewModel: ScreenshotOcrKeywordSearchViewModel by viewModels()
     private val photoOcrKeywordSearchViewModel: PhotoOcrKeywordSearchViewModel by viewModels()
     private val assetMemorySetupViewModel: AssetMemorySetupViewModel by viewModels()
+    private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,6 +151,7 @@ class MainActivity : ComponentActivity() {
                 screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
             val photoOcrKeywordSearchUiState by photoOcrKeywordSearchViewModel.uiState.collectAsState()
             val assetMemorySetupState by assetMemorySetupViewModel.uiState.collectAsState()
+            val notesConnectorUiState by notesConnectorViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -161,6 +165,7 @@ class MainActivity : ComponentActivity() {
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
                         assetMemorySetupState = assetMemorySetupState,
+                        notesConnectorUiState = notesConnectorUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
@@ -232,7 +237,11 @@ class MainActivity : ComponentActivity() {
                             screenshotOcrKeywordSearchViewModel.onDerivedDataCleared()
                             photoOcrKeywordSearchViewModel.onDerivedDataCleared()
                             assetMemorySetupViewModel.onDerivedDataCleared()
+                            notesConnectorViewModel.onDerivedDataCleared()
                         },
+                        onNotesDisconnect = notesConnectorViewModel::onDisconnectRequested,
+                        onNotesConnect = notesConnectorViewModel::onConnectRequested,
+                        onNotesHonestyOpened = notesConnectorViewModel::refresh,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -252,6 +261,7 @@ fun MemoraApp(
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
+    notesConnectorUiState: NotesConnectorUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -296,6 +306,9 @@ fun MemoraApp(
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
     onClearIndexAcknowledged: () -> Unit,
+    onNotesDisconnect: () -> Unit,
+    onNotesConnect: (android.app.Activity) -> Unit,
+    onNotesHonestyOpened: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -318,6 +331,7 @@ fun MemoraApp(
             screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
             photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
             assetMemorySetupState = assetMemorySetupState,
+            notesConnectorUiState = notesConnectorUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
@@ -363,6 +377,9 @@ fun MemoraApp(
             onClearIndexConfirmDismissed = onClearIndexConfirmDismissed,
             onClearIndexConfirmed = onClearIndexConfirmed,
             onClearIndexAcknowledged = onClearIndexAcknowledged,
+            onNotesDisconnect = onNotesDisconnect,
+            onNotesConnect = onNotesConnect,
+            onNotesHonestyOpened = onNotesHonestyOpened,
             modifier = modifier,
         )
     }
@@ -378,6 +395,7 @@ private fun MemoraAppReady(
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
+    notesConnectorUiState: NotesConnectorUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -422,6 +440,9 @@ private fun MemoraAppReady(
     onClearIndexConfirmDismissed: () -> Unit,
     onClearIndexConfirmed: () -> Unit,
     onClearIndexAcknowledged: () -> Unit,
+    onNotesDisconnect: () -> Unit,
+    onNotesConnect: (android.app.Activity) -> Unit,
+    onNotesHonestyOpened: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -485,10 +506,19 @@ private fun MemoraAppReady(
                 modifier = modifier,
             )
 
-            isShowingNotesHonesty -> NotesConnectorHonestyScreen(
-                onBack = { isShowingNotesHonesty = false },
-                modifier = modifier,
-            )
+            isShowingNotesHonesty -> {
+                LaunchedEffect(Unit) {
+                    onNotesHonestyOpened()
+                }
+                val activity = context as ComponentActivity
+                NotesConnectorHonestyScreen(
+                    uiState = notesConnectorUiState,
+                    onConnect = { onNotesConnect(activity) },
+                    onDisconnect = onNotesDisconnect,
+                    onBack = { isShowingNotesHonesty = false },
+                    modifier = modifier,
+                )
+            }
 
             isShowingPrivacyScreen -> PrivacyScreen(
                 setupUiState = setupUiState,
