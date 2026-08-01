@@ -1029,9 +1029,9 @@ substring, current fingerprint only). Change control:
 
 ## Next approved engineering step
 
-**Notes N0 opened** (`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`). After user
-accepts the phase plan, implement **N1 only** (honesty + setup entry; no MSAL/Graph).
-N2+ needs Microsoft app registration and a separate verification gate. Local-AI pack
+**Notes N1 accepted** (`docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md`). Welcome →
+About Notes indexing honesty UI verified. Next code is **N2** (Microsoft auth +
+secure token vault; needs Azure app registration before real sign-in). Local-AI pack
 measured baselines remain an alternate track when approved. No AI Pack / semantic
 Memory ranking claims. Interim recall remains PDF/screenshot/photo keyword search;
 Asset Memories are persisted facts only.

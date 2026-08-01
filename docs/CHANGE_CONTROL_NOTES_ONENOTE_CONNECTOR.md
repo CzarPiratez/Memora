@@ -1,8 +1,8 @@
 # Change Control — Notes connector (OneNote-class)
 
 **Date opened:** 2026-07-31  
-**Status:** Open — plan approved pending; **no Notes implementation code in this
-record yet**.  
+**Status:** N0 accepted; **N1 honesty UI accepted** (user pass 2026-08-01).
+  No MSAL/Graph yet. Next code slice is N2.  
 **Requirements:** P-03, P-08, P-15, P-19; A-01, A-02, A-06; product contract Notes
 row; ADR-001, ADR-003, ADR-004.  
 **Decision guardrails:** ADR-003 Choice 1 — one narrowly scoped, read-only
@@ -117,4 +117,15 @@ bounded drains. Understanding/AI Pack remain out of scope for these phases.
   at N1; traceability P-08/P-19 path language updated.
 - **Not delivered:** MSAL, Graph, note Room tables, Connect OneNote UI beyond any
   honesty-only entry approved in N1.
-- **Git:** Record after user accepts N0 and local commit of docs.
+- **Git:** `597de86`.
+
+## Acceptance record — N1 (accepted 2026-08-01)
+
+- **Delivered:** Welcome → **About Notes indexing** opens honesty screen
+  (`NotesConnectorHonestyCopy` / `NotesConnectorHonestyScreen`). Explains OneNote
+  connector, Microsoft auth ≠ Memora account, network for source access, and that
+  notes are not indexed yet. No Connect button, no MSAL/Graph dependency.
+- **Automated:** `NotesConnectorHonestyCopyTest` passed.
+- **Emulator/manual:** User confirmed Notes indexing copy and Back returns to
+  welcome (2026-08-01).
+- **Git:** Record in the N1 commit after this acceptance update.

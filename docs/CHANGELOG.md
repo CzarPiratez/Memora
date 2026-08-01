@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Notes connector N1 honesty UI
+
+- **Requirements:** P-03, P-08, P-19; ADR-003.
+- **Delivered:** Welcome → About Notes indexing honesty screen; OneNote + network
+  framing; explicit “not indexed yet”; no Connect / MSAL / Graph.
+- **Verification:** `NotesConnectorHonestyCopyTest` passed; emulator UI + Back
+  accepted by user 2026-08-01.
+- **Truthfulness:** Does not claim notes are searchable or connected.
+
 ### Notes connector N0 opened (OneNote-class)
 
 - **Requirements:** P-03, P-08, P-15, P-19; ADR-001, ADR-003, ADR-004.

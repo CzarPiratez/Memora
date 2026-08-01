@@ -87,6 +87,8 @@ import com.memora.app.ui.setup.DocumentTreeConnectionState
 import com.memora.app.ui.setup.DocumentTreeSetupUiState
 import com.memora.app.ui.setup.DocumentTreeSetupViewModel
 import com.memora.app.ui.setup.PdfFolderIndexingState
+import com.memora.app.ui.setup.NotesConnectorHonestyCopy
+import com.memora.app.ui.setup.NotesConnectorHonestyScreen
 import com.memora.app.ui.setup.PdfLocalReadingCopy
 import com.memora.app.ui.setup.PdfLocalReadingState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
@@ -449,6 +451,7 @@ private fun MemoraAppReady(
     var isShowingScreenshotOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingPhotoOcrKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
+    var isShowingNotesHonesty by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
@@ -479,6 +482,11 @@ private fun MemoraAppReady(
         ClearDerivedDataPhase.Idle -> when {
             isShowingOpenSourceNotices -> OpenSourceNoticesScreen(
                 onBack = { isShowingOpenSourceNotices = false },
+                modifier = modifier,
+            )
+
+            isShowingNotesHonesty -> NotesConnectorHonestyScreen(
+                onBack = { isShowingNotesHonesty = false },
                 modifier = modifier,
             )
 
@@ -595,6 +603,7 @@ private fun MemoraAppReady(
                     isShowingPhotoOcrKeywordSearch = true
                     onPhotoOcrKeywordSearchScreenVisible()
                 },
+                onAboutNotesIndexing = { isShowingNotesHonesty = true },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
                 modifier = modifier,
@@ -706,6 +715,7 @@ fun MemoraWelcomeScreen(
     onFindSavedPdfText: () -> Unit,
     onFindSavedScreenshotText: () -> Unit,
     onFindSavedPhotoText: () -> Unit,
+    onAboutNotesIndexing: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
@@ -779,6 +789,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(PhotoOcrKeywordSearchCopy.SCREEN_TITLE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = onAboutNotesIndexing,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(NotesConnectorHonestyCopy.ENTRY_LABEL)
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(
