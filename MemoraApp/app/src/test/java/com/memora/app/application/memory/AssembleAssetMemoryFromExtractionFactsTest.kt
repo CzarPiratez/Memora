@@ -17,7 +17,9 @@ import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryInsertResult
+import com.memora.app.domain.memory.MemoryMeaningLookup
 import com.memora.app.domain.memory.MemoryRepository
+import com.memora.app.domain.memory.MemoryRevisionId
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -205,6 +207,10 @@ private class FakeMemoryRepository : MemoryRepository {
     override suspend fun countCurrentReady(): Int = history.size
 
     override suspend fun listCurrentReadySummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
+
+    override suspend fun findCurrentReadyMeaningLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
 }
 
 private class FakeAssetRepository(asset: Asset) : AssetRepository {

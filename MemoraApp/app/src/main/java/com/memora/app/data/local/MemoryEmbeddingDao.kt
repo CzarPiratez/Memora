@@ -32,4 +32,14 @@ interface MemoryEmbeddingDao {
         """,
     )
     suspend fun countForModel(modelId: String, modelVersion: String): Int
+
+    @Query(
+        """
+        SELECT * FROM memory_embeddings
+        WHERE model_id = :modelId
+          AND model_version = :modelVersion
+        ORDER BY created_at_epoch_ms DESC
+        """,
+    )
+    suspend fun listForModel(modelId: String, modelVersion: String): List<MemoryEmbeddingEntity>
 }

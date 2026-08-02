@@ -55,8 +55,8 @@ object AiPackDisclosureCopy {
             "Meaning search stays off until the model is installed."
 
     const val STATUS_MODEL_READY =
-        "Meaning model is installed on this phone. You can build a meaning index from " +
-            "saved Asset Memories. A separate Find-by-meaning screen follows in the next slice."
+        "Meaning model is installed on this phone. Build a meaning index from saved " +
+            "Asset Memories, then use Find by meaning on Welcome for candidate recall."
 
     const val STATUS_VERIFYING =
         "Pack verification is in progress. Meaning search stays off until verification finishes."

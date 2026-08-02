@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E5b2 Find-by-meaning candidate recall
+
+- **Requirements:** A-01, A-05; ADR-024, ADR-025, ADR-029, ADR-031.
+- **Delivered:** Welcome → Find by meaning; cosine candidate ranking over indexed
+  Asset Memories; Why-this-result cites stored summary + cue; readiness honesty.
+- **Verification:** ranking + ViewModel + copy unit tests; full debug unit suite.
+- **Truthfulness:** Compact candidate path only — not measured AVAILABLE; open
+  original from meaning hits deferred.
+
 ### Local-AI embedding-first track E5b1 MediaPipe embedder + model download
 
 - **Requirements:** A-01, A-02, A-07; ADR-029, ADR-031.

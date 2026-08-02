@@ -79,6 +79,30 @@ interface MemoryDao {
     )
     suspend fun listCurrentReadySummaries(limit: Int): List<MemorySummaryRow>
 
+    @Query(
+        """
+        SELECT
+            m.revision_id AS revision_id,
+            m.memory_id AS memory_id,
+            m.source_id AS source_id,
+            m.source_asset_key AS source_asset_key,
+            m.summary_text AS summary_text,
+            a.asset_type AS asset_type,
+            a.display_name AS display_name
+        FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = 'READY'
+          AND m.summary_text != ''
+          AND m.revision_id IN (:revisionIds)
+        """,
+    )
+    suspend fun findCurrentReadyMeaningLookups(
+        revisionIds: List<String>,
+    ): List<MemoryMeaningLookupRow>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: MemoryEntity)
 
@@ -145,4 +169,14 @@ data class MemorySummaryRow(
     @ColumnInfo(name = "revision_id") val revisionId: String,
     @ColumnInfo(name = "memory_id") val memoryId: String,
     @ColumnInfo(name = "summary_text") val summaryText: String,
+)
+
+data class MemoryMeaningLookupRow(
+    @ColumnInfo(name = "revision_id") val revisionId: String,
+    @ColumnInfo(name = "memory_id") val memoryId: String,
+    @ColumnInfo(name = "source_id") val sourceId: String,
+    @ColumnInfo(name = "source_asset_key") val sourceAssetKey: String,
+    @ColumnInfo(name = "summary_text") val summaryText: String,
+    @ColumnInfo(name = "asset_type") val assetType: String,
+    @ColumnInfo(name = "display_name") val displayName: String?,
 )

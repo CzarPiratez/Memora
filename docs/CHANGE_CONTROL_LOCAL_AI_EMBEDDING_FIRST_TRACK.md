@@ -1,9 +1,10 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E5b1 **accepted** (engineering lead). MediaPipe average-word
+**Status:** E0–E5b2 **accepted** (engineering lead). MediaPipe average-word
 embedder can become Available after user-approved model download (ADR-031).
-Find-by-meaning search UI is still E5b2.  
+Candidate Find-by-meaning UI ranks indexed Asset Memories; marketing AVAILABLE
+still gated by ADR-024/025 measurements.  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**,
@@ -167,3 +168,19 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
   Asset Memories exist.
 - **Not delivered:** E5b2 Find-by-meaning results UI; larger vendor pack (E4b);
   midrange measured AVAILABLE marketing.
+
+## E5b2 continuation — Find-by-meaning candidate recall UI
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Natural-language candidate recall over indexed memories | Search use case; Welcome Find by meaning; Why-on-hit | Candidate/DEGRADED honesty; no marketing AVAILABLE; no silent keyword fallback |
+
+### Acceptance record — E5b2 (**accepted** 2026-08-03 — engineering lead)
+
+- **Delivered:** `listForModel` + Memory→Asset meaning lookups; `SearchAssetMemoriesByMeaning`;
+  `LoadMeaningSearchReadiness`; Welcome → Find by meaning screen with Why citations;
+  unit tests for ranking/copy/ViewModel.
+- **Automated:** full `:app:testDebugUnitTest` (engineering gate).
+- **User smoke (recommended):** model → build index → Find by meaning with a recall cue.
+- **Not delivered:** Open-original from meaning hits; measured AVAILABLE marketing;
+  larger vendor pack (E4b); product `RecallRanker` Available binding.

@@ -1038,11 +1038,11 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E5b1 closed** 2026-08-03 (ADR-029/030/031;
+**Local-AI embedding-first track E0–E5b2 closed** 2026-08-03 (ADR-029/030/031;
 `docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md`): MediaPipe compact
-embedder via user-approved model download; build meaning index from Asset
-Memories. **Next: E5b2** Find-by-meaning candidate recall UI. Larger vendor pack
-remains E4b.
+embedder via user-approved model download; build meaning index; Welcome
+**Find by meaning** candidate recall with Why citations. **Next:** open original
+from meaning hits, then measured AVAILABLE (ADR-024/025) / E4b larger pack.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

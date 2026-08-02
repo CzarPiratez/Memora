@@ -29,6 +29,10 @@ class RoomMemoryEmbeddingStore(
         dao().countForModel(modelId = model.modelId, modelVersion = model.version)
     }
 
+    override fun listForModel(model: ModelVersionIdentity): List<MemoryEmbeddingRecord> = io {
+        dao().listForModel(modelId = model.modelId, modelVersion = model.version).map { it.toDomain() }
+    }
+
     private fun <T> io(block: suspend () -> T): T =
         runBlocking(Dispatchers.IO) { block() }
 }

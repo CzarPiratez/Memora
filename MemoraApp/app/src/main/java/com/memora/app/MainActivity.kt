@@ -85,6 +85,10 @@ import com.memora.app.ui.search.NotePageKeywordSearchCopy
 import com.memora.app.ui.search.NotePageKeywordSearchScreen
 import com.memora.app.ui.search.NotePageKeywordSearchUiState
 import com.memora.app.ui.search.NotePageKeywordSearchViewModel
+import com.memora.app.ui.search.MeaningSearchCopy
+import com.memora.app.ui.search.MeaningSearchScreen
+import com.memora.app.ui.search.MeaningSearchUiState
+import com.memora.app.ui.search.MeaningSearchViewModel
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -147,6 +151,7 @@ class MainActivity : ComponentActivity() {
     private val assetMemorySetupViewModel: AssetMemorySetupViewModel by viewModels()
     private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
     private val aiPackDisclosureViewModel: AiPackDisclosureViewModel by viewModels()
+    private val meaningSearchViewModel: MeaningSearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,6 +170,7 @@ class MainActivity : ComponentActivity() {
             val assetMemorySetupState by assetMemorySetupViewModel.uiState.collectAsState()
             val notesConnectorUiState by notesConnectorViewModel.uiState.collectAsState()
             val aiPackDisclosureUiState by aiPackDisclosureViewModel.uiState.collectAsState()
+            val meaningSearchUiState by meaningSearchViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -178,6 +184,7 @@ class MainActivity : ComponentActivity() {
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
                         notePageKeywordSearchUiState = notePageKeywordSearchUiState,
+                        meaningSearchUiState = meaningSearchUiState,
                         assetMemorySetupState = assetMemorySetupState,
                         notesConnectorUiState = notesConnectorUiState,
                         aiPackDisclosureUiState = aiPackDisclosureUiState,
@@ -283,6 +290,11 @@ class MainActivity : ComponentActivity() {
                             aiPackDisclosureViewModel::onDownloadModelRequested,
                         onAiPackDisclosureBuildIndex =
                             aiPackDisclosureViewModel::onBuildIndexRequested,
+                        onMeaningQueryChanged = meaningSearchViewModel::onQueryChanged,
+                        onMeaningSearch = meaningSearchViewModel::onSearch,
+                        onMeaningSearchScreenVisible = meaningSearchViewModel::onScreenVisible,
+                        onMeaningQueryCleared = meaningSearchViewModel::onQueryCleared,
+                        onMeaningSearchCancelled = meaningSearchViewModel::onSearchCancelled,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -302,6 +314,7 @@ fun MemoraApp(
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
+    meaningSearchUiState: MeaningSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     aiPackDisclosureUiState: AiPackDisclosureUiState,
@@ -366,6 +379,11 @@ fun MemoraApp(
     onAiPackDisclosureActivate: () -> Unit,
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
+    onMeaningQueryChanged: (String) -> Unit,
+    onMeaningSearch: () -> Unit,
+    onMeaningSearchScreenVisible: () -> Unit,
+    onMeaningQueryCleared: () -> Unit,
+    onMeaningSearchCancelled: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -388,6 +406,7 @@ fun MemoraApp(
             screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
             photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
             notePageKeywordSearchUiState = notePageKeywordSearchUiState,
+            meaningSearchUiState = meaningSearchUiState,
             assetMemorySetupState = assetMemorySetupState,
             notesConnectorUiState = notesConnectorUiState,
             aiPackDisclosureUiState = aiPackDisclosureUiState,
@@ -453,6 +472,11 @@ fun MemoraApp(
             onAiPackDisclosureActivate = onAiPackDisclosureActivate,
             onAiPackDisclosureDownloadModel = onAiPackDisclosureDownloadModel,
             onAiPackDisclosureBuildIndex = onAiPackDisclosureBuildIndex,
+            onMeaningQueryChanged = onMeaningQueryChanged,
+            onMeaningSearch = onMeaningSearch,
+            onMeaningSearchScreenVisible = onMeaningSearchScreenVisible,
+            onMeaningQueryCleared = onMeaningQueryCleared,
+            onMeaningSearchCancelled = onMeaningSearchCancelled,
             modifier = modifier,
         )
     }
@@ -468,6 +492,7 @@ private fun MemoraAppReady(
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
+    meaningSearchUiState: MeaningSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     aiPackDisclosureUiState: AiPackDisclosureUiState,
@@ -532,6 +557,11 @@ private fun MemoraAppReady(
     onAiPackDisclosureActivate: () -> Unit,
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
+    onMeaningQueryChanged: (String) -> Unit,
+    onMeaningSearch: () -> Unit,
+    onMeaningSearchScreenVisible: () -> Unit,
+    onMeaningQueryCleared: () -> Unit,
+    onMeaningSearchCancelled: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -564,6 +594,7 @@ private fun MemoraAppReady(
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
     var isShowingNotesHonesty by rememberSaveable { mutableStateOf(false) }
     var isShowingAiPackDisclosure by rememberSaveable { mutableStateOf(false) }
+    var isShowingMeaningSearch by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
@@ -738,11 +769,30 @@ private fun MemoraAppReady(
                 )
             }
 
+            isShowingMeaningSearch -> {
+                LaunchedEffect(Unit) {
+                    onMeaningSearchScreenVisible()
+                }
+                MeaningSearchScreen(
+                    uiState = meaningSearchUiState,
+                    onQueryChanged = onMeaningQueryChanged,
+                    onQueryCleared = onMeaningQueryCleared,
+                    onSearch = onMeaningSearch,
+                    onSearchCancelled = onMeaningSearchCancelled,
+                    onBack = { isShowingMeaningSearch = false },
+                    modifier = modifier,
+                )
+            }
+
             else -> MemoraWelcomeScreen(
                 assetMemorySetupState = assetMemorySetupState,
                 onBuildAssetMemories = onBuildAssetMemories,
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
+                onFindByMeaning = {
+                    isShowingMeaningSearch = true
+                    onMeaningSearchScreenVisible()
+                },
                 onFindSavedPdfText = {
                     isShowingPdfKeywordSearch = true
                     onPdfKeywordSearchScreenVisible()
@@ -869,6 +919,7 @@ fun MemoraWelcomeScreen(
     onBuildAssetMemories: () -> Unit,
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
+    onFindByMeaning: () -> Unit,
     onFindSavedPdfText: () -> Unit,
     onFindSavedScreenshotText: () -> Unit,
     onFindSavedPhotoText: () -> Unit,
@@ -929,6 +980,13 @@ fun MemoraWelcomeScreen(
             onBuild = onBuildAssetMemories,
         )
         Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onFindByMeaning,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(MeaningSearchCopy.ENTRY_LABEL)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = onFindSavedPdfText,
             modifier = Modifier.fillMaxWidth(),

@@ -2,6 +2,9 @@ package com.memora.app.domain.memory
 
 import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAssetKey
+import com.memora.app.domain.asset.SourceId
 
 /**
  * Revision-safe persistence for Asset Memories.
@@ -23,6 +26,14 @@ interface MemoryRepository {
 
     /** Lightweight summary rows for embedding index drains (current fingerprint only). */
     suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary>
+
+    /**
+     * Current-fingerprint READY Memory rows for meaning-hit display, keyed by revision.
+     * Missing / stale revisions are omitted.
+     */
+    suspend fun findCurrentReadyMeaningLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, MemoryMeaningLookup>
 }
 
 data class MemoryEmbeddingSummary(
@@ -30,6 +41,22 @@ data class MemoryEmbeddingSummary(
     val memoryId: MemoryId,
     val summaryText: String,
 )
+
+/** Source-joined Memory fields needed to render a meaning-search hit. */
+data class MemoryMeaningLookup(
+    val revisionId: MemoryRevisionId,
+    val memoryId: MemoryId,
+    val sourceId: SourceId,
+    val sourceAssetKey: SourceAssetKey,
+    val assetType: AssetType,
+    val displayLabel: String,
+    val summaryText: String,
+) {
+    init {
+        require(displayLabel.isNotBlank()) { "Meaning lookup needs a display label." }
+        require(summaryText.isNotBlank()) { "Meaning lookup needs summary text." }
+    }
+}
 
 sealed interface MemoryInsertResult {
     data object Inserted : MemoryInsertResult

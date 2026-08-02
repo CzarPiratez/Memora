@@ -98,4 +98,7 @@ interface MemoryEmbeddingStore {
     fun upsert(record: MemoryEmbeddingRecord)
 
     fun countForModel(model: ModelVersionIdentity): Int
+
+    /** All vectors for one model identity (candidate recall drain). */
+    fun listForModel(model: ModelVersionIdentity): List<MemoryEmbeddingRecord>
 }

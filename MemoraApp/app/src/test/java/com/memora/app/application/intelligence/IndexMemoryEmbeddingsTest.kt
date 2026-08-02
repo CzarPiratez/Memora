@@ -97,5 +97,10 @@ class IndexMemoryEmbeddingsTest {
             records.values.count {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
+
+        override fun listForModel(model: ModelVersionIdentity): List<MemoryEmbeddingRecord> =
+            records.values.filter {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }
     }
 }
