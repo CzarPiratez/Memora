@@ -4,7 +4,7 @@ import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 
 /**
- * Honesty copy for embedding-first AI Pack disclosure (ADR-029 E3).
+ * Honesty copy for embedding-first AI Pack disclosure / offline container (E3–E4a).
  *
  * Never claims Local Intelligence AVAILABLE or that meaning search works today.
  */
@@ -22,25 +22,24 @@ object AiPackDisclosureCopy {
 
     const val SCOPE_BODY =
         "An AI Pack is model data stored privately in Memora. It is not your photos, " +
-            "PDFs, or notes. Core recall stays on this phone after a pack is installed. " +
+            "PDFs, or notes. This build can verify and store a small pack container for " +
+            "Memora's install pipeline. That is not meaning-based search yet. " +
             "Today's Find saved text buttons remain keyword matching only."
 
     const val NETWORK_TITLE = "Network"
 
     const val NETWORK_BODY =
-        "A future pack download would use the network for pack bytes only — never to " +
-            "upload your memories. This build does not download a pack. Acknowledging " +
-            "below records that you saw the planned size and license; it does not " +
-            "install anything or turn on meaning search."
+        "Verifying the pack container in this build stays on this phone — no download. " +
+            "A future larger embedding model pack may use the network for pack bytes only, " +
+            "never to upload your memories."
 
-    const val SIZE_TITLE = "Planned size (estimate)"
+    const val SIZE_TITLE = "Size on this phone"
 
     val SIZE_BODY: String =
-        "Planned download about " +
-            "${EmbeddingFirstAiPackTrack.PLANNED_DOWNLOAD_SIZE_BYTES / (1024L * 1024L)} MB. " +
-            "Planned free space about " +
-            "${EmbeddingFirstAiPackTrack.PLANNED_STORAGE_REQUIREMENT_BYTES / (1024L * 1024L)} MB. " +
-            "These are planning estimates until a pack vendor is chosen."
+        "Pack container about " +
+            "${EmbeddingFirstAiPackTrack.PLANNED_DOWNLOAD_SIZE_BYTES} bytes to verify, " +
+            "about ${EmbeddingFirstAiPackTrack.PLANNED_STORAGE_REQUIREMENT_BYTES} bytes " +
+            "of private storage. A larger embedding model may replace this container later."
 
     const val LICENSE_TITLE = "License"
 
@@ -53,8 +52,8 @@ object AiPackDisclosureCopy {
             "Keyword search on Welcome still works for text Memora has already saved."
 
     const val STATUS_ACKNOWLEDGED_NOT_INSTALLED =
-        "Disclosure recorded on this phone. The pack is not installed. " +
-            "Download is not available in this build yet. Meaning search stays off."
+        "Disclosure recorded. You can verify and store the pack container next. " +
+            "Meaning search stays off."
 
     const val STATUS_VERIFYING =
         "Pack verification is in progress. Meaning search stays off until verification finishes."
@@ -64,15 +63,26 @@ object AiPackDisclosureCopy {
             "Your keyword search and original files are unchanged."
 
     const val STATUS_ACTIVE_NOT_CLAIMING_AVAILABLE =
-        "A pack install record is active for integrity tracking, but Memora does not " +
-            "claim meaning-based search is ready in the product UI until a later measured step."
+        "Pack container verified and stored on this phone. Memora does not claim " +
+            "meaning-based search is ready until a later measured embedding step."
 
     const val ACKNOWLEDGE_LABEL = "I understand these details"
+
+    const val ACTIVATE_LABEL = "Verify and store pack container"
 
     const val BACK_LABEL = "Back"
 
     const val FEEDBACK_ACKNOWLEDGED =
-        "Saved. Download is not available in this build yet. Meaning search stays off."
+        "Saved. Next you can verify and store the pack container. Meaning search stays off."
+
+    const val FEEDBACK_ACTIVATED =
+        "Pack container verified and stored. Meaning search stays off."
+
+    const val FEEDBACK_ALREADY_ACTIVE =
+        "Pack container is already verified on this phone. Meaning search stays off."
+
+    const val FEEDBACK_DISCLOSURE_REQUIRED =
+        "Acknowledge the details above before verifying the pack container."
 
     fun statusBody(
         installationState: AiPackInstallState,

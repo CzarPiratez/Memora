@@ -836,4 +836,27 @@ remain integrity evidence only.
 indexed. Embeddings create the highest user value next from facts Memora already
 extracts, while Vision packs can follow without blocking natural-language recall.
 
+## ADR-030: Offline pack-container activation before vendor download
+
+**Status:** Accepted
+
+**Decision:** Split embedding-pack E4 into:
+
+1. **E4a (now):** After disclosure, user-affirmative **offline** verify-and-store of
+   a Memora-owned synthetic embedding **pack container** into app-private
+   no-backup storage, with ledger ACTIVE via existing integrity verifier.
+2. **E4b (later):** Replace/extend with user-approved network download of a chosen
+   vendor embedding model pack (INTERNET scoped; pack bytes only).
+
+`EmbeddingEngine` remains Unavailable through E4a. Ledger ACTIVE means the install
+pipeline succeeded — not Local Intelligence AVAILABLE / meaning search.
+
+**Privacy and truthfulness:** No INTERNET permission in E4a. No user content in
+pack files. Clear Memora index also deletes pack payload files. Product copy must
+say meaning search stays off.
+
+**Reason:** Waiting on an unresolved vendor choice must not block proving
+disclosure → verify → durable ACTIVE on real devices — the trust path users will
+rely on when a real model lands.
+
 

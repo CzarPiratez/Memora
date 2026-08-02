@@ -1,11 +1,13 @@
 package com.memora.app.data.security
 
 import android.content.Context
+import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
 import java.io.File
 
 /**
- * Deletes only Memora-owned encrypted database identity files and the Keystore wrap
- * alias. Never releases Android persistable URI grants or mutates user source files.
+ * Deletes only Memora-owned encrypted database identity files, AI Pack payload
+ * files, and the Keystore wrap alias. Never releases Android persistable URI
+ * grants or mutates user source files.
  */
 object MemoraDerivedDataClearer {
     fun clearOwnedState(context: Context) {
@@ -25,6 +27,11 @@ object MemoraDerivedDataClearer {
             ProductionDatabaseIdentity.PLAINTEXT_RETAINED_NAME,
         ).forEach { name ->
             deleteDatabaseFiles(appContext, name)
+        }
+        val packRoot = File(appContext.noBackupFilesDir, NoBackupAiPackPayloadStore.ROOT_DIR_NAME)
+        if (packRoot.exists()) {
+            packRoot.listFiles()?.forEach { it.delete() }
+            packRoot.delete()
         }
     }
 

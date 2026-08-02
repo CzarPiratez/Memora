@@ -1,10 +1,9 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E3 **accepted** (engineering lead). Engines remain Unavailable;
-no AVAILABLE UI; no pack download. Product `AiPackManager` is ledger-backed
-(empty Room table ⇒ NOT_INSTALLED). E3 disclosure UI records affirmative
-acknowledgment only.  
+**Status:** E0–E4a **accepted** (engineering lead). Engines remain Unavailable;
+no AVAILABLE UI; no INTERNET pack download yet (ADR-030). Offline pack-container
+verify/store can mark ledger ACTIVE after disclosure.  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**.  
@@ -46,7 +45,8 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 | **E1** | Install ledger + disclosure ack rules; ledger-backed `AiPackManager` | Domain + unit tests | Never ACTIVE without verified evidence; product engines stay Unavailable |
 | **E2** | Persist ledger in Room + migration; still no download | Data adapter | Schema honesty; clear-data clears pack state |
 | **E3** | Disclosure UI (size/storage/license) for planned embedding pack | UI + copy | Affirmative action; no silent install; no AVAILABLE claim |
-| **E4** | Download + atomic verify for chosen pack bytes | Platform + INTERNET scoped | Pack-only network; retain prior known-good |
+| **E4a** | Offline verify/store pack container after disclosure | Platform + use case; no INTERNET | Ledger ACTIVE ≠ AVAILABLE; clear index clears pack files |
+| **E4b** | Network download + verify for chosen vendor pack | Platform + INTERNET scoped | Pack-only network; retain prior known-good |
 | **E5** | Bind `EmbeddingEngine`; index + recall candidate path; measure | Intelligence + recall | ADR-024 matrix + benchmark claims before AVAILABLE marketing |
 
 **Recommended next code after E0:** **E1 only**.
@@ -115,5 +115,19 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 - **Automated:** `AiPackDisclosureCopyTest`, `AiPackDisclosureViewModelTest`.
 - **User smoke (optional):** open disclosure, tap acknowledge, reopen — status
   shows disclosure recorded; meaning search still off.
-- **Not delivered:** E4 download/verify, E5 EmbeddingEngine bind / meaning recall
-  UI, AVAILABLE claims.
+- **Not delivered at E3 close:** E4 activate/download, E5 EmbeddingEngine bind.
+
+## E4a continuation — Offline pack-container activate (ADR-030)
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Disclosure → verify → store → ACTIVE offline | Fixture + `ActivateOfflineEmbeddingPackContainer` + no-backup store + UI CTA | No INTERNET; EmbeddingEngine Unavailable; clear deletes payloads |
+
+### Acceptance record — E4a (**accepted** 2026-08-03 — engineering lead)
+
+- **Delivered:** `EmbeddingFirstOfflinePackFixture`; `AiPackPayloadStore` /
+  `NoBackupAiPackPayloadStore`; activate use case; disclosure UI
+  **Verify and store pack container**; clear-index deletes pack files; ADR-030.
+- **Automated:** activate use case + disclosure ViewModel/copy tests.
+- **Honesty:** ACTIVE container ≠ meaning search AVAILABLE.
+- **Not delivered:** E4b network download, E5 EmbeddingEngine / meaning recall UI.

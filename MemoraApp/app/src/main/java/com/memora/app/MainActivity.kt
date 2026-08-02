@@ -277,6 +277,8 @@ class MainActivity : ComponentActivity() {
                         onAiPackDisclosureOpened = aiPackDisclosureViewModel::refresh,
                         onAiPackDisclosureAcknowledge =
                             aiPackDisclosureViewModel::onAcknowledgeRequested,
+                        onAiPackDisclosureActivate =
+                            aiPackDisclosureViewModel::onActivateRequested,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -357,6 +359,7 @@ fun MemoraApp(
     onNotesHonestyOpened: () -> Unit,
     onAiPackDisclosureOpened: () -> Unit,
     onAiPackDisclosureAcknowledge: () -> Unit,
+    onAiPackDisclosureActivate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -441,6 +444,7 @@ fun MemoraApp(
             onNotesHonestyOpened = onNotesHonestyOpened,
             onAiPackDisclosureOpened = onAiPackDisclosureOpened,
             onAiPackDisclosureAcknowledge = onAiPackDisclosureAcknowledge,
+            onAiPackDisclosureActivate = onAiPackDisclosureActivate,
             modifier = modifier,
         )
     }
@@ -517,6 +521,7 @@ private fun MemoraAppReady(
     onNotesHonestyOpened: () -> Unit,
     onAiPackDisclosureOpened: () -> Unit,
     onAiPackDisclosureAcknowledge: () -> Unit,
+    onAiPackDisclosureActivate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -605,6 +610,7 @@ private fun MemoraAppReady(
                 AiPackDisclosureScreen(
                     uiState = aiPackDisclosureUiState,
                     onAcknowledge = onAiPackDisclosureAcknowledge,
+                    onActivate = onAiPackDisclosureActivate,
                     onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )

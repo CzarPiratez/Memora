@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 fun AiPackDisclosureScreen(
     uiState: AiPackDisclosureUiState,
     onAcknowledge: () -> Unit,
+    onActivate: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -82,6 +83,16 @@ fun AiPackDisclosureScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.ACKNOWLEDGE_LABEL)
+            }
+        }
+        if (uiState.showActivate) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onActivate,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(AiPackDisclosureCopy.ACTIVATE_LABEL)
             }
         }
     }

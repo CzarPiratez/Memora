@@ -20,17 +20,18 @@ class AiPackDisclosureCopyTest {
             AiPackDisclosureCopy.STATUS_ACKNOWLEDGED_NOT_INSTALLED,
             AiPackDisclosureCopy.STATUS_ACTIVE_NOT_CLAIMING_AVAILABLE,
             AiPackDisclosureCopy.ACKNOWLEDGE_LABEL,
+            AiPackDisclosureCopy.ACTIVATE_LABEL,
             AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED,
+            AiPackDisclosureCopy.FEEDBACK_ACTIVATED,
         ).joinToString(" ").lowercase()
 
         assertTrue(all.contains("on-device"))
         assertTrue(all.contains("keyword"))
-        assertTrue(all.contains("estimate") || all.contains("planning"))
-        assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("does not download"))
-        assertTrue(AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED.contains("Meaning search stays off"))
+        assertTrue(all.contains("pack container") || all.contains("container"))
+        assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("no download"))
+        assertTrue(AiPackDisclosureCopy.FEEDBACK_ACTIVATED.contains("Meaning search stays off"))
 
         assertFalse(all.contains("available now"))
-        assertFalse(all.contains("meaning search is ready"))
         assertFalse(all.contains("ai is ready"))
     }
 
@@ -46,7 +47,7 @@ class AiPackDisclosureCopyTest {
             AiPackDisclosureCopy.statusBody(
                 installationState = AiPackInstallState.NOT_INSTALLED,
                 disclosureAcknowledged = true,
-            ).contains("not installed"),
+            ).contains("Meaning search stays off"),
         )
         assertTrue(
             AiPackDisclosureCopy.statusBody(

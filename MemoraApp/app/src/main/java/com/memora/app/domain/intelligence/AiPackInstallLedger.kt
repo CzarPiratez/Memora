@@ -112,43 +112,32 @@ interface AiPackInstallLedger {
 }
 
 /**
- * First implementation track identity (ADR-029). Vendor/model bytes remain TBD.
+ * First implementation track identity (ADR-029 / ADR-030).
  *
- * Size/license fields are **planning disclosure estimates** for E3 affirmative
- * acknowledgment only — not a downloadable artifact and not an AVAILABLE claim.
+ * Disclosure sizes follow [EmbeddingFirstOfflinePackFixture] (offline container).
+ * A future vendor embedding model may replace the container payload; meaning search
+ * stays Unavailable until EmbeddingEngine is bound (E5).
  */
 object EmbeddingFirstAiPackTrack {
     val capability: CapabilityId = CapabilityId.EMBEDDING
 
-    /** Stable id namespace for the future embedding pack — not a downloadable artifact. */
     const val PLANNED_PACK_ID = "memora-embedding-pack-v1"
 
-    const val PLANNED_MODEL_ID = "embedding-pack-planned"
-    const val PLANNED_MODEL_VERSION = "0.0.0-planned"
+    const val PLANNED_MODEL_ID = "embedding-pack-container"
 
-    /** Planning estimate only (~25 MiB). Final size lands with a chosen vendor pack. */
-    const val PLANNED_DOWNLOAD_SIZE_BYTES = 25L * 1024L * 1024L
+    const val PLANNED_MODEL_VERSION = "0.1.0-container"
 
-    /** Planning estimate only (~40 MiB on-device). */
-    const val PLANNED_STORAGE_REQUIREMENT_BYTES = 40L * 1024L * 1024L
+    val PLANNED_DOWNLOAD_SIZE_BYTES: Long
+        get() = EmbeddingFirstOfflinePackFixture.validManifest().downloadSizeBytes
 
-    const val PLANNED_LICENSE =
-        "License text will be shown when a pack vendor is selected. " +
-            "No pack bytes are downloaded in this build."
+    val PLANNED_STORAGE_REQUIREMENT_BYTES: Long
+        get() = EmbeddingFirstOfflinePackFixture.validManifest().storageRequirementBytes
+
+    val PLANNED_LICENSE: String
+        get() = EmbeddingFirstOfflinePackFixture.LICENSE
 
     fun plannedDisclosure(atEpochMs: Long): AiPackDisclosureSnapshot =
-        AiPackDisclosureSnapshot(
-            packId = PLANNED_PACK_ID,
-            capability = capability,
-            model = ModelVersionIdentity(
-                modelId = PLANNED_MODEL_ID,
-                version = PLANNED_MODEL_VERSION,
-            ),
-            downloadSizeBytes = PLANNED_DOWNLOAD_SIZE_BYTES,
-            storageRequirementBytes = PLANNED_STORAGE_REQUIREMENT_BYTES,
-            license = PLANNED_LICENSE,
-            disclosedAtEpochMs = atEpochMs,
-        )
+        EmbeddingFirstOfflinePackFixture.disclosure(atEpochMs)
 }
 
 /**

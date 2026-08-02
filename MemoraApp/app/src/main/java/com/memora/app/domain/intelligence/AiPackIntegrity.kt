@@ -1,6 +1,7 @@
 package com.memora.app.domain.intelligence
 
 import java.security.MessageDigest
+import javax.inject.Inject
 
 /**
  * Cryptographic integrity helpers for AI Pack payloads (Spec §6 / ADR-023).
@@ -26,7 +27,7 @@ object AiPackIntegrity {
  * harness only. Product UI and engine availability must not treat this as an
  * AVAILABLE Local Intelligence claim without a later change-controlled slice.
  */
-class AiPackPayloadVerifier {
+class AiPackPayloadVerifier @Inject constructor() {
     fun verify(
         declaredManifest: AiPackManifest,
         payload: ByteArray,

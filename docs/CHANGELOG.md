@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E4a offline pack-container activate
+
+- **Requirements:** A-01, A-07; ADR-023, ADR-029, ADR-030.
+- **Delivered:** Offline embedding pack-container fixture; private payload store;
+  activate use case; Welcome disclosure CTA to verify/store; clear-index removes
+  pack files. EmbeddingEngine stays Unavailable.
+- **Verification:** activate + disclosure ViewModel unit tests (engineering gate).
+- **Truthfulness:** ACTIVE install record ≠ meaning search AVAILABLE; no INTERNET.
+
 ### Local-AI embedding-first track E3 disclosure UI
 
 - **Requirements:** A-01, A-03, A-07; ADR-023, ADR-029.
