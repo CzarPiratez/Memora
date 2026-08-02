@@ -1,9 +1,8 @@
 # Change Control — Local-AI measured pack baselines
 
 **Date opened:** 2026-08-02  
-**Status:** L0 **accepted** 2026-08-02. **L1 verified** (synthetic pack SHA-256
-integrity + size aggregates on `jvm_unit` and `emulator_medium_phone`). Engines
-remain Unavailable; no AVAILABLE UI. Next code: **L2** after user accept.  
+**Status:** L0–L2 **accepted** (engineering gates). Engines remain Unavailable;
+no AVAILABLE UI.  
 **Requirements:** A-01, A-03, A-05, A-07, E-06; Local AI Technical Spec §6, §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025. Notes connector N0–N7
 is closed and is **not** a substitute for on-device intelligence readiness.
@@ -72,7 +71,7 @@ is closed and is **not** a substitute for on-device intelligence readiness.
 |------|-------|-----------|
 | Measure synthetic pack size + SHA-256 verify / reject | Yes — disposable fixture + pure verifier + JVM/androidTest aggregates | No product AiPackManager activation; Vision/OCR engines stay Unavailable; no AVAILABLE claim |
 
-### Acceptance record — L1 (**verified** 2026-08-02; pending user accept)
+### Acceptance record — L1 (**accepted** 2026-08-02 — engineering gate)
 
 - **Delivered:** `AiPackIntegrity` (SHA-256); `AiPackPayloadVerifier`; synthetic
   corpus `synthetic-ai-pack-baseline-v1`; `MeasureSyntheticAiPackBaseline` aggregate
@@ -83,5 +82,30 @@ is closed and is **not** a substitute for on-device intelligence readiness.
   (`emulator_medium_phone`).
 - **Honesty:** Vision remains Unavailable; harness does not activate product AI;
   no download UI; no user content in logs.
-- **Not delivered:** Download UI, real model bytes, inference, AVAILABLE UI,
-  midrange claims (L2 / later).
+- **Acceptance authority:** Engineering lead closed L1 on automated evidence.
+  No user-facing smoke exists for this slice; product-visible gates remain the
+  user’s review surface.
+- **Not delivered at L1 close:** Download UI, real model bytes, inference,
+  AVAILABLE UI, midrange claims.
+
+## L2 continuation — Offline integrity + emulator matrix honesty
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Broader integrity + offline-path proof; draft emulator matrix | Yes — truncated/partial reject; prior known-good retention; `OFFLINE_CORE_PATH_OK`; emulator rows stay UNSUPPORTED | Still no AVAILABLE; midrange claims deferred |
+
+### Acceptance record — L2 (**accepted** 2026-08-02 — engineering gate)
+
+- **Delivered:** `MeasureSyntheticAiPackL2Baseline` — truncated-payload reject;
+  prior known-good retained after corrupt “update”; `OFFLINE_CORE_PATH_OK` claim;
+  emulator support-matrix rows for all Spec §4 capabilities stay `UNSUPPORTED`
+  (`mayReportAvailable() == false`). Draft matrix notes in
+  `docs/LOCAL_AI_COMPATIBILITY_FALLBACK_POLICY.md`. Product engines /
+  `UnavailableAiPackManager` unchanged.
+- **Automated:** Domain unit tests for L2; instrumentation
+  `SyntheticAiPackL2BaselineIntegrationTest` on emulator-5554
+  (`emulator_medium_phone`).
+- **Acceptance authority:** Engineering lead closed L2 on automated evidence.
+  No user-facing smoke for this slice.
+- **Not delivered:** Download UI, real models, AVAILABLE UI, midrange SUPPORTED
+  rows / marketing claims.

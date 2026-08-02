@@ -98,8 +98,21 @@ until a later adapter supplies measured rows.
 3. No AI/OCR/network dependency lands in the same change.
 4. Traceability notes progress without marking A-01 done or gate exit complete.
 
+## Emulator draft notes (measured baselines L2 — 2026-08-02)
+
+On `emulator_medium_phone`, synthetic pack **integrity/size** baselines exist
+(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md` L1–L2). That evidence
+does **not** change support tiers:
+
+| Capability (all Spec §4) | Device class | Tier | Reason (draft) |
+|---|---|---|---|
+| VISION / OCR / DOCUMENT / EMBEDDING / MEMORY_BUILDER / RECALL_RANKER | `EMULATOR_MEDIUM_PHONE` | `UNSUPPORTED` | Integrity harness only; no verified pack/runtime bound |
+
+Keyword recall remains an allowed non-AI path and must stay labeled as not
+meaning-based (`SemanticFallbackRules`).
+
 ## Follow-up for Local-AI gate exit
 
-1. Local-AI benchmark plan (privacy-safe fixtures + quality/perf metrics).
+1. Local-AI benchmark plan (privacy-safe fixtures + quality/perf metrics) — accepted.
 2. When a first pack is chosen: fill concrete ABI/API/RAM rows and DEGRADED paths.
 3. UI copy review against this policy before any AVAILABLE claim ships.

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Local-AI measured pack baselines L2 offline integrity + matrix honesty
+
+- **Requirements:** A-01, A-03, A-05, A-07; ADR-023, ADR-024, ADR-025.
+- **Delivered:** L2 harness — truncated-payload reject, prior known-good after
+  corrupt update, `OFFLINE_CORE_PATH_OK`, emulator support-matrix rows remain
+  UNSUPPORTED; compatibility policy draft notes. Product engines stay Unavailable.
+- **Verification:** L2 unit + `SyntheticAiPackL2BaselineIntegrationTest` on
+  emulator 2026-08-02 (engineering gate).
+- **Truthfulness:** No AVAILABLE claim; midrange SUPPORTED rows deferred.
+
 ### Local-AI measured pack baselines L1 synthetic integrity harness
 
 - **Requirements:** A-01, A-03, A-07; ADR-023, ADR-025.

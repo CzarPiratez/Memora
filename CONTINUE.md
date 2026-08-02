@@ -1034,12 +1034,13 @@ substring, current fingerprint only). Change control:
 → Find saved note text → Build-memories NOTE facts → Open original. Interim
 keyword recall covers PDF / screenshot / photo / note.
 
-**Next approved engineering step:** Local-AI measured pack baselines **L1 verified**
+**Local-AI measured pack baselines L0–L2 closed** 2026-08-02
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic pack
-SHA-256 verify/reject + size aggregates on `jvm_unit` and
-`emulator_medium_phone`. Product engines remain Unavailable. After user accept,
-next is **L2** (broader offline/integrity checks on emulator). No AVAILABLE
-intelligence UI until a later measured slice.
+SHA-256 / size / truncated-reject / prior-known-good / offline-path claims on
+`jvm_unit` + `emulator_medium_phone`; emulator support matrix stays UNSUPPORTED.
+Product engines remain Unavailable. Engineering lead closed L1–L2 (no
+user-facing smoke). **Next:** later Local-AI slice only when a real pack/runtime
+bind is planned — no AVAILABLE intelligence UI until measured with ADR-024.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 
