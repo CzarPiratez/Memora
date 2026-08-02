@@ -9,13 +9,12 @@ embedding, vector, or WorkManager AI dependency is introduced.
 interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
 plan, and Local-AI traceability IDs.
 
-**Status (2026-07-25):** Local-AI architecture gate **planning** deliverables are
-complete: Spec; Spec §4 capability interfaces; AI Pack delivery/security plan
-(ADR-023); compatibility/fallback policy (ADR-024); Local-AI benchmark plan
-(ADR-025). Measured pack baselines change-control **opened** 2026-08-02
-(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`, L0 docs). Any
-AVAILABLE intelligence claim remains a later slice. A-01 offline end-to-end proof
-is still open.
+**Status (2026-08-02):** Local-AI architecture gate **planning** deliverables are
+complete (ADR-023/024/025). Measured pack baselines L0–L2 closed (synthetic
+integrity only). **Embedding-first implementation track** opened and E0–E1 closed
+(ADR-029; install ledger domain rules). E2+ (Room persist → disclosure UI →
+download/verify → EmbeddingEngine bind → measured AVAILABLE) remain. A-01
+offline end-to-end proof is still open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

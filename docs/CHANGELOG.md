@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E0–E1 (ADR-029)
+
+- **Requirements:** A-01, A-02, A-03, A-07; ADR-023, ADR-024, ADR-025, ADR-029.
+- **Delivered:** Embeddings-first phase plan; domain AI Pack install ledger
+  (disclosure → verify → ACTIVE/fail, retain prior known-good);
+  `LedgerBackedAiPackManager`; planned `memora-embedding-pack-v1` id.
+- **Verification:** `AiPackInstallLedgerTest` JVM (engineering gate).
+- **Truthfulness:** No download, Room bind, AVAILABLE UI, or model vendor yet.
+
 ### Local-AI measured pack baselines L2 offline integrity + matrix honesty
 
 - **Requirements:** A-01, A-03, A-05, A-07; ADR-023, ADR-024, ADR-025.

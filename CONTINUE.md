@@ -1035,12 +1035,15 @@ substring, current fingerprint only). Change control:
 keyword recall covers PDF / screenshot / photo / note.
 
 **Local-AI measured pack baselines L0–L2 closed** 2026-08-02
-(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic pack
-SHA-256 / size / truncated-reject / prior-known-good / offline-path claims on
-`jvm_unit` + `emulator_medium_phone`; emulator support matrix stays UNSUPPORTED.
-Product engines remain Unavailable. Engineering lead closed L1–L2 (no
-user-facing smoke). **Next:** later Local-AI slice only when a real pack/runtime
-bind is planned — no AVAILABLE intelligence UI until measured with ADR-024.
+(`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
+only; engines remain Unavailable.
+
+**Local-AI embedding-first track E0–E1 closed** 2026-08-02 (ADR-029;
+`docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md`): plan accepted;
+domain install ledger + disclosure/verify/ACTIVE rules + ledger-backed
+`AiPackManager`. Product DI still Unavailable. **Next engineering step: E2**
+(Room-persist pack install ledger). No AVAILABLE UI until E5 measured under
+ADR-024.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

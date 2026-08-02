@@ -809,4 +809,31 @@ action reopens a photo for a capped read-only preview.
 **Reason:** P-06 requires OCR for images, while separate source-type provenance
 prevents ordinary-photo text from being misrepresented as screenshot evidence.
 
+## ADR-029: Embedding-first Local-AI implementation track
+
+**Status:** Accepted
+
+**Decision:** The next Local-AI implementation track prioritizes
+`EmbeddingEngine` (and then embedding-backed recall) over Vision/OCR AI Pack
+adapters. Delivery order is fixed:
+
+1. install ledger + disclosure acknowledgment rules (domain),
+2. durable persistence of pack install state,
+3. user-facing disclosure UI (no AVAILABLE claim),
+4. pack download + atomic verify for a chosen embedding pack,
+5. bind `EmbeddingEngine`, index stored Memory text, candidate recall by cue,
+6. only then measured AVAILABLE claims under ADR-024 / ADR-025.
+
+Keyword recall and pre-AI Asset Memories remain honest interim paths and must not
+be relabeled as Local Intelligence AVAILABLE.
+
+**Privacy and truthfulness:** No model vendor is selected by this ADR. No pack
+bytes, INTERNET permission, or inference SDK is authorized here. Failed or
+absent packs stay Unavailable. Synthetic measured-baseline harnesses (L0–L2)
+remain integrity evidence only.
+
+**Reason:** Meaning-based recall is the core user promise after sources are
+indexed. Embeddings create the highest user value next from facts Memora already
+extracts, while Vision packs can follow without blocking natural-language recall.
+
 
