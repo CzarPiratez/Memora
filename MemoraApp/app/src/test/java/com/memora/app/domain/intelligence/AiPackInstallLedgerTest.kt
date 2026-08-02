@@ -39,7 +39,7 @@ class AiPackInstallLedgerTest {
         )
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun verification_without_disclosure_is_rejected() {
         ledger.beginVerification(EmbeddingFirstAiPackTrack.PLANNED_PACK_ID, atEpochMs = 1L)
     }

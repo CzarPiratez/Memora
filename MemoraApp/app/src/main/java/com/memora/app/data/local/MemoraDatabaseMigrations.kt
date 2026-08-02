@@ -418,4 +418,30 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `ai_pack_install_ledger` (
+                    `pack_id` TEXT NOT NULL,
+                    `capability` TEXT NOT NULL,
+                    `installation_state` TEXT NOT NULL,
+                    `model_id` TEXT,
+                    `model_version` TEXT,
+                    `compatible_app_versions` TEXT,
+                    `compatible_schema_versions` TEXT,
+                    `download_size_bytes` INTEGER,
+                    `storage_requirement_bytes` INTEGER,
+                    `license` TEXT,
+                    `verified_integrity_hash` TEXT,
+                    `disclosure_acknowledged_at_epoch_ms` INTEGER,
+                    `failure_reason` TEXT,
+                    `updated_at_epoch_ms` INTEGER NOT NULL,
+                    PRIMARY KEY(`pack_id`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
 }

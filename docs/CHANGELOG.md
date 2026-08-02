@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E2 Room install ledger
+
+- **Requirements:** A-01, A-07; ADR-023, ADR-029.
+- **Delivered:** Room v10 `ai_pack_install_ledger`; `MIGRATION_9_10`;
+  `RoomAiPackInstallLedger`; Hilt `AiPackManager` = ledger-backed (empty ⇒
+  NOT_INSTALLED).
+- **Verification:** ledger unit tests; Room integration + migration on emulator.
+- **Truthfulness:** No disclosure UI, download, AVAILABLE, or model vendor.
+
 ### Local-AI embedding-first track E0–E1 (ADR-029)
 
 - **Requirements:** A-01, A-02, A-03, A-07; ADR-023, ADR-024, ADR-025, ADR-029.

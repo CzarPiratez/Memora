@@ -89,8 +89,7 @@ data class AiPackInstallLedgerEntry(
 /**
  * Domain install ledger: disclosure → verify → activate / fail / retain known-good.
  *
- * Implementations may be in-memory (tests) or Room-backed (later slice). No I/O
- * policy beyond persistence belongs here — no download, no inference.
+ * Implementations may be in-memory (tests) or Room-backed. No download or inference.
  */
 interface AiPackInstallLedger {
     fun entry(packId: String): AiPackInstallLedgerEntry?
@@ -123,61 +122,54 @@ object EmbeddingFirstAiPackTrack {
 }
 
 /**
- * In-memory ledger for domain rules and tests. Product persistence is a later slice.
+ * Pure state transitions shared by in-memory and Room ledgers.
  */
-class InMemoryAiPackInstallLedger : AiPackInstallLedger {
-    private val entries = linkedMapOf<String, AiPackInstallLedgerEntry>()
-
-    override fun entry(packId: String): AiPackInstallLedgerEntry? {
-        require(packId.isNotBlank())
-        return entries[packId]
-    }
-
-    override fun acknowledgeDisclosure(
+object AiPackInstallTransitions {
+    fun acknowledgeDisclosure(
+        prior: AiPackInstallLedgerEntry?,
         disclosure: AiPackDisclosureSnapshot,
-    ): AiPackInstallLedgerEntry {
-        val prior = entries[disclosure.packId]
-        val next = AiPackInstallLedgerEntry(
-            packId = disclosure.packId,
-            capability = disclosure.capability,
-            installationState = when (prior?.installationState) {
-                AiPackInstallState.ACTIVE -> AiPackInstallState.ACTIVE
-                AiPackInstallState.VERIFYING -> AiPackInstallState.VERIFYING
-                else -> AiPackInstallState.NOT_INSTALLED
-            },
-            model = disclosure.model,
-            compatibleAppVersions = prior?.compatibleAppVersions,
-            compatibleSchemaVersions = prior?.compatibleSchemaVersions,
-            downloadSizeBytes = disclosure.downloadSizeBytes,
-            storageRequirementBytes = disclosure.storageRequirementBytes,
-            license = disclosure.license,
-            verifiedIntegrityHash = prior?.verifiedIntegrityHash,
-            disclosureAcknowledgedAtEpochMs = disclosure.disclosedAtEpochMs,
-            failureReason = null,
-            updatedAtEpochMs = disclosure.disclosedAtEpochMs,
-        )
-        entries[disclosure.packId] = next
-        return next
-    }
+    ): AiPackInstallLedgerEntry = AiPackInstallLedgerEntry(
+        packId = disclosure.packId,
+        capability = disclosure.capability,
+        installationState = when (prior?.installationState) {
+            AiPackInstallState.ACTIVE -> AiPackInstallState.ACTIVE
+            AiPackInstallState.VERIFYING -> AiPackInstallState.VERIFYING
+            else -> AiPackInstallState.NOT_INSTALLED
+        },
+        model = disclosure.model,
+        compatibleAppVersions = prior?.compatibleAppVersions,
+        compatibleSchemaVersions = prior?.compatibleSchemaVersions,
+        downloadSizeBytes = disclosure.downloadSizeBytes,
+        storageRequirementBytes = disclosure.storageRequirementBytes,
+        license = disclosure.license,
+        verifiedIntegrityHash = prior?.verifiedIntegrityHash,
+        disclosureAcknowledgedAtEpochMs = disclosure.disclosedAtEpochMs,
+        failureReason = null,
+        updatedAtEpochMs = disclosure.disclosedAtEpochMs,
+    )
 
-    override fun beginVerification(packId: String, atEpochMs: Long): AiPackInstallLedgerEntry {
+    fun beginVerification(
+        prior: AiPackInstallLedgerEntry?,
+        packId: String,
+        atEpochMs: Long,
+    ): AiPackInstallLedgerEntry {
         require(packId.isNotBlank())
         require(atEpochMs >= 0)
-        val prior = entries[packId]
-            ?: error("Disclosure must be acknowledged before verification begins.")
+        require(prior != null) {
+            "Disclosure must be acknowledged before verification begins."
+        }
         require(prior.disclosureAcknowledgedAtEpochMs != null) {
             "Disclosure must be acknowledged before verification begins."
         }
-        val next = prior.copy(
+        return prior.copy(
             installationState = AiPackInstallState.VERIFYING,
             failureReason = null,
             updatedAtEpochMs = atEpochMs,
         )
-        entries[packId] = next
-        return next
     }
 
-    override fun recordVerifiedActive(
+    fun recordVerifiedActive(
+        prior: AiPackInstallLedgerEntry?,
         manifest: AiPackManifest,
         atEpochMs: Long,
     ): AiPackInstallLedgerEntry {
@@ -185,15 +177,14 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
         require(manifest.installationState == AiPackInstallState.ACTIVE) {
             "Only ACTIVE manifests may be recorded as verified."
         }
-        val prior = entries[manifest.packId]
-            ?: error("Disclosure must be acknowledged before activation.")
+        require(prior != null) { "Disclosure must be acknowledged before activation." }
         require(prior.disclosureAcknowledgedAtEpochMs != null) {
             "Disclosure must be acknowledged before activation."
         }
         require(prior.installationState == AiPackInstallState.VERIFYING) {
             "Activation requires an in-progress verification."
         }
-        val next = AiPackInstallLedgerEntry(
+        return AiPackInstallLedgerEntry(
             packId = manifest.packId,
             capability = manifest.capability,
             installationState = AiPackInstallState.ACTIVE,
@@ -208,11 +199,10 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
             failureReason = null,
             updatedAtEpochMs = atEpochMs,
         )
-        entries[manifest.packId] = next
-        return next
     }
 
-    override fun recordVerificationFailed(
+    fun recordVerificationFailed(
+        prior: AiPackInstallLedgerEntry?,
         packId: String,
         reason: String,
         retainPriorKnownGood: Boolean,
@@ -221,11 +211,12 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
         require(packId.isNotBlank())
         require(reason.isNotBlank()) { "Failure reason must not be blank." }
         require(atEpochMs >= 0)
-        val prior = entries[packId]
-            ?: error("Disclosure must be acknowledged before verification failure.")
+        require(prior != null) {
+            "Disclosure must be acknowledged before verification failure."
+        }
         require(prior.disclosureAcknowledgedAtEpochMs != null)
 
-        val next = if (
+        return if (
             retainPriorKnownGood &&
             prior.verifiedIntegrityHash != null &&
             prior.model != null &&
@@ -244,7 +235,6 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
             prior.copy(
                 installationState = AiPackInstallState.FAILED_VERIFICATION,
                 failureReason = reason,
-                // Clear ACTIVE proof when not retaining known-good.
                 verifiedIntegrityHash = if (retainPriorKnownGood) {
                     prior.verifiedIntegrityHash
                 } else {
@@ -253,6 +243,65 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
                 updatedAtEpochMs = atEpochMs,
             )
         }
+    }
+}
+
+/** In-memory ledger for domain unit tests. */
+class InMemoryAiPackInstallLedger : AiPackInstallLedger {
+    private val entries = linkedMapOf<String, AiPackInstallLedgerEntry>()
+
+    override fun entry(packId: String): AiPackInstallLedgerEntry? {
+        require(packId.isNotBlank())
+        return entries[packId]
+    }
+
+    override fun acknowledgeDisclosure(
+        disclosure: AiPackDisclosureSnapshot,
+    ): AiPackInstallLedgerEntry {
+        val next = AiPackInstallTransitions.acknowledgeDisclosure(
+            prior = entries[disclosure.packId],
+            disclosure = disclosure,
+        )
+        entries[disclosure.packId] = next
+        return next
+    }
+
+    override fun beginVerification(packId: String, atEpochMs: Long): AiPackInstallLedgerEntry {
+        val next = AiPackInstallTransitions.beginVerification(
+            prior = entries[packId],
+            packId = packId,
+            atEpochMs = atEpochMs,
+        )
+        entries[packId] = next
+        return next
+    }
+
+    override fun recordVerifiedActive(
+        manifest: AiPackManifest,
+        atEpochMs: Long,
+    ): AiPackInstallLedgerEntry {
+        val next = AiPackInstallTransitions.recordVerifiedActive(
+            prior = entries[manifest.packId],
+            manifest = manifest,
+            atEpochMs = atEpochMs,
+        )
+        entries[manifest.packId] = next
+        return next
+    }
+
+    override fun recordVerificationFailed(
+        packId: String,
+        reason: String,
+        retainPriorKnownGood: Boolean,
+        atEpochMs: Long,
+    ): AiPackInstallLedgerEntry {
+        val next = AiPackInstallTransitions.recordVerificationFailed(
+            prior = entries[packId],
+            packId = packId,
+            reason = reason,
+            retainPriorKnownGood = retainPriorKnownGood,
+            atEpochMs = atEpochMs,
+        )
         entries[packId] = next
         return next
     }
@@ -261,7 +310,7 @@ class InMemoryAiPackInstallLedger : AiPackInstallLedger {
 /**
  * [AiPackManager] backed by an install ledger — never invents ACTIVE from blank.
  *
- * Product DI may keep [UnavailableAiPackManager] until E2/E3 wire this in.
+ * Empty Room ledger reports NOT_INSTALLED / Rejected (same honesty as Unavailable).
  */
 class LedgerBackedAiPackManager(
     private val ledger: AiPackInstallLedger,

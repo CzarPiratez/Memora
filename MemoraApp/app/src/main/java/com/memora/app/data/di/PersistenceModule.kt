@@ -2,6 +2,7 @@ package com.memora.app.data.di
 
 import android.content.Context
 import com.memora.app.data.local.MemoraDatabase
+import com.memora.app.data.local.RoomAiPackInstallLedger
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
@@ -20,6 +21,9 @@ import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.extraction.ImageExifExtractionPersistence
 import com.memora.app.domain.extraction.PhotoOcrExtractionPersistence
 import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
+import com.memora.app.domain.intelligence.AiPackInstallLedger
+import com.memora.app.domain.intelligence.AiPackManager
+import com.memora.app.domain.intelligence.LedgerBackedAiPackManager
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.MemoryRepository
 import dagger.Module
@@ -102,4 +106,14 @@ object PersistenceModule {
     @Singleton
     fun provideDiscoveryPageStore(handle: MemoraDatabaseHandle): DiscoveryPageStore =
         RoomDiscoveryPageStore(database = { handle.database() })
+
+    @Provides
+    @Singleton
+    fun provideAiPackInstallLedger(handle: MemoraDatabaseHandle): AiPackInstallLedger =
+        RoomAiPackInstallLedger(dao = { handle.database().aiPackInstallLedgerDao() })
+
+    @Provides
+    @Singleton
+    fun provideAiPackManager(ledger: AiPackInstallLedger): AiPackManager =
+        LedgerBackedAiPackManager(ledger)
 }

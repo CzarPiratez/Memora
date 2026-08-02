@@ -1,9 +1,9 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E1 **accepted** (engineering lead). Engines remain Unavailable;
-no AVAILABLE UI; no pack download; product DI still uses
-`UnavailableAiPackManager` until E2/E3.  
+**Status:** E0–E2 **accepted** (engineering lead). Engines remain Unavailable;
+no AVAILABLE UI; no pack download. Product `AiPackManager` is ledger-backed
+(empty Room table ⇒ NOT_INSTALLED).  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**.  
@@ -78,5 +78,22 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 - **Automated:** `AiPackInstallLedgerTest` (JVM).
 - **Honesty:** No Room persistence yet (E2); no UI; no download; Hilt/product
   still binds Unavailable stubs; no AVAILABLE claim.
-- **Not delivered:** Room migration, disclosure UI, pack bytes, EmbeddingEngine
-  bind, semantic recall UI.
+- **Not delivered at E1 close:** Room migration (E2), disclosure UI, pack bytes,
+  EmbeddingEngine bind, semantic recall UI.
+
+## E2 continuation — Persist install ledger in Room
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Durable ledger + migration; DI bind | Room entity/DAO/migration v9→v10; `RoomAiPackInstallLedger`; Hilt | Empty DB never ACTIVE; clear Memora data clears pack state; no download/AVAILABLE |
+
+### Acceptance record — E2 (**accepted** 2026-08-02 — engineering lead)
+
+- **Delivered:** `ai_pack_install_ledger` table (Room v10); `MIGRATION_9_10`;
+  `RoomAiPackInstallLedger`; Hilt provides `AiPackInstallLedger` +
+  `LedgerBackedAiPackManager` as `AiPackManager`.
+- **Automated:** domain ledger tests; `RoomAiPackInstallLedgerIntegrationTest`;
+  migration test expects schema v10 + empty ledger.
+- **Honesty:** No disclosure UI, INTERNET, pack bytes, EmbeddingEngine bind, or
+  AVAILABLE claim.
+- **Not delivered:** E3 disclosure UI, E4 download/verify, E5 embedding recall.

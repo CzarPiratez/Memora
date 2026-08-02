@@ -21,8 +21,9 @@ import androidx.room.RoomDatabase
         MemoryAnchorEntity::class,
         MemoryAnchorEvidenceEntity::class,
         MemorySummaryEvidenceEntity::class,
+        AiPackInstallLedgerEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -45,4 +46,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun memoryDao(): MemoryDao
 
     abstract fun assetMemoryFactDao(): AssetMemoryFactDao
+
+    abstract fun aiPackInstallLedgerDao(): AiPackInstallLedgerDao
 }
