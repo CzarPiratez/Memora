@@ -7,53 +7,44 @@ import org.junit.Test
 
 class AiPackDisclosureCopyTest {
     @Test
-    fun honesty_copy_never_claims_available_or_meaning_search_ready() {
+    fun honesty_copy_names_model_download_and_keeps_keyword_path() {
         val all = listOf(
             AiPackDisclosureCopy.ENTRY_LABEL,
-            AiPackDisclosureCopy.SCREEN_TITLE,
             AiPackDisclosureCopy.LEAD_BODY,
             AiPackDisclosureCopy.SCOPE_BODY,
             AiPackDisclosureCopy.NETWORK_BODY,
-            AiPackDisclosureCopy.SIZE_BODY,
-            AiPackDisclosureCopy.LICENSE_BODY,
-            AiPackDisclosureCopy.STATUS_NOT_ACKNOWLEDGED,
-            AiPackDisclosureCopy.STATUS_ACKNOWLEDGED_NOT_INSTALLED,
-            AiPackDisclosureCopy.STATUS_ACTIVE_NOT_CLAIMING_AVAILABLE,
-            AiPackDisclosureCopy.ACKNOWLEDGE_LABEL,
-            AiPackDisclosureCopy.ACTIVATE_LABEL,
-            AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED,
-            AiPackDisclosureCopy.FEEDBACK_ACTIVATED,
+            AiPackDisclosureCopy.STATUS_NEED_MODEL,
+            AiPackDisclosureCopy.STATUS_MODEL_READY,
+            AiPackDisclosureCopy.DOWNLOAD_MODEL_LABEL,
+            AiPackDisclosureCopy.BUILD_INDEX_LABEL,
+            AiPackDisclosureCopy.FEEDBACK_MODEL_INSTALLED,
         ).joinToString(" ").lowercase()
 
         assertTrue(all.contains("on-device"))
-        assertTrue(all.contains("keyword"))
-        assertTrue(all.contains("pack container") || all.contains("container"))
-        assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("no download"))
-        assertTrue(AiPackDisclosureCopy.FEEDBACK_ACTIVATED.contains("Meaning search stays off"))
-
+        assertTrue(all.contains("model"))
+        assertTrue(all.contains("keyword") || AiPackDisclosureCopy.SCOPE_BODY.contains("Keyword"))
+        assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("model bytes only"))
         assertFalse(all.contains("available now"))
-        assertFalse(all.contains("ai is ready"))
+        assertFalse(all.contains("uploads your memories"))
     }
 
     @Test
-    fun status_body_stays_honest_for_install_states() {
-        assertTrue(
-            AiPackDisclosureCopy.statusBody(
-                installationState = AiPackInstallState.NOT_INSTALLED,
-                disclosureAcknowledged = false,
-            ).contains("No disclosure"),
-        )
+    fun status_body_tracks_model_install() {
         assertTrue(
             AiPackDisclosureCopy.statusBody(
                 installationState = AiPackInstallState.NOT_INSTALLED,
                 disclosureAcknowledged = true,
-            ).contains("Meaning search stays off"),
+                modelInstalled = false,
+                embeddingAvailable = false,
+            ).contains("Download"),
         )
         assertTrue(
             AiPackDisclosureCopy.statusBody(
                 installationState = AiPackInstallState.ACTIVE,
                 disclosureAcknowledged = true,
-            ).contains("does not claim"),
+                modelInstalled = true,
+                embeddingAvailable = true,
+            ).contains("Meaning model is installed"),
         )
     }
 }

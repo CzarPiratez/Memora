@@ -18,6 +18,15 @@ INTERNET is for this source-access path only — not Local-AI and not Memora clo
 Review record: `docs/dependency-review/mlkit-text-recognition-16.0.1-review.md`.
 This does not authorize network access, AI Pack download, or PHOTO OCR.
 
+## On-device meaning embeddings (E5b1 / ADR-031)
+
+| Component | Exact version | Purpose | Licence / notice source |
+|---|---:|---|---|
+| `com.google.mediapipe:tasks-text` | 0.10.14 | On-device text embedding runtime; TFLite model downloaded to private storage after disclosure | Apache License 2.0; [MediaPipe](https://developers.google.com/mediapipe) / Maven Central |
+
+Review record: `docs/dependency-review/mediapipe-tasks-text-0.10.14-review.md`.
+Model download uses existing INTERNET for **model bytes only** — not user content.
+
 ## PDF extraction validation dependency set
 
 This inventory applies to the synthetic-fixture validation step only. It does not

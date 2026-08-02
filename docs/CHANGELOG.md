@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E5b1 MediaPipe embedder + model download
+
+- **Requirements:** A-01, A-02, A-07; ADR-029, ADR-031.
+- **Delivered:** MediaPipe Text Embedder adapter; private model download after
+  disclosure; build meaning index CTA; dependency review for tasks-text 0.10.14.
+- **Verification:** full `:app:testDebugUnitTest` green; debug compile with
+  MediaPipe (`createFromFile` private model path).
+- **Truthfulness:** Compact model disclosed; Find-by-meaning UI not shipped yet;
+  model not bundled in APK.
+
 ### Local-AI embedding-first track E5a embedding index foundation
 
 - **Requirements:** A-01, A-02; ADR-029, ADR-030.

@@ -859,4 +859,29 @@ say meaning search stays off.
 disclosure → verify → durable ACTIVE on real devices — the trust path users will
 rely on when a real model lands.
 
+## ADR-031: MediaPipe Text Embedder as first EmbeddingEngine
+
+**Status:** Accepted
+
+**Decision:** The first product `EmbeddingEngine` uses MediaPipe Tasks Text
+Embedder (`com.google.mediapipe:tasks-text`) with the compact
+`average_word_embedder` float32 model. The model is downloaded to app-private
+no-backup storage after disclosure + affirmative action — never bundled in the
+APK. Synthetic pack-container ACTIVE (E4a) does **not** make EmbeddingEngine
+Available.
+
+Availability rules:
+
+1. Model file missing or failed to load → Unavailable (plain reason).
+2. Model loads successfully → Available with versioned model identity.
+3. Meaning-search UI may appear only when Available; keyword paths stay labeled.
+
+**Privacy and truthfulness:** Download carries model bytes only (no user
+content). Inference is on-device. Clear Memora index deletes the model file.
+Copy must disclose the compact-model limitation (DEGRADED_EXPLICIT quality vs a
+future larger pack).
+
+**Reason:** Delivers real on-device meaning vectors without waiting on a custom
+vendor pack, while preserving Spec §6 small-APK and local-first rules.
+
 

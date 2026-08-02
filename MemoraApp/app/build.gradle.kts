@@ -106,6 +106,8 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.exifinterface)
     implementation(libs.mlkit.text.recognition)
+    // ADR-031: on-device text embeddings (model downloaded to private storage, not APK).
+    implementation(libs.mediapipe.tasks.text)
     // Notes N2b: Microsoft identity for read-only OneNote connector (ADR-003).
     // Reviewed in docs/dependency-review/msal-android-8.4.1-review.md.
     implementation(libs.msal.android)

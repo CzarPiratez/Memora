@@ -20,14 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * E3 disclosure for the planned embedding AI Pack.
- * Affirmative acknowledgment only — no download, no AVAILABLE claim.
+ * Disclosure / model install / meaning-index entry (E3–E5b1).
+ * Find-by-meaning search UI is a later slice.
  */
 @Composable
 fun AiPackDisclosureScreen(
     uiState: AiPackDisclosureUiState,
     onAcknowledge: () -> Unit,
     onActivate: () -> Unit,
+    onDownloadModel: () -> Unit,
+    onBuildIndex: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -85,9 +87,29 @@ fun AiPackDisclosureScreen(
                 Text(AiPackDisclosureCopy.ACKNOWLEDGE_LABEL)
             }
         }
-        if (uiState.showActivate) {
+        if (uiState.showDownloadModel) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
+                onClick = onDownloadModel,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(AiPackDisclosureCopy.DOWNLOAD_MODEL_LABEL)
+            }
+        }
+        if (uiState.showBuildIndex) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onBuildIndex,
+                enabled = !uiState.isBusy,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(AiPackDisclosureCopy.BUILD_INDEX_LABEL)
+            }
+        }
+        if (uiState.showActivate) {
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
                 onClick = onActivate,
                 enabled = !uiState.isBusy,
                 modifier = Modifier.fillMaxWidth(),

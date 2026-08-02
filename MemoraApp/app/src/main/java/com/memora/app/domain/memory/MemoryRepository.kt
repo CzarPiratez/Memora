@@ -20,7 +20,16 @@ interface MemoryRepository {
 
     /** Number of READY revisions matching their Asset's current fingerprint. */
     suspend fun countCurrentReady(): Int
+
+    /** Lightweight summary rows for embedding index drains (current fingerprint only). */
+    suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary>
 }
+
+data class MemoryEmbeddingSummary(
+    val revisionId: MemoryRevisionId,
+    val memoryId: MemoryId,
+    val summaryText: String,
+)
 
 sealed interface MemoryInsertResult {
     data object Inserted : MemoryInsertResult

@@ -279,6 +279,10 @@ class MainActivity : ComponentActivity() {
                             aiPackDisclosureViewModel::onAcknowledgeRequested,
                         onAiPackDisclosureActivate =
                             aiPackDisclosureViewModel::onActivateRequested,
+                        onAiPackDisclosureDownloadModel =
+                            aiPackDisclosureViewModel::onDownloadModelRequested,
+                        onAiPackDisclosureBuildIndex =
+                            aiPackDisclosureViewModel::onBuildIndexRequested,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -360,6 +364,8 @@ fun MemoraApp(
     onAiPackDisclosureOpened: () -> Unit,
     onAiPackDisclosureAcknowledge: () -> Unit,
     onAiPackDisclosureActivate: () -> Unit,
+    onAiPackDisclosureDownloadModel: () -> Unit,
+    onAiPackDisclosureBuildIndex: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -445,6 +451,8 @@ fun MemoraApp(
             onAiPackDisclosureOpened = onAiPackDisclosureOpened,
             onAiPackDisclosureAcknowledge = onAiPackDisclosureAcknowledge,
             onAiPackDisclosureActivate = onAiPackDisclosureActivate,
+            onAiPackDisclosureDownloadModel = onAiPackDisclosureDownloadModel,
+            onAiPackDisclosureBuildIndex = onAiPackDisclosureBuildIndex,
             modifier = modifier,
         )
     }
@@ -522,6 +530,8 @@ private fun MemoraAppReady(
     onAiPackDisclosureOpened: () -> Unit,
     onAiPackDisclosureAcknowledge: () -> Unit,
     onAiPackDisclosureActivate: () -> Unit,
+    onAiPackDisclosureDownloadModel: () -> Unit,
+    onAiPackDisclosureBuildIndex: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -611,6 +621,8 @@ private fun MemoraAppReady(
                     uiState = aiPackDisclosureUiState,
                     onAcknowledge = onAiPackDisclosureAcknowledge,
                     onActivate = onAiPackDisclosureActivate,
+                    onDownloadModel = onAiPackDisclosureDownloadModel,
+                    onBuildIndex = onAiPackDisclosureBuildIndex,
                     onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )

@@ -1,14 +1,13 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E5a **accepted** (engineering lead). Engines remain Unavailable;
-no AVAILABLE UI; no INTERNET pack download yet (ADR-030). Offline pack-container
-verify/store can mark ledger ACTIVE after disclosure. Embedding index schema +
-index use case land; product EmbeddingEngine stays Unavailable.  
+**Status:** E0–E5b1 **accepted** (engineering lead). MediaPipe average-word
+embedder can become Available after user-approved model download (ADR-031).
+Find-by-meaning search UI is still E5b2.  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**,
-**ADR-030**.  
+**ADR-030**, **ADR-031**.  
 **Prior closed track:** measured pack baselines L0–L2
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`) — synthetic integrity
 only; does not authorize AVAILABLE.
@@ -50,7 +49,8 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 | **E4a** | Offline verify/store pack container after disclosure | Platform + use case; no INTERNET | Ledger ACTIVE ≠ AVAILABLE; clear index clears pack files |
 | **E4b** | Network download + verify for chosen vendor pack | Platform + INTERNET scoped | Pack-only network; retain prior known-good |
 | **E5a** | Embedding encode contract + Room index + index use case | Domain/data/app | Unavailable engine writes nothing; no meaning-search UI |
-| **E5b** | Real on-device EmbeddingEngine + index drain + candidate recall UI | Intelligence + recall | ADR-024 matrix + benchmark before AVAILABLE marketing |
+| **E5b1** | MediaPipe EmbeddingEngine + model download + index CTA | Platform + UI | Model not in APK; Available only after load; DEGRADED compact model disclosed |
+| **E5b2** | Find-by-meaning candidate recall UI + measured claims | UI + recall | ADR-024/025 before marketing AVAILABLE |
 
 **Recommended next code after E0:** **E1 only**.
 
@@ -149,5 +149,21 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
   Hilt binds `UnavailableEmbeddingEngine`.
 - **Automated:** embedding contract + index use case unit tests; schema export v11.
 - **Honesty:** Product engine Unavailable; no recall UI; no AVAILABLE claim.
-- **Not delivered:** E5b real model adapter, index WorkManager drain, meaning-search
-  UI, E4b vendor download.
+- **Not delivered at E5a close:** real model adapter, meaning-search UI.
+
+## E5b1 continuation — MediaPipe embedder + model download (ADR-031)
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Real on-device embedder after affirmative download | MediaPipe engine; private model store; download + build-index CTAs | No APK model; Available only when model loads; no Find-by-meaning UI yet |
+
+### Acceptance record — E5b1 (**accepted** 2026-08-03 — engineering lead)
+
+- **Delivered:** ADR-031; `tasks-text:0.10.14` dependency review;
+  `MediaPipeEmbeddingEngine`; model download use case; disclosure UI download +
+  build-index; clear-index deletes model files.
+- **Automated:** updated honesty copy tests; compile with MediaPipe.
+- **User smoke (recommended):** disclose → download model → build index after
+  Asset Memories exist.
+- **Not delivered:** E5b2 Find-by-meaning results UI; larger vendor pack (E4b);
+  midrange measured AVAILABLE marketing.

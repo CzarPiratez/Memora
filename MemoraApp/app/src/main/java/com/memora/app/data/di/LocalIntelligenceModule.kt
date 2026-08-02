@@ -1,13 +1,17 @@
 package com.memora.app.data.di
 
+import android.content.Context
+import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
+import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
 import com.memora.app.domain.intelligence.AiPackPayloadStore
 import com.memora.app.domain.intelligence.EmbeddingEngine
-import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
+import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -19,6 +23,12 @@ abstract class LocalIntelligenceModule {
     abstract fun bindAiPackPayloadStore(
         impl: NoBackupAiPackPayloadStore,
     ): AiPackPayloadStore
+
+    @Binds
+    @Singleton
+    abstract fun bindOnDeviceEmbeddingModelStore(
+        impl: NoBackupOnDeviceEmbeddingModelStore,
+    ): OnDeviceEmbeddingModelStore
 }
 
 @Module
@@ -26,5 +36,15 @@ abstract class LocalIntelligenceModule {
 object LocalIntelligenceProvidesModule {
     @Provides
     @Singleton
-    fun provideEmbeddingEngine(): EmbeddingEngine = UnavailableEmbeddingEngine()
+    fun provideMediaPipeEmbeddingEngine(
+        @ApplicationContext context: Context,
+        modelStore: OnDeviceEmbeddingModelStore,
+    ): MediaPipeEmbeddingEngine = MediaPipeEmbeddingEngine(
+        appContext = context.applicationContext,
+        modelStore = modelStore,
+    )
+
+    @Provides
+    @Singleton
+    fun provideEmbeddingEngine(engine: MediaPipeEmbeddingEngine): EmbeddingEngine = engine
 }

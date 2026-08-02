@@ -1,5 +1,6 @@
 package com.memora.app.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -58,6 +59,25 @@ interface MemoryDao {
         """,
     )
     suspend fun countCurrentReady(): Int
+
+    @Query(
+        """
+        SELECT
+            m.revision_id AS revision_id,
+            m.memory_id AS memory_id,
+            m.summary_text AS summary_text
+        FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = 'READY'
+          AND m.summary_text != ''
+        ORDER BY m.updated_at_epoch_millis DESC
+        LIMIT :limit
+        """,
+    )
+    suspend fun listCurrentReadySummaries(limit: Int): List<MemorySummaryRow>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: MemoryEntity)
@@ -119,4 +139,10 @@ data class MemoryRoomRows(
     val anchors: List<MemoryAnchorEntity>,
     val anchorEvidence: List<MemoryAnchorEvidenceEntity>,
     val summaryEvidence: List<MemorySummaryEvidenceEntity>,
+)
+
+data class MemorySummaryRow(
+    @ColumnInfo(name = "revision_id") val revisionId: String,
+    @ColumnInfo(name = "memory_id") val memoryId: String,
+    @ColumnInfo(name = "summary_text") val summaryText: String,
 )

@@ -14,6 +14,7 @@ import com.memora.app.domain.memory.AssetMemoryFact
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
+import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryRepository
@@ -202,6 +203,8 @@ private class FakeMemoryRepository : MemoryRepository {
     }
 
     override suspend fun countCurrentReady(): Int = history.size
+
+    override suspend fun listCurrentReadySummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
 }
 
 private class FakeAssetRepository(asset: Asset) : AssetRepository {

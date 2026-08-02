@@ -4,8 +4,11 @@ import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
+import com.memora.app.domain.memory.MemoryEmbeddingSummary
+import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryRepository
+import com.memora.app.domain.memory.MemoryRevisionId
 
 class RoomMemoryRepository(
     private val database: () -> MemoraDatabase,
@@ -48,4 +51,15 @@ class RoomMemoryRepository(
     }
 
     override suspend fun countCurrentReady(): Int = database().memoryDao().countCurrentReady()
+
+    override suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary> {
+        require(limit > 0)
+        return database().memoryDao().listCurrentReadySummaries(limit).map { row ->
+            MemoryEmbeddingSummary(
+                revisionId = MemoryRevisionId(row.revisionId),
+                memoryId = MemoryId(row.memoryId),
+                summaryText = row.summaryText,
+            )
+        }
+    }
 }
