@@ -9,6 +9,7 @@ import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
 import com.memora.app.data.local.RoomAssetMemoryFactSource
+import com.memora.app.data.local.RoomMemoryEmbeddingStore
 import com.memora.app.data.local.RoomMemoryRepository
 import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
 import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
@@ -24,6 +25,7 @@ import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackManager
 import com.memora.app.domain.intelligence.LedgerBackedAiPackManager
+import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.MemoryRepository
 import dagger.Module
@@ -116,4 +118,9 @@ object PersistenceModule {
     @Singleton
     fun provideAiPackManager(ledger: AiPackInstallLedger): AiPackManager =
         LedgerBackedAiPackManager(ledger)
+
+    @Provides
+    @Singleton
+    fun provideMemoryEmbeddingStore(handle: MemoraDatabaseHandle): MemoryEmbeddingStore =
+        RoomMemoryEmbeddingStore(dao = { handle.database().memoryEmbeddingDao() })
 }

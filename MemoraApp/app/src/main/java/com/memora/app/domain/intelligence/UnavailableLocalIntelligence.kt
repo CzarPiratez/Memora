@@ -40,6 +40,11 @@ class UnavailableEmbeddingEngine(
         CapabilityAvailability.Unavailable(reason)
 
     override fun limits(): CapabilityLimits? = null
+
+    override fun embedText(text: String): EmbeddingEncodeResult {
+        require(text.isNotBlank()) { "Embedding input text must not be blank." }
+        return EmbeddingEncodeResult.Unavailable(reason)
+    }
 }
 
 class UnavailableMemoryBuilder(

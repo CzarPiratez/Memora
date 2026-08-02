@@ -26,9 +26,15 @@ interface DocumentEngine : LocalCapability {
     override val capabilityId: CapabilityId get() = CapabilityId.DOCUMENT
 }
 
-/** Encodes a Memory and a user query into compatible, versioned semantic vectors. */
+/**
+ * Encodes Memory text and user queries into compatible, versioned semantic vectors.
+ *
+ * Callers must honor [availability] — Unavailable engines must not invent vectors.
+ */
 interface EmbeddingEngine : LocalCapability {
     override val capabilityId: CapabilityId get() = CapabilityId.EMBEDDING
+
+    fun embedText(text: String): EmbeddingEncodeResult
 }
 
 /**

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E5a embedding index foundation
+
+- **Requirements:** A-01, A-02; ADR-029, ADR-030.
+- **Delivered:** `EmbeddingEngine.embedText` contract; `memory_embeddings` Room
+  v11; `IndexMemoryEmbeddings` refuses writes while Unavailable; cosine helper;
+  Hilt still binds Unavailable embedding engine.
+- **Verification:** embedding + index unit tests (engineering gate).
+- **Truthfulness:** No meaning-search UI or AVAILABLE claim.
+
 ### Local-AI embedding-first track E4a offline pack-container activate
 
 - **Requirements:** A-01, A-07; ADR-023, ADR-029, ADR-030.

@@ -11,9 +11,9 @@ plan, and Local-AI traceability IDs.
 
 **Status (2026-08-03):** Local-AI architecture gate **planning** deliverables are
 complete (ADR-023/024/025). Measured pack baselines L0–L2 closed. **Embedding-first
-track** E0–E4a closed (ADR-029/030; ledger + Room + disclosure + offline
-pack-container ACTIVE). E4b vendor download and E5 EmbeddingEngine bind remain.
-A-01 offline end-to-end proof is still open.
+track** E0–E5a closed (ADR-029/030; install path + embedding index foundation).
+E5b real EmbeddingEngine + recall UI, and E4b vendor download, remain. A-01
+offline end-to-end proof is still open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

@@ -489,6 +489,7 @@ object MemoraEncryptedDatabaseOpener {
                     MemoraDatabaseMigrations.MIGRATION_7_8,
                     MemoraDatabaseMigrations.MIGRATION_8_9,
                     MemoraDatabaseMigrations.MIGRATION_9_10,
+                    MemoraDatabaseMigrations.MIGRATION_10_11,
                 )
                 .build()
                 .also { it.openHelper.writableDatabase }
@@ -513,6 +514,7 @@ object MemoraEncryptedDatabaseOpener {
                 MemoraDatabaseMigrations.MIGRATION_7_8,
                 MemoraDatabaseMigrations.MIGRATION_8_9,
                 MemoraDatabaseMigrations.MIGRATION_9_10,
+                MemoraDatabaseMigrations.MIGRATION_10_11,
             )
             .build()
             .also { it.openHelper.writableDatabase }
