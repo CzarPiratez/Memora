@@ -1,7 +1,9 @@
 # Change Control — Local-AI measured pack baselines
 
 **Date opened:** 2026-08-02  
-**Status:** **L0 opened** (docs-only phase plan). Awaiting user acceptance before L1 code.  
+**Status:** L0 **accepted** 2026-08-02. **L1 verified** (synthetic pack SHA-256
+integrity + size aggregates on `jvm_unit` and `emulator_medium_phone`). Engines
+remain Unavailable; no AVAILABLE UI. Next code: **L2** after user accept.  
 **Requirements:** A-01, A-03, A-05, A-07, E-06; Local AI Technical Spec §6, §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025. Notes connector N0–N7
 is closed and is **not** a substitute for on-device intelligence readiness.
@@ -55,8 +57,31 @@ is closed and is **not** a substitute for on-device intelligence readiness.
 - Engines and support policy stay Unavailable / unsupported by default.
 - Record results in this change-control; no product UI claiming AI is ready.
 
-## Acceptance record — L0 (pending user pass)
+## Acceptance record — L0 (**accepted** 2026-08-02)
 
 - **Delivered:** This file; CONTINUE / CHANGELOG / ROADMAP / benchmark-plan pointer
   updated; Notes track closed in CONTINUE.
-- **Not delivered:** Pack bytes, harness, download UI, inference, AVAILABLE UI.
+- **Not delivered at L0 close:** Pack bytes, harness, download UI, inference,
+  AVAILABLE UI.
+- **User gate:** Proceed to L1 authorized by explicit “move to the next” instruction
+  2026-08-02.
+
+## L1 continuation — Synthetic pack integrity baseline
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Measure synthetic pack size + SHA-256 verify / reject | Yes — disposable fixture + pure verifier + JVM/androidTest aggregates | No product AiPackManager activation; Vision/OCR engines stay Unavailable; no AVAILABLE claim |
+
+### Acceptance record — L1 (**verified** 2026-08-02; pending user accept)
+
+- **Delivered:** `AiPackIntegrity` (SHA-256); `AiPackPayloadVerifier`; synthetic
+  corpus `synthetic-ai-pack-baseline-v1`; `MeasureSyntheticAiPackBaseline` aggregate
+  report + claims for `PACK_ON_DISK_BYTES`, `PACK_DOWNLOAD_BYTES`,
+  `PACK_INTEGRITY_FAILURE_HANDLED`. Product `UnavailableAiPackManager` unchanged.
+- **Automated:** Domain unit tests passed; instrumentation
+  `SyntheticAiPackBaselineIntegrationTest` passed on emulator-5554
+  (`emulator_medium_phone`).
+- **Honesty:** Vision remains Unavailable; harness does not activate product AI;
+  no download UI; no user content in logs.
+- **Not delivered:** Download UI, real model bytes, inference, AVAILABLE UI,
+  midrange claims (L2 / later).
