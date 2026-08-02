@@ -92,6 +92,10 @@ import com.memora.app.ui.setup.DocumentTreeConnectionState
 import com.memora.app.ui.setup.DocumentTreeSetupUiState
 import com.memora.app.ui.setup.DocumentTreeSetupViewModel
 import com.memora.app.ui.setup.PdfFolderIndexingState
+import com.memora.app.ui.setup.AiPackDisclosureCopy
+import com.memora.app.ui.setup.AiPackDisclosureScreen
+import com.memora.app.ui.setup.AiPackDisclosureUiState
+import com.memora.app.ui.setup.AiPackDisclosureViewModel
 import com.memora.app.ui.setup.NotesConnectorHonestyCopy
 import com.memora.app.ui.setup.NotesConnectorHonestyScreen
 import com.memora.app.ui.setup.NotesConnectorUiState
@@ -142,6 +146,7 @@ class MainActivity : ComponentActivity() {
     private val notePageKeywordSearchViewModel: NotePageKeywordSearchViewModel by viewModels()
     private val assetMemorySetupViewModel: AssetMemorySetupViewModel by viewModels()
     private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
+    private val aiPackDisclosureViewModel: AiPackDisclosureViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,6 +164,7 @@ class MainActivity : ComponentActivity() {
             val notePageKeywordSearchUiState by notePageKeywordSearchViewModel.uiState.collectAsState()
             val assetMemorySetupState by assetMemorySetupViewModel.uiState.collectAsState()
             val notesConnectorUiState by notesConnectorViewModel.uiState.collectAsState()
+            val aiPackDisclosureUiState by aiPackDisclosureViewModel.uiState.collectAsState()
 
             MemoraTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -174,6 +180,7 @@ class MainActivity : ComponentActivity() {
                         notePageKeywordSearchUiState = notePageKeywordSearchUiState,
                         assetMemorySetupState = assetMemorySetupState,
                         notesConnectorUiState = notesConnectorUiState,
+                        aiPackDisclosureUiState = aiPackDisclosureUiState,
                         onPhotoPermissionResult = mediaStoreSetupViewModel::onPhotoPermissionResult,
                         onIndexRequested = mediaStoreSetupViewModel::onIndexRequested,
                         onImageExifExtractRequested = mediaStoreSetupViewModel::onExifExtractRequested,
@@ -260,12 +267,16 @@ class MainActivity : ComponentActivity() {
                             notePageKeywordSearchViewModel.onDerivedDataCleared()
                             assetMemorySetupViewModel.onDerivedDataCleared()
                             notesConnectorViewModel.onDerivedDataCleared()
+                            aiPackDisclosureViewModel.onDerivedDataCleared()
                         },
                         onNotesDisconnect = notesConnectorViewModel::onDisconnectRequested,
                         onNotesConnect = notesConnectorViewModel::onConnectRequested,
                         onNotesDiscover = notesConnectorViewModel::onDiscoverRequested,
                         onNotesExtract = notesConnectorViewModel::onExtractRequested,
                         onNotesHonestyOpened = notesConnectorViewModel::refresh,
+                        onAiPackDisclosureOpened = aiPackDisclosureViewModel::refresh,
+                        onAiPackDisclosureAcknowledge =
+                            aiPackDisclosureViewModel::onAcknowledgeRequested,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -287,6 +298,7 @@ fun MemoraApp(
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
+    aiPackDisclosureUiState: AiPackDisclosureUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -343,6 +355,8 @@ fun MemoraApp(
     onNotesDiscover: () -> Unit,
     onNotesExtract: () -> Unit,
     onNotesHonestyOpened: () -> Unit,
+    onAiPackDisclosureOpened: () -> Unit,
+    onAiPackDisclosureAcknowledge: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -367,6 +381,7 @@ fun MemoraApp(
             notePageKeywordSearchUiState = notePageKeywordSearchUiState,
             assetMemorySetupState = assetMemorySetupState,
             notesConnectorUiState = notesConnectorUiState,
+            aiPackDisclosureUiState = aiPackDisclosureUiState,
             onPhotoPermissionResult = onPhotoPermissionResult,
             onIndexRequested = onIndexRequested,
             onImageExifExtractRequested = onImageExifExtractRequested,
@@ -424,6 +439,8 @@ fun MemoraApp(
             onNotesDiscover = onNotesDiscover,
             onNotesExtract = onNotesExtract,
             onNotesHonestyOpened = onNotesHonestyOpened,
+            onAiPackDisclosureOpened = onAiPackDisclosureOpened,
+            onAiPackDisclosureAcknowledge = onAiPackDisclosureAcknowledge,
             modifier = modifier,
         )
     }
@@ -441,6 +458,7 @@ private fun MemoraAppReady(
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
+    aiPackDisclosureUiState: AiPackDisclosureUiState,
     onPhotoPermissionResult: (Boolean) -> Unit,
     onIndexRequested: () -> Unit,
     onImageExifExtractRequested: () -> Unit,
@@ -497,6 +515,8 @@ private fun MemoraAppReady(
     onNotesDiscover: () -> Unit,
     onNotesExtract: () -> Unit,
     onNotesHonestyOpened: () -> Unit,
+    onAiPackDisclosureOpened: () -> Unit,
+    onAiPackDisclosureAcknowledge: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -528,6 +548,7 @@ private fun MemoraAppReady(
     var isShowingNotePageKeywordSearch by rememberSaveable { mutableStateOf(false) }
     var isShowingOpenSourceNotices by rememberSaveable { mutableStateOf(false) }
     var isShowingNotesHonesty by rememberSaveable { mutableStateOf(false) }
+    var isShowingAiPackDisclosure by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         onPhotoPermissionResult(context.hasAnyPermission(requiredPermissions))
@@ -573,6 +594,18 @@ private fun MemoraAppReady(
                     onDiscover = onNotesDiscover,
                     onExtract = onNotesExtract,
                     onBack = { isShowingNotesHonesty = false },
+                    modifier = modifier,
+                )
+            }
+
+            isShowingAiPackDisclosure -> {
+                LaunchedEffect(Unit) {
+                    onAiPackDisclosureOpened()
+                }
+                AiPackDisclosureScreen(
+                    uiState = aiPackDisclosureUiState,
+                    onAcknowledge = onAiPackDisclosureAcknowledge,
+                    onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )
             }
@@ -709,6 +742,7 @@ private fun MemoraAppReady(
                     onNotePageKeywordSearchScreenVisible()
                 },
                 onAboutNotesIndexing = { isShowingNotesHonesty = true },
+                onAboutOnDeviceMeaningSearch = { isShowingAiPackDisclosure = true },
                 onOpenSourceNotices = { isShowingOpenSourceNotices = true },
                 onClearIndex = onClearIndexRequested,
                 modifier = modifier,
@@ -822,6 +856,7 @@ fun MemoraWelcomeScreen(
     onFindSavedPhotoText: () -> Unit,
     onFindSavedNoteText: () -> Unit,
     onAboutNotesIndexing: () -> Unit,
+    onAboutOnDeviceMeaningSearch: () -> Unit,
     onOpenSourceNotices: () -> Unit,
     onClearIndex: () -> Unit,
     modifier: Modifier = Modifier,
@@ -909,6 +944,13 @@ fun MemoraWelcomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(NotesConnectorHonestyCopy.ENTRY_LABEL)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = onAboutOnDeviceMeaningSearch,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(AiPackDisclosureCopy.ENTRY_LABEL)
         }
         Spacer(modifier = Modifier.height(12.dp))
         Button(

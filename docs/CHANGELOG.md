@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E3 disclosure UI
+
+- **Requirements:** A-01, A-03, A-07; ADR-023, ADR-029.
+- **Delivered:** Welcome → About on-device meaning search; honesty screen with
+  planned size/storage/license; affirmative acknowledge into Room ledger; no
+  download or AVAILABLE claim.
+- **Verification:** disclosure copy + ViewModel unit tests (engineering gate);
+  optional user smoke on Welcome disclosure.
+- **Truthfulness:** Meaning search stays off; keyword recall unchanged.
+
 ### Local-AI embedding-first track E2 Room install ledger
 
 - **Requirements:** A-01, A-07; ADR-023, ADR-029.

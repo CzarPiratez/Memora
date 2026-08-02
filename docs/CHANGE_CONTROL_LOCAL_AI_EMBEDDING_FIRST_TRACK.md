@@ -1,9 +1,10 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E2 **accepted** (engineering lead). Engines remain Unavailable;
+**Status:** E0–E3 **accepted** (engineering lead). Engines remain Unavailable;
 no AVAILABLE UI; no pack download. Product `AiPackManager` is ledger-backed
-(empty Room table ⇒ NOT_INSTALLED).  
+(empty Room table ⇒ NOT_INSTALLED). E3 disclosure UI records affirmative
+acknowledgment only.  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**.  
@@ -96,4 +97,23 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
   migration test expects schema v10 + empty ledger.
 - **Honesty:** No disclosure UI, INTERNET, pack bytes, EmbeddingEngine bind, or
   AVAILABLE claim.
-- **Not delivered:** E3 disclosure UI, E4 download/verify, E5 embedding recall.
+- **Not delivered at E2 close:** E3 disclosure UI, E4 download/verify, E5 embedding
+  recall.
+
+## E3 continuation — Disclosure UI (no download)
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Affirmative disclosure of planned size/storage/license | Welcome entry + honesty screen + ViewModel → ledger ack | No silent install; no INTERNET; no AVAILABLE; keyword paths unchanged |
+
+### Acceptance record — E3 (**accepted** 2026-08-02 — engineering lead)
+
+- **Delivered:** Welcome → **About on-device meaning search**;
+  `AiPackDisclosureScreen` / Copy / ViewModel; planned estimate fields on
+  `EmbeddingFirstAiPackTrack`; acknowledge persists via Room ledger without
+  ACTIVE/download.
+- **Automated:** `AiPackDisclosureCopyTest`, `AiPackDisclosureViewModelTest`.
+- **User smoke (optional):** open disclosure, tap acknowledge, reopen — status
+  shows disclosure recorded; meaning search still off.
+- **Not delivered:** E4 download/verify, E5 EmbeddingEngine bind / meaning recall
+  UI, AVAILABLE claims.

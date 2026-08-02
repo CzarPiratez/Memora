@@ -1038,12 +1038,11 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E2 closed** 2026-08-02 (ADR-029;
-`docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md`): domain install ledger
-+ Room v10 `ai_pack_install_ledger` + ledger-backed `AiPackManager` (empty ⇒
-NOT_INSTALLED). **Next engineering step: E3** (disclosure UI for planned
-embedding pack — still no AVAILABLE). No AVAILABLE UI until E5 measured under
-ADR-024.
+**Local-AI embedding-first track E0–E3 closed** 2026-08-02 (ADR-029;
+`docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md`): domain ledger + Room
+v10 persist + Welcome disclosure UI (size/storage/license acknowledge only).
+**Next engineering step: E4** (pack download + atomic verify — requires vendor
+pack choice). No AVAILABLE UI until E5 measured under ADR-024.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 
