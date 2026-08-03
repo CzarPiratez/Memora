@@ -48,6 +48,6 @@
   - Embeds: 14; wallMs: 6031 (aggregate only; not a release latency SLA)
 - **Explicitly not delivered:** Product UI AVAILABLE flip; midrange_arm64 row;
   E4b vendor pack selection/download.
-- **Git commit:** (filled at close)
+- **Git commit:** `0ce59d2`
 - **Documentation/traceability:** CONTINUE, CHANGELOG, enterprise checklist §B,
   embedding-first track, ROADMAP.
