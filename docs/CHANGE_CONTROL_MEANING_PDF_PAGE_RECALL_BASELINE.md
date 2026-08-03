@@ -46,6 +46,6 @@
   (recommends **E4b** for semantic-only); boosted hit@1 = 3/3.
 - **Explicitly not delivered:** Product UI AVAILABLE flip; on-device MediaPipe
   end-to-end measurement (**M2**); E4b vendor pack selection.
-- **Git commit:** (filled at close)
+- **Git commit:** `b1c39d9` (`feat: M1 JVM meaning PDF page-recall baseline harness`)
 - **Documentation/traceability:** CONTINUE, CHANGELOG, enterprise checklist §B
   partial, fixtures README, embedding-first track pointer.
