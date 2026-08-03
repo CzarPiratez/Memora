@@ -70,6 +70,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 assetType = lookup.assetType,
                 label = lookup.displayLabel,
                 summaryText = lookup.summaryText,
+                citedPdfPageNumber = lookup.citedPdfPageNumber,
                 score = score,
                 model = model,
             )
@@ -102,11 +103,14 @@ data class MeaningSearchHit(
     val summaryText: String,
     val score: Float,
     val model: ModelVersionIdentity,
+    /** 1-based PDF page cited by the Memory summary, when known. */
+    val citedPdfPageNumber: Int? = null,
 ) {
     init {
         require(label.isNotBlank())
         require(summaryText.isNotBlank())
         require(score.isFinite())
+        require(citedPdfPageNumber == null || citedPdfPageNumber > 0)
     }
 }
 

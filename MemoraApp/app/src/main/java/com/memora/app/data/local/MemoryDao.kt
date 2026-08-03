@@ -110,6 +110,23 @@ interface MemoryDao {
         revisionIds: List<String>,
     ): List<MemoryMeaningLookupRow>
 
+    @Query(
+        """
+        SELECT
+            mse.revision_id AS revision_id,
+            me.locator AS locator
+        FROM memory_summary_evidence AS mse
+        INNER JOIN memory_evidence AS me
+          ON me.revision_id = mse.revision_id
+         AND me.evidence_id = mse.evidence_id
+        WHERE mse.revision_id IN (:revisionIds)
+        ORDER BY mse.revision_id, mse.evidence_id
+        """,
+    )
+    suspend fun findSummaryEvidenceLocators(
+        revisionIds: List<String>,
+    ): List<MemorySummaryEvidenceLocatorRow>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHeader(entity: MemoryEntity)
 
@@ -186,4 +203,9 @@ data class MemoryMeaningLookupRow(
     @ColumnInfo(name = "summary_text") val summaryText: String,
     @ColumnInfo(name = "asset_type") val assetType: String,
     @ColumnInfo(name = "display_name") val displayName: String?,
+)
+
+data class MemorySummaryEvidenceLocatorRow(
+    @ColumnInfo(name = "revision_id") val revisionId: String,
+    @ColumnInfo(name = "locator") val locator: String,
 )

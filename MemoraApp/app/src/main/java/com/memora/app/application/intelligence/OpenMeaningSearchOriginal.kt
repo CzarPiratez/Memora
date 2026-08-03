@@ -12,10 +12,10 @@ import com.memora.app.domain.asset.AssetType
 import javax.inject.Inject
 
 /**
- * Opens the original Asset for a meaning-search hit (E5b2b).
+ * Opens the original Asset for a meaning-search hit (E5b2b / E5b2d).
  *
- * PDF opens page 1 preview only — meaning hits cite Memory summaries, not a
- * stored PDF page number yet.
+ * For PDFs, opens the page cited by the Memory summary evidence (`pdf:page:N`)
+ * when known; otherwise falls back to page 1 without inventing a query-best page.
  */
 class OpenMeaningSearchOriginal @Inject constructor(
     private val openScreenshot: OpenPersistedScreenshotForViewing,
@@ -67,7 +67,7 @@ class OpenMeaningSearchOriginal @Inject constructor(
                 val outcome = openPdf(
                     sourceId = hit.sourceId.value,
                     sourceAssetKey = hit.sourceAssetKey.value,
-                    pageNumber = PDF_PREVIEW_PAGE,
+                    pageNumber = resolvePdfPage(hit),
                     documentLabel = hit.label,
                 )
             ) {
@@ -78,6 +78,7 @@ class OpenMeaningSearchOriginal @Inject constructor(
                     widthPx = outcome.widthPx,
                     heightPx = outcome.heightPx,
                     argb8888 = outcome.argb8888,
+                    openedCitedPage = hit.citedPdfPageNumber != null,
                 )
                 PdfPagePreviewRenderResult.SourceUnavailable ->
                     MeaningOpenOriginalResult.SourceUnavailable
@@ -103,7 +104,10 @@ class OpenMeaningSearchOriginal @Inject constructor(
         }
 
     companion object {
-        const val PDF_PREVIEW_PAGE = 1
+        const val PDF_FALLBACK_PAGE = 1
+
+        fun resolvePdfPage(hit: MeaningSearchHit): Int =
+            hit.citedPdfPageNumber?.takeIf { it > 0 } ?: PDF_FALLBACK_PAGE
     }
 }
 
@@ -129,6 +133,8 @@ sealed interface MeaningOpenOriginalResult {
         val widthPx: Int,
         val heightPx: Int,
         val argb8888: IntArray,
+        /** True when open used the Memory summary's cited page, not the fallback. */
+        val openedCitedPage: Boolean = false,
     ) : MeaningOpenOriginalResult
 
     data class NoteReady(

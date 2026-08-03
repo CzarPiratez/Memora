@@ -51,10 +51,18 @@ data class MemoryMeaningLookup(
     val assetType: AssetType,
     val displayLabel: String,
     val summaryText: String,
+    /**
+     * 1-based PDF page cited by the Memory summary evidence, when the locator
+     * is `pdf:page:N`. Null when unknown or not a PDF page cite.
+     */
+    val citedPdfPageNumber: Int? = null,
 ) {
     init {
         require(displayLabel.isNotBlank()) { "Meaning lookup needs a display label." }
         require(summaryText.isNotBlank()) { "Meaning lookup needs summary text." }
+        require(citedPdfPageNumber == null || citedPdfPageNumber > 0) {
+            "Cited PDF page must be positive when present."
+        }
     }
 }
 

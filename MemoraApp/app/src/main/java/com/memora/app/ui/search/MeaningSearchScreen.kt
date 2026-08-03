@@ -228,6 +228,16 @@ private fun MeaningHitCard(
                 text = hit.summaryText,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            if (hit.assetType == AssetType.PDF) {
+                hit.citedPdfPageNumber?.let { page ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = MeaningSearchCopy.citedPdfPageLabel(page),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(onClick = { showWhy = !showWhy }) {
                 Text(if (showWhy) "Hide why" else "Why this result?")
@@ -250,7 +260,7 @@ private fun MeaningHitCard(
             if (hit.assetType == AssetType.PDF) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = MeaningSearchCopy.OPEN_ORIGINAL_HINT,
+                    text = MeaningSearchCopy.openOriginalPdfHint(hit.citedPdfPageNumber),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

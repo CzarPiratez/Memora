@@ -205,3 +205,9 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 See `docs/CHANGE_CONTROL_MEANING_MEMORY_SUMMARY_QUALITY.md` (**accepted**
 2026-08-03). Assembly schema v2; no dimension-only EXIF memories; OCR/text-first
 summaries for meaning index quality.
+
+## E5b2d continuation — Meaning PDF open uses cited page
+
+See `docs/CHANGE_CONTROL_MEANING_PDF_CITED_PAGE_OPEN.md`. Meaning open resolves
+`pdf:page:N` from Memory summary evidence; fallback page 1 when missing.
+Query-best page ranking remains deferred (needs page/chunk embeddings).

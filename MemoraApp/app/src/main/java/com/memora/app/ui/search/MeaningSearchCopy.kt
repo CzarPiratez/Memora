@@ -89,22 +89,35 @@ object MeaningSearchCopy {
         AssetType.NOTE -> "Note memory"
     }
 
+    fun citedPdfPageLabel(pageNumber: Int): String {
+        require(pageNumber > 0)
+        return "Cites page $pageNumber"
+    }
+
     fun whyThisResult(hit: MeaningSearchHit, query: String): String {
         require(query.isNotBlank())
         val excerpt = hit.summaryText.trim().replace(Regex("\\s+"), " ")
         val clipped = if (excerpt.length <= 160) excerpt else excerpt.take(157) + "…"
+        val pageCite = hit.citedPdfPageNumber?.let { " It cites page $it of the PDF." }.orEmpty()
         return "Why this result? Your cue \"$query\" ranked closest to this saved " +
-            "Asset Memory summary: \"$clipped\". Score is candidate cosine similarity " +
-            "on this phone — not a guarantee of full meaning match."
+            "Asset Memory summary: \"$clipped\".$pageCite Score is candidate cosine " +
+            "similarity on this phone — not a guarantee of full meaning match."
     }
 
     const val OPEN_ORIGINAL_LABEL = "Open original"
 
     const val OPEN_ORIGINAL_HINT =
         "Opens the original file Memora cited for this memory. Search still used the " +
-            "on-device meaning index — not a live re-read for ranking. For PDFs, Memora " +
-            "shows page 1 for now because meaning hits cite Memory summaries, not a " +
-            "stored page number yet."
+            "on-device meaning index — not a live re-read for ranking."
+
+    fun openOriginalPdfHint(citedPdfPageNumber: Int?): String =
+        if (citedPdfPageNumber != null) {
+            "$OPEN_ORIGINAL_HINT Opens the PDF page this memory cites " +
+                "(page $citedPdfPageNumber) — not a query-best page ranker."
+        } else {
+            "$OPEN_ORIGINAL_HINT For this PDF memory Memora could not read a cited " +
+                "page locator, so open shows page 1 as a fallback."
+        }
 
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening the original on this phone…"
 

@@ -14,6 +14,7 @@ import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryMeaningLookup
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.MemoryRevisionId
+import com.memora.app.domain.memory.PdfPageEvidenceLocator
 
 class RoomMemoryRepository(
     private val database: () -> MemoraDatabase,
@@ -79,7 +80,13 @@ class RoomMemoryRepository(
     ): Map<MemoryRevisionId, MemoryMeaningLookup> {
         if (revisionIds.isEmpty()) return emptyMap()
         val ids = revisionIds.map { it.value }.distinct()
-        return database().memoryDao().findCurrentReadyMeaningLookups(
+        val dao = database().memoryDao()
+        val citedPagesByRevision = dao.findSummaryEvidenceLocators(ids)
+            .groupBy { it.revisionId }
+            .mapValues { (_, rows) ->
+                PdfPageEvidenceLocator.firstPageNumber(rows.map { it.locator })
+            }
+        return dao.findCurrentReadyMeaningLookups(
             assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
             revisionIds = ids,
         ).associate { row ->
@@ -93,6 +100,7 @@ class RoomMemoryRepository(
                 displayLabel = row.displayName?.takeIf { it.isNotBlank() }
                     ?: row.sourceAssetKey,
                 summaryText = row.summaryText,
+                citedPdfPageNumber = citedPagesByRevision[row.revisionId],
             )
         }
     }

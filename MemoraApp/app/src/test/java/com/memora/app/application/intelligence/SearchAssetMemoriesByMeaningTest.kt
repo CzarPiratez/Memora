@@ -79,7 +79,12 @@ class SearchAssetMemoriesByMeaningTest {
         )
         val repo = FakeMemoryRepository(
             lookups = mapOf(
-                cafeRevision to lookup(cafeRevision, MemoryId("mem-cafe"), "Cafe receipt"),
+                cafeRevision to lookup(
+                    cafeRevision,
+                    MemoryId("mem-cafe"),
+                    "Cafe receipt",
+                    citedPdfPageNumber = 3,
+                ),
                 unrelatedRevision to lookup(
                     unrelatedRevision,
                     MemoryId("mem-other"),
@@ -98,12 +103,15 @@ class SearchAssetMemoriesByMeaningTest {
         assertEquals(2, matches.hits.size)
         assertEquals("Cafe receipt", matches.hits.first().label)
         assertTrue(matches.hits.first().score > matches.hits.last().score)
+        assertEquals(3, matches.hits.first().citedPdfPageNumber)
+        assertEquals(null, matches.hits.last().citedPdfPageNumber)
     }
 
     private fun lookup(
         revisionId: MemoryRevisionId,
         memoryId: MemoryId,
         label: String,
+        citedPdfPageNumber: Int? = null,
     ) = MemoryMeaningLookup(
         revisionId = revisionId,
         memoryId = memoryId,
@@ -112,6 +120,7 @@ class SearchAssetMemoriesByMeaningTest {
         assetType = AssetType.PDF,
         displayLabel = label,
         summaryText = "$label summary text for evidence",
+        citedPdfPageNumber = citedPdfPageNumber,
     )
 
     private class FixedEmbeddingEngine(

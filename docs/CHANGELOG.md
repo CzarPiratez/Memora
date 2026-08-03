@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Meaning PDF open uses cited page (E5b2d)
+
+- **Date:** 2026-08-03
+- **Delivered:** Meaning-search Open original for PDFs opens the page cited by
+  the Memory summary evidence locator (`pdf:page:N`); honest page-1 fallback
+  when no cite; Why / hit copy reflect the cited page.
+- **Verification:** locator parser, open page resolve, meaning search cite
+  flow, and copy unit tests.
+- **Truthfulness:** Cited summary page ≠ query-best page ranking.
+
 ### Meaning-quality Asset Memory summaries (E5b2c)
 
 - **Requirements:** A-05; ADR-029, ADR-031.
