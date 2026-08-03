@@ -61,10 +61,22 @@ class MeaningSearchCopyTest {
         assertTrue(hint.contains("not a live re-read"))
     }
 
+    @Test
+    fun why_discloses_evidence_token_boost() {
+        val why = MeaningSearchCopy.whyThisResult(
+            hit = sampleHit(AssetType.PDF, citedPage = 1, rankedPage = 3, boosted = true),
+            query = "mira",
+        )
+        assertTrue(why.contains("page 3"))
+        assertTrue(why.contains("appears in this saved evidence"))
+        assertTrue(why.contains("disclosed assist"))
+    }
+
     private fun sampleHit(
         type: AssetType,
         citedPage: Int? = null,
         rankedPage: Int? = null,
+        boosted: Boolean = false,
     ) = MeaningSearchHit(
         revisionId = MemoryRevisionId("r1"),
         memoryId = MemoryId("m1"),
@@ -77,5 +89,6 @@ class MeaningSearchCopyTest {
         model = ModelVersionIdentity("m", "1"),
         citedPdfPageNumber = citedPage,
         rankedPdfPageNumber = rankedPage,
+        evidenceTokenBoosted = boosted,
     )
 }

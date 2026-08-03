@@ -105,9 +105,16 @@ object MeaningSearchCopy {
                 " It cites page ${hit.citedPdfPageNumber} of the PDF."
             else -> ""
         }
+        val boostNote = if (hit.evidenceTokenBoosted) {
+            " Rank also rose because your cue appears in this saved evidence text " +
+                "(disclosed assist — still candidate meaning, not keyword Find alone)."
+        } else {
+            ""
+        }
         return "Why this result? Your cue \"$query\" ranked closest to this saved " +
-            "Asset Memory evidence: \"$clipped\".$pageCite Score is candidate cosine " +
-            "similarity on this phone — not a guarantee of full meaning match."
+            "Asset Memory evidence: \"$clipped\".$pageCite$boostNote Score is " +
+            "candidate cosine similarity on this phone — not a guarantee of full " +
+            "meaning match."
     }
 
     const val OPEN_ORIGINAL_LABEL = "Open original"

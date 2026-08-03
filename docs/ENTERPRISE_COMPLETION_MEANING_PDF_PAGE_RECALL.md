@@ -52,9 +52,9 @@ Change-control this as its own approved slice before coding.
       Find by meaning shows **Matched page N**; Open opens that ranked page
       (`mira` → `memora-open-5page.pdf` Matched page 1 → Page 1 of 5).
 - [ ] **Smoke (quality):** Cue text only on a later page should rank that page
-      first — **not yet** with compact MediaPipe average-word embedder (`mira`
-      still prefers screenshot / FOXTROT page 1 over 2page/3page mira pages).
-      Track under measured gate + **E4b** larger pack.
+      first — compact cosine alone failed; **E5d** evidence-token boost added
+      for retest (`docs/CHANGE_CONTROL_MEANING_EVIDENCE_TOKEN_BOOST.md`). E4b
+      still required for stronger semantic-only quality / measured AVAILABLE.
 
 ### B. Measured quality gate (ADR-024 / ADR-025)
 

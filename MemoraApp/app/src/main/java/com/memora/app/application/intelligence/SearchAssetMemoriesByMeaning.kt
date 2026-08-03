@@ -20,10 +20,11 @@ import kotlinx.coroutines.withContext
 
 /**
  * Candidate Find-by-meaning over indexed Memory summaries and PDF page vectors
- * (E5b2 / E5c).
+ * (E5b2 / E5c / evidence-token boost).
  *
- * Compact-model path: ranks by cosine similarity only. Does not claim Local
- * Intelligence marketing AVAILABLE / SLA (ADR-024/025).
+ * Compact-model path: cosine plus a disclosed evidence-token boost when the cue
+ * appears in ranked text. Does not claim Local Intelligence marketing AVAILABLE
+ * / SLA (ADR-024/025).
  */
 class SearchAssetMemoriesByMeaning @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
@@ -67,7 +68,12 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         val summaryHits = summaryIndexed.mapNotNull { record ->
             val lookup = lookups[record.revisionId] ?: return@mapNotNull null
             if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
-            val score = EmbeddingSimilarity.cosine(queryVector, record.vector)
+            val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
+            val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
+                cosine = cosine,
+                query = query,
+                evidenceText = lookup.summaryText,
+            )
             if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
             MeaningSearchHit(
                 revisionId = record.revisionId,
@@ -81,6 +87,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 rankedPdfPageNumber = null,
                 score = score,
                 model = model,
+                evidenceTokenBoosted = tokenBoosted,
             )
         }
 
@@ -88,8 +95,6 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             val lookup = lookups[record.revisionId] ?: return@mapNotNull null
             if (lookup.assetType != AssetType.PDF) return@mapNotNull null
             if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
-            val score = EmbeddingSimilarity.cosine(queryVector, record.vector)
-            if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
             val pageExcerpt = savedPdfPages.listCurrentVerifiedPages(
                 sourceId = lookup.sourceId.value,
                 sourceAssetKey = lookup.sourceAssetKey.value,
@@ -97,6 +102,13 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 ?.let { ResolveMeaningPdfOpenPage.truncateForEmbed(it.text) }
                 ?.takeIf { it.isNotBlank() }
                 ?: lookup.summaryText
+            val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
+            val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
+                cosine = cosine,
+                query = query,
+                evidenceText = pageExcerpt,
+            )
+            if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
             MeaningSearchHit(
                 revisionId = record.revisionId,
                 memoryId = record.memoryId,
@@ -109,6 +121,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 rankedPdfPageNumber = record.pageNumber,
                 score = score,
                 model = model,
+                evidenceTokenBoosted = tokenBoosted,
             )
         }
 
@@ -157,6 +170,8 @@ data class MeaningSearchHit(
      * (E5c). Null for summary-only hits.
      */
     val rankedPdfPageNumber: Int? = null,
+    /** True when a significant cue token was found in evidence and boosted score. */
+    val evidenceTokenBoosted: Boolean = false,
 ) {
     init {
         require(label.isNotBlank())

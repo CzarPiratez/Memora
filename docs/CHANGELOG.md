@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### E5d evidence-token boost for candidate meaning ranking
+
+- **Date:** 2026-08-04
+- **Delivered:** Disclosed bounded boost when a significant cue token appears in
+  ranked evidence text; Why copy discloses assist; unit tests.
+- **Truthfulness:** Hybrid candidate assist — not keyword Find alone, not
+  measured AVAILABLE; E4b still the path for stronger semantic-only ranking.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_EVIDENCE_TOKEN_BOOST.md`.
+
 ### E5c index-time PDF page embeddings
 
 - **Date:** 2026-08-04

@@ -160,6 +160,64 @@ class SearchAssetMemoriesByMeaningTest {
         val hit = (outcome as MeaningSearchOutcome.Matches).hits.single()
         assertEquals(3, hit.rankedPdfPageNumber)
         assertTrue(hit.summaryText.contains("mira"))
+        assertTrue(hit.evidenceTokenBoosted)
+    }
+
+    @Test
+    fun evidence_token_boost_outranks_foxtrot_without_token() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val pageStore = InMemoryPdfPageEmbeddingStore()
+        val foxtrot = MemoryRevisionId("rev-5")
+        val miraPage = MemoryRevisionId("rev-3")
+        pageStore.upsert(
+            PdfPageEmbeddingRecord(
+                revisionId = foxtrot,
+                memoryId = MemoryId("mem-5"),
+                pageNumber = 1,
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.9f, 0.1f, 0f)),
+                sourceTextFingerprint = "fp-f",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        pageStore.upsert(
+            PdfPageEmbeddingRecord(
+                revisionId = miraPage,
+                memoryId = MemoryId("mem-3"),
+                pageNumber = 3,
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.2f, 0.8f, 0f)),
+                sourceTextFingerprint = "fp-m",
+                createdAtEpochMs = 2L,
+            ),
+        )
+        // Query aligned with FOXTROT vector — without boost FOXTROT would win.
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(0.9f, 0.1f, 0f))
+        val outcome = SearchAssetMemoriesByMeaning(
+            embeddingEngine = engine,
+            embeddingStore = InMemoryMemoryEmbeddingStore(),
+            pdfPageEmbeddingStore = pageStore,
+            savedPdfPages = object : SavedPdfPageTextSource {
+                override suspend fun listCurrentVerifiedPages(
+                    sourceId: String,
+                    sourceAssetKey: String,
+                ): List<SavedPdfPageText> = when {
+                    sourceAssetKey.contains("5page") ->
+                        listOf(SavedPdfPageText(1, "Page 1 FOXTROT cover sheet"))
+                    else -> listOf(SavedPdfPageText(3, "Page 3 ECHO meet mira follow-up"))
+                }
+            },
+            memoryRepository = FakeMemoryRepository(
+                lookups = mapOf(
+                    foxtrot to lookup(foxtrot, MemoryId("mem-5"), "memora-open-5page.pdf"),
+                    miraPage to lookup(miraPage, MemoryId("mem-3"), "memora-open-3page.pdf"),
+                ),
+            ),
+        )("mira")
+        val hit = (outcome as MeaningSearchOutcome.Matches).hits.first()
+        assertEquals("memora-open-3page.pdf", hit.label)
+        assertEquals(3, hit.rankedPdfPageNumber)
+        assertTrue(hit.evidenceTokenBoosted)
     }
 
     private fun lookup(
