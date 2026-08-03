@@ -53,7 +53,10 @@
   (`CouldNotOpen`).
 - **Known limitation or follow-up:** Summary still cites first usable
   DOCUMENT_TEXT page — not query-best page (keyword `mira` can be on later
-  pages). Page/chunk embeddings needed for true cue→page ranking.
+  pages). **Follow-up tracked as E5b2e** (open-time cue-best page) then
+  **E5c** (index-time page/chunk embeddings) in
+  `docs/CHANGE_CONTROL_MEANING_PDF_CUE_BEST_PAGE_OPEN.md` and `CONTINUE.md`.
+  Do not rely on chat memory for this.
 - **Documentation/traceability/ADR updates:** CONTINUE, CHANGELOG, embedding
   track E5b2d pointer, this record.
 - **Git commit:** `7e7f237` (feat); docs acceptance follow-up below.

@@ -93,7 +93,7 @@ class MeaningSearchViewModelTest {
     fun open_original_screenshot_sets_preview() = runTest {
         val pixels = IntArray(4) { 0xFF0000FF.toInt() }
         val viewModel = viewModel(
-            open = {
+            open = { _, _ ->
                 MeaningOpenOriginalResult.ScreenshotReady(
                     label = "Screenshot_memora_note.png",
                     widthPx = 2,
@@ -129,7 +129,7 @@ class MeaningSearchViewModelTest {
     fun open_original_note_launches_urls() = runTest {
         val launched = mutableListOf<Pair<String?, String?>>()
         val viewModel = viewModel(
-            open = {
+            open = { _, _ ->
                 MeaningOpenOriginalResult.NoteReady(
                     webUrl = "https://onenote.example/web",
                     clientUrl = "onenote:https://onenote.example/client",
@@ -163,7 +163,7 @@ class MeaningSearchViewModelTest {
                 memoriesReadyCount = 1,
             )
         },
-        open: suspend (MeaningSearchHit) -> MeaningOpenOriginalResult = {
+        open: suspend (MeaningSearchHit, String) -> MeaningOpenOriginalResult = { _, _ ->
             MeaningOpenOriginalResult.CouldNotOpen
         },
         launch: (String?, String?) -> Boolean = { _, _ -> false },

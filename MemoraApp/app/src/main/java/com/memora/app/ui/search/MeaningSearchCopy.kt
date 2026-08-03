@@ -110,14 +110,16 @@ object MeaningSearchCopy {
         "Opens the original file Memora cited for this memory. Search still used the " +
             "on-device meaning index — not a live re-read for ranking."
 
-    fun openOriginalPdfHint(citedPdfPageNumber: Int?): String =
-        if (citedPdfPageNumber != null) {
-            "$OPEN_ORIGINAL_HINT Opens the PDF page this memory cites " +
-                "(page $citedPdfPageNumber) — not a query-best page ranker."
+    fun openOriginalPdfHint(citedPdfPageNumber: Int?): String {
+        val citeBit = if (citedPdfPageNumber != null) {
+            "Memory cite is page $citedPdfPageNumber."
         } else {
-            "$OPEN_ORIGINAL_HINT For this PDF memory Memora could not read a cited " +
-                "page locator, so open shows page 1 as a fallback."
+            "No Memory page cite — page 1 is the fallback if cue-best cannot run."
         }
+        return "$OPEN_ORIGINAL_HINT On Open, Memora may pick a better matching " +
+            "saved page for your cue with the on-device model ($citeBit). " +
+            "This is not full page ranking inside Find by meaning yet."
+    }
 
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening the original on this phone…"
 

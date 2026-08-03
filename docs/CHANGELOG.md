@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Meaning PDF cue-best page open (E5b2e)
+
+- **Date:** 2026-08-04
+- **Delivered:** On meaning Open original for PDFs, re-rank saved page texts
+  against the cue with the on-device embedder; open cue-best page when it
+  clearly beats the Memory cite; else keep E5b2d cite/fallback. Durable
+  backlog for index-time page/chunk embeddings (E5c).
+- **Verification:** ResolveMeaningPdfOpenPage unit tests; meaning copy/VM tests.
+- **Truthfulness:** Open-time cue-best ≠ Find-by-meaning page ranking; not
+  measured AVAILABLE.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PDF_CUE_BEST_PAGE_OPEN.md`.
+
 ### Meaning PDF open uses cited page (E5b2d)
 
 - **Date:** 2026-08-03

@@ -12,6 +12,7 @@ import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomMemoryEmbeddingStore
 import com.memora.app.data.local.RoomMemoryRepository
 import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
+import com.memora.app.data.local.RoomSavedPdfPageTextSource
 import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.ProductionDatabaseIdentity
@@ -28,6 +29,7 @@ import com.memora.app.domain.intelligence.LedgerBackedAiPackManager
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.MemoryRepository
+import com.memora.app.domain.extraction.SavedPdfPageTextSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -85,6 +87,17 @@ object PersistenceModule {
     @Singleton
     fun provideAssetMemoryFactSource(handle: MemoraDatabaseHandle): AssetMemoryFactSource =
         RoomAssetMemoryFactSource { handle.database() }
+
+    @Provides
+    @Singleton
+    fun provideSavedPdfPageTextSource(
+        assetRepository: AssetRepository,
+        handle: MemoraDatabaseHandle,
+    ): SavedPdfPageTextSource =
+        RoomSavedPdfPageTextSource(
+            assetRepository = assetRepository,
+            database = { handle.database() },
+        )
 
     @Provides
     @Singleton

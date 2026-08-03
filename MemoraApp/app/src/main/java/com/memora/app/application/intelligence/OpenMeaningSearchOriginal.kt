@@ -9,21 +9,32 @@ import com.memora.app.application.images.ScreenshotPreviewRenderResult
 import com.memora.app.application.notes.OpenPersistedNotePageInOneNote
 import com.memora.app.application.notes.OpenPersistedNotePageResult
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.extraction.SavedPdfPageTextSource
+import com.memora.app.domain.intelligence.CapabilityAvailability
+import com.memora.app.domain.intelligence.EmbeddingEncodeResult
+import com.memora.app.domain.intelligence.EmbeddingEngine
+import com.memora.app.domain.intelligence.EmbeddingSimilarity
 import javax.inject.Inject
 
 /**
- * Opens the original Asset for a meaning-search hit (E5b2b / E5b2d).
+ * Opens the original Asset for a meaning-search hit (E5b2b / E5b2d / E5b2e).
  *
- * For PDFs, opens the page cited by the Memory summary evidence (`pdf:page:N`)
- * when known; otherwise falls back to page 1 without inventing a query-best page.
+ * For PDFs: prefers a cue-best saved page when the on-device embedder clearly
+ * ranks it above the Memory summary cite; otherwise opens the cited page
+ * (`pdf:page:N`) or page 1.
  */
 class OpenMeaningSearchOriginal @Inject constructor(
     private val openScreenshot: OpenPersistedScreenshotForViewing,
     private val openPhoto: OpenPersistedPhotoForViewing,
     private val openPdf: OpenPersistedPdfForViewing,
     private val openNote: OpenPersistedNotePageInOneNote,
+    private val embeddingEngine: EmbeddingEngine,
+    private val savedPdfPages: SavedPdfPageTextSource,
 ) {
-    suspend operator fun invoke(hit: MeaningSearchHit): MeaningOpenOriginalResult =
+    suspend operator fun invoke(
+        hit: MeaningSearchHit,
+        query: String = "",
+    ): MeaningOpenOriginalResult =
         when (hit.assetType) {
             AssetType.SCREENSHOT -> when (
                 val outcome = openScreenshot(
@@ -63,27 +74,30 @@ class OpenMeaningSearchOriginal @Inject constructor(
                     MeaningOpenOriginalResult.CouldNotOpen
             }
 
-            AssetType.PDF -> when (
-                val outcome = openPdf(
-                    sourceId = hit.sourceId.value,
-                    sourceAssetKey = hit.sourceAssetKey.value,
-                    pageNumber = resolvePdfPage(hit),
-                    documentLabel = hit.label,
-                )
-            ) {
-                is PdfPagePreviewRenderResult.Ready -> MeaningOpenOriginalResult.PdfReady(
-                    label = outcome.documentLabel,
-                    pageNumber = outcome.pageNumber,
-                    pageCount = outcome.pageCount,
-                    widthPx = outcome.widthPx,
-                    heightPx = outcome.heightPx,
-                    argb8888 = outcome.argb8888,
-                    openedCitedPage = hit.citedPdfPageNumber != null,
-                )
-                PdfPagePreviewRenderResult.SourceUnavailable ->
-                    MeaningOpenOriginalResult.SourceUnavailable
-                PdfPagePreviewRenderResult.CouldNotOpen ->
-                    MeaningOpenOriginalResult.CouldNotOpen
+            AssetType.PDF -> {
+                val decision = resolvePdfOpenPage(hit, query)
+                when (
+                    val outcome = openPdf(
+                        sourceId = hit.sourceId.value,
+                        sourceAssetKey = hit.sourceAssetKey.value,
+                        pageNumber = decision.pageNumber,
+                        documentLabel = hit.label,
+                    )
+                ) {
+                    is PdfPagePreviewRenderResult.Ready -> MeaningOpenOriginalResult.PdfReady(
+                        label = outcome.documentLabel,
+                        pageNumber = outcome.pageNumber,
+                        pageCount = outcome.pageCount,
+                        widthPx = outcome.widthPx,
+                        heightPx = outcome.heightPx,
+                        argb8888 = outcome.argb8888,
+                        pageBasis = decision.basis,
+                    )
+                    PdfPagePreviewRenderResult.SourceUnavailable ->
+                        MeaningOpenOriginalResult.SourceUnavailable
+                    PdfPagePreviewRenderResult.CouldNotOpen ->
+                        MeaningOpenOriginalResult.CouldNotOpen
+                }
             }
 
             AssetType.NOTE -> when (
@@ -103,8 +117,47 @@ class OpenMeaningSearchOriginal @Inject constructor(
             }
         }
 
+    suspend fun resolvePdfOpenPage(
+        hit: MeaningSearchHit,
+        query: String,
+    ): MeaningPdfOpenPageDecision {
+        val cited = hit.citedPdfPageNumber
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) {
+            return ResolveMeaningPdfOpenPage.decide(cited, emptyList())
+        }
+        if (embeddingEngine.availability() !is CapabilityAvailability.Available) {
+            return ResolveMeaningPdfOpenPage.decide(cited, emptyList())
+        }
+        val queryVector = when (val encoded = embeddingEngine.embedText(trimmedQuery)) {
+            is EmbeddingEncodeResult.Success -> encoded.vector
+            else -> return ResolveMeaningPdfOpenPage.decide(cited, emptyList())
+        }
+        val pages = savedPdfPages.listCurrentVerifiedPages(
+            sourceId = hit.sourceId.value,
+            sourceAssetKey = hit.sourceAssetKey.value,
+        ).take(ResolveMeaningPdfOpenPage.MAX_PAGES_TO_SCORE)
+        if (pages.isEmpty()) {
+            return ResolveMeaningPdfOpenPage.decide(cited, emptyList())
+        }
+        val scored = pages.mapNotNull { page ->
+            val text = ResolveMeaningPdfOpenPage.truncateForEmbed(page.text)
+            if (text.isEmpty()) return@mapNotNull null
+            val pageVector = when (val encoded = embeddingEngine.embedText(text)) {
+                is EmbeddingEncodeResult.Success -> encoded.vector
+                else -> return@mapNotNull null
+            }
+            if (pageVector.dimensions != queryVector.dimensions) return@mapNotNull null
+            ScoredPdfPage(
+                pageNumber = page.pageNumber,
+                score = EmbeddingSimilarity.cosine(queryVector, pageVector),
+            )
+        }
+        return ResolveMeaningPdfOpenPage.decide(cited, scored)
+    }
+
     companion object {
-        const val PDF_FALLBACK_PAGE = 1
+        const val PDF_FALLBACK_PAGE = ResolveMeaningPdfOpenPage.FALLBACK_PAGE
 
         fun resolvePdfPage(hit: MeaningSearchHit): Int =
             hit.citedPdfPageNumber?.takeIf { it > 0 } ?: PDF_FALLBACK_PAGE
@@ -133,8 +186,7 @@ sealed interface MeaningOpenOriginalResult {
         val widthPx: Int,
         val heightPx: Int,
         val argb8888: IntArray,
-        /** True when open used the Memory summary's cited page, not the fallback. */
-        val openedCitedPage: Boolean = false,
+        val pageBasis: MeaningPdfOpenPageBasis = MeaningPdfOpenPageBasis.FALLBACK,
     ) : MeaningOpenOriginalResult
 
     data class NoteReady(

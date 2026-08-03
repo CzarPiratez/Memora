@@ -131,7 +131,7 @@ sealed interface MeaningSearchPhase {
 class MeaningSearchViewModel(
     private val searchByMeaning: suspend (String) -> MeaningSearchOutcome,
     private val loadReadiness: suspend () -> MeaningSearchReadiness,
-    private val openOriginal: suspend (MeaningSearchHit) -> MeaningOpenOriginalResult,
+    private val openOriginal: suspend (MeaningSearchHit, String) -> MeaningOpenOriginalResult,
     private val launchOneNoteOriginal: (webUrl: String?, clientUrl: String?) -> Boolean,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
@@ -145,7 +145,7 @@ class MeaningSearchViewModel(
     ) : this(
         searchByMeaning = { query -> searchAssetMemoriesByMeaning(query) },
         loadReadiness = { loadMeaningSearchReadiness() },
-        openOriginal = { hit -> openMeaningSearchOriginal(hit) },
+        openOriginal = { hit, query -> openMeaningSearchOriginal(hit, query) },
         launchOneNoteOriginal = { web, client ->
             externalUrlLauncher.launchOneNoteOriginal(web, client)
         },
@@ -288,8 +288,12 @@ class MeaningSearchViewModel(
                 openFeedback = MeaningOpenFeedbackUi.Opening,
                 originalPreview = null,
             )
+            val cue = when (val phase = mutableUiState.value.phase) {
+                is MeaningSearchPhase.Results -> phase.query
+                else -> mutableUiState.value.query
+            }
             val outcome = try {
-                openOriginal(hit)
+                openOriginal(hit, cue)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

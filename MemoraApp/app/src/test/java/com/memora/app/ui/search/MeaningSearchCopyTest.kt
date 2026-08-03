@@ -46,13 +46,13 @@ class MeaningSearchCopyTest {
         assertTrue(why.contains("page 4"))
         val hint = MeaningSearchCopy.openOriginalPdfHint(4)
         assertTrue(hint.contains("page 4"))
-        assertTrue(hint.contains("not a query-best"))
-        assertFalse(hint.contains("always page 1"))
+        assertTrue(hint.contains("better matching"))
+        assertTrue(hint.contains("not full page ranking"))
         assertTrue(MeaningSearchCopy.citedPdfPageLabel(4).contains("4"))
     }
 
     @Test
-    fun open_hint_without_cite_admits_page_one_fallback() {
+    fun open_hint_without_cite_admits_fallback_path() {
         val hint = MeaningSearchCopy.openOriginalPdfHint(null)
         assertTrue(hint.contains("page 1"))
         assertTrue(hint.contains("fallback"))
