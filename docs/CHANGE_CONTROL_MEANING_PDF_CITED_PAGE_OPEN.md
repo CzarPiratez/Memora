@@ -44,15 +44,16 @@
   green (`PdfPageEvidenceLocatorTest`, `OpenMeaningSearchOriginalTest`,
   `SearchAssetMemoriesByMeaningTest`, `MeaningSearchCopyTest`,
   `MeaningSearchViewModelTest`).
-- **Emulator/manual verification and result:** debug install pending user
-  smoke on a multi-page PDF whose Memory summary cites a non-1 page (or any
-  PDF to confirm cite label + open page match).
+- **Emulator/manual verification and result:** **Accepted** 2026-08-04 —
+  Find by meaning `mira` → PDF memory `memora-open-5page.pdf` shows
+  **Cites page 1** → Open original preview **Page 1 of 5** with matching
+  "Page 1 FOXTROT cover sheet" text.
 - **Failure/recovery paths verified:** missing/invalid locator → page 1
   fallback with honest copy; out-of-range page still handled by PDF renderer
   (`CouldNotOpen`).
 - **Known limitation or follow-up:** Summary still cites first usable
-  DOCUMENT_TEXT page — not query-best page. Page/chunk embeddings needed for
-  true cue→page ranking.
+  DOCUMENT_TEXT page — not query-best page (keyword `mira` can be on later
+  pages). Page/chunk embeddings needed for true cue→page ranking.
 - **Documentation/traceability/ADR updates:** CONTINUE, CHANGELOG, embedding
   track E5b2d pointer, this record.
-- **Git commit:** (pending after smoke / checkpoint)
+- **Git commit:** `7e7f237` (feat); docs acceptance follow-up below.

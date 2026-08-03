@@ -1044,9 +1044,9 @@ only; engines remain Unavailable.
 `docs/CHANGE_CONTROL_MEANING_PDF_CITED_PAGE_OPEN.md`): MediaPipe compact
 embedder; Find by meaning + Open original; OCR/text-first Memory summaries;
 meaning PDF open uses cited `pdf:page:N` (fallback page 1). Emulator smoke
-accepted for E5b1–E5b2c; E5b2d pending PDF cited-page smoke. **Next:**
-measured AVAILABLE (ADR-024/025) / E4b larger pack / query-best PDF page
-ranking (needs page/chunk embeddings).
+accepted for E5b1–E5b2d (2026-08-04: `mira` → 5-page PDF cites page 1 →
+preview Page 1 of 5). **Next:** measured AVAILABLE (ADR-024/025) / E4b
+larger pack / query-best PDF page ranking (needs page/chunk embeddings).
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 
