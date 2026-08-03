@@ -864,11 +864,11 @@ rely on when a real model lands.
 **Status:** Accepted
 
 **Decision:** The first product `EmbeddingEngine` uses MediaPipe Tasks Text
-Embedder (`com.google.mediapipe:tasks-text`) with the compact
-`average_word_embedder` float32 model. The model is downloaded to app-private
-no-backup storage after disclosure + affirmative action — never bundled in the
-APK. Synthetic pack-container ACTIVE (E4a) does **not** make EmbeddingEngine
-Available.
+Embedder (`com.google.mediapipe:tasks-text`, **0.10.29+** for Android 16 KB
+page-size native alignment) with the compact `average_word_embedder` float32
+model. The model is downloaded to app-private no-backup storage after disclosure
++ affirmative action — never bundled in the APK. Synthetic pack-container ACTIVE
+(E4a) does **not** make EmbeddingEngine Available.
 
 Availability rules:
 

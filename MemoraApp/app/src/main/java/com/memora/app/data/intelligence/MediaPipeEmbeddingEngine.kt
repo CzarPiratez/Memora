@@ -77,7 +77,8 @@ class MediaPipeEmbeddingEngine(
             try {
                 // Absolute private path — not APK assets; createFromFile opens the file descriptor.
                 embedderRef.set(TextEmbedder.createFromFile(appContext, File(path)))
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
+                // Includes linkage / native init failures; never invent Available.
                 embedderRef.set(null)
             }
         }

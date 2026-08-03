@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Local-AI MediaPipe 16 KB page-size fix
+
+- **Requirements:** A-01; ADR-031.
+- **Delivered:** Bump `tasks-text` 0.10.14 → 0.10.29 for 16 KB ELF alignment;
+  load availability off the main thread after download.
+- **Verification:** debug install on 16 KB emulator; unit suite still green.
+- **Truthfulness:** Prior crash was native MediaPipe on 16 KB AVD after a
+  successful model download — not a failed download.
+
 ### Local-AI embedding-first track E5b2 Find-by-meaning candidate recall
 
 - **Requirements:** A-01, A-05; ADR-024, ADR-025, ADR-029, ADR-031.

@@ -22,9 +22,9 @@ This does not authorize network access, AI Pack download, or PHOTO OCR.
 
 | Component | Exact version | Purpose | Licence / notice source |
 |---|---:|---|---|
-| `com.google.mediapipe:tasks-text` | 0.10.14 | On-device text embedding runtime; TFLite model downloaded to private storage after disclosure | Apache License 2.0; [MediaPipe](https://developers.google.com/mediapipe) / Maven Central |
+| `com.google.mediapipe:tasks-text` | 0.10.29 | On-device text embedding runtime; TFLite model downloaded to private storage after disclosure | Apache License 2.0; [MediaPipe](https://developers.google.com/mediapipe) / Maven Central |
 
-Review record: `docs/dependency-review/mediapipe-tasks-text-0.10.14-review.md`.
+Review record: `docs/dependency-review/mediapipe-tasks-text-0.10.29-review.md`.
 Model download uses existing INTERNET for **model bytes only** — not user content.
 
 ## PDF extraction validation dependency set

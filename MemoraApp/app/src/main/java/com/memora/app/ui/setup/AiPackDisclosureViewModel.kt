@@ -73,9 +73,9 @@ class AiPackDisclosureViewModel @Inject constructor(
                     ),
                 )
             }
-            mutableUiState.value = buildState(
-                feedbackMessage = AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED,
-            )
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildState(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED)
+            }
         }
     }
 
@@ -95,7 +95,9 @@ class AiPackDisclosureViewModel @Inject constructor(
                     AiPackDisclosureCopy.FEEDBACK_DISCLOSURE_REQUIRED
                 is ActivateOfflineEmbeddingPackResult.Failed -> result.reason
             }
-            mutableUiState.value = buildState(feedbackMessage = feedback)
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildState(feedbackMessage = feedback)
+            }
         }
     }
 
@@ -104,7 +106,7 @@ class AiPackDisclosureViewModel @Inject constructor(
         setBusy()
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) { downloadModel() }
-            mediaPipeEmbeddingEngine.reset()
+            withContext(Dispatchers.IO) { mediaPipeEmbeddingEngine.reset() }
             val feedback = when (result) {
                 DownloadOnDeviceEmbeddingModelResult.Installed ->
                     AiPackDisclosureCopy.FEEDBACK_MODEL_INSTALLED
@@ -114,7 +116,9 @@ class AiPackDisclosureViewModel @Inject constructor(
                     AiPackDisclosureCopy.FEEDBACK_DISCLOSURE_REQUIRED
                 is DownloadOnDeviceEmbeddingModelResult.Failed -> result.reason
             }
-            mutableUiState.value = buildState(feedbackMessage = feedback)
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildState(feedbackMessage = feedback)
+            }
         }
     }
 
@@ -140,9 +144,11 @@ class AiPackDisclosureViewModel @Inject constructor(
                 is IndexMemoryEmbeddingsResult.Completed ->
                     AiPackDisclosureCopy.FEEDBACK_INDEX_BUILT_PREFIX +
                         "${result.indexed} (skipped ${result.skippedUnchanged}, " +
-                        "failed ${result.failed}). Find-by-meaning UI is next."
+                        "failed ${result.failed}). Use Find by meaning on Welcome next."
             }
-            mutableUiState.value = buildState(feedbackMessage = feedback)
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildState(feedbackMessage = feedback)
+            }
         }
     }
 
