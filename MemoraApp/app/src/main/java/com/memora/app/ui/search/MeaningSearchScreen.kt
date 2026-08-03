@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.intelligence.MeaningSearchHit
+import com.memora.app.domain.asset.AssetType
 
 @Composable
 fun MeaningSearchScreen(
@@ -44,6 +45,8 @@ fun MeaningSearchScreen(
     onQueryCleared: () -> Unit,
     onSearch: () -> Unit,
     onSearchCancelled: () -> Unit,
+    onOpenOriginal: (MeaningSearchHit) -> Unit,
+    onDismissOpenFeedback: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -92,7 +95,8 @@ fun MeaningSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(MeaningSearchCopy.QUERY_LABEL) },
             singleLine = true,
-            enabled = uiState.phase !is MeaningSearchPhase.Searching,
+            enabled = uiState.phase !is MeaningSearchPhase.Searching &&
+                uiState.openFeedback !is MeaningOpenFeedbackUi.Opening,
             trailingIcon = {
                 if (uiState.canClearQuery) {
                     TextButton(onClick = onQueryCleared) {
@@ -124,6 +128,29 @@ fun MeaningSearchScreen(
                 Text(MeaningSearchCopy.CANCEL_SEARCH_LABEL)
             }
         }
+        when (val feedback = uiState.openFeedback) {
+            MeaningOpenFeedbackUi.None -> Unit
+            MeaningOpenFeedbackUi.Opening -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                Spacer(modifier = Modifier.height(8.dp))
+                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_OPENING_BODY)
+            }
+            MeaningOpenFeedbackUi.SourceUnavailable -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY)
+                TextButton(onClick = onDismissOpenFeedback) {
+                    Text(MeaningSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
+                }
+            }
+            MeaningOpenFeedbackUi.CouldNotOpen -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY)
+                TextButton(onClick = onDismissOpenFeedback) {
+                    Text(MeaningSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(20.dp))
         when (val phase = uiState.phase) {
             MeaningSearchPhase.Idle -> Unit
@@ -147,7 +174,12 @@ fun MeaningSearchScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
                 phase.hits.forEach { hit ->
-                    MeaningHitCard(hit = hit, query = phase.query)
+                    MeaningHitCard(
+                        hit = hit,
+                        query = phase.query,
+                        canOpen = uiState.canOpenOriginal,
+                        onOpenOriginal = onOpenOriginal,
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
@@ -168,6 +200,8 @@ private fun PhaseBody(text: String) {
 private fun MeaningHitCard(
     hit: MeaningSearchHit,
     query: String,
+    canOpen: Boolean,
+    onOpenOriginal: (MeaningSearchHit) -> Unit,
 ) {
     var showWhy by remember(hit.revisionId.value, query) { mutableStateOf(false) }
     Card(
@@ -201,6 +235,22 @@ private fun MeaningHitCard(
             if (showWhy) {
                 Text(
                     text = MeaningSearchCopy.whyThisResult(hit, query),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Button(
+                onClick = { onOpenOriginal(hit) },
+                enabled = canOpen,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(MeaningSearchCopy.OPEN_ORIGINAL_LABEL)
+            }
+            if (hit.assetType == AssetType.PDF) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = MeaningSearchCopy.OPEN_ORIGINAL_HINT,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

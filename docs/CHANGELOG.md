@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Local-AI embedding-first track E5b2b open original from meaning hits
+
+- **Requirements:** A-05; ADR-031.
+- **Delivered:** Open original on meaning hits (screenshot/photo in-app preview,
+  PDF page 1 with honesty, note OneNote/browser launch).
+- **Verification:** meaning open ViewModel + copy unit tests; full debug unit suite.
+- **Truthfulness:** Ranking still on indexed memories; PDF page cite not invented.
+
 ### Local-AI MediaPipe 16 KB page-size fix
 
 - **Requirements:** A-01; ADR-031.

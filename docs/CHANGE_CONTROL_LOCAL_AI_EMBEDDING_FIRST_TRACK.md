@@ -1,10 +1,10 @@
 # Change Control — Local-AI embedding-first track
 
 **Date opened:** 2026-08-02  
-**Status:** E0–E5b2 **accepted** (engineering lead). MediaPipe average-word
+**Status:** E0–E5b2b **accepted** (engineering lead). MediaPipe average-word
 embedder can become Available after user-approved model download (ADR-031).
-Candidate Find-by-meaning UI ranks indexed Asset Memories; marketing AVAILABLE
-still gated by ADR-024/025 measurements.  
+Candidate Find-by-meaning UI ranks indexed Asset Memories and can open originals;
+marketing AVAILABLE still gated by ADR-024/025 measurements.  
 **Requirements:** A-01, A-02, A-03, A-07, E-06; Local AI Technical Spec §4, §6,
 §10, §11, §13.  
 **Decision guardrails:** ADR-012, ADR-023, ADR-024, ADR-025, **ADR-029**,
@@ -184,3 +184,18 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 - **User smoke (recommended):** model → build index → Find by meaning with a recall cue.
 - **Not delivered:** Open-original from meaning hits; measured AVAILABLE marketing;
   larger vendor pack (E4b); product `RecallRanker` Available binding.
+
+## E5b2b continuation — Open original from meaning hits
+
+| Goal | Ships | Hard gate |
+|------|-------|-----------|
+| Reopen cited original from a meaning hit | Route by AssetType to existing openers; PDF page-1 honesty | Search still uses index; no invented page cites |
+
+### Acceptance record — E5b2b (**accepted** 2026-08-03 — engineering lead)
+
+- **Delivered:** `OpenMeaningSearchOriginal`; meaning UI Open original + previews /
+  OneNote launch; PDF page-1 disclosed; unit tests for open path.
+- **Automated:** meaning ViewModel/copy unit tests; full debug unit suite.
+- **User smoke (recommended):** Find by meaning → Open original on screenshot hit.
+- **Not delivered:** PDF page-accurate open from meaning; measured AVAILABLE;
+  E4b larger pack.

@@ -1,5 +1,6 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.intelligence.MeaningOpenOriginalResult
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.application.intelligence.MeaningSearchReadiness
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -87,6 +89,72 @@ class MeaningSearchViewModelTest {
         assertTrue(viewModel.uiState.value.phase is MeaningSearchPhase.NothingIndexed)
     }
 
+    @Test
+    fun open_original_screenshot_sets_preview() = runTest {
+        val pixels = IntArray(4) { 0xFF0000FF.toInt() }
+        val viewModel = viewModel(
+            open = {
+                MeaningOpenOriginalResult.ScreenshotReady(
+                    label = "Screenshot_memora_note.png",
+                    widthPx = 2,
+                    heightPx = 2,
+                    argb8888 = pixels,
+                )
+            },
+        ) {
+            MeaningSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+                model = model,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onOpenOriginal(sampleHit())
+        advanceUntilIdle()
+        val preview = viewModel.uiState.value.originalPreview
+        assertTrue(preview is MeaningOriginalPreviewUi.Screenshot)
+        assertEquals(
+            "Screenshot_memora_note.png",
+            (preview as MeaningOriginalPreviewUi.Screenshot).preview.screenshotLabel,
+        )
+        assertEquals(MeaningOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
+    @Test
+    fun open_original_note_launches_urls() = runTest {
+        val launched = mutableListOf<Pair<String?, String?>>()
+        val viewModel = viewModel(
+            open = {
+                MeaningOpenOriginalResult.NoteReady(
+                    webUrl = "https://onenote.example/web",
+                    clientUrl = "onenote:https://onenote.example/client",
+                )
+            },
+            launch = { web, client ->
+                launched += web to client
+                true
+            },
+        ) {
+            MeaningSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit(AssetType.NOTE)),
+                limitReached = false,
+                model = model,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onOpenOriginal(sampleHit(AssetType.NOTE))
+        advanceUntilIdle()
+        assertEquals(1, launched.size)
+        assertNotNull(launched.first().first)
+        assertEquals(MeaningOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
     private fun viewModel(
         readiness: suspend () -> MeaningSearchReadiness = {
             MeaningSearchReadiness.Ready(
@@ -95,22 +163,28 @@ class MeaningSearchViewModelTest {
                 memoriesReadyCount = 1,
             )
         },
+        open: suspend (MeaningSearchHit) -> MeaningOpenOriginalResult = {
+            MeaningOpenOriginalResult.CouldNotOpen
+        },
+        launch: (String?, String?) -> Boolean = { _, _ -> false },
         minSearchingVisibleMs: Long = 0L,
         search: suspend (String) -> MeaningSearchOutcome,
     ) = MeaningSearchViewModel(
         searchByMeaning = search,
         loadReadiness = readiness,
+        openOriginal = open,
+        launchOneNoteOriginal = launch,
         minSearchingVisibleMs = minSearchingVisibleMs,
     ).also { it.onScreenVisible() }
 
-    private fun sampleHit() = MeaningSearchHit(
+    private fun sampleHit(type: AssetType = AssetType.SCREENSHOT) = MeaningSearchHit(
         revisionId = MemoryRevisionId("r1"),
         memoryId = MemoryId("m1"),
         sourceId = SourceId("s"),
         sourceAssetKey = SourceAssetKey("k"),
-        assetType = AssetType.PDF,
-        label = "Receipt",
-        summaryText = "Cafe receipt for lunch",
+        assetType = type,
+        label = "Screenshot_memora_note.png",
+        summaryText = "Screenshot note",
         score = 0.7f,
         model = model,
     )

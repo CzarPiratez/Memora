@@ -97,4 +97,25 @@ object MeaningSearchCopy {
             "Asset Memory summary: \"$clipped\". Score is candidate cosine similarity " +
             "on this phone — not a guarantee of full meaning match."
     }
+
+    const val OPEN_ORIGINAL_LABEL = "Open original"
+
+    const val OPEN_ORIGINAL_HINT =
+        "Opens the original file Memora cited for this memory. Search still used the " +
+            "on-device meaning index — not a live re-read for ranking. For PDFs, Memora " +
+            "shows page 1 for now because meaning hits cite Memory summaries, not a " +
+            "stored page number yet."
+
+    const val OPEN_FEEDBACK_OPENING_BODY = "Opening the original on this phone…"
+
+    const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
+        "Memora could not reopen that original. Access may have been revoked, or the " +
+            "file is no longer reachable. Meaning search still uses indexed memories " +
+            "saved on this phone."
+
+    const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
+        "Memora could not open that original. Try again in a moment. Meaning search " +
+            "still uses indexed memories saved on this phone."
+
+    const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
 }

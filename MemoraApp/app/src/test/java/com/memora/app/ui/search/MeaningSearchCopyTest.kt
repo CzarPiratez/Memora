@@ -48,4 +48,10 @@ class MeaningSearchCopyTest {
         assertTrue(why.contains("Hotel confirmation near the cafe"))
         assertTrue(why.contains("Why this result?"))
     }
+
+    @Test
+    fun open_copy_stays_honest_about_pdf_page_one() {
+        assertTrue(MeaningSearchCopy.OPEN_ORIGINAL_HINT.contains("page 1"))
+        assertTrue(MeaningSearchCopy.OPEN_ORIGINAL_HINT.contains("not a live re-read"))
+    }
 }

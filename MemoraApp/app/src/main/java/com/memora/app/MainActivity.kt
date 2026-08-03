@@ -89,6 +89,8 @@ import com.memora.app.ui.search.MeaningSearchCopy
 import com.memora.app.ui.search.MeaningSearchScreen
 import com.memora.app.ui.search.MeaningSearchUiState
 import com.memora.app.ui.search.MeaningSearchViewModel
+import com.memora.app.ui.search.MeaningOriginalPreviewUi
+import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.ui.setup.MediaStoreIndexingState
 import com.memora.app.ui.setup.MediaStoreSetupUiState
 import com.memora.app.ui.setup.MediaStoreSetupViewModel
@@ -295,6 +297,10 @@ class MainActivity : ComponentActivity() {
                         onMeaningSearchScreenVisible = meaningSearchViewModel::onScreenVisible,
                         onMeaningQueryCleared = meaningSearchViewModel::onQueryCleared,
                         onMeaningSearchCancelled = meaningSearchViewModel::onSearchCancelled,
+                        onMeaningOpenOriginal = meaningSearchViewModel::onOpenOriginal,
+                        onMeaningOpenFeedbackDismissed =
+                            meaningSearchViewModel::onOpenFeedbackDismissed,
+                        onMeaningPreviewClosed = meaningSearchViewModel::onOriginalPreviewClosed,
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -384,6 +390,9 @@ fun MemoraApp(
     onMeaningSearchScreenVisible: () -> Unit,
     onMeaningQueryCleared: () -> Unit,
     onMeaningSearchCancelled: () -> Unit,
+    onMeaningOpenOriginal: (MeaningSearchHit) -> Unit,
+    onMeaningOpenFeedbackDismissed: () -> Unit,
+    onMeaningPreviewClosed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
@@ -477,6 +486,9 @@ fun MemoraApp(
             onMeaningSearchScreenVisible = onMeaningSearchScreenVisible,
             onMeaningQueryCleared = onMeaningQueryCleared,
             onMeaningSearchCancelled = onMeaningSearchCancelled,
+            onMeaningOpenOriginal = onMeaningOpenOriginal,
+            onMeaningOpenFeedbackDismissed = onMeaningOpenFeedbackDismissed,
+            onMeaningPreviewClosed = onMeaningPreviewClosed,
             modifier = modifier,
         )
     }
@@ -562,6 +574,9 @@ private fun MemoraAppReady(
     onMeaningSearchScreenVisible: () -> Unit,
     onMeaningQueryCleared: () -> Unit,
     onMeaningSearchCancelled: () -> Unit,
+    onMeaningOpenOriginal: (MeaningSearchHit) -> Unit,
+    onMeaningOpenFeedbackDismissed: () -> Unit,
+    onMeaningPreviewClosed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -773,15 +788,34 @@ private fun MemoraAppReady(
                 LaunchedEffect(Unit) {
                     onMeaningSearchScreenVisible()
                 }
-                MeaningSearchScreen(
-                    uiState = meaningSearchUiState,
-                    onQueryChanged = onMeaningQueryChanged,
-                    onQueryCleared = onMeaningQueryCleared,
-                    onSearch = onMeaningSearch,
-                    onSearchCancelled = onMeaningSearchCancelled,
-                    onBack = { isShowingMeaningSearch = false },
-                    modifier = modifier,
-                )
+                when (val preview = meaningSearchUiState.originalPreview) {
+                    is MeaningOriginalPreviewUi.Screenshot -> ScreenshotOriginalPreviewScreen(
+                        preview = preview.preview,
+                        onClose = onMeaningPreviewClosed,
+                        modifier = modifier,
+                    )
+                    is MeaningOriginalPreviewUi.Photo -> PhotoOriginalPreviewScreen(
+                        preview = preview.preview,
+                        onClose = onMeaningPreviewClosed,
+                        modifier = modifier,
+                    )
+                    is MeaningOriginalPreviewUi.Pdf -> PdfOriginalPreviewScreen(
+                        preview = preview.preview,
+                        onClose = onMeaningPreviewClosed,
+                        modifier = modifier,
+                    )
+                    null -> MeaningSearchScreen(
+                        uiState = meaningSearchUiState,
+                        onQueryChanged = onMeaningQueryChanged,
+                        onQueryCleared = onMeaningQueryCleared,
+                        onSearch = onMeaningSearch,
+                        onSearchCancelled = onMeaningSearchCancelled,
+                        onOpenOriginal = onMeaningOpenOriginal,
+                        onDismissOpenFeedback = onMeaningOpenFeedbackDismissed,
+                        onBack = { isShowingMeaningSearch = false },
+                        modifier = modifier,
+                    )
+                }
             }
 
             else -> MemoraWelcomeScreen(

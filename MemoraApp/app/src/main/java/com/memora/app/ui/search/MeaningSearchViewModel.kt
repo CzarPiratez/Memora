@@ -3,10 +3,13 @@ package com.memora.app.ui.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.intelligence.LoadMeaningSearchReadiness
+import com.memora.app.application.intelligence.MeaningOpenOriginalResult
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.application.intelligence.MeaningSearchReadiness
+import com.memora.app.application.intelligence.OpenMeaningSearchOriginal
 import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
+import com.memora.app.application.notes.ExternalUrlLauncher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -23,15 +26,24 @@ data class MeaningSearchUiState(
     val query: String = "",
     val phase: MeaningSearchPhase = MeaningSearchPhase.Idle,
     val readiness: MeaningSearchReadinessUi = MeaningSearchReadinessUi.Loading,
+    val openFeedback: MeaningOpenFeedbackUi = MeaningOpenFeedbackUi.None,
+    val originalPreview: MeaningOriginalPreviewUi? = null,
 ) {
     val canSubmitSearch: Boolean
-        get() = phase !is MeaningSearchPhase.Searching && query.isNotBlank()
+        get() = phase !is MeaningSearchPhase.Searching &&
+            query.isNotBlank() &&
+            openFeedback !is MeaningOpenFeedbackUi.Opening
 
     val canClearQuery: Boolean
-        get() = query.isNotBlank() && phase !is MeaningSearchPhase.Searching
+        get() = query.isNotBlank() &&
+            phase !is MeaningSearchPhase.Searching &&
+            openFeedback !is MeaningOpenFeedbackUi.Opening
 
     val canCancelSearch: Boolean
         get() = phase is MeaningSearchPhase.Searching
+
+    val canOpenOriginal: Boolean
+        get() = openFeedback !is MeaningOpenFeedbackUi.Opening
 }
 
 sealed interface MeaningSearchReadinessUi {
@@ -50,6 +62,24 @@ sealed interface MeaningSearchReadinessUi {
             require(reason.isNotBlank())
         }
     }
+}
+
+sealed interface MeaningOpenFeedbackUi {
+    data object None : MeaningOpenFeedbackUi
+
+    data object Opening : MeaningOpenFeedbackUi
+
+    data object SourceUnavailable : MeaningOpenFeedbackUi
+
+    data object CouldNotOpen : MeaningOpenFeedbackUi
+}
+
+sealed interface MeaningOriginalPreviewUi {
+    data class Screenshot(val preview: ScreenshotOriginalPreviewUi) : MeaningOriginalPreviewUi
+
+    data class Photo(val preview: PhotoOriginalPreviewUi) : MeaningOriginalPreviewUi
+
+    data class Pdf(val preview: PdfOriginalPreviewUi) : MeaningOriginalPreviewUi
 }
 
 sealed interface MeaningSearchPhase {
@@ -101,6 +131,8 @@ sealed interface MeaningSearchPhase {
 class MeaningSearchViewModel(
     private val searchByMeaning: suspend (String) -> MeaningSearchOutcome,
     private val loadReadiness: suspend () -> MeaningSearchReadiness,
+    private val openOriginal: suspend (MeaningSearchHit) -> MeaningOpenOriginalResult,
+    private val launchOneNoteOriginal: (webUrl: String?, clientUrl: String?) -> Boolean,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
 ) : ViewModel() {
@@ -108,15 +140,22 @@ class MeaningSearchViewModel(
     constructor(
         searchAssetMemoriesByMeaning: SearchAssetMemoriesByMeaning,
         loadMeaningSearchReadiness: LoadMeaningSearchReadiness,
+        openMeaningSearchOriginal: OpenMeaningSearchOriginal,
+        externalUrlLauncher: ExternalUrlLauncher,
     ) : this(
         searchByMeaning = { query -> searchAssetMemoriesByMeaning(query) },
         loadReadiness = { loadMeaningSearchReadiness() },
+        openOriginal = { hit -> openMeaningSearchOriginal(hit) },
+        launchOneNoteOriginal = { web, client ->
+            externalUrlLauncher.launchOneNoteOriginal(web, client)
+        },
     )
 
     private val mutableUiState = MutableStateFlow(MeaningSearchUiState())
     val uiState: StateFlow<MeaningSearchUiState> = mutableUiState.asStateFlow()
 
     private val searchGeneration = AtomicInteger(0)
+    private val openGeneration = AtomicInteger(0)
     private var searchJob: Job? = null
 
     fun onScreenVisible() {
@@ -175,12 +214,15 @@ class MeaningSearchViewModel(
             return
         }
         if (mutableUiState.value.phase is MeaningSearchPhase.Searching) return
+        if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
 
         val generation = searchGeneration.incrementAndGet()
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
                 phase = MeaningSearchPhase.Searching,
+                openFeedback = MeaningOpenFeedbackUi.None,
+                originalPreview = null,
             )
             val startedAtMs = monotonicMs()
             val outcome = try {
@@ -236,6 +278,103 @@ class MeaningSearchViewModel(
             if (state.phase !is MeaningSearchPhase.Searching) return@update state
             state.copy(phase = MeaningSearchPhase.Idle)
         }
+    }
+
+    fun onOpenOriginal(hit: MeaningSearchHit) {
+        if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
+        val generation = openGeneration.incrementAndGet()
+        viewModelScope.launch {
+            mutableUiState.value = mutableUiState.value.copy(
+                openFeedback = MeaningOpenFeedbackUi.Opening,
+                originalPreview = null,
+            )
+            val outcome = try {
+                openOriginal(hit)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (generation != openGeneration.get()) return@launch
+                mutableUiState.value = mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen,
+                    originalPreview = null,
+                )
+                return@launch
+            }
+            if (generation != openGeneration.get()) return@launch
+            mutableUiState.value = when (outcome) {
+                is MeaningOpenOriginalResult.ScreenshotReady -> mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.None,
+                    originalPreview = MeaningOriginalPreviewUi.Screenshot(
+                        ScreenshotOriginalPreviewUi(
+                            screenshotLabel = outcome.label,
+                            widthPx = outcome.widthPx,
+                            heightPx = outcome.heightPx,
+                            argb8888 = outcome.argb8888,
+                        ),
+                    ),
+                )
+                is MeaningOpenOriginalResult.PhotoReady -> mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.None,
+                    originalPreview = MeaningOriginalPreviewUi.Photo(
+                        PhotoOriginalPreviewUi(
+                            photoLabel = outcome.label,
+                            widthPx = outcome.widthPx,
+                            heightPx = outcome.heightPx,
+                            argb8888 = outcome.argb8888,
+                        ),
+                    ),
+                )
+                is MeaningOpenOriginalResult.PdfReady -> mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.None,
+                    originalPreview = MeaningOriginalPreviewUi.Pdf(
+                        PdfOriginalPreviewUi(
+                            documentLabel = outcome.label,
+                            pageNumber = outcome.pageNumber,
+                            pageCount = outcome.pageCount,
+                            widthPx = outcome.widthPx,
+                            heightPx = outcome.heightPx,
+                            argb8888 = outcome.argb8888,
+                        ),
+                    ),
+                )
+                is MeaningOpenOriginalResult.NoteReady -> {
+                    val launched = try {
+                        launchOneNoteOriginal(outcome.webUrl, outcome.clientUrl)
+                    } catch (_: Exception) {
+                        false
+                    }
+                    mutableUiState.value.copy(
+                        openFeedback = if (launched) {
+                            MeaningOpenFeedbackUi.None
+                        } else {
+                            MeaningOpenFeedbackUi.CouldNotOpen
+                        },
+                        originalPreview = null,
+                    )
+                }
+                MeaningOpenOriginalResult.SourceUnavailable -> mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.SourceUnavailable,
+                    originalPreview = null,
+                )
+                MeaningOpenOriginalResult.CouldNotOpen -> mutableUiState.value.copy(
+                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen,
+                    originalPreview = null,
+                )
+            }
+        }
+    }
+
+    fun onOpenFeedbackDismissed() {
+        if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
+        mutableUiState.value = mutableUiState.value.copy(openFeedback = MeaningOpenFeedbackUi.None)
+    }
+
+    fun onOriginalPreviewClosed() {
+        openGeneration.incrementAndGet()
+        mutableUiState.value = mutableUiState.value.copy(
+            originalPreview = null,
+            openFeedback = MeaningOpenFeedbackUi.None,
+        )
     }
 
     companion object {
