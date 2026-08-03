@@ -48,8 +48,13 @@ Change-control this as its own approved slice before coding.
 - [x] **Honesty copy:** Candidate / not measured AVAILABLE.
 - [x] **Tests:** Unit tests for page-prefer search + copy (migration registered
       11→12).
-- [ ] **Smoke:** Multi-page PDF where cue text is only on a later page → that
-      page ranks first → Open shows that page.
+- [x] **Smoke (plumbing):** 2026-08-04 — Build index reported Pages indexed 10;
+      Find by meaning shows **Matched page N**; Open opens that ranked page
+      (`mira` → `memora-open-5page.pdf` Matched page 1 → Page 1 of 5).
+- [ ] **Smoke (quality):** Cue text only on a later page should rank that page
+      first — **not yet** with compact MediaPipe average-word embedder (`mira`
+      still prefers screenshot / FOXTROT page 1 over 2page/3page mira pages).
+      Track under measured gate + **E4b** larger pack.
 
 ### B. Measured quality gate (ADR-024 / ADR-025)
 

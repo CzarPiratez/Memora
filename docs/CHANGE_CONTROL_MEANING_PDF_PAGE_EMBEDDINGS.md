@@ -32,8 +32,10 @@
   open/UI; disclosure Build index pages; schema export 12.json; docs.
 - **Automated verification and result:** Search page-prefer + meaning copy/
   resolve/index unit tests green.
-- **Emulator/manual verification and result:** pending user smoke after rebuild
-  meaning index (`mira` → Matched page N → Open page N).
+- **Emulator/manual verification and result:** **Plumbing accepted** 2026-08-04 —
+  Pages indexed 10; `mira` → Matched page 1 → Open Page 1 of 5. **Quality
+  smoke not met** with compact embedder (later-page `mira` PDFs not ranked
+  first) — follow E4b / measured gate in enterprise checklist.
 - **Known limitation or follow-up:** Measured ADR-024/025; E4b; WorkManager
   progress for large libraries; intra-page chunks.
-- **Git commit:** (pending)
+- **Git commit:** (docs acceptance follow-up)

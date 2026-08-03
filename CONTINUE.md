@@ -1038,15 +1038,16 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E5c in verification** 2026-08-04
-(ADR-029/030/031; E5b2e interim open cue-best; **E5c** index-time PDF page
-embeddings — `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`). Rebuild
-meaning index required after upgrade. Emulator smoke pending (`mira` ranks
-later page in Find by meaning).
+**Local-AI embedding-first track E0–E5c plumbing accepted** 2026-08-04
+(ADR-029/030/031; `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`).
+Page vectors index + Find by meaning Matched page + Open ranked page verified
+on emulator. **Quality gap:** compact average-word model does not yet put
+`mira` on the true later page ahead of FOXTROT/screenshot — see enterprise
+checklist quality smoke + **E4b** / measured ADR-024/025.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c search ranking
-in progress; still need smoke + measured ADR-024/025 + E4b if targets fail.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c plumbing done;
+quality smoke, measured baselines, and E4b remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 
