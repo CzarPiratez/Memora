@@ -1038,16 +1038,15 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E5b2e in verification** 2026-08-04
-(ADR-029/030/031; E5b2d accepted; E5b2e cue-best PDF open on meaning Open
-original — `docs/CHANGE_CONTROL_MEANING_PDF_CUE_BEST_PAGE_OPEN.md`). Emulator
-smoke pending for cue-best page.
+**Local-AI embedding-first track E0–E5c in verification** 2026-08-04
+(ADR-029/030/031; E5b2e interim open cue-best; **E5c** index-time PDF page
+embeddings — `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`). Rebuild
+meaning index required after upgrade. Emulator smoke pending (`mira` ranks
+later page in Find by meaning).
 
-**Enterprise completion (durable — do not drop):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5b2e is interim only.
-To finish enterprise-grade multi-page PDF meaning recall: **E5c** index-time
-page/chunk embeddings + Why/Open on ranked page; then **measured** ADR-024/025
-baselines before AVAILABLE; E4b larger pack if compact model fails targets.
+**Enterprise completion (durable):**
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c search ranking
+in progress; still need smoke + measured ADR-024/025 + E4b if targets fail.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

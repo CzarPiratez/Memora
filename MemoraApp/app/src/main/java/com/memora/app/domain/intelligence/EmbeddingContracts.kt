@@ -102,3 +102,39 @@ interface MemoryEmbeddingStore {
     /** All vectors for one model identity (candidate recall drain). */
     fun listForModel(model: ModelVersionIdentity): List<MemoryEmbeddingRecord>
 }
+
+/**
+ * One persisted PDF page embedding, keyed by Memory revision + page + model.
+ *
+ * Used for E5c Find-by-meaning page ranking. Distinct from summary-only
+ * [MemoryEmbeddingRecord].
+ */
+data class PdfPageEmbeddingRecord(
+    val revisionId: MemoryRevisionId,
+    val memoryId: MemoryId,
+    val pageNumber: Int,
+    val model: ModelVersionIdentity,
+    val vector: EmbeddingVector,
+    val sourceTextFingerprint: String,
+    val createdAtEpochMs: Long,
+) {
+    init {
+        require(pageNumber > 0)
+        require(sourceTextFingerprint.isNotBlank())
+        require(createdAtEpochMs >= 0)
+    }
+}
+
+interface PdfPageEmbeddingStore {
+    fun find(
+        revisionId: MemoryRevisionId,
+        pageNumber: Int,
+        model: ModelVersionIdentity,
+    ): PdfPageEmbeddingRecord?
+
+    fun upsert(record: PdfPageEmbeddingRecord)
+
+    fun countForModel(model: ModelVersionIdentity): Int
+
+    fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord>
+}

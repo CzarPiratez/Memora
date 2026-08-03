@@ -8,8 +8,14 @@ import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModel
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModelResult
 import com.memora.app.application.intelligence.IndexMemoryEmbeddings
 import com.memora.app.application.intelligence.IndexMemoryEmbeddingsResult
+import com.memora.app.application.intelligence.IndexPdfPageEmbeddings
+import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
 import com.memora.app.application.intelligence.MemoryEmbeddingCandidate
+import com.memora.app.application.intelligence.PdfPageEmbeddingCandidate
+import com.memora.app.application.intelligence.ResolveMeaningPdfOpenPage
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
+import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.extraction.SavedPdfPageTextSource
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.AiPackManager
@@ -47,6 +53,8 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
     private val mediaPipeEmbeddingEngine: MediaPipeEmbeddingEngine,
     private val indexMemoryEmbeddings: IndexMemoryEmbeddings,
+    private val indexPdfPageEmbeddings: IndexPdfPageEmbeddings,
+    private val savedPdfPages: SavedPdfPageTextSource,
     private val memoryRepository: MemoryRepository,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
@@ -126,25 +134,60 @@ class AiPackDisclosureViewModel @Inject constructor(
         if (mutableUiState.value.isBusy || !mutableUiState.value.showBuildIndex) return
         setBusy()
         viewModelScope.launch {
-            val candidates = withContext(Dispatchers.IO) {
-                memoryRepository.listCurrentReadySummaries(limit = 50).map { summary ->
+            val now = System.currentTimeMillis()
+            val summaryResult = withContext(Dispatchers.IO) {
+                val candidates = memoryRepository.listCurrentReadySummaries(limit = 50).map { summary ->
                     MemoryEmbeddingCandidate(
                         revisionId = summary.revisionId,
                         memoryId = summary.memoryId,
                         summaryText = summary.summaryText,
                     )
                 }
+                indexMemoryEmbeddings(candidates, nowEpochMs = now) to candidates
             }
-            val result = withContext(Dispatchers.Default) {
-                indexMemoryEmbeddings(candidates, nowEpochMs = System.currentTimeMillis())
+            val (result, summaryCandidates) = summaryResult
+            val pageResult = when (result) {
+                is IndexMemoryEmbeddingsResult.EngineUnavailable -> null
+                is IndexMemoryEmbeddingsResult.Completed -> withContext(Dispatchers.IO) {
+                    val lookups = memoryRepository.findCurrentReadyMeaningLookups(
+                        summaryCandidates.map { it.revisionId },
+                    )
+                    val pageCandidates = summaryCandidates.flatMap { summary ->
+                        val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
+                        if (lookup.assetType != AssetType.PDF) return@flatMap emptyList()
+                        savedPdfPages.listCurrentVerifiedPages(
+                            sourceId = lookup.sourceId.value,
+                            sourceAssetKey = lookup.sourceAssetKey.value,
+                        )
+                            .take(ResolveMeaningPdfOpenPage.MAX_PAGES_TO_SCORE)
+                            .map { page ->
+                                PdfPageEmbeddingCandidate(
+                                    revisionId = summary.revisionId,
+                                    memoryId = summary.memoryId,
+                                    pageNumber = page.pageNumber,
+                                    pageText = page.text,
+                                )
+                            }
+                    }
+                    indexPdfPageEmbeddings(pageCandidates, nowEpochMs = now)
+                }
             }
             val feedback = when (result) {
                 is IndexMemoryEmbeddingsResult.EngineUnavailable ->
                     AiPackDisclosureCopy.FEEDBACK_INDEX_UNAVAILABLE
-                is IndexMemoryEmbeddingsResult.Completed ->
+                is IndexMemoryEmbeddingsResult.Completed -> {
+                    val pagePart = when (pageResult) {
+                        is IndexPdfPageEmbeddingsResult.Completed ->
+                            " Pages indexed ${pageResult.indexed} " +
+                                "(skipped ${pageResult.skippedUnchanged}, failed ${pageResult.failed})."
+                        is IndexPdfPageEmbeddingsResult.EngineUnavailable ->
+                            " PDF page index unavailable."
+                        null -> ""
+                    }
                     AiPackDisclosureCopy.FEEDBACK_INDEX_BUILT_PREFIX +
-                        "${result.indexed} (skipped ${result.skippedUnchanged}, " +
-                        "failed ${result.failed}). Use Find by meaning on Welcome next."
+                        "${result.indexed} memories (skipped ${result.skippedUnchanged}, " +
+                        "failed ${result.failed}).$pagePart Use Find by meaning on Welcome next."
+                }
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
                 buildState(feedbackMessage = feedback)

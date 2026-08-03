@@ -229,10 +229,12 @@ private fun MeaningHitCard(
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (hit.assetType == AssetType.PDF) {
-                hit.citedPdfPageNumber?.let { page ->
+                val pageLabel = hit.rankedPdfPageNumber?.let { MeaningSearchCopy.rankedPdfPageLabel(it) }
+                    ?: hit.citedPdfPageNumber?.let { MeaningSearchCopy.citedPdfPageLabel(it) }
+                pageLabel?.let { label ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = MeaningSearchCopy.citedPdfPageLabel(page),
+                        text = label,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -260,7 +262,10 @@ private fun MeaningHitCard(
             if (hit.assetType == AssetType.PDF) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = MeaningSearchCopy.openOriginalPdfHint(hit.citedPdfPageNumber),
+                    text = MeaningSearchCopy.openOriginalPdfHint(
+                        citedPdfPageNumber = hit.citedPdfPageNumber,
+                        rankedPdfPageNumber = hit.rankedPdfPageNumber,
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

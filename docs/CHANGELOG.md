@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### E5c index-time PDF page embeddings
+
+- **Date:** 2026-08-04
+- **Delivered:** Room v12 `pdf_page_embeddings`; Build meaning index also embeds
+  capped PDF pages; Find by meaning ranks summary+page with per-asset dedup;
+  hit shows Matched page N; Open uses ranked page; candidate honesty copy.
+- **Verification:** Search page-prefer unit test + meaning copy tests (pending
+  full suite / smoke).
+- **Truthfulness:** Rebuild meaning index required; not measured AVAILABLE.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`.
+
 ### Enterprise completion — meaning PDF page recall (backlog)
 
 - **Date:** 2026-08-04

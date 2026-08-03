@@ -219,6 +219,6 @@ saved page texts vs cue. **Not** enterprise-complete page recall.
 ## Enterprise completion — meaning PDF page recall
 
 See `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**open backlog**).
-Required: **E5c** index-time page/chunk embeddings + Why/Open on ranked page;
-measured ADR-024/025 baselines before AVAILABLE; E4b if compact model fails
-targets. Do not treat E5b2e alone as done for enterprise multi-page PDF meaning.
+**E5c** index-time page embeddings shipped for verification
+(`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`). Remaining: E5c smoke;
+measured ADR-024/025 baselines before AVAILABLE; E4b if compact model fails.

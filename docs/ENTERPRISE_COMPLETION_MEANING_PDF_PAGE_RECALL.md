@@ -36,21 +36,18 @@ multi-page PDF meaning recall.
 
 Change-control this as its own approved slice before coding.
 
-- [ ] **Design:** One embedding row per PDF page (or bounded chunk), keyed to
-      Asset identity + page/chunk locator + model version; revision-safe with
-      fingerprint/schema.
-- [ ] **Index drain:** Build/rebuild meaning index embeds page texts (capped
-      chars/pages), not only Memory summary text.
-- [ ] **Recall:** Find by meaning ranks page/chunk hits; hit UI shows PDF +
-      **page N** + excerpt from that page.
-- [ ] **Why / Explain:** Cite the matching page locator and excerpt — no invented
-      page.
-- [ ] **Open original:** Open the **ranked** page (E5b2d/E5b2e may simplify or
-      become fallback when no page hit).
-- [ ] **Honesty copy:** Candidate until measured; never claim full AVAILABLE
-      early.
-- [ ] **Tests:** Unit + Room integration for index/recall/open; rebuild path
-      documented.
+- [x] **Design:** One embedding row per PDF page, keyed to Memory revision +
+      page + model (Room v12 `pdf_page_embeddings`).
+- [x] **Index drain:** Build meaning index embeds capped page texts after
+      summaries (MAX_PAGES=12, MAX_CHARS=480).
+- [x] **Recall:** Find by meaning ranks summary + page; per-asset dedup prefers
+      stronger page hit.
+- [x] **Why / Explain:** Page hit Why cites matched page; excerpt from page text.
+- [x] **Open original:** Ranked page opens directly (`RANKED_HIT`); E5b2e remains
+      fallback for summary-only hits.
+- [x] **Honesty copy:** Candidate / not measured AVAILABLE.
+- [x] **Tests:** Unit tests for page-prefer search + copy (migration registered
+      11→12).
 - [ ] **Smoke:** Multi-page PDF where cue text is only on a later page → that
       page ranks first → Open shows that page.
 

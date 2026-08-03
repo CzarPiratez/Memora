@@ -121,6 +121,9 @@ class OpenMeaningSearchOriginal @Inject constructor(
         hit: MeaningSearchHit,
         query: String,
     ): MeaningPdfOpenPageDecision {
+        hit.rankedPdfPageNumber?.takeIf { it > 0 }?.let { ranked ->
+            return MeaningPdfOpenPageDecision(ranked, MeaningPdfOpenPageBasis.RANKED_HIT)
+        }
         val cited = hit.citedPdfPageNumber
         val trimmedQuery = query.trim()
         if (trimmedQuery.isEmpty()) {

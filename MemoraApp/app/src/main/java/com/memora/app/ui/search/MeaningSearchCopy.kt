@@ -98,9 +98,15 @@ object MeaningSearchCopy {
         require(query.isNotBlank())
         val excerpt = hit.summaryText.trim().replace(Regex("\\s+"), " ")
         val clipped = if (excerpt.length <= 160) excerpt else excerpt.take(157) + "…"
-        val pageCite = hit.citedPdfPageNumber?.let { " It cites page $it of the PDF." }.orEmpty()
+        val pageCite = when {
+            hit.rankedPdfPageNumber != null ->
+                " It matched indexed PDF page ${hit.rankedPdfPageNumber}."
+            hit.citedPdfPageNumber != null ->
+                " It cites page ${hit.citedPdfPageNumber} of the PDF."
+            else -> ""
+        }
         return "Why this result? Your cue \"$query\" ranked closest to this saved " +
-            "Asset Memory summary: \"$clipped\".$pageCite Score is candidate cosine " +
+            "Asset Memory evidence: \"$clipped\".$pageCite Score is candidate cosine " +
             "similarity on this phone — not a guarantee of full meaning match."
     }
 
@@ -110,15 +116,26 @@ object MeaningSearchCopy {
         "Opens the original file Memora cited for this memory. Search still used the " +
             "on-device meaning index — not a live re-read for ranking."
 
-    fun openOriginalPdfHint(citedPdfPageNumber: Int?): String {
+    fun openOriginalPdfHint(
+        citedPdfPageNumber: Int?,
+        rankedPdfPageNumber: Int? = null,
+    ): String {
+        if (rankedPdfPageNumber != null) {
+            return "$OPEN_ORIGINAL_HINT Opens ranked PDF page $rankedPdfPageNumber " +
+                "from the meaning index (candidate page ranking — not measured AVAILABLE)."
+        }
         val citeBit = if (citedPdfPageNumber != null) {
             "Memory cite is page $citedPdfPageNumber."
         } else {
             "No Memory page cite — page 1 is the fallback if cue-best cannot run."
         }
         return "$OPEN_ORIGINAL_HINT On Open, Memora may pick a better matching " +
-            "saved page for your cue with the on-device model ($citeBit). " +
-            "This is not full page ranking inside Find by meaning yet."
+            "saved page for your cue with the on-device model ($citeBit)."
+    }
+
+    fun rankedPdfPageLabel(pageNumber: Int): String {
+        require(pageNumber > 0)
+        return "Matched page $pageNumber"
     }
 
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening the original on this phone…"

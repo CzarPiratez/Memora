@@ -40,19 +40,21 @@ class MeaningSearchCopyTest {
     }
 
     @Test
-    fun why_and_open_hint_cite_pdf_page_when_known() {
-        val hit = sampleHit(AssetType.PDF, citedPage = 4)
-        val why = MeaningSearchCopy.whyThisResult(hit, "museum tickets")
-        assertTrue(why.contains("page 4"))
-        val hint = MeaningSearchCopy.openOriginalPdfHint(4)
-        assertTrue(hint.contains("page 4"))
-        assertTrue(hint.contains("better matching"))
-        assertTrue(hint.contains("not full page ranking"))
-        assertTrue(MeaningSearchCopy.citedPdfPageLabel(4).contains("4"))
+    fun why_and_open_hint_for_ranked_pdf_page() {
+        val hit = sampleHit(AssetType.PDF, citedPage = 1, rankedPage = 3)
+        val why = MeaningSearchCopy.whyThisResult(hit, "mira")
+        assertTrue(why.contains("page 3"))
+        val hint = MeaningSearchCopy.openOriginalPdfHint(
+            citedPdfPageNumber = 1,
+            rankedPdfPageNumber = 3,
+        )
+        assertTrue(hint.contains("page 3"))
+        assertTrue(hint.contains("not measured AVAILABLE"))
+        assertTrue(MeaningSearchCopy.rankedPdfPageLabel(3).contains("3"))
     }
 
     @Test
-    fun open_hint_without_cite_admits_fallback_path() {
+    fun open_hint_without_ranked_page_keeps_cue_best_path() {
         val hint = MeaningSearchCopy.openOriginalPdfHint(null)
         assertTrue(hint.contains("page 1"))
         assertTrue(hint.contains("fallback"))
@@ -62,6 +64,7 @@ class MeaningSearchCopyTest {
     private fun sampleHit(
         type: AssetType,
         citedPage: Int? = null,
+        rankedPage: Int? = null,
     ) = MeaningSearchHit(
         revisionId = MemoryRevisionId("r1"),
         memoryId = MemoryId("m1"),
@@ -73,5 +76,6 @@ class MeaningSearchCopyTest {
         score = 0.8f,
         model = ModelVersionIdentity("m", "1"),
         citedPdfPageNumber = citedPage,
+        rankedPdfPageNumber = rankedPage,
     )
 }

@@ -474,4 +474,35 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_11_12: Migration = object : Migration(11, 12) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `pdf_page_embeddings` (
+                    `revision_id` TEXT NOT NULL,
+                    `memory_id` TEXT NOT NULL,
+                    `page_number` INTEGER NOT NULL,
+                    `model_id` TEXT NOT NULL,
+                    `model_version` TEXT NOT NULL,
+                    `dimensions` INTEGER NOT NULL,
+                    `vector_blob` BLOB NOT NULL,
+                    `source_text_fingerprint` TEXT NOT NULL,
+                    `created_at_epoch_ms` INTEGER NOT NULL,
+                    PRIMARY KEY(`revision_id`, `page_number`, `model_id`, `model_version`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_pdf_page_embeddings_memory_id` " +
+                    "ON `pdf_page_embeddings` (`memory_id`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_pdf_page_embeddings_model_id_model_version` " +
+                    "ON `pdf_page_embeddings` (`model_id`, `model_version`)",
+            )
+        }
+    }
 }

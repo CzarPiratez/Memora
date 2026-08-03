@@ -61,6 +61,7 @@ data class ScoredPdfPage(
 enum class MeaningPdfOpenPageBasis {
     CITED,
     CUE_BEST,
+    RANKED_HIT,
     FALLBACK,
 }
 

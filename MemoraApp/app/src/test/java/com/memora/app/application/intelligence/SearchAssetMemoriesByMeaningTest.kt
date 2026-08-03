@@ -3,6 +3,8 @@ package com.memora.app.application.intelligence
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.extraction.SavedPdfPageText
+import com.memora.app.domain.extraction.SavedPdfPageTextSource
 import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.CapabilityLimits
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
@@ -11,6 +13,8 @@ import com.memora.app.domain.intelligence.EmbeddingVector
 import com.memora.app.domain.intelligence.MemoryEmbeddingRecord
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.intelligence.PdfPageEmbeddingRecord
+import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryId
@@ -35,6 +39,8 @@ class SearchAssetMemoriesByMeaningTest {
         val outcome = SearchAssetMemoriesByMeaning(
             embeddingEngine = UnavailableEmbeddingEngine("model missing"),
             embeddingStore = InMemoryMemoryEmbeddingStore(),
+            pdfPageEmbeddingStore = InMemoryPdfPageEmbeddingStore(),
+            savedPdfPages = EmptySavedPdfPages(),
             memoryRepository = FakeMemoryRepository(),
         )("cafe receipt")
         assertTrue(outcome is MeaningSearchOutcome.EngineUnavailable)
@@ -46,6 +52,8 @@ class SearchAssetMemoriesByMeaningTest {
         val outcome = SearchAssetMemoriesByMeaning(
             embeddingEngine = engine,
             embeddingStore = InMemoryMemoryEmbeddingStore(),
+            pdfPageEmbeddingStore = InMemoryPdfPageEmbeddingStore(),
+            savedPdfPages = EmptySavedPdfPages(),
             memoryRepository = FakeMemoryRepository(),
         )("cafe receipt")
         assertTrue(outcome is MeaningSearchOutcome.NothingIndexed)
@@ -92,11 +100,12 @@ class SearchAssetMemoriesByMeaningTest {
                 ),
             ),
         )
-        // Query embedding aligned with cafe vector.
         engine.nextQueryVector = EmbeddingVector(floatArrayOf(0.9f, 0.1f, 0f))
         val outcome = SearchAssetMemoriesByMeaning(
             embeddingEngine = engine,
             embeddingStore = store,
+            pdfPageEmbeddingStore = InMemoryPdfPageEmbeddingStore(),
+            savedPdfPages = EmptySavedPdfPages(),
             memoryRepository = repo,
         )("coffee shop bill")
         val matches = outcome as MeaningSearchOutcome.Matches
@@ -105,6 +114,52 @@ class SearchAssetMemoriesByMeaningTest {
         assertTrue(matches.hits.first().score > matches.hits.last().score)
         assertEquals(3, matches.hits.first().citedPdfPageNumber)
         assertEquals(null, matches.hits.last().citedPdfPageNumber)
+    }
+
+    @Test
+    fun prefers_indexed_pdf_page_over_weaker_summary() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val summaryStore = InMemoryMemoryEmbeddingStore()
+        val pageStore = InMemoryPdfPageEmbeddingStore()
+        val revision = MemoryRevisionId("rev-pdf")
+        summaryStore.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = revision,
+                memoryId = MemoryId("mem-pdf"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0f, 1f, 0f)),
+                sourceTextFingerprint = "fp-sum",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        pageStore.upsert(
+            PdfPageEmbeddingRecord(
+                revisionId = revision,
+                memoryId = MemoryId("mem-pdf"),
+                pageNumber = 3,
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(1f, 0f, 0f)),
+                sourceTextFingerprint = "fp-page3",
+                createdAtEpochMs = 2L,
+            ),
+        )
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = SearchAssetMemoriesByMeaning(
+            embeddingEngine = engine,
+            embeddingStore = summaryStore,
+            pdfPageEmbeddingStore = pageStore,
+            savedPdfPages = FixedSavedPdfPages(
+                listOf(SavedPdfPageText(3, "Page 3 ECHO meet mira follow-up")),
+            ),
+            memoryRepository = FakeMemoryRepository(
+                lookups = mapOf(
+                    revision to lookup(revision, MemoryId("mem-pdf"), "memora-open-3page.pdf"),
+                ),
+            ),
+        )("mira")
+        val hit = (outcome as MeaningSearchOutcome.Matches).hits.single()
+        assertEquals(3, hit.rankedPdfPageNumber)
+        assertTrue(hit.summaryText.contains("mira"))
     }
 
     private fun lookup(
@@ -164,6 +219,52 @@ class SearchAssetMemoriesByMeaningTest {
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
+    }
+
+    private class InMemoryPdfPageEmbeddingStore : PdfPageEmbeddingStore {
+        private val records = linkedMapOf<String, PdfPageEmbeddingRecord>()
+
+        private fun key(
+            revisionId: MemoryRevisionId,
+            pageNumber: Int,
+            model: ModelVersionIdentity,
+        ) = "${revisionId.value}|$pageNumber|${model.modelId}|${model.version}"
+
+        override fun find(
+            revisionId: MemoryRevisionId,
+            pageNumber: Int,
+            model: ModelVersionIdentity,
+        ): PdfPageEmbeddingRecord? = records[key(revisionId, pageNumber, model)]
+
+        override fun upsert(record: PdfPageEmbeddingRecord) {
+            records[key(record.revisionId, record.pageNumber, record.model)] = record
+        }
+
+        override fun countForModel(model: ModelVersionIdentity): Int =
+            records.values.count {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }
+
+        override fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord> =
+            records.values.filter {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }
+    }
+
+    private class EmptySavedPdfPages : SavedPdfPageTextSource {
+        override suspend fun listCurrentVerifiedPages(
+            sourceId: String,
+            sourceAssetKey: String,
+        ): List<SavedPdfPageText> = emptyList()
+    }
+
+    private class FixedSavedPdfPages(
+        private val pages: List<SavedPdfPageText>,
+    ) : SavedPdfPageTextSource {
+        override suspend fun listCurrentVerifiedPages(
+            sourceId: String,
+            sourceAssetKey: String,
+        ): List<SavedPdfPageText> = pages
     }
 
     private class FakeMemoryRepository(
