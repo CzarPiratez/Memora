@@ -1,5 +1,6 @@
 package com.memora.app.data.local
 
+import com.memora.app.application.memory.AssembleAssetMemoryFromExtractionFacts
 import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
@@ -54,11 +55,17 @@ class RoomMemoryRepository(
         }
     }
 
-    override suspend fun countCurrentReady(): Int = database().memoryDao().countCurrentReady()
+    override suspend fun countCurrentReady(): Int =
+        database().memoryDao().countCurrentReady(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+        )
 
     override suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary> {
         require(limit > 0)
-        return database().memoryDao().listCurrentReadySummaries(limit).map { row ->
+        return database().memoryDao().listCurrentReadySummaries(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            limit = limit,
+        ).map { row ->
             MemoryEmbeddingSummary(
                 revisionId = MemoryRevisionId(row.revisionId),
                 memoryId = MemoryId(row.memoryId),
@@ -72,7 +79,10 @@ class RoomMemoryRepository(
     ): Map<MemoryRevisionId, MemoryMeaningLookup> {
         if (revisionIds.isEmpty()) return emptyMap()
         val ids = revisionIds.map { it.value }.distinct()
-        return database().memoryDao().findCurrentReadyMeaningLookups(ids).associate { row ->
+        return database().memoryDao().findCurrentReadyMeaningLookups(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            revisionIds = ids,
+        ).associate { row ->
             val revisionId = MemoryRevisionId(row.revisionId)
             revisionId to MemoryMeaningLookup(
                 revisionId = revisionId,

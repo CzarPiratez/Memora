@@ -199,3 +199,9 @@ stores (PDF/OCR/note text + Asset Memory), without waiting on Vision packs.
 - **User smoke (recommended):** Find by meaning → Open original on screenshot hit.
 - **Not delivered:** PDF page-accurate open from meaning; measured AVAILABLE;
   E4b larger pack.
+
+## E5b2c continuation — Meaning-quality Memory summaries
+
+See `docs/CHANGE_CONTROL_MEANING_MEMORY_SUMMARY_QUALITY.md` (**accepted**
+2026-08-03). Assembly schema v2; no dimension-only EXIF memories; OCR/text-first
+summaries for meaning index quality.

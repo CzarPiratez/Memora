@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Meaning-quality Asset Memory summaries (E5b2c)
+
+- **Requirements:** A-05; ADR-029, ADR-031.
+- **Delivered:** No dimension-only EXIF memories; OCR/text-first summaries
+  (assembly schema v2); meaning index/lookups scoped to current schema.
+- **Verification:** assembly unit tests; full debug unit suite.
+- **Truthfulness:** Rebuild memories + meaning index required for existing
+  devices; not a measured AVAILABLE claim.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_MEMORY_SUMMARY_QUALITY.md`.
+
 ### Local-AI embedding-first track E5b2b open original from meaning hits
 
 - **Requirements:** A-05; ADR-031.

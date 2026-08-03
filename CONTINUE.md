@@ -1038,12 +1038,14 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E5b2b closed** 2026-08-03 (ADR-029/030/031;
-`docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md`): MediaPipe compact
-embedder via user-approved model download; build meaning index; Welcome
-**Find by meaning** candidate recall with Why citations and Open original.
-Emulator smoke accepted (incl. 16 KB MediaPipe fix). **Next:** measured
-AVAILABLE (ADR-024/025) / E4b larger pack / PDF page-accurate meaning open.
+**Local-AI embedding-first track E0–E5b2c closed** 2026-08-03 (ADR-029/030/031;
+`docs/CHANGE_CONTROL_LOCAL_AI_EMBEDDING_FIRST_TRACK.md` +
+`docs/CHANGE_CONTROL_MEANING_MEMORY_SUMMARY_QUALITY.md`): MediaPipe compact
+embedder; Find by meaning + Open original; OCR/text-first Memory summaries so
+EXIF dimension noise does not drown ranking. Emulator smoke accepted for
+E5b1–E5b2b; **rebuild memories + meaning index** after this slice. **Next:**
+measured AVAILABLE (ADR-024/025) / E4b larger pack / PDF page-accurate meaning
+open.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

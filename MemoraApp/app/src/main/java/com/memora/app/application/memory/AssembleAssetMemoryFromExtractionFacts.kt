@@ -12,6 +12,7 @@ import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEvidence
 import com.memora.app.domain.memory.MemoryEvidenceId
+import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryIntegrityState
@@ -64,7 +65,7 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
                 excerpt = MemoryText(fact.excerpt),
             )
         }
-        val primary = evidence.first()
+        val primary = selectPrimaryEvidence(evidence)
         val now = clock.instant()
         val memoryId = MemoryId(hash(asset.identity.sourceId.value, asset.identity.sourceAssetKey.value))
         val memory = Memory(
@@ -112,7 +113,34 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
         val excerpt = fact.excerpt.replace(WHITESPACE, " ").trim().take(MAX_EVIDENCE_CHARS)
         val locator = fact.locator.trim().take(MAX_LOCATOR_CHARS)
         if (excerpt.isBlank() || locator.isBlank()) return null
+        if (fact.kind == MemoryEvidenceKind.SOURCE_METADATA && isWeakExifNoise(excerpt)) {
+            return null
+        }
         return fact.copy(excerpt = excerpt, locator = locator)
+    }
+
+    /**
+     * Prefer OCR / document / note text for the Memory summary so meaning search
+     * embeds recallable content instead of EXIF dimension noise.
+     */
+    private fun selectPrimaryEvidence(evidence: List<MemoryEvidence>): MemoryEvidence {
+        require(evidence.isNotEmpty())
+        return evidence.firstOrNull { it.kind.isPrimaryTextKind() } ?: evidence.first()
+    }
+
+    private fun MemoryEvidenceKind.isPrimaryTextKind(): Boolean =
+        this == MemoryEvidenceKind.OCR_TEXT ||
+            this == MemoryEvidenceKind.DOCUMENT_TEXT ||
+            this == MemoryEvidenceKind.NOTE_TEXT
+
+    /** Dimensions / orientation alone are not useful meaning cues. */
+    private fun isWeakExifNoise(excerpt: String): Boolean {
+        val parts = excerpt.split(';').map { it.trim() }.filter { it.isNotEmpty() }
+        if (parts.isEmpty()) return true
+        return parts.all { part ->
+            part.startsWith("Dimensions:", ignoreCase = true) ||
+                part.startsWith("Orientation:", ignoreCase = true)
+        }
     }
 
     private fun hash(vararg parts: String): String {
@@ -125,7 +153,8 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
     }
 
     companion object {
-        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v1")
+        /** v2: OCR/text-first summaries; no dimension-only EXIF memories. */
+        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v2")
         const val MAX_EVIDENCE_ITEMS = 8
         const val MAX_EVIDENCE_CHARS = 500
         const val MAX_SUMMARY_CHARS = 240

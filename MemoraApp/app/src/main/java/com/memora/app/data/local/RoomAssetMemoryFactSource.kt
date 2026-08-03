@@ -152,19 +152,22 @@ class RoomAssetMemoryFactSource(
 
     private fun exifFact(entity: ImageExifExtractionEntity?): AssetMemoryFact? {
         entity ?: return null
+        val dateTaken = entity.datetimeOriginal?.takeIf(String::isNotBlank)
+        val camera = listOfNotNull(
+            entity.make?.takeIf(String::isNotBlank),
+            entity.model?.takeIf(String::isNotBlank),
+        ).joinToString(" ").trim().takeIf(String::isNotBlank)
+        // Dimensions / orientation alone pollute meaning embeddings — require a
+        // human-meaningful EXIF cue (date or camera) before emitting a fact.
+        if (dateTaken == null && camera == null) return null
         val fields = buildList {
-            entity.datetimeOriginal?.takeIf(String::isNotBlank)?.let { add("Date taken: $it") }
-            val camera = listOfNotNull(
-                entity.make?.takeIf(String::isNotBlank),
-                entity.model?.takeIf(String::isNotBlank),
-            ).joinToString(" ").trim()
-            if (camera.isNotBlank()) add("Camera: $camera")
+            dateTaken?.let { add("Date taken: $it") }
+            camera?.let { add("Camera: $it") }
             if (entity.imageWidth != null && entity.imageHeight != null) {
                 add("Dimensions: ${entity.imageWidth} × ${entity.imageHeight}")
             }
             entity.orientation?.let { add("Orientation: $it") }
         }
-        if (fields.isEmpty()) return null
         return AssetMemoryFact(
             kind = MemoryEvidenceKind.SOURCE_METADATA,
             locator = "exif:fields",

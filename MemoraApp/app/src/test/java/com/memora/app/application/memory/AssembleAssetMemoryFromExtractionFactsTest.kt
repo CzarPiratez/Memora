@@ -73,7 +73,14 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             memory.evidence.map { it.kind },
         )
         assertEquals("Project Atlas launch notes", memory.signature.summary.text.value)
-        assertEquals(memory.evidence.first().id, memory.signature.anchors.single().evidenceIds.single())
+        assertEquals(
+            memory.evidence.first { it.kind == MemoryEvidenceKind.DOCUMENT_TEXT }.id,
+            memory.signature.summary.evidenceIds.single(),
+        )
+        assertEquals(
+            memory.evidence.first { it.kind == MemoryEvidenceKind.DOCUMENT_TEXT }.id,
+            memory.signature.anchors.single().evidenceIds.single(),
+        )
         assertEquals(
             setOf("pdf-extraction-v1", "screenshot-ocr-v1", "image-exif-v1"),
             memory.extractionSchemaVersions,
@@ -128,6 +135,60 @@ class AssembleAssetMemoryFromExtractionFactsTest {
 
         assertEquals(AssetMemoryAssemblyResult.NoUsableEvidence, result)
         assertEquals(null, repository.stored)
+    }
+
+    @Test
+    fun `prefers OCR summary even when EXIF metadata is listed first`() = runTest {
+        val asset = asset(type = AssetType.PHOTO)
+        val facts = listOf(
+            AssetMemoryFact(
+                MemoryEvidenceKind.SOURCE_METADATA,
+                "exif:fields",
+                "Date taken: 2026:07:31 10:30:00; Dimensions: 640 × 480",
+                "image-exif-v1",
+            ),
+            AssetMemoryFact(
+                MemoryEvidenceKind.OCR_TEXT,
+                "image:whole",
+                "Cafe receipt total 12.50",
+                "photo-ocr-v1",
+            ),
+        )
+        val result = AssembleAssetMemoryFromExtractionFacts(
+            FakeAssetRepository(asset),
+            FakeFactSource(facts),
+            FakeMemoryRepository(),
+            Clock.systemUTC(),
+        )(asset.identity)
+
+        val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
+        assertEquals("Cafe receipt total 12.50", memory.signature.summary.text.value)
+        assertEquals(
+            MemoryEvidenceKind.OCR_TEXT,
+            memory.evidence.first { it.id == memory.signature.summary.evidenceIds.single() }.kind,
+        )
+    }
+
+    @Test
+    fun `rejects dimension-only EXIF noise as unusable evidence`() = runTest {
+        val asset = asset(type = AssetType.PHOTO)
+        val result = AssembleAssetMemoryFromExtractionFacts(
+            FakeAssetRepository(asset),
+            FakeFactSource(
+                listOf(
+                    AssetMemoryFact(
+                        MemoryEvidenceKind.SOURCE_METADATA,
+                        "exif:fields",
+                        "Dimensions: 640 × 480; Orientation: 1",
+                        "image-exif-v1",
+                    ),
+                ),
+            ),
+            FakeMemoryRepository(),
+            Clock.systemUTC(),
+        )(asset.identity)
+
+        assertEquals(AssetMemoryAssemblyResult.NoUsableEvidence, result)
     }
 
     @Test

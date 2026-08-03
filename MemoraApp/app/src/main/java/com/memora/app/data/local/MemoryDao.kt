@@ -56,9 +56,10 @@ interface MemoryDao {
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
         WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
         """,
     )
-    suspend fun countCurrentReady(): Int
+    suspend fun countCurrentReady(assemblySchemaVersion: String): Int
 
     @Query(
         """
@@ -72,12 +73,16 @@ interface MemoryDao {
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
         WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
           AND m.summary_text != ''
         ORDER BY m.updated_at_epoch_millis DESC
         LIMIT :limit
         """,
     )
-    suspend fun listCurrentReadySummaries(limit: Int): List<MemorySummaryRow>
+    suspend fun listCurrentReadySummaries(
+        assemblySchemaVersion: String,
+        limit: Int,
+    ): List<MemorySummaryRow>
 
     @Query(
         """
@@ -95,11 +100,13 @@ interface MemoryDao {
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
         WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
           AND m.summary_text != ''
           AND m.revision_id IN (:revisionIds)
         """,
     )
     suspend fun findCurrentReadyMeaningLookups(
+        assemblySchemaVersion: String,
         revisionIds: List<String>,
     ): List<MemoryMeaningLookupRow>
 

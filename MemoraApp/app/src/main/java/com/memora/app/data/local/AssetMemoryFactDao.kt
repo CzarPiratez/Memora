@@ -80,9 +80,9 @@ interface AssetMemoryFactDao {
                   AND x.schema_version = :exifSchemaVersion
                   AND x.integrity = 'VERIFIED'
                   AND (
-                    x.datetime_original IS NOT NULL OR x.image_width IS NOT NULL
-                    OR x.image_height IS NOT NULL OR x.orientation IS NOT NULL
-                    OR x.make IS NOT NULL OR x.model IS NOT NULL
+                    (x.datetime_original IS NOT NULL AND TRIM(x.datetime_original) != '')
+                    OR (x.make IS NOT NULL AND TRIM(x.make) != '')
+                    OR (x.model IS NOT NULL AND TRIM(x.model) != '')
                   )
             )
             OR EXISTS (

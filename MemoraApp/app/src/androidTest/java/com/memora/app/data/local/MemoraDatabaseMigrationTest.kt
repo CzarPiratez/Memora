@@ -74,7 +74,10 @@ class MemoraDatabaseMigrationTest {
                 migratedDatabase.photoOcrExtractionDao()
                     .countCurrentSearchablePhotos("photo-ocr-v1"),
             )
-            assertEquals(0, migratedDatabase.memoryDao().countCurrentReady())
+            assertEquals(
+                0,
+                migratedDatabase.memoryDao().countCurrentReady("asset-memory-facts-v2"),
+            )
         } finally {
             migratedDatabase.close()
         }
