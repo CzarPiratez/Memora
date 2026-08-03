@@ -1041,11 +1041,17 @@ only; engines remain Unavailable.
 **Local-AI embedding-first track E0–E5d quality accepted** 2026-08-04:
 E5c page index + E5d disclosed evidence-token boost. Emulator: `mira` →
 Matched page 5 → Open Page 5 of 5 with assist disclosed in Why. Still not
-measured AVAILABLE; **next:** E4b larger embedder and/or measured ADR-024/025.
+measured AVAILABLE.
+
+**M1 meaning PDF page-recall baseline (JVM) accepted** 2026-08-04:
+Corpus `meaning-pdf-page-recall-v1`; cosine-only hit@1 fails interim bar
+(recommends E4b); E5d boost recovers labeled @1. Does not flip AVAILABLE UI.
+Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`.
+**Next:** M2 on-device MediaPipe measurement and/or E4b change-control.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d quality smoke
-accepted; measured baselines + E4b remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 JVM
+harness; M2 + E4b + AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

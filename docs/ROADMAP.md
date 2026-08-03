@@ -11,11 +11,11 @@ plan, and Local-AI traceability IDs.
 
 **Status (2026-08-04):** Local-AI architecture gate **planning** deliverables are
 complete (ADR-023/024/025). Measured pack baselines L0–L2 closed. **Embedding-first
-track** E0–E5b2e shipped through candidate Find-by-meaning, cited PDF open
-(E5b2d), and open-time cue-best page (E5b2e interim). **Enterprise completion for
-multi-page PDF meaning recall** is tracked in
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (E5c index-time
-page/chunk embeddings + measured ADR-024/025 gate; E4b if needed). A-01 offline
+track** E0–E5d shipped through candidate Find-by-meaning, PDF page embeddings
+(E5c), and disclosed evidence-token boost (E5d). **M1** JVM page-recall harness
+accepted (cosine-only fails interim bar → E4b recommended). **Enterprise
+completion** remains open for **M2** on-device measurement + AVAILABLE decision:
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`. A-01 offline
 end-to-end proof and marketing AVAILABLE remain open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,

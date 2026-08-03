@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### M1 meaning PDF page-recall baseline (JVM harness)
+
+- **Date:** 2026-08-04
+- **Delivered:** Labeled corpus `meaning-pdf-page-recall-v1`;
+  `MeasureMeaningPdfPageRecallBaseline` (cosine-only vs E5d boost page hit@1);
+  `MeaningEvidenceTokenBoost` in domain; unit tests green.
+- **Outcome:** Cosine-only below interim bar → E4b recommended for
+  semantic-only; boosted path clears labeled @1. No product AVAILABLE flip.
+- **Follow-up:** M2 on-device MediaPipe measurement.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`.
+
 ### E5d evidence-token boost for candidate meaning ranking
 
 - **Date:** 2026-08-04

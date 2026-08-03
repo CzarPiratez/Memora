@@ -1,4 +1,4 @@
-package com.memora.app.application.intelligence
+package com.memora.app.domain.intelligence
 
 /**
  * Disclosed hybrid assist for candidate meaning ranking (compact embedder gap).

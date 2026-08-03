@@ -1,4 +1,4 @@
-package com.memora.app.application.intelligence
+package com.memora.app.domain.intelligence
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

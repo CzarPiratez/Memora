@@ -7,6 +7,7 @@ import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingSimilarity
+import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.intelligence.PdfPageEmbeddingStore

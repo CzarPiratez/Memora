@@ -21,3 +21,10 @@ Regenerate with:
 3. Search the phrases above; confirm the hit page label.
 4. When Open original exists: open a non–page-1 hit and record whether the viewer
    lands on the cited page or page 1 (either outcome is OK if copy is honest).
+
+## Meaning page-recall baseline (M1)
+
+Labeled cue→page cases for the JVM harness mirror these fixtures (corpus id
+`meaning-pdf-page-recall-v1`). See
+`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`. That harness does
+**not** authorize product AVAILABLE claims.

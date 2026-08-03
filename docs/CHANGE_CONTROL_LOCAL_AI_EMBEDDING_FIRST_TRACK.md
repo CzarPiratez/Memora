@@ -219,6 +219,8 @@ saved page texts vs cue. **Not** enterprise-complete page recall.
 ## Enterprise completion — meaning PDF page recall
 
 See `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**open backlog**).
-**E5c** index-time page embeddings shipped for verification
-(`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_EMBEDDINGS.md`). Remaining: E5c smoke;
-measured ADR-024/025 baselines before AVAILABLE; E4b if compact model fails.
+**E5c** / **E5d** quality smoke accepted. **M1** JVM page-recall harness
+accepted (`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`) — cosine-only
+fails interim bar (E4b recommended); boost recovers labeled @1. Remaining: **M2**
+on-device MediaPipe measurement; E4b change-control; AVAILABLE only after measured
+rows + product decision.

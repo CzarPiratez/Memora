@@ -59,17 +59,21 @@ Change-control this as its own approved slice before coding.
 
 ### B. Measured quality gate (ADR-024 / ADR-025)
 
-- [ ] Fixed offline PDF + cue corpus (privacy-safe fixtures; no user content in
-      repo if sensitive).
-- [ ] Record pack/model id + version, device class, latency, storage, page
-      hit-rate / ranking metrics per `docs/LOCAL_AI_BENCHMARK_PLAN.md`.
-- [ ] Only then: decide whether UI may say measured AVAILABLE (still never invent
-      SLAs).
+- [x] **M1 JVM harness** (2026-08-04): Fixed offline cue→page corpus
+      `meaning-pdf-page-recall-v1` + page hit@1 cosine-only vs E5d boost.
+      Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`.
+      Does **not** authorize marketing AVAILABLE.
+- [ ] **M2 on-device:** Record pack/model id + version, device class, latency,
+      storage, page hit-rate on MediaPipe (or successor) per
+      `docs/LOCAL_AI_BENCHMARK_PLAN.md`.
+- [ ] Only after M2 (and product decision): UI may say measured AVAILABLE
+      (still never invent SLAs).
 
 ### C. Product / pack quality (related, not PDF-only)
 
-- [ ] **E4b** larger vendor embedder pack when compact MediaPipe is insufficient
-      for measured targets.
+- [ ] **E4b** larger vendor embedder pack — **recommended by M1** (cosine-only
+      hit@1 below interim bar without token assist). Still change-control before
+      coding.
 - [ ] Battery / latency budgets for index rebuild and query (Spec §11).
 - [ ] Cap / progress UI for large PDF libraries (unbounded work forbidden by
       governance).
