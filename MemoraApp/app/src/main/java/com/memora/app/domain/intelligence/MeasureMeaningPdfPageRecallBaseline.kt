@@ -1,11 +1,10 @@
 package com.memora.app.domain.intelligence
 
 /**
- * M1 aggregate: page-hit @1 for cosine-only vs evidence-token-boosted ranking
- * on [MeaningPdfPageRecallCorpus].
+ * Page-hit @1 for cosine-only vs evidence-token-boosted ranking on a labeled
+ * PDF page-recall corpus (M1 injected scores or M2 live-scored cases).
  *
- * Privacy-safe: no URIs or user content. Does not authorize product AVAILABLE
- * UI. On-device MediaPipe measurement is a separate M2 slice.
+ * Privacy-safe: no URIs or user content. Does not authorize product AVAILABLE UI.
  */
 data class MeaningPdfPageRecallBaselineReport(
     val deviceTierId: String,
@@ -37,7 +36,7 @@ enum class MeaningPdfPageRecallRankingMode {
 }
 
 object MeasureMeaningPdfPageRecallBaseline {
-    /** Interim bar: boosted path must hit all labeled cases @1. */
+    /** Interim bar: M1 injected boosted path must hit all labeled cases @1. */
     const val BOOSTED_HIT_RATE_TARGET = 1.0f
 
     /**
@@ -49,9 +48,13 @@ object MeasureMeaningPdfPageRecallBaseline {
     fun measure(
         deviceTierId: String = MeaningPdfPageRecallCorpus.DEVICE_TIER_JVM_UNIT,
         cases: List<MeaningPdfPageRecallCase> = MeaningPdfPageRecallCorpus.cases(),
+        notesPrefix: String = "M1 JVM harness on ${MeaningPdfPageRecallCorpus.CORPUS_ID}. ",
+        enforceBoostedHitBar: Boolean = true,
+        appendM2FollowUp: Boolean = true,
     ): MeaningPdfPageRecallBaselineReport {
         require(deviceTierId.isNotBlank())
         require(cases.isNotEmpty())
+        require(notesPrefix.isNotBlank())
 
         val cosineHits = cases.count { case ->
             topMatchesExpected(case, MeaningPdfPageRecallRankingMode.COSINE_ONLY)
@@ -79,18 +82,23 @@ object MeasureMeaningPdfPageRecallBaseline {
         )
 
         val notes = buildString {
-            append("M1 JVM harness on ${MeaningPdfPageRecallCorpus.CORPUS_ID}. ")
-            append("Cosine-only hits@$1=$cosineHits/${cases.size} (rate=${"%.2f".format(cosineRate)}). ")
-            append("Boosted hits@$1=$boostedHits/${cases.size} (rate=${"%.2f".format(boostedRate)}). ")
+            append(notesPrefix)
+            append("Cosine-only hits@1=$cosineHits/${cases.size} (rate=${"%.2f".format(cosineRate)}). ")
+            append("Boosted hits@1=$boostedHits/${cases.size} (rate=${"%.2f".format(boostedRate)}). ")
             if (recommendsE4b) {
                 append("Cosine-only below ${COSINE_ONLY_HIT_RATE_E4B_THRESHOLD}; ")
                 append("E4b recommended for semantic-only quality without token assist. ")
             }
-            append("Does not authorize product AVAILABLE UI. M2 = on-device MediaPipe.")
+            append("Does not authorize product AVAILABLE UI.")
+            if (appendM2FollowUp) {
+                append(" M2 = on-device MediaPipe.")
+            }
         }
 
-        require(boostedRate >= BOOSTED_HIT_RATE_TARGET) {
-            "Boosted path must clear interim labeled-corpus bar for M1 close."
+        if (enforceBoostedHitBar) {
+            require(boostedRate >= BOOSTED_HIT_RATE_TARGET) {
+                "Boosted path must clear interim labeled-corpus bar for M1 close."
+            }
         }
 
         return MeaningPdfPageRecallBaselineReport(

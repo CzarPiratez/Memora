@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### M2 on-device meaning PDF page-recall baseline
+
+- **Date:** 2026-08-04
+- **Delivered:** Live MediaPipe scoring of `meaning-pdf-page-recall-v1` on
+  `emulator_medium_phone`; disposable model staging; unit + instrumentation.
+- **Outcome:** Cosine-only 0/3; E5d-boosted 3/3; recommends E4b. No AVAILABLE
+  UI flip (emulator tier ≠ midrange marketing).
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_ON_DEVICE.md`.
+
 ### M1 meaning PDF page-recall baseline (JVM harness)
 
 - **Date:** 2026-08-04

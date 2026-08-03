@@ -1047,11 +1047,16 @@ measured AVAILABLE.
 Corpus `meaning-pdf-page-recall-v1`; cosine-only hit@1 fails interim bar
 (recommends E4b); E5d boost recovers labeled @1. Does not flip AVAILABLE UI.
 Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`.
-**Next:** M2 on-device MediaPipe measurement and/or E4b change-control.
+
+**M2 on-device MediaPipe page-recall baseline accepted** 2026-08-04:
+`emulator_medium_phone` + compact average-word embedder: cosine-only **0/3**,
+boosted **3/3**, recommends E4b. Still not marketing AVAILABLE (emulator tier).
+Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_ON_DEVICE.md`.
+**Next:** E4b larger-embedder change-control (M1+M2 evidence).
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 JVM
-harness; M2 + E4b + AVAILABLE decision remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 + M2
+emulator; E4b + midrange/AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

@@ -22,9 +22,10 @@ Regenerate with:
 4. When Open original exists: open a non–page-1 hit and record whether the viewer
    lands on the cited page or page 1 (either outcome is OK if copy is honest).
 
-## Meaning page-recall baseline (M1)
+## Meaning page-recall baseline (M1 / M2)
 
-Labeled cue→page cases for the JVM harness mirror these fixtures (corpus id
-`meaning-pdf-page-recall-v1`). See
-`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`. That harness does
+Labeled cue→page cases for JVM (M1) and on-device MediaPipe (M2) harnesses mirror
+these fixtures (corpus id `meaning-pdf-page-recall-v1`). See
+`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md` and
+`docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_ON_DEVICE.md`. Those harnesses do
 **not** authorize product AVAILABLE claims.
