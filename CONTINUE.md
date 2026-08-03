@@ -1038,15 +1038,14 @@ keyword recall covers PDF / screenshot / photo / note.
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md`): synthetic integrity
 only; engines remain Unavailable.
 
-**Local-AI embedding-first track E0–E5c plumbing + E5d evidence-token boost**
-2026-08-04: E5c page index accepted; **E5d** disclosed cue-token boost for
-candidate ranking (`docs/CHANGE_CONTROL_MEANING_EVIDENCE_TOKEN_BOOST.md`) so
-pages containing the cue (e.g. `mira`) outrank weak cosine-only hits from the
-compact model. Still not measured AVAILABLE; E4b remains for stronger semantics.
+**Local-AI embedding-first track E0–E5d quality accepted** 2026-08-04:
+E5c page index + E5d disclosed evidence-token boost. Emulator: `mira` →
+Matched page 5 → Open Page 5 of 5 with assist disclosed in Why. Still not
+measured AVAILABLE; **next:** E4b larger embedder and/or measured ADR-024/025.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — quality smoke retest
-after E5d; measured ADR-024/025 + E4b remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d quality smoke
+accepted; measured baselines + E4b remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

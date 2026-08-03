@@ -34,8 +34,9 @@
   CHANGELOG/enterprise checklist pointer.
 - **Automated verification and result:** Boost + search ordering + copy unit
   tests green; debug APK installed.
-- **Emulator/manual verification and result:** pending (`mira` should rank
-  2page/3page matched pages above FOXTROT; Why discloses assist).
+- **Emulator/manual verification and result:** **Accepted** 2026-08-04 —
+  `mira` → top PDF Matched page 5 with evidence assist in Why → Open Page 5
+  of 5 (`JULIET meet mira closing`).
 - **Known limitation or follow-up:** Still not measured AVAILABLE; E4b for
   stronger semantic-only quality without token assist.
-- **Git commit:** (pending)
+- **Git commit:** (acceptance docs)

@@ -51,10 +51,11 @@ Change-control this as its own approved slice before coding.
 - [x] **Smoke (plumbing):** 2026-08-04 — Build index reported Pages indexed 10;
       Find by meaning shows **Matched page N**; Open opens that ranked page
       (`mira` → `memora-open-5page.pdf` Matched page 1 → Page 1 of 5).
-- [ ] **Smoke (quality):** Cue text only on a later page should rank that page
-      first — compact cosine alone failed; **E5d** evidence-token boost added
-      for retest (`docs/CHANGE_CONTROL_MEANING_EVIDENCE_TOKEN_BOOST.md`). E4b
-      still required for stronger semantic-only quality / measured AVAILABLE.
+- [x] **Smoke (quality):** 2026-08-04 — after E5d evidence-token boost, cue
+      `mira` ranks `memora-open-5page.pdf` **Matched page 5** (“JULIET meet mira
+      closing”) above FOXTROT/screenshot; Why discloses assist; Open → **Page 5
+      of 5**. E4b still required for stronger semantic-only quality / measured
+      AVAILABLE.
 
 ### B. Measured quality gate (ADR-024 / ADR-025)
 
