@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Enterprise completion — meaning PDF page recall (backlog)
+
+- **Date:** 2026-08-04
+- **Recorded:** Checklist for finishing enterprise-grade multi-page PDF meaning
+  recall: E5c index-time page/chunk embeddings; measured ADR-024/025 gate;
+  E4b if needed. E5b2e documented as interim only.
+- **Change control:** `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`.
+
 ### Meaning PDF cue-best page open (E5b2e)
 
 - **Date:** 2026-08-04

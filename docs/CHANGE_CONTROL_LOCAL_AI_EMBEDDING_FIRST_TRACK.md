@@ -210,4 +210,15 @@ summaries for meaning index quality.
 
 See `docs/CHANGE_CONTROL_MEANING_PDF_CITED_PAGE_OPEN.md`. Meaning open resolves
 `pdf:page:N` from Memory summary evidence; fallback page 1 when missing.
-Query-best page ranking remains deferred (needs page/chunk embeddings).
+
+## E5b2e continuation — Cue-best page on Open (interim)
+
+See `docs/CHANGE_CONTROL_MEANING_PDF_CUE_BEST_PAGE_OPEN.md`. Open-time re-rank of
+saved page texts vs cue. **Not** enterprise-complete page recall.
+
+## Enterprise completion — meaning PDF page recall
+
+See `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**open backlog**).
+Required: **E5c** index-time page/chunk embeddings + Why/Open on ranked page;
+measured ADR-024/025 baselines before AVAILABLE; E4b if compact model fails
+targets. Do not treat E5b2e alone as done for enterprise multi-page PDF meaning.

@@ -9,12 +9,14 @@ embedding, vector, or WorkManager AI dependency is introduced.
 interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
 plan, and Local-AI traceability IDs.
 
-**Status (2026-08-03):** Local-AI architecture gate **planning** deliverables are
+**Status (2026-08-04):** Local-AI architecture gate **planning** deliverables are
 complete (ADR-023/024/025). Measured pack baselines L0–L2 closed. **Embedding-first
-track** E0–E5b2c closed (ADR-029/030/031; MediaPipe embedder, index, candidate
-Find-by-meaning + open original + OCR/text-first memory summaries). Measured
-AVAILABLE and E4b larger vendor pack remain. A-01 offline end-to-end proof is
-still open.
+track** E0–E5b2e shipped through candidate Find-by-meaning, cited PDF open
+(E5b2d), and open-time cue-best page (E5b2e interim). **Enterprise completion for
+multi-page PDF meaning recall** is tracked in
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (E5c index-time
+page/chunk embeddings + measured ADR-024/025 gate; E4b if needed). A-01 offline
+end-to-end proof and marketing AVAILABLE remain open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

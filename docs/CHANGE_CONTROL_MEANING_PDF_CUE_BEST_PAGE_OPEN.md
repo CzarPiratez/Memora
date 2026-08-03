@@ -60,8 +60,10 @@ beats the cite.
 - **Failure/recovery paths verified:** blank query / engine down / no pages →
   cited or page-1 fallback.
 - **Known limitation or follow-up:** Find by meaning still ranks Memory
-  summaries (often page-1 text). **E5c** index-time page/chunk embeddings
-  remains the durable next for ranking pages in search results.
+  summaries (often page-1 text). **Enterprise completion checklist:**
+  `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**E5c** index-time
+  page/chunk embeddings + measured ADR-024/025 + E4b if needed). Do not rely on
+  chat memory.
 - **Documentation/traceability/ADR updates:** CONTINUE, CHANGELOG, this record,
   E5b2d follow-up pointer.
 - **Git commit:** (pending)
