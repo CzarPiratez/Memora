@@ -169,13 +169,16 @@ class SearchAssetMemoriesByMeaningTest {
         val pageStore = InMemoryPdfPageEmbeddingStore()
         val foxtrot = MemoryRevisionId("rev-5")
         val miraPage = MemoryRevisionId("rev-3")
+        // Query axis (1,0,0): FOXTROT cosine ~0.55 (no cue token); mira ~0.24
+        // then +TOKEN_BOOST outranks FOXTROT. Perfect cosine=1.0 cannot be
+        // flipped by a bounded 0.35 assist — that was a broken fixture.
         pageStore.upsert(
             PdfPageEmbeddingRecord(
                 revisionId = foxtrot,
                 memoryId = MemoryId("mem-5"),
                 pageNumber = 1,
                 model = model,
-                vector = EmbeddingVector(floatArrayOf(0.9f, 0.1f, 0f)),
+                vector = EmbeddingVector(floatArrayOf(0.4f, 0.6f, 0f)),
                 sourceTextFingerprint = "fp-f",
                 createdAtEpochMs = 1L,
             ),
@@ -191,8 +194,7 @@ class SearchAssetMemoriesByMeaningTest {
                 createdAtEpochMs = 2L,
             ),
         )
-        // Query aligned with FOXTROT vector — without boost FOXTROT would win.
-        engine.nextQueryVector = EmbeddingVector(floatArrayOf(0.9f, 0.1f, 0f))
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
         val outcome = SearchAssetMemoriesByMeaning(
             embeddingEngine = engine,
             embeddingStore = InMemoryMemoryEmbeddingStore(),
@@ -214,10 +216,13 @@ class SearchAssetMemoriesByMeaningTest {
                 ),
             ),
         )("mira")
-        val hit = (outcome as MeaningSearchOutcome.Matches).hits.first()
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        val hit = hits.first()
         assertEquals("memora-open-3page.pdf", hit.label)
         assertEquals(3, hit.rankedPdfPageNumber)
         assertTrue(hit.evidenceTokenBoosted)
+        assertEquals("memora-open-5page.pdf", hits[1].label)
+        assertTrue(hit.score > hits[1].score)
     }
 
     private fun lookup(
