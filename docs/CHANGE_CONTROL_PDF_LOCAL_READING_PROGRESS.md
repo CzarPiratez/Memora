@@ -30,4 +30,4 @@
   `PdfLocalReadingUiState` progress feedback + completed drained count; unit tests.
 - **Verification:** Targeted `:app:testDebugUnitTest` green
 - **Truthfulness:** Aggregate counts only; not marketing AVAILABLE
-- **Git commit:** (filled at close)
+- **Git commit:** `d7d2946`
