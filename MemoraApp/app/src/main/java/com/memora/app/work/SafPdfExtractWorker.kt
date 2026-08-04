@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.memora.app.application.documents.PendingPdfLocalReader
+import com.memora.app.application.documents.PendingPdfLocalReadingOutcome
 import com.memora.app.domain.asset.SourceId
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -54,13 +55,17 @@ class SafPdfExtractWorker @AssistedInject constructor(
                 Result.success(
                     workDataOf(
                         KEY_HAS_MORE to true,
+                        KEY_UNIT_FINISHED to true,
                         KEY_AFTER_SOURCE_ASSET_KEY to decision.afterSourceAssetKey,
                     ),
                 )
             }
 
             SafPdfExtractWorkDecision.CompletedDrain -> Result.success(
-                workDataOf(KEY_HAS_MORE to false),
+                workDataOf(
+                    KEY_HAS_MORE to false,
+                    KEY_UNIT_FINISHED to (outcome !is PendingPdfLocalReadingOutcome.NoPending),
+                ),
             )
 
             SafPdfExtractWorkDecision.AccessStopped -> Result.failure(
@@ -75,6 +80,8 @@ class SafPdfExtractWorker @AssistedInject constructor(
         const val KEY_SOURCE_ID = "source_id"
         const val KEY_AFTER_SOURCE_ASSET_KEY = "after_source_asset_key"
         const val KEY_HAS_MORE = "has_more"
+        /** True when this work unit finished one PDF (saved or password-skipped). */
+        const val KEY_UNIT_FINISHED = "unit_finished"
         const val KEY_FAILURE_REASON = "failure_reason"
         const val REASON_ACCESS_STOPPED = "access_stopped"
         const val REASON_INVALID_INPUT = "invalid_input"

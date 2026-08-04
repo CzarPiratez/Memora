@@ -68,6 +68,26 @@ interface AssetDao {
         afterSourceAssetKey: String,
     ): AssetEntity?
 
+    @Query(
+        """
+        SELECT COUNT(*) FROM assets
+        WHERE source_id = :sourceId
+          AND asset_type = :assetType
+          AND NOT EXISTS (
+            SELECT 1 FROM pdf_extractions AS extractions
+            WHERE extractions.source_id = assets.source_id
+              AND extractions.source_asset_key = assets.source_asset_key
+              AND extractions.fingerprint = assets.fingerprint
+              AND extractions.schema_version = :schemaVersion
+          )
+        """,
+    )
+    suspend fun countPdfPendingLocalReading(
+        sourceId: String,
+        assetType: String,
+        schemaVersion: String,
+    ): Int
+
     /**
      * Next PHOTO/SCREENSHOT still needing EXIF extract for [schemaVersion], ordered
      * after [afterSourceAssetKey] (exclusive). Empty [afterSourceAssetKey] starts first.

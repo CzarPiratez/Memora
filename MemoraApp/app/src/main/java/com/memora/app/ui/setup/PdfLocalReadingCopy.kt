@@ -26,6 +26,32 @@ object PdfLocalReadingCopy {
         "Memora is reading PDFs from your connected folder on this phone. " +
             "When reading succeeds, text is saved for search here. Your originals are unchanged."
 
+    fun progressFeedback(drainedCount: Int, pendingAtStart: Int): String {
+        val safeDrained = drainedCount.coerceAtLeast(0)
+        val safePending = pendingAtStart.coerceAtLeast(0)
+        return when {
+            safePending <= 0 && safeDrained <= 0 ->
+                "Looking for PDFs that still need reading…"
+            safePending > 0 && safeDrained <= 0 ->
+                "Starting local reading for up to $safePending PDFs…"
+            safePending > 0 ->
+                "Reading PDF $safeDrained of $safePending…"
+            else ->
+                "Finished $safeDrained PDF${if (safeDrained == 1) "" else "s"} this pass…"
+        }
+    }
+
+    fun completedBody(drainedCount: Int): String {
+        val safe = drainedCount.coerceAtLeast(0)
+        return if (safe <= 0) {
+            COMPLETED_BODY_EMPTY
+        } else {
+            "Memora finished this reading pass for $safe PDF" +
+                "${if (safe == 1) "" else "s"} and saved text for search on this phone " +
+                "where reading succeeded. Your originals are unchanged."
+        }
+    }
+
     const val PAUSE_LABEL = "Pause"
 
     const val PAUSED_BODY =
@@ -44,6 +70,10 @@ object PdfLocalReadingCopy {
     const val COMPLETED_BODY =
         "Memora finished reading PDFs from this folder and saved text for search on this phone " +
             "where reading succeeded. Your originals are unchanged."
+
+    const val COMPLETED_BODY_EMPTY =
+        "Memora finished this reading pass. No new PDF text was saved — index the folder " +
+            "if PDFs are missing, or they may already be read. Your originals are unchanged."
 
     const val RETRYABLE_BODY =
         "Memora could not finish this local reading step. Index the PDF folder if you have not, " +

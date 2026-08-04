@@ -30,6 +30,15 @@ interface AssetRepository {
     ): Asset?
 
     /**
+     * How many PDFs still need local reading for [schemaVersion] on [sourceId].
+     * Aggregate count only — no asset keys returned.
+     */
+    suspend fun countPdfPendingLocalReading(
+        sourceId: SourceId,
+        schemaVersion: String,
+    ): Int
+
+    /**
      * Returns the next PHOTO/SCREENSHOT that still needs EXIF extract for [schemaVersion].
      *
      * [afterSourceAssetKey] is exclusive; pass null/blank to start from the first pending.

@@ -20,6 +20,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
+| PDF local reading UX | Aggregate N of M progress during WorkManager drain |
 | Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |
 | Marketing AVAILABLE / SLA | **Not claimed** until midrange measured + product decision |
 | Notes (OneNote etc.) | ADR-003 strategy only — not implemented |
@@ -29,8 +30,8 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`
 
 **Next eng default:** execute **M4** on a physical `midrange_arm64` device when
-available; otherwise optional EmbeddingGemma or WorkManager PDF-folder extract
-progress. Do not flip AVAILABLE from emulator alone.
+available; otherwise optional EmbeddingGemma. Do not flip AVAILABLE from
+emulator alone.
 
 ### Early build diary (July 2026)
 
@@ -1015,13 +1016,18 @@ Change control: `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
 Build meaning index batches ≤25 READY memories/tap with live progress copy and
 honest “tap again for remaining” feedback; bottom Back on disclosure screen.
 Change control: `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`.
+
+**PDF local-reading progress counts accepted** 2026-08-04:
+Local PDF reading drain shows aggregate “N of M” progress and completed drained
+count (WorkManager unit successes). Change control:
+`docs/CHANGE_CONTROL_PDF_LOCAL_READING_PROGRESS.md`.
 **Next eng default:** execute M4 when a `midrange_arm64` device is available, or
-optional EmbeddingGemma / WorkManager PDF folder extract progress follow-up.
+optional EmbeddingGemma.
 
 **Enterprise completion (durable):**
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M3 +
-E4b USE smoke + M4 plan + meaning-index progress/cap; midrange execute /
-AVAILABLE decision remain.
+E4b USE smoke + M4 plan + meaning-index progress/cap + PDF reading progress;
+midrange execute / AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

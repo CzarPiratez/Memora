@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.memora.app.application.documents.PdfFolderConnectionFinder
+import com.memora.app.application.documents.RunPendingPdfLocalReading
+import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.work.SafPdfExtractWorkScheduler
 import com.memora.app.work.SafPdfExtractWorker
@@ -24,19 +26,21 @@ import kotlinx.coroutines.launch
 class PdfLocalReadingViewModel @Inject constructor(
     private val findPdfFolderConnection: PdfFolderConnectionFinder,
     private val extractWorkScheduler: SafPdfExtractWorkScheduler,
+    private val assetRepository: AssetRepository,
 ) : ViewModel() {
     private val session = PdfLocalReadingSession()
-    private val mutableUiState = MutableStateFlow(session.state)
+    private val mutableUiState = MutableStateFlow(PdfLocalReadingUiState())
     private var workObservationJob: Job? = null
     private var observedSourceId: SourceId? = null
+    private var pendingAtStart: Int = 0
 
-    val uiState: StateFlow<PdfLocalReadingState> = mutableUiState.asStateFlow()
+    val uiState: StateFlow<PdfLocalReadingUiState> = mutableUiState.asStateFlow()
 
     fun onAcknowledgeScope() = dispatch(PdfLocalReadingEvent.AcknowledgeScope)
 
     fun onStart() {
         dispatch(PdfLocalReadingEvent.Start)
-        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+        if (mutableUiState.value.phase == PdfLocalReadingState.InProgress) {
             beginExtractDrain()
         }
     }
@@ -48,7 +52,7 @@ class PdfLocalReadingViewModel @Inject constructor(
 
     fun onResume() {
         dispatch(PdfLocalReadingEvent.Resume)
-        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+        if (mutableUiState.value.phase == PdfLocalReadingState.InProgress) {
             beginExtractDrain()
         }
     }
@@ -64,12 +68,15 @@ class PdfLocalReadingViewModel @Inject constructor(
         workObservationJob = null
         observedSourceId?.let(extractWorkScheduler::cancel)
         observedSourceId = null
-        mutableUiState.value = session.resetAfterDerivedDataCleared()
+        pendingAtStart = 0
+        mutableUiState.value = PdfLocalReadingUiState(
+            phase = session.resetAfterDerivedDataCleared(),
+        )
     }
 
     fun onRetry() {
         dispatch(PdfLocalReadingEvent.Retry)
-        if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+        if (mutableUiState.value.phase == PdfLocalReadingState.InProgress) {
             beginExtractDrain()
         }
     }
@@ -80,12 +87,19 @@ class PdfLocalReadingViewModel @Inject constructor(
         viewModelScope.launch {
             val sourceId = runCatching { findPdfFolderConnection() }.getOrNull()
             if (sourceId == null) {
-                if (mutableUiState.value == PdfLocalReadingState.InProgress) {
+                if (mutableUiState.value.phase == PdfLocalReadingState.InProgress) {
                     dispatch(PdfLocalReadingEvent.FailAccessRevoked)
                 }
                 return@launch
             }
             observedSourceId = sourceId
+            pendingAtStart = runCatching {
+                assetRepository.countPdfPendingLocalReading(
+                    sourceId = sourceId,
+                    schemaVersion = RunPendingPdfLocalReading.EXTRACTION_SCHEMA.value,
+                )
+            }.getOrDefault(0)
+            publishProgress(drainedCount = 0)
             extractWorkScheduler.enqueueDrain(sourceId)
             observeExtractWork(sourceId)
         }
@@ -102,12 +116,19 @@ class PdfLocalReadingViewModel @Inject constructor(
 
     private fun applyWorkInfos(infos: List<WorkInfo>) {
         if (infos.isEmpty()) return
-        if (mutableUiState.value != PdfLocalReadingState.InProgress &&
-            mutableUiState.value != PdfLocalReadingState.Paused
+        val phase = mutableUiState.value.phase
+        if (phase != PdfLocalReadingState.InProgress &&
+            phase != PdfLocalReadingState.Paused
         ) {
             return
         }
-        if (mutableUiState.value == PdfLocalReadingState.Paused) return
+        if (phase == PdfLocalReadingState.Paused) return
+
+        val drained = infos.count { info ->
+            info.state == WorkInfo.State.SUCCEEDED &&
+                info.outputData.getBoolean(SafPdfExtractWorker.KEY_UNIT_FINISHED, false)
+        }
+        publishProgress(drainedCount = drained)
 
         when {
             infos.any { info ->
@@ -115,7 +136,7 @@ class PdfLocalReadingViewModel @Inject constructor(
                     info.state == WorkInfo.State.ENQUEUED ||
                     info.state == WorkInfo.State.BLOCKED
             } -> {
-                if (mutableUiState.value != PdfLocalReadingState.InProgress) {
+                if (mutableUiState.value.phase != PdfLocalReadingState.InProgress) {
                     dispatch(PdfLocalReadingEvent.Start)
                 }
             }
@@ -132,13 +153,43 @@ class PdfLocalReadingViewModel @Inject constructor(
             }
 
             infos.all { it.state.isFinished } -> {
-                dispatch(PdfLocalReadingEvent.FinishOk)
+                dispatch(PdfLocalReadingEvent.FinishOk, drainedCount = drained)
             }
         }
     }
 
-    private fun dispatch(event: PdfLocalReadingEvent) {
-        mutableUiState.value = session.onEvent(event)
+    private fun publishProgress(drainedCount: Int) {
+        val current = mutableUiState.value
+        if (current.phase != PdfLocalReadingState.InProgress &&
+            current.phase != PdfLocalReadingState.Paused
+        ) {
+            return
+        }
+        mutableUiState.value = current.copy(
+            drainedCount = drainedCount,
+            pendingAtStart = pendingAtStart,
+            progressFeedback = PdfLocalReadingCopy.progressFeedback(
+                drainedCount = drainedCount,
+                pendingAtStart = pendingAtStart,
+            ),
+        )
+    }
+
+    private fun dispatch(event: PdfLocalReadingEvent, drainedCount: Int? = null) {
+        val phase = session.onEvent(event)
+        val drained = drainedCount ?: mutableUiState.value.drainedCount
+        mutableUiState.value = PdfLocalReadingUiState(
+            phase = phase,
+            drainedCount = drained,
+            pendingAtStart = pendingAtStart,
+            progressFeedback = when (phase) {
+                PdfLocalReadingState.InProgress,
+                PdfLocalReadingState.Paused,
+                -> PdfLocalReadingCopy.progressFeedback(drained, pendingAtStart)
+                PdfLocalReadingState.Completed -> null
+                else -> null
+            },
+        )
     }
 
     override fun onCleared() {

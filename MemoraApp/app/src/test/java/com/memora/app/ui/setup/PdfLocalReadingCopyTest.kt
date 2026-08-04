@@ -2,6 +2,7 @@ package com.memora.app.ui.setup
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PdfLocalReadingCopyTest {
@@ -45,6 +46,13 @@ class PdfLocalReadingCopyTest {
             "Memora finished reading PDFs from this folder and saved text for search on this phone " +
                 "where reading succeeded. Your originals are unchanged.",
             PdfLocalReadingCopy.COMPLETED_BODY,
+        )
+        assertEquals(
+            "Reading PDF 2 of 5…",
+            PdfLocalReadingCopy.progressFeedback(drainedCount = 2, pendingAtStart = 5),
+        )
+        assertTrue(
+            PdfLocalReadingCopy.completedBody(3).contains("3 PDFs"),
         )
     }
 }

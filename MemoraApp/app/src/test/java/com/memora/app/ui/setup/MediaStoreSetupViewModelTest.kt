@@ -296,6 +296,10 @@ class MediaStoreSetupViewModelTest {
             schemaVersion: String,
             afterSourceAssetKey: String?,
         ): Asset? = null
+    override suspend fun countPdfPendingLocalReading(
+        sourceId: SourceId,
+        schemaVersion: String,
+    ): Int = 0
 
         override suspend fun findNextImagePendingExifExtract(
             sourceId: SourceId,

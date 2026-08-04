@@ -108,6 +108,7 @@ import com.memora.app.ui.setup.NotesConnectorUiState
 import com.memora.app.ui.setup.NotesConnectorViewModel
 import com.memora.app.ui.setup.PdfLocalReadingCopy
 import com.memora.app.ui.setup.PdfLocalReadingState
+import com.memora.app.ui.setup.PdfLocalReadingUiState
 import com.memora.app.ui.setup.PdfLocalReadingViewModel
 import com.memora.app.ui.setup.ImageExifExtractUiState
 import com.memora.app.ui.setup.MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY
@@ -163,7 +164,7 @@ class MainActivity : ComponentActivity() {
             val documentTreeSetupUiState by documentTreeSetupViewModel.uiState.collectAsState()
             val clearDerivedDataUiState by clearDerivedDataViewModel.uiState.collectAsState()
             val databaseAvailabilityUiState by databaseAvailabilityViewModel.uiState.collectAsState()
-            val pdfLocalReadingState by pdfLocalReadingViewModel.uiState.collectAsState()
+            val pdfLocalReadingUi by pdfLocalReadingViewModel.uiState.collectAsState()
             val pdfKeywordSearchUiState by pdfKeywordSearchViewModel.uiState.collectAsState()
             val screenshotOcrKeywordSearchUiState by
                 screenshotOcrKeywordSearchViewModel.uiState.collectAsState()
@@ -181,7 +182,7 @@ class MainActivity : ComponentActivity() {
                         setupUiState = setupUiState,
                         documentTreeSetupUiState = documentTreeSetupUiState,
                         clearDerivedDataUiState = clearDerivedDataUiState,
-                        pdfLocalReadingState = pdfLocalReadingState,
+                        pdfLocalReadingState = pdfLocalReadingUi,
                         pdfKeywordSearchUiState = pdfKeywordSearchUiState,
                         screenshotOcrKeywordSearchUiState = screenshotOcrKeywordSearchUiState,
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
@@ -315,7 +316,7 @@ fun MemoraApp(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
-    pdfLocalReadingState: PdfLocalReadingState,
+    pdfLocalReadingState: PdfLocalReadingUiState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
@@ -499,7 +500,7 @@ private fun MemoraAppReady(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
-    pdfLocalReadingState: PdfLocalReadingState,
+    pdfLocalReadingState: PdfLocalReadingUiState,
     pdfKeywordSearchUiState: PdfKeywordSearchUiState,
     screenshotOcrKeywordSearchUiState: ScreenshotOcrKeywordSearchUiState,
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
@@ -1963,7 +1964,7 @@ private fun PhotoOcrExtractSection(
 @Composable
 fun DocumentTreeSetupScreen(
     setupUiState: DocumentTreeSetupUiState,
-    pdfLocalReadingState: PdfLocalReadingState,
+    pdfLocalReadingState: PdfLocalReadingUiState,
     onChooseFolder: () -> Unit,
     onStartIndexing: () -> Unit,
     onAcknowledgeLocalReadingScope: () -> Unit,
@@ -2104,7 +2105,7 @@ fun DocumentTreeSetupScreen(
 
 @Composable
 private fun PdfLocalReadingRecoveryControl(
-    state: PdfLocalReadingState,
+    state: PdfLocalReadingUiState,
     onAcknowledgeScope: () -> Unit,
     onStart: () -> Unit,
     onPause: () -> Unit,
@@ -2131,7 +2132,15 @@ private fun PdfLocalReadingRecoveryControl(
                 text = pdfLocalReadingBody(state),
                 style = MaterialTheme.typography.bodySmall,
             )
-            if (state == PdfLocalReadingState.AccessRecoveryNeeded) {
+            state.progressFeedback?.let { progress ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = progress,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (state.phase == PdfLocalReadingState.AccessRecoveryNeeded) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = PdfLocalReadingCopy.RECONNECT_HINT,
@@ -2139,7 +2148,7 @@ private fun PdfLocalReadingRecoveryControl(
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
-            when (state) {
+            when (state.phase) {
                 PdfLocalReadingState.NeedsExplanation -> Button(
                     onClick = onAcknowledgeScope,
                     modifier = Modifier.fillMaxWidth(),

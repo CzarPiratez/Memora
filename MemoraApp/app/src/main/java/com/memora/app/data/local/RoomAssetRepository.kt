@@ -43,6 +43,16 @@ class RoomAssetRepository(
             ?.toDomain()
             ?.asset
 
+    override suspend fun countPdfPendingLocalReading(
+        sourceId: SourceId,
+        schemaVersion: String,
+    ): Int =
+        assetDao().countPdfPendingLocalReading(
+            sourceId = sourceId.value,
+            assetType = AssetType.PDF.name,
+            schemaVersion = schemaVersion,
+        )
+
     override suspend fun findNextImagePendingExifExtract(
         sourceId: SourceId,
         schemaVersion: String,

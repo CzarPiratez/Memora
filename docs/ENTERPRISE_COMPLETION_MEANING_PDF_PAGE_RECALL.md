@@ -86,8 +86,9 @@ Change-control this as its own approved slice before coding.
       after upgrade. M3 USE page-recall measurement closed (keep E5d).
 - [x] Cap / progress UI for meaning-index rebuild (per-tap ≤25 READY memories +
       live progress + remaining-tap honesty; 2026-08-04). Change control:
-      `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`. WorkManager PDF
-      *folder extract* progress counts remain a separate follow-up.
+      `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`.
+- [x] WorkManager PDF folder local-reading progress counts (2026-08-04). Change
+      control: `docs/CHANGE_CONTROL_PDF_LOCAL_READING_PROGRESS.md`.
 - [ ] Battery / latency budgets for index rebuild and query (Spec §11).
 - [ ] Optional later: EmbeddingGemma / larger pack if midrange semantic-only
       bar still fails without assist.

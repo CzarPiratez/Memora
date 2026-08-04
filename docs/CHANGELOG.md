@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### PDF local-reading progress counts
+
+- **Date:** 2026-08-04
+- **Delivered:** Pending PDF count at drain start; live “N of M” progress from
+  WorkManager unit successes; completed copy includes drained count.
+- **Truthfulness:** Aggregate integers only; no AVAILABLE flip.
+- **Change control:** `docs/CHANGE_CONTROL_PDF_LOCAL_READING_PROGRESS.md`.
+
 ### Progress status refresh (README / CONTINUE / ROADMAP)
 
 - **Date:** 2026-08-04
