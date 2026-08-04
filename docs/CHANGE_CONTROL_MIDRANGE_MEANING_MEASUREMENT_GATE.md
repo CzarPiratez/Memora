@@ -54,6 +54,6 @@
 - **Delivered:** This runbook; compatibility policy USE/emulator honesty note;
   CONTINUE/ROADMAP/enterprise pointer. No AVAILABLE flip.
 - **Not delivered:** Physical midrange measurement; AVAILABLE UI; EmbeddingGemma.
-- **Git commit:** (filled at close)
+- **Git commit:** `6bb9c89`
 - **Honesty:** Code/emulator path ✅ (M1–M3). Founder midrange device row ⬜
   until M4 executes.
