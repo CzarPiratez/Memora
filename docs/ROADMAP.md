@@ -11,9 +11,9 @@ plan, and Local-AI traceability IDs.
 
 **Status (2026-08-04):** Local-AI architecture gate **planning** deliverables are
 complete (ADR-023/024/025). Measured pack baselines L0–L2 closed. **Embedding-first
-track** E0–E5d + **E4b USE** shipped (Universal Sentence Encoder product
-download). **M1**/**M2** compact baselines accepted. **Enterprise completion**
-remains open for **M3** USE measurement + midrange/AVAILABLE decision:
+track** E0–E5d + **E4b USE** + **M3** USE page-recall measure shipped. Cosine-only
+improved 0/3→2/3 vs compact; E5d assist kept. **Enterprise completion** remains
+open for midrange/AVAILABLE decision:
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`. A-01 offline
 end-to-end proof and marketing AVAILABLE remain open.
 

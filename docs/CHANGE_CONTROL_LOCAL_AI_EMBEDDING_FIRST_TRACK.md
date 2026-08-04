@@ -219,6 +219,6 @@ saved page texts vs cue. **Not** enterprise-complete page recall.
 ## Enterprise completion — meaning PDF page recall
 
 See `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**open backlog**).
-**E5c** / **E5d** / **M1** / **M2** / **E4b USE** accepted. Remaining: **M3** USE
-page-recall measurement; midrange row; AVAILABLE only after measured midrange +
-product decision.
+**E5c** / **E5d** / **M1** / **M2** / **E4b USE** / **M3 USE measure** accepted
+(cosine-only 2/3 on USE; boost 3/3; keep E5d). Remaining: midrange row; AVAILABLE
+only after measured midrange + product decision; optional EmbeddingGemma later.

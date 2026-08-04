@@ -1062,11 +1062,17 @@ Change control: `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
 **E4b emulator smoke accepted** 2026-08-04 (user): USE download + rebuild index
 (Indexed 3 / Pages 10) → Find by meaning `mira` → `memora-open-5page.pdf`
 **Matched page 5** → Open **Page 5 of 5** (“JULIET meet mira closing”).
-**Next:** M3 USE page-recall measurement (cosine-only vs boost on labeled corpus).
+
+**M3 USE page-recall baseline accepted** 2026-08-04:
+`emulator_medium_phone` + USE: cosine-only **2/3** (vs M2 compact 0/3), boosted
+**3/3**. Keep E5d disclosed assist. Still not marketing AVAILABLE.
+Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
+**Next:** midrange measurement / AVAILABLE decision, or optional EmbeddingGemma
+follow-up if product wants stronger semantic-only without assist.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 + M2 +
-E4b USE smoke; M3 + midrange/AVAILABLE decision remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M3 +
+E4b USE smoke; midrange/AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

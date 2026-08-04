@@ -68,6 +68,10 @@ Change-control this as its own approved slice before coding.
       E4b. Change control:
       `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_ON_DEVICE.md`.
       Emulator tier only — not midrange marketing AVAILABLE.
+- [x] **M3 on-device USE** (2026-08-04): Universal Sentence Encoder on
+      `emulator_medium_phone` — cosine-only **2/3**, boosted **3/3**; keep E5d
+      assist. Change control:
+      `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
 - [ ] **Midrange + product decision:** Repeat on `midrange_arm64` when ready;
       only then may UI say measured AVAILABLE (still never invent SLAs).
 
@@ -76,7 +80,9 @@ Change-control this as its own approved slice before coding.
 - [x] **E4b** Universal Sentence Encoder product embedder (2026-08-04) —
       ADR-032; change control
       `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`. Rebuild index
-      after upgrade. M3 USE page-recall measurement still open.
+      after upgrade. M3 USE page-recall measurement closed (keep E5d).
+- [ ] Optional later: EmbeddingGemma / larger pack if midrange semantic-only
+      bar still fails without assist.
 - [ ] Battery / latency budgets for index rebuild and query (Spec §11).
 - [ ] Cap / progress UI for large PDF libraries (unbounded work forbidden by
       governance).

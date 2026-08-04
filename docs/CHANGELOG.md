@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### M3 USE meaning PDF page-recall baseline
+
+- **Date:** 2026-08-04
+- **Delivered:** Live USE scoring of `meaning-pdf-page-recall-v1` on
+  `emulator_medium_phone` (prefer product install).
+- **Outcome:** Cosine-only 2/3 (up from compact 0/3); boosted 3/3; keep E5d
+  assist. No AVAILABLE UI flip.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
+
 ### E4b Universal Sentence Encoder product embedder
 
 - **Date:** 2026-08-04
