@@ -22,7 +22,8 @@ class AiPackDisclosureCopyTest {
 
         assertTrue(all.contains("on-device"))
         assertTrue(all.contains("model"))
-        assertTrue(all.contains("keyword") || AiPackDisclosureCopy.SCOPE_BODY.contains("Keyword"))
+        assertTrue(AiPackDisclosureCopy.SCOPE_BODY.contains("Universal Sentence Encoder"))
+        assertTrue(AiPackDisclosureCopy.SIZE_BODY.contains("rebuild the meaning index"))
         assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("model bytes only"))
         assertFalse(all.contains("available now"))
         assertFalse(all.contains("uploads your memories"))

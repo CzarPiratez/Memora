@@ -219,7 +219,6 @@ saved page texts vs cue. **Not** enterprise-complete page recall.
 ## Enterprise completion — meaning PDF page recall
 
 See `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` (**open backlog**).
-**E5c** / **E5d** quality smoke accepted. **M1** JVM + **M2** emulator MediaPipe
-page-recall baselines accepted (cosine-only 0/3 both; boost recovers; E4b
-recommended). Remaining: **E4b** change-control; midrange measurement; AVAILABLE
-only after measured midrange rows + product decision.
+**E5c** / **E5d** / **M1** / **M2** / **E4b USE** accepted. Remaining: **M3** USE
+page-recall measurement; midrange row; AVAILABLE only after measured midrange +
+product decision.

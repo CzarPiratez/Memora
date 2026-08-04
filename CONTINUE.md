@@ -1052,11 +1052,18 @@ Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_BASELINE.md`.
 `emulator_medium_phone` + compact average-word embedder: cosine-only **0/3**,
 boosted **3/3**, recommends E4b. Still not marketing AVAILABLE (emulator tier).
 Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_ON_DEVICE.md`.
-**Next:** E4b larger-embedder change-control (M1+M2 evidence).
+
+**E4b Universal Sentence Encoder product embedder accepted** 2026-08-04:
+Product download/store/disclosure switched to MediaPipe USE (ADR-032). Legacy
+average-word does not count as installed; rebuild meaning index after upgrade.
+E5d assist retained until M3 USE re-measure. Still not marketing AVAILABLE.
+Change control: `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
+**Next:** User smoke — download USE + rebuild index + Find by meaning; then M3
+USE page-recall measurement.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 + M2
-emulator; E4b + midrange/AVAILABLE decision remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 + M2 +
+E4b USE; M3 + midrange/AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

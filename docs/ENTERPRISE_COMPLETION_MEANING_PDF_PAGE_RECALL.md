@@ -73,9 +73,10 @@ Change-control this as its own approved slice before coding.
 
 ### C. Product / pack quality (related, not PDF-only)
 
-- [ ] **E4b** larger vendor embedder pack — **recommended by M1 and M2**
-      (cosine-only hit@1 0/3 without token assist on compact MediaPipe).
-      Change-control before coding.
+- [x] **E4b** Universal Sentence Encoder product embedder (2026-08-04) —
+      ADR-032; change control
+      `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`. Rebuild index
+      after upgrade. M3 USE page-recall measurement still open.
 - [ ] Battery / latency budgets for index rebuild and query (Spec §11).
 - [ ] Cap / progress UI for large PDF libraries (unbounded work forbidden by
       governance).

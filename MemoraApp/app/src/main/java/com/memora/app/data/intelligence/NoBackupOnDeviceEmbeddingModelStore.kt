@@ -2,6 +2,7 @@ package com.memora.app.data.intelligence
 
 import android.content.Context
 import com.memora.app.domain.intelligence.MediaPipeAverageWordEmbedderSpec
+import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,19 +31,25 @@ class NoBackupOnDeviceEmbeddingModelStore @Inject constructor(
     }
 
     override fun modelIdentity(): ModelVersionIdentity =
-        MediaPipeAverageWordEmbedderSpec.MODEL_IDENTITY
+        MediaPipeUniversalSentenceEncoderSpec.MODEL_IDENTITY
 
     override fun clear() {
         modelFile().delete()
         tempFile().delete()
+        legacyAverageWordFile().delete()
         if (rootDir.exists() && rootDir.list().isNullOrEmpty()) {
             rootDir.delete()
         }
     }
 
-    fun modelFile(): File = File(rootDir, MediaPipeAverageWordEmbedderSpec.FILE_NAME)
+    fun modelFile(): File =
+        File(rootDir, MediaPipeUniversalSentenceEncoderSpec.FILE_NAME)
 
-    fun tempFile(): File = File(rootDir, "${MediaPipeAverageWordEmbedderSpec.FILE_NAME}.tmp")
+    fun tempFile(): File =
+        File(rootDir, "${MediaPipeUniversalSentenceEncoderSpec.FILE_NAME}.tmp")
+
+    fun legacyAverageWordFile(): File =
+        File(rootDir, MediaPipeAverageWordEmbedderSpec.FILE_NAME)
 
     fun ensureRoot(): File {
         rootDir.mkdirs()

@@ -3,17 +3,19 @@ package com.memora.app.application.intelligence
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
-import com.memora.app.domain.intelligence.MediaPipeAverageWordEmbedderSpec
+import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 
 /**
- * Downloads the MediaPipe average-word embedder into private storage (ADR-031).
+ * Downloads the MediaPipe Universal Sentence Encoder into private storage
+ * (ADR-032 / E4b).
  *
  * Requires prior disclosure acknowledgment. Downloads model bytes only — never
- * uploads Memories or source content.
+ * uploads Memories or source content. Legacy average-word files do not count as
+ * installed and are removed after a successful USE install.
  */
 class DownloadOnDeviceEmbeddingModel @Inject constructor(
     private val ledger: AiPackInstallLedger,
@@ -33,10 +35,10 @@ class DownloadOnDeviceEmbeddingModel @Inject constructor(
             val temp = modelStore.tempFile()
             val target = modelStore.modelFile()
             temp.delete()
-            val connection = (URL(MediaPipeAverageWordEmbedderSpec.DOWNLOAD_URL)
+            val connection = (URL(MediaPipeUniversalSentenceEncoderSpec.DOWNLOAD_URL)
                 .openConnection() as HttpURLConnection).apply {
                 connectTimeout = 30_000
-                readTimeout = 120_000
+                readTimeout = 300_000
                 instanceFollowRedirects = true
                 requestMethod = "GET"
             }
@@ -48,7 +50,7 @@ class DownloadOnDeviceEmbeddingModel @Inject constructor(
                     )
                 }
                 val declared = connection.contentLengthLong
-                if (declared > MediaPipeAverageWordEmbedderSpec.MAX_DOWNLOAD_BYTES) {
+                if (declared > MediaPipeUniversalSentenceEncoderSpec.MAX_DOWNLOAD_BYTES) {
                     return DownloadOnDeviceEmbeddingModelResult.Failed(
                         "Model download is larger than the disclosed size limit.",
                     )
@@ -61,7 +63,7 @@ class DownloadOnDeviceEmbeddingModel @Inject constructor(
                             val read = input.read(buffer)
                             if (read < 0) break
                             total += read
-                            if (total > MediaPipeAverageWordEmbedderSpec.MAX_DOWNLOAD_BYTES) {
+                            if (total > MediaPipeUniversalSentenceEncoderSpec.MAX_DOWNLOAD_BYTES) {
                                 temp.delete()
                                 return DownloadOnDeviceEmbeddingModelResult.Failed(
                                     "Model download exceeded the disclosed size limit.",
@@ -87,6 +89,7 @@ class DownloadOnDeviceEmbeddingModel @Inject constructor(
                         "Model could not be saved on this phone.",
                     )
                 }
+                modelStore.legacyAverageWordFile().delete()
                 DownloadOnDeviceEmbeddingModelResult.Installed
             } finally {
                 connection.disconnect()

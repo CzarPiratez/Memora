@@ -10,7 +10,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Honest inventory for the Find-by-meaning screen (compact embedder path). */
+/** Honest inventory for the Find-by-meaning screen (on-device embedder path). */
 class LoadMeaningSearchReadiness @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
     private val embeddingStore: MemoryEmbeddingStore,

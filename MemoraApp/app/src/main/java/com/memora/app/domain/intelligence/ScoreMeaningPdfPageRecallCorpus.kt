@@ -39,7 +39,7 @@ object ScoreMeaningPdfPageRecallCorpus {
         val wallMs = ((System.nanoTime() - startedAt) / 1_000_000L).coerceAtLeast(0L)
         val model = when (val availability = engine.availability()) {
             is CapabilityAvailability.Available -> availability.model
-            else -> MediaPipeAverageWordEmbedderSpec.MODEL_IDENTITY
+            else -> MediaPipeUniversalSentenceEncoderSpec.MODEL_IDENTITY
         }
         return ScoreMeaningPdfPageRecallResult(
             scoredCases = scored,

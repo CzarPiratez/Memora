@@ -23,9 +23,9 @@ import kotlinx.coroutines.withContext
  * Candidate Find-by-meaning over indexed Memory summaries and PDF page vectors
  * (E5b2 / E5c / evidence-token boost).
  *
- * Compact-model path: cosine plus a disclosed evidence-token boost when the cue
- * appears in ranked text. Does not claim Local Intelligence marketing AVAILABLE
- * / SLA (ADR-024/025).
+ * Compact-model path historically needed a disclosed evidence-token boost; E4b
+ * USE may still apply the assist until M3 re-measures. Does not claim Local
+ * Intelligence marketing AVAILABLE / SLA (ADR-024/025).
  */
 class SearchAssetMemoriesByMeaning @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,

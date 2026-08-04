@@ -5,7 +5,7 @@ import com.memora.app.application.intelligence.MeaningSearchReadiness
 import com.memora.app.domain.asset.AssetType
 
 /**
- * Plain-language copy for candidate Find-by-meaning (E5b2 / ADR-031).
+ * Plain-language copy for candidate Find-by-meaning (E5b2 / ADR-031/032).
  *
  * Must not claim measured Local Intelligence AVAILABLE / midrange SLAs.
  */
@@ -16,7 +16,7 @@ object MeaningSearchCopy {
 
     const val SCOPE_BODY =
         "Search ranks Asset Memories you already built, using the on-device meaning " +
-            "model on this phone. This is a compact candidate ranker — not a claim that " +
+            "model on this phone. This is candidate meaning ranking — not a claim that " +
             "full measured meaning search is finished. Keyword Find buttons still search " +
             "exact words. Memora does not upload your memories for this search."
 
@@ -58,7 +58,7 @@ object MeaningSearchCopy {
             "${snapshot.indexedCount} indexed memories"
         }
         return "$indexed ready for candidate meaning search on this phone " +
-            "(compact on-device model). This is not a measured AVAILABLE claim."
+            "(on-device Universal Sentence Encoder). This is not a measured AVAILABLE claim."
     }
 
     fun engineUnavailableBody(reason: String): String {
@@ -76,7 +76,7 @@ object MeaningSearchCopy {
     fun noMatchesBody(query: String): String {
         require(query.isNotBlank())
         return "No indexed Asset Memory was close enough to \"$query\" with the " +
-            "compact on-device model. Try a different cue, or use keyword Find."
+            "on-device meaning model. Try a different cue, or use keyword Find."
     }
 
     fun limitReachedBody(): String =

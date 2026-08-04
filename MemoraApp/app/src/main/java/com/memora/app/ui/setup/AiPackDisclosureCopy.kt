@@ -2,9 +2,10 @@ package com.memora.app.ui.setup
 
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
+import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
 
 /**
- * Honesty copy for embedding-first disclosure / model install / index (E3–E5b1).
+ * Honesty copy for embedding-first disclosure / model install / index (E3–E4b).
  */
 object AiPackDisclosureCopy {
     const val ENTRY_LABEL = "About on-device meaning search"
@@ -20,8 +21,9 @@ object AiPackDisclosureCopy {
 
     const val SCOPE_BODY =
         "The meaning model is stored privately in Memora. It is not your photos, PDFs, " +
-            "or notes. This first model is a compact on-device embedder (MediaPipe). " +
-            "It is good enough to start meaning search; a larger pack may replace it later. " +
+            "or notes. This model is MediaPipe’s Universal Sentence Encoder — a stronger " +
+            "on-device semantic embedder than the earlier compact average-word model. " +
+            "Meaning search stays a candidate path until measured on your device class. " +
             "Keyword Find saved text buttons remain available."
 
     const val NETWORK_TITLE = "Network"
@@ -34,15 +36,17 @@ object AiPackDisclosureCopy {
 
     val SIZE_BODY: String =
         "Meaning model download is under about " +
-            "${8} MB. Pack-container verify (optional pipeline check) uses about " +
-            "${EmbeddingFirstAiPackTrack.PLANNED_DOWNLOAD_SIZE_BYTES} bytes."
+            "${MediaPipeUniversalSentenceEncoderSpec.DISCLOSED_SIZE_MB_CEILING} MB. " +
+            "Pack-container verify (optional pipeline check) uses about " +
+            "${EmbeddingFirstAiPackTrack.PLANNED_DOWNLOAD_SIZE_BYTES} bytes. " +
+            "After upgrading the model, rebuild the meaning index."
 
     const val LICENSE_TITLE = "License"
 
     val LICENSE_BODY: String =
         EmbeddingFirstAiPackTrack.PLANNED_LICENSE +
-            " The MediaPipe average-word embedder model is subject to Google’s published " +
-            "MediaPipe model terms."
+            " The MediaPipe Universal Sentence Encoder model is subject to Google’s " +
+            "published MediaPipe model terms."
 
     const val STATUS_TITLE = "Status right now"
 
@@ -91,7 +95,7 @@ object AiPackDisclosureCopy {
         "Acknowledge the details above before continuing."
 
     const val FEEDBACK_MODEL_INSTALLED =
-        "Meaning model installed. You can build a meaning index next."
+        "Meaning model installed. Rebuild the meaning index so rankings use this model."
 
     const val FEEDBACK_MODEL_ALREADY =
         "Meaning model is already installed on this phone."

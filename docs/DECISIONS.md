@@ -884,4 +884,30 @@ future larger pack).
 **Reason:** Delivers real on-device meaning vectors without waiting on a custom
 vendor pack, while preserving Spec §6 small-APK and local-first rules.
 
+## ADR-032: Universal Sentence Encoder as product on-device embedder (E4b)
+
+**Status:** Accepted
+
+**Decision:** Replace the product default MediaPipe model from compact
+`average_word_embedder` (ADR-031 first ship) with MediaPipe **Universal
+Sentence Encoder** float32
+(`mediapipe-models/text_embedder/universal_sentence_encoder/float32/1`).
+Same Tasks Text Embedder runtime (`tasks-text` 0.10.29+), same disclosure →
+download → private no-backup install path. ADR-031’s availability rules remain.
+
+Evidence for the switch: M1 JVM + M2 emulator page-recall baselines showed
+cosine-only hit@1 **0/3** on the compact model; E5d token boost recovered
+labeled @1 but is not a substitute for semantic-only quality.
+
+Legacy `average_word_embedder` files must not count as installed for the product
+path; clear/upgrade deletes them. Indexed vectors are model-version keyed — users
+must rebuild the meaning index after upgrading.
+
+**Privacy and truthfulness:** Still model-bytes-only download; still no marketing
+AVAILABLE without measured midrange rows (ADR-024/025). Disclosure must state the
+larger on-disk size. E5d disclosed assist may remain until a USE measurement
+slice (M3) decides otherwise. EmbeddingGemma (and other packs) stay out of scope.
+
+**Reason:** Closes ADR-030 E4b with Google’s recommended semantic Text Embedder
+while keeping the proven MediaPipe install pipeline.
 

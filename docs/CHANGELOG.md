@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### E4b Universal Sentence Encoder product embedder
+
+- **Date:** 2026-08-04
+- **Delivered:** Product model spec/download/store/disclosure switched to
+  MediaPipe USE (ADR-032); legacy average-word cleanup; honesty copy; unit tests.
+- **Truthfulness:** Candidate meaning path; not measured AVAILABLE; rebuild index
+  after upgrade; E5d assist retained pending M3.
+- **Change control:** `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
+
 ### M2 on-device meaning PDF page-recall baseline
 
 - **Date:** 2026-08-04
