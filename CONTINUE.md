@@ -2,103 +2,41 @@
 
 ## Current checkpoint
 
-**Project:** Memora Android app
+**Project:** Memora Android app  
+**Project folder:** `MemoraApp/`  
+**Updated:** 2026-08-04
 
-**Project folder:** `MemoraApp/`
+### Where we are (honest)
 
-**Current state:** Android Studio project is created and runs successfully on the
-Medium Phone emulator. The app contains a welcome screen and a prototype photo
-permission screen. The source-neutral Asset and indexing-state domain contracts are
-implemented with local unit tests. Room persistence for Assets and indexing state is
-implemented, its schema is exported to version control, and both local and
-emulator-backed tests pass. Hilt now owns the application-level Room database and
-repository bindings, and the unchanged app launches on the emulator. The app does
-**not** yet discover, extract, understand, or search any asset. A source-neutral
-Memory and evidence contract is now tested, but no Memory is persisted yet. The app
-contains no WorkManager job or AI integration. The MediaStore image adapter is covered
-by metadata-mapping and opaque-checkpoint tests and has queried the emulator's granted
-MediaStore catalogue successfully. Room database version 2 now persists source-owned
-opaque checkpoints and safely migrates version-1 Asset data. Tested application and
-Room boundaries can now persist one source-neutral discovery page's Asset placeholders
-and checkpoint atomically, while preserving explicit access and source-failure
-outcomes. A tested use case can now resume one bounded source-neutral discovery page
-from its saved source-owned checkpoint. A Hilt-bound application use case now binds
-the read-only MediaStore adapter to that flow for one explicit, bounded page and
-reports whether Android granted the full image library or selected photos. It has no
-background caller yet, but the Compose setup screen can now invoke one explicit
-foreground page. An emulator integration test has verified the same flow persists
-one real, bounded emulator page and checkpoint atomically into an isolated in-memory
-Room database. A Hilt ViewModel now exposes immutable setup/indexing state and accepts
-permission results from the UI and is connected to the Compose setup screen. After a
-user grants access and explicitly chooses `Start indexing`, the app persists one
-bounded, read-only MediaStore metadata page and shows the truthful count and
-full-versus-selected-photo scope. On 2026-07-20 the Medium Phone emulator completed
-that flow with 0 permitted items; no image bytes were opened.
-A source-neutral document-tree approval contract and Room database version 3 now
-persist private SAF tree references. Each approved future folder has an independent,
-hashed source identity and therefore independent indexing checkpoint. The Compose
-setup flow launches Android's folder picker only after an explanation, persists read
-access only when the user selects a folder, and saves the private reference through
-its ViewModel. On 2026-07-20 the user connected one emulator folder successfully; no
-PDF was opened or indexed. A read-only SAF adapter now freshly verifies that exact
-persisted Android grant, then returns one bounded page of immediate-child PDF metadata
-as source-neutral Asset placeholders with a source-owned checkpoint. On 2026-07-20,
-the Medium Phone emulator ran that adapter successfully against the already approved
-folder. It did not open, copy, extract, or index a document.
+Memora runs on the Medium Phone emulator as a **local-first memory retrieval**
+app: permissioned discovery, deterministic extract, Room persistence, keyword
+Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
-The visible prototype is not the final product contract. In particular, the prior
-idea of importing notes through Share is rejected as the primary workflow because it
-does not satisfy automatic source indexing.
+| Area | Status |
+|---|---|
+| Photos / screenshots / PDF folders | Discover → extract → save facts (bounded, read-only) |
+| Keyword Find (PDF / OCR / photo text) | Shipped; Why evidence; open original / page where built |
+| Asset Memory build | Shipped (≤25 READY facts per tap) |
+| On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
+| Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
+| Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
+| Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |
+| Marketing AVAILABLE / SLA | **Not claimed** until midrange measured + product decision |
+| Notes (OneNote etc.) | ADR-003 strategy only — not implemented |
+| CI (`main`) | Green after E5d boost fixture fix (`970fcf9`) |
 
-On 2026-07-20, the original PRD and both accepted addenda were copied into
-`docs/product-source/` with SHA-256 records. The new
-`docs/LOCAL_AI_TECHNICAL_SPEC.md` and ADR-012 make the core memory lifecycle
-local-first and offline after a required on-device capability is installed. No model,
-AI Pack, cloud service, vector index, OCR, extraction implementation, or WorkManager
-job exists yet. Existing source discovery remains compatible with this decision.
+**Authoritative backlog:**  
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`
 
-The verified SAF PDF adapter is now bound behind a source-neutral factory to one
-explicit application use case. Given the private source ID of an already approved
-folder, it requests one bounded, metadata-only page through the existing checkpoint
-flow and atomically persists its PDF placeholders and source-owned checkpoint. It
-reports source-not-connected, access-required, access-revoked, and retryable failure
-outcomes without writing a page. Local `IndexSafPdfFolderTest` passed and the Android
-integration-test source compiled on 2026-07-20. The user then ran
-`IndexSafPdfFolderIntegrationTest` on the Medium Phone emulator: 1 of 1 test passed.
-The live test queried only the already approved folder's bounded PDF metadata page and
-persisted only its placeholders and checkpoint to an isolated in-memory Room database.
-The SAF adapter now has a depth-first, source-owned v2 traversal checkpoint so it can
-resume nested folders through one bounded metadata page per invocation; prior v1
-root-only checkpoints remain readable. Local traversal tests and Android-test
-compilation passed on 2026-07-20. The user then reran
-`SafPdfDiscoverySourceIntegrationTest` on the Medium Phone emulator: 1 of 1 test
-passed after reconnecting the approved folder. That regression test verifies live
-Android access; deterministic local tests verify the nested-folder behavior because
-the emulator folder is not assumed to contain a nested PDF fixture.
-A Hilt ViewModel now restores the most recently approved PDF-folder source ID from
-Memora's private database, then waits for an explicit user request before it invokes
-the existing bounded PDF indexing use case. It exposes truthful in-progress,
-completed, retryable-failure, and revoked-connection states. Local ViewModel and
-presentation-copy tests passed on 2026-07-21. The user then ran the app on the Medium
-Phone emulator, restored the connected folder, explicitly started indexing, and saw
-the truthful completed `0 PDF items` result. No PDF was opened, copied, uploaded,
-edited, or deleted.
+**Next eng default:** execute **M4** on a physical `midrange_arm64` device when
+available; otherwise optional EmbeddingGemma or WorkManager PDF-folder extract
+progress. Do not flip AVAILABLE from emulator alone.
 
-A pure, source-neutral deterministic PDF extraction contract now binds every future
-extraction record to the Asset identity, immutable fingerprint, and schema version.
-It represents source-provided title, page count, metadata, and page-level text while
-making complete coverage, partial coverage, and no-text-layer outcomes distinct. It
-also reserves explicit access and retry outcomes for a later read-only platform
-adapter. No user document was opened, no model dependency was added, and no record is
-persisted yet.
+### Early build diary (July 2026)
 
-The reviewed local PDFBox mapper now operates only on already-supplied synthetic
-repository-owned streams. On 2026-07-21, the user ran its Android integration test on
-the Medium Phone emulator: all 4 tests passed. They cover complete selectable-text
-extraction including a represented blank page, image-only no-text truthfulness,
-password protection, and malformed input. This mapper is not connected to a SAF URI,
-a real folder, Room persistence, UI, WorkManager, or an AI capability; no user PDF was
-opened or altered.
+The long chronological notes below record how foundation slices landed
+(discovery, SAF, PDFBox, OCR, memories). Prefer the table above for “what is
+true now.” Do not treat early “no AI / no Memory persisted” lines as current.
 
 ## Read in this order
 

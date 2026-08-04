@@ -1,7 +1,8 @@
 # Enterprise completion — meaning PDF page recall
 
-**Status:** Open backlog (durable; do not rely on chat memory)  
+**Status:** Open backlog — search/page path largely built; **AVAILABLE** still gated  
 **Date opened:** 2026-08-04  
+**Last status refresh:** 2026-08-04 (meaning-index progress/cap closed; M4 execute pending)  
 **Owner path:** Local-AI embedding-first track after E5b2e  
 **Authority:** `AGENTS.md`, `docs/GOVERNANCE.md`, ADR-024/025/031,
 `docs/LOCAL_AI_TECHNICAL_SPEC.md`, `docs/LOCAL_AI_BENCHMARK_PLAN.md`

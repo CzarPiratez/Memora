@@ -37,11 +37,19 @@ Everything happens entirely on-device.
 
 ## Current status
 
-Android app in active foundation build-out under the product contract: permissioned
-discovery, deterministic extract, local persistence, keyword Find, Asset Memories,
-and candidate Find-by-meaning with an on-device Universal Sentence Encoder.
-Marketing AVAILABLE / midrange measured claims remain gated. Broader source
-coverage continues.
+**Updated 2026-08-04.** Android app under active product-contract delivery:
+
+- Permissioned discovery + deterministic extract for photos, screenshots, and PDFs
+- Keyword Find with Why evidence; Asset Memories from saved facts
+- Candidate Find-by-meaning via on-device Universal Sentence Encoder, PDF page
+  embeddings, disclosed evidence-token assist, and bounded meaning-index rebuild
+  (≤25 memories per tap with live progress)
+- GitHub Actions unit-test CI green on `main`
+
+**Not claimed yet:** marketing AVAILABLE / midrange SLA — awaits physical
+midrange measurement (M4) and an explicit product decision. Notes providers and
+broader source coverage remain later work. See [CONTINUE.md](CONTINUE.md) and
+[enterprise meaning checklist](docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md).
 
 ## Open the app
 

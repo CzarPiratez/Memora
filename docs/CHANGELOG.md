@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Progress status refresh (README / CONTINUE / ROADMAP)
+
+- **Date:** 2026-08-04
+- **Delivered:** Honest current-status snapshot aligned to shipped meaning path,
+  index progress/cap, M4 pending, and green CI — no AVAILABLE claim change.
+
+### Fix: E5d boost unit-test fixtures (CI)
+
+- **Date:** 2026-08-04
+- **Delivered:** Corrected FOXTROT/mira page-vector fixtures so bounded token
+  boost can flip ranking; GitHub Actions on `main` green (`970fcf9`).
+
 ### Meaning index progress + per-tap cap UI
 
 - **Date:** 2026-08-04
