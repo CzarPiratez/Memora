@@ -72,8 +72,10 @@ Change-control this as its own approved slice before coding.
       `emulator_medium_phone` — cosine-only **2/3**, boosted **3/3**; keep E5d
       assist. Change control:
       `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
-- [ ] **Midrange + product decision:** Repeat on `midrange_arm64` when ready;
-      only then may UI say measured AVAILABLE (still never invent SLAs).
+- [x] **M4 midrange plan** (2026-08-04): Runbook + honesty matrix —
+      `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
+- [ ] **M4 midrange execute:** Run page-recall on physical `midrange_arm64`;
+      then product decision for measured AVAILABLE (still never invent SLAs).
 
 ### C. Product / pack quality (related, not PDF-only)
 

@@ -1067,12 +1067,18 @@ Change control: `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
 `emulator_medium_phone` + USE: cosine-only **2/3** (vs M2 compact 0/3), boosted
 **3/3**. Keep E5d disclosed assist. Still not marketing AVAILABLE.
 Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
-**Next:** midrange measurement / AVAILABLE decision, or optional EmbeddingGemma
-follow-up if product wants stronger semantic-only without assist.
+
+**Midrange meaning measurement gate (M4 plan) accepted** 2026-08-04:
+Runbook + compatibility honesty rows for `midrange_arm64` (pending physical
+device). Emulator embedding/recall = DEGRADED_EXPLICIT candidate — not AVAILABLE.
+Change control: `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
+**Next eng default:** wow product slice while awaiting midrange host — prefer
+**PDF library index progress / cap UI** (enterprise checklist §C), or execute M4
+when a `midrange_arm64` device is available.
 
 **Enterprise completion (durable):**
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M3 +
-E4b USE smoke; midrange/AVAILABLE decision remain.
+E4b USE smoke + M4 plan; midrange execute / AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

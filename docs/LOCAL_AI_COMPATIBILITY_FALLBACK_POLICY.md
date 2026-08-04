@@ -102,11 +102,13 @@ until a later adapter supplies measured rows.
 
 On `emulator_medium_phone`, synthetic pack **integrity/size** baselines exist
 (`docs/CHANGE_CONTROL_LOCAL_AI_MEASURED_PACK_BASELINES.md` L1–L2). That evidence
-does **not** change support tiers:
+does **not** change support tiers by itself:
 
 | Capability (all Spec §4) | Device class | Tier | Reason (draft) |
 |---|---|---|---|
-| VISION / OCR / DOCUMENT / EMBEDDING / MEMORY_BUILDER / RECALL_RANKER | `EMULATOR_MEDIUM_PHONE` | `UNSUPPORTED` | Integrity harness only; no verified pack/runtime bound |
+| VISION / OCR / DOCUMENT / MEMORY_BUILDER | `EMULATOR_MEDIUM_PHONE` | `UNSUPPORTED` | Integrity harness only; no verified pack/runtime bound |
+| EMBEDDING / RECALL_RANKER | `EMULATOR_MEDIUM_PHONE` | `DEGRADED_EXPLICIT` | USE + candidate Find-by-meaning measured on emulator (M3); **not** marketing AVAILABLE; E5d assist may apply |
+| VISION / OCR / DOCUMENT / EMBEDDING / MEMORY_BUILDER / RECALL_RANKER | `MIDRANGE_ARM64` | `UNSUPPORTED` (pending) | No midrange measured row yet — see `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md` (M4) |
 
 Keyword recall remains an allowed non-AI path and must stay labeled as not
 meaning-based (`SemanticFallbackRules`).
@@ -116,3 +118,4 @@ meaning-based (`SemanticFallbackRules`).
 1. Local-AI benchmark plan (privacy-safe fixtures + quality/perf metrics) — accepted.
 2. When a first pack is chosen: fill concrete ABI/API/RAM rows and DEGRADED paths.
 3. UI copy review against this policy before any AVAILABLE claim ships.
+4. Execute M4 midrange meaning page-recall measurement before midrange AVAILABLE.

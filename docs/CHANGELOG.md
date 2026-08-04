@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Midrange meaning measurement gate (M4 plan)
+
+- **Date:** 2026-08-04
+- **Delivered:** M4 runbook + product AVAILABLE decision checklist; compatibility
+  policy honesty for USE on emulator vs pending midrange.
+- **Truthfulness:** No AVAILABLE flip; midrange row still ⬜ until device run.
+- **Change control:** `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
+
 ### M3 USE meaning PDF page-recall baseline
 
 - **Date:** 2026-08-04
