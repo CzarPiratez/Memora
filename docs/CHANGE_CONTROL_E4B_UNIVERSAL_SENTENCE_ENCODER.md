@@ -38,6 +38,6 @@
   - Dependency review; unit tests green.
 - **Not delivered:** M3 USE page-recall measurement; midrange AVAILABLE; remove
   E5d assist; EmbeddingGemma.
-- **Git commit:** (filled at close)
+- **Git commit:** `f1e0e85`
 - **User smoke gate:** Download USE on emulator → rebuild meaning index → Find by
   meaning (`mira` page recall).
