@@ -2073,6 +2073,7 @@ fun DocumentTreeSetupScreen(
                     onStop = onStopLocalReadingStep,
                     onRetry = onRetryLocalReadingStep,
                     onShowRetryableDemo = onShowLocalReadingRetryableDemo,
+                    onDone = onBack,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
@@ -2111,6 +2112,7 @@ private fun PdfLocalReadingRecoveryControl(
     onStop: () -> Unit,
     onRetry: () -> Unit,
     onShowRetryableDemo: () -> Unit,
+    onDone: () -> Unit,
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -2211,11 +2213,20 @@ private fun PdfLocalReadingRecoveryControl(
                     }
                 }
 
-                PdfLocalReadingState.Completed -> OutlinedButton(
-                    onClick = onStop,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(PdfLocalReadingCopy.DONE_LABEL)
+                PdfLocalReadingState.Completed -> {
+                    Button(
+                        onClick = onDone,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.DONE_LABEL)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(PdfLocalReadingCopy.READ_AGAIN_LABEL)
+                    }
                 }
 
                 PdfLocalReadingState.AccessRecoveryNeeded,

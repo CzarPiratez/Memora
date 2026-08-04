@@ -37,6 +37,8 @@ object PdfLocalReadingCopy {
 
     const val DONE_LABEL = "Done"
 
+    const val READ_AGAIN_LABEL = "Read folder again"
+
     const val BACK_TO_START_LABEL = "Back to start"
 
     const val COMPLETED_BODY =
