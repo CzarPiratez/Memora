@@ -37,10 +37,11 @@ Everything happens entirely on-device.
 
 ## Current status
 
-The Android app is in active foundation build-out: permissioned discovery,
-deterministic extract paths, local persistence, and early keyword recall slices
-are landing under the product contract. Full natural-language memory recall and
-broader source coverage remain in progress.
+Android app in active foundation build-out under the product contract: permissioned
+discovery, deterministic extract, local persistence, keyword Find, Asset Memories,
+and candidate Find-by-meaning with an on-device Universal Sentence Encoder.
+Marketing AVAILABLE / midrange measured claims remain gated. Broader source
+coverage continues.
 
 ## Open the app
 
@@ -56,3 +57,10 @@ broader source coverage remain in progress.
 - [Architecture](docs/ARCHITECTURE.md)
 - [Decisions](docs/DECISIONS.md)
 - [Roadmap](docs/ROADMAP.md)
+
+## Vision
+
+Become the default interface between people and their own information.
+
+- Google: world's information.
+- Memora: your information.
