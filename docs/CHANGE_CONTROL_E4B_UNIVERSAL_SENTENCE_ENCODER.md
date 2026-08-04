@@ -30,14 +30,16 @@
 
 ## Delivery record
 
-- **Status:** Accepted (engineering) — 2026-08-04
+- **Status:** Accepted (engineering + emulator smoke) — 2026-08-04
 - **Delivered:**
   - ADR-032; `MediaPipeUniversalSentenceEncoderSpec` as product default.
   - Download/store/clear upgrade path; legacy average-word deleted on USE install.
   - Disclosure + Find-by-meaning honesty copy updated (size ~40 MB; rebuild index).
   - Dependency review; unit tests green.
+- **Emulator smoke (user, 2026-08-04):** USE installed; meaning index Indexed 3 /
+  Pages 10; Find by meaning `mira` → `memora-open-5page.pdf` Matched page 5 →
+  Open Page 5 of 5 (“JULIET meet mira closing”).
 - **Not delivered:** M3 USE page-recall measurement; midrange AVAILABLE; remove
   E5d assist; EmbeddingGemma.
 - **Git commit:** `f1e0e85`
-- **User smoke gate:** Download USE on emulator → rebuild meaning index → Find by
-  meaning (`mira` page recall).
+- **User smoke gate:** **Accepted** 2026-08-04.

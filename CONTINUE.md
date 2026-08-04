@@ -1058,12 +1058,15 @@ Product download/store/disclosure switched to MediaPipe USE (ADR-032). Legacy
 average-word does not count as installed; rebuild meaning index after upgrade.
 E5d assist retained until M3 USE re-measure. Still not marketing AVAILABLE.
 Change control: `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
-**Next:** User smoke — download USE + rebuild index + Find by meaning; then M3
-USE page-recall measurement.
+
+**E4b emulator smoke accepted** 2026-08-04 (user): USE download + rebuild index
+(Indexed 3 / Pages 10) → Find by meaning `mira` → `memora-open-5page.pdf`
+**Matched page 5** → Open **Page 5 of 5** (“JULIET meet mira closing”).
+**Next:** M3 USE page-recall measurement (cosine-only vs boost on labeled corpus).
 
 **Enterprise completion (durable):**
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1 + M2 +
-E4b USE; M3 + midrange/AVAILABLE decision remain.
+E4b USE smoke; M3 + midrange/AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

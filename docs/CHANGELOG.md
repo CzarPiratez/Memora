@@ -7,9 +7,16 @@
 - **Date:** 2026-08-04
 - **Delivered:** Product model spec/download/store/disclosure switched to
   MediaPipe USE (ADR-032); legacy average-word cleanup; honesty copy; unit tests.
+- **Smoke:** Emulator `mira` → Matched page 5 → Open Page 5 of 5 (accepted).
 - **Truthfulness:** Candidate meaning path; not measured AVAILABLE; rebuild index
   after upgrade; E5d assist retained pending M3.
 - **Change control:** `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`.
+
+### Fix: Done after local PDF reading returns to Welcome
+
+- **Date:** 2026-08-04
+- **Delivered:** Completed local reading Done navigates to Welcome instead of
+  resetting to Start local reading; optional Read folder again.
 
 ### M2 on-device meaning PDF page-recall baseline
 
