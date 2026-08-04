@@ -64,6 +64,11 @@ fun AiPackDisclosureScreen(
         Spacer(modifier = Modifier.height(20.dp))
         Section(title = AiPackDisclosureCopy.LICENSE_TITLE, body = AiPackDisclosureCopy.LICENSE_BODY)
         Spacer(modifier = Modifier.height(20.dp))
+        Section(
+            title = AiPackDisclosureCopy.INDEX_BATCH_TITLE,
+            body = AiPackDisclosureCopy.INDEX_BATCH_BODY,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
         Section(title = AiPackDisclosureCopy.STATUS_TITLE, body = uiState.statusBody)
         uiState.feedbackMessage?.let { message ->
             Spacer(modifier = Modifier.height(12.dp))
@@ -76,6 +81,14 @@ fun AiPackDisclosureScreen(
         if (uiState.isBusy) {
             Spacer(modifier = Modifier.height(16.dp))
             CircularProgressIndicator()
+            uiState.progressFeedback?.let { progress ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = progress,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         if (uiState.showAcknowledge) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -116,6 +129,14 @@ fun AiPackDisclosureScreen(
             ) {
                 Text(AiPackDisclosureCopy.ACTIVATE_LABEL)
             }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        OutlinedButton(
+            onClick = onBack,
+            enabled = !uiState.isBusy,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(AiPackDisclosureCopy.BACK_LABEL)
         }
     }
 }

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Meaning index progress + per-tap cap UI
+
+- **Date:** 2026-08-04
+- **Delivered:** Named ≤25 memories/tap batch; live summary/page progress copy;
+  remaining READY → tap Build again; bottom Back on disclosure screen; unit tests.
+- **Truthfulness:** Cap is per tap, not a library ceiling; no AVAILABLE flip.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`.
+
 ### Midrange meaning measurement gate (M4 plan)
 
 - **Date:** 2026-08-04

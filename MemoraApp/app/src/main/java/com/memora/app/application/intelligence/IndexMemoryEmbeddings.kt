@@ -23,6 +23,7 @@ class IndexMemoryEmbeddings @Inject constructor(
     operator fun invoke(
         candidates: List<MemoryEmbeddingCandidate>,
         nowEpochMs: Long,
+        onProgress: ((processed: Int, total: Int) -> Unit)? = null,
     ): IndexMemoryEmbeddingsResult {
         require(nowEpochMs >= 0)
         when (val availability = embeddingEngine.availability()) {
@@ -34,10 +35,12 @@ class IndexMemoryEmbeddings @Inject constructor(
         var indexed = 0
         var skippedUnchanged = 0
         var failed = 0
-        for (candidate in candidates) {
+        val total = candidates.size
+        candidates.forEachIndexed { index, candidate ->
+            onProgress?.invoke(index + 1, total)
             if (candidate.summaryText.isBlank()) {
                 failed += 1
-                continue
+                return@forEachIndexed
             }
             val fingerprint = sha256Hex(candidate.summaryText)
             val model = when (val availability = embeddingEngine.availability()) {
@@ -48,7 +51,7 @@ class IndexMemoryEmbeddings @Inject constructor(
             val existing = embeddingStore.find(candidate.revisionId, model)
             if (existing != null && existing.sourceTextFingerprint == fingerprint) {
                 skippedUnchanged += 1
-                continue
+                return@forEachIndexed
             }
             when (val encoded = embeddingEngine.embedText(candidate.summaryText)) {
                 is EmbeddingEncodeResult.Unavailable ->

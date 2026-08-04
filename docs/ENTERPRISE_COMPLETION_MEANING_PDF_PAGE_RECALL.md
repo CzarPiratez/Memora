@@ -83,11 +83,13 @@ Change-control this as its own approved slice before coding.
       ADR-032; change control
       `docs/CHANGE_CONTROL_E4B_UNIVERSAL_SENTENCE_ENCODER.md`. Rebuild index
       after upgrade. M3 USE page-recall measurement closed (keep E5d).
+- [x] Cap / progress UI for meaning-index rebuild (per-tap ≤25 READY memories +
+      live progress + remaining-tap honesty; 2026-08-04). Change control:
+      `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`. WorkManager PDF
+      *folder extract* progress counts remain a separate follow-up.
+- [ ] Battery / latency budgets for index rebuild and query (Spec §11).
 - [ ] Optional later: EmbeddingGemma / larger pack if midrange semantic-only
       bar still fails without assist.
-- [ ] Battery / latency budgets for index rebuild and query (Spec §11).
-- [ ] Cap / progress UI for large PDF libraries (unbounded work forbidden by
-      governance).
 
 ### D. Explicitly out of “done” until checked
 

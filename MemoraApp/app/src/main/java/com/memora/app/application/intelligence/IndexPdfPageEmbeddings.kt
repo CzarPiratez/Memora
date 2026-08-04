@@ -23,6 +23,7 @@ class IndexPdfPageEmbeddings @Inject constructor(
     operator fun invoke(
         candidates: List<PdfPageEmbeddingCandidate>,
         nowEpochMs: Long,
+        onProgress: ((processed: Int, total: Int) -> Unit)? = null,
     ): IndexPdfPageEmbeddingsResult {
         require(nowEpochMs >= 0)
         when (val availability = embeddingEngine.availability()) {
@@ -34,11 +35,13 @@ class IndexPdfPageEmbeddings @Inject constructor(
         var indexed = 0
         var skippedUnchanged = 0
         var failed = 0
-        for (candidate in candidates) {
+        val total = candidates.size
+        candidates.forEachIndexed { index, candidate ->
+            onProgress?.invoke(index + 1, total)
             val text = ResolveMeaningPdfOpenPage.truncateForEmbed(candidate.pageText)
             if (text.isBlank()) {
                 failed += 1
-                continue
+                return@forEachIndexed
             }
             val fingerprint = sha256Hex(text)
             val model = when (val availability = embeddingEngine.availability()) {
@@ -53,7 +56,7 @@ class IndexPdfPageEmbeddings @Inject constructor(
             )
             if (existing != null && existing.sourceTextFingerprint == fingerprint) {
                 skippedUnchanged += 1
-                continue
+                return@forEachIndexed
             }
             when (val encoded = embeddingEngine.embedText(text)) {
                 is EmbeddingEncodeResult.Unavailable ->

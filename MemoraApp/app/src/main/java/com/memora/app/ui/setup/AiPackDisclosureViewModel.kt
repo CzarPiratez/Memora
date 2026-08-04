@@ -10,6 +10,7 @@ import com.memora.app.application.intelligence.IndexMemoryEmbeddings
 import com.memora.app.application.intelligence.IndexMemoryEmbeddingsResult
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddings
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
+import com.memora.app.application.intelligence.MeaningIndexBatchLimits
 import com.memora.app.application.intelligence.MemoryEmbeddingCandidate
 import com.memora.app.application.intelligence.PdfPageEmbeddingCandidate
 import com.memora.app.application.intelligence.ResolveMeaningPdfOpenPage
@@ -40,6 +41,7 @@ data class AiPackDisclosureUiState(
     val showDownloadModel: Boolean,
     val showBuildIndex: Boolean,
     val isBusy: Boolean = false,
+    val progressFeedback: String? = null,
     val feedbackMessage: String? = null,
 )
 
@@ -132,27 +134,55 @@ class AiPackDisclosureViewModel @Inject constructor(
 
     fun onBuildIndexRequested() {
         if (mutableUiState.value.isBusy || !mutableUiState.value.showBuildIndex) return
-        setBusy()
+        setBusy(progressFeedback = AiPackDisclosureCopy.PROGRESS_PREPARING)
         viewModelScope.launch {
             val now = System.currentTimeMillis()
-            val summaryResult = withContext(Dispatchers.IO) {
-                val candidates = memoryRepository.listCurrentReadySummaries(limit = 50).map { summary ->
-                    MemoryEmbeddingCandidate(
-                        revisionId = summary.revisionId,
-                        memoryId = summary.memoryId,
-                        summaryText = summary.summaryText,
-                    )
-                }
-                indexMemoryEmbeddings(candidates, nowEpochMs = now) to candidates
+            val limit = MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP
+            val (readyTotal, summaries) = withContext(Dispatchers.IO) {
+                memoryRepository.countCurrentReady() to
+                    memoryRepository.listCurrentReadySummaries(limit = limit)
             }
-            val (result, summaryCandidates) = summaryResult
+            if (summaries.isEmpty()) {
+                mutableUiState.value = withContext(Dispatchers.IO) {
+                    buildState(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY)
+                }
+                return@launch
+            }
+            val remainingAfterBatch = (readyTotal - summaries.size).coerceAtLeast(0)
+            val candidates = summaries.map { summary ->
+                MemoryEmbeddingCandidate(
+                    revisionId = summary.revisionId,
+                    memoryId = summary.memoryId,
+                    summaryText = summary.summaryText,
+                )
+            }
+            mutableUiState.value = mutableUiState.value.copy(
+                progressFeedback = AiPackDisclosureCopy.progressSummaries(
+                    processed = 0,
+                    total = candidates.size,
+                ),
+            )
+            val result = withContext(Dispatchers.IO) {
+                indexMemoryEmbeddings(
+                    candidates = candidates,
+                    nowEpochMs = now,
+                    onProgress = { processed, total ->
+                        mutableUiState.value = mutableUiState.value.copy(
+                            progressFeedback = AiPackDisclosureCopy.progressSummaries(
+                                processed = processed,
+                                total = total,
+                            ),
+                        )
+                    },
+                )
+            }
             val pageResult = when (result) {
                 is IndexMemoryEmbeddingsResult.EngineUnavailable -> null
                 is IndexMemoryEmbeddingsResult.Completed -> withContext(Dispatchers.IO) {
                     val lookups = memoryRepository.findCurrentReadyMeaningLookups(
-                        summaryCandidates.map { it.revisionId },
+                        candidates.map { it.revisionId },
                     )
-                    val pageCandidates = summaryCandidates.flatMap { summary ->
+                    val pageCandidates = candidates.flatMap { summary ->
                         val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
                         if (lookup.assetType != AssetType.PDF) return@flatMap emptyList()
                         savedPdfPages.listCurrentVerifiedPages(
@@ -169,7 +199,28 @@ class AiPackDisclosureViewModel @Inject constructor(
                                 )
                             }
                     }
-                    indexPdfPageEmbeddings(pageCandidates, nowEpochMs = now)
+                    if (pageCandidates.isEmpty()) {
+                        IndexPdfPageEmbeddingsResult.Completed(0, 0, 0)
+                    } else {
+                        mutableUiState.value = mutableUiState.value.copy(
+                            progressFeedback = AiPackDisclosureCopy.progressPages(
+                                processed = 0,
+                                total = pageCandidates.size,
+                            ),
+                        )
+                        indexPdfPageEmbeddings(
+                            candidates = pageCandidates,
+                            nowEpochMs = now,
+                            onProgress = { processed, total ->
+                                mutableUiState.value = mutableUiState.value.copy(
+                                    progressFeedback = AiPackDisclosureCopy.progressPages(
+                                        processed = processed,
+                                        total = total,
+                                    ),
+                                )
+                            },
+                        )
+                    }
                 }
             }
             val feedback = when (result) {
@@ -184,9 +235,15 @@ class AiPackDisclosureViewModel @Inject constructor(
                             " PDF page index unavailable."
                         null -> ""
                     }
+                    val remainingHint = if (remainingAfterBatch > 0) {
+                        " ${AiPackDisclosureCopy.remainingBatchHint(remainingAfterBatch)}"
+                    } else {
+                        ""
+                    }
                     AiPackDisclosureCopy.FEEDBACK_INDEX_BUILT_PREFIX +
                         "${result.indexed} memories (skipped ${result.skippedUnchanged}, " +
-                        "failed ${result.failed}).$pagePart Use Find by meaning on Welcome next."
+                        "failed ${result.failed}).$pagePart$remainingHint " +
+                        "Use Find by meaning on Welcome next."
                 }
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
@@ -200,9 +257,10 @@ class AiPackDisclosureViewModel @Inject constructor(
         refresh()
     }
 
-    private fun setBusy() {
+    private fun setBusy(progressFeedback: String? = null) {
         mutableUiState.value = mutableUiState.value.copy(
             isBusy = true,
+            progressFeedback = progressFeedback,
             feedbackMessage = null,
             showAcknowledge = false,
             showActivate = false,
@@ -235,6 +293,7 @@ class AiPackDisclosureViewModel @Inject constructor(
             showDownloadModel = disclosed && !modelInstalled,
             showBuildIndex = embeddingAvailable,
             isBusy = false,
+            progressFeedback = null,
             feedbackMessage = feedbackMessage,
         )
     }

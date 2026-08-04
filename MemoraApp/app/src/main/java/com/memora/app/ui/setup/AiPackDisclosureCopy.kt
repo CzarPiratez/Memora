@@ -1,5 +1,6 @@
 package com.memora.app.ui.setup
 
+import com.memora.app.application.intelligence.MeaningIndexBatchLimits
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
@@ -58,9 +59,11 @@ object AiPackDisclosureCopy {
         "Disclosure recorded. Download the on-device meaning model next. " +
             "Meaning search stays off until the model is installed."
 
-    const val STATUS_MODEL_READY =
+    val STATUS_MODEL_READY: String =
         "Meaning model is installed on this phone. Build a meaning index from saved " +
-            "Asset Memories, then use Find by meaning on Welcome for candidate recall."
+            "Asset Memories (up to ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} " +
+            "memories per tap — tap again if more remain), then use Find by meaning " +
+            "on Welcome for candidate recall."
 
     const val STATUS_VERIFYING =
         "Pack verification is in progress. Meaning search stays off until verification finishes."
@@ -71,6 +74,14 @@ object AiPackDisclosureCopy {
 
     const val STATUS_PACK_ACTIVE_NEED_MODEL =
         "Pack container verified. Download the on-device meaning model to turn on embedding."
+
+    const val INDEX_BATCH_TITLE = "Building the meaning index"
+
+    val INDEX_BATCH_BODY: String =
+        "Each Build indexes up to ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} " +
+            "READY memories this tap, plus PDF pages for those PDFs (capped per PDF). " +
+            "If more READY memories remain, tap Build again. This is not a permanent " +
+            "library ceiling."
 
     const val ACKNOWLEDGE_LABEL = "I understand these details"
 
@@ -104,6 +115,20 @@ object AiPackDisclosureCopy {
 
     const val FEEDBACK_INDEX_UNAVAILABLE =
         "Meaning model is not ready yet. Download it before building an index."
+
+    const val FEEDBACK_INDEX_EMPTY =
+        "No READY memories to index yet. Build Asset Memory first, then return here."
+
+    const val PROGRESS_PREPARING = "Preparing meaning index…"
+
+    fun progressSummaries(processed: Int, total: Int): String =
+        "Indexing summaries $processed of $total…"
+
+    fun progressPages(processed: Int, total: Int): String =
+        "Indexing PDF pages $processed of $total…"
+
+    fun remainingBatchHint(remaining: Int): String =
+        "$remaining READY left — tap Build again for the next batch."
 
     fun statusBody(
         installationState: AiPackInstallState,

@@ -24,7 +24,10 @@ class AiPackDisclosureCopyTest {
         assertTrue(all.contains("model"))
         assertTrue(AiPackDisclosureCopy.SCOPE_BODY.contains("Universal Sentence Encoder"))
         assertTrue(AiPackDisclosureCopy.SIZE_BODY.contains("rebuild the meaning index"))
+        assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("25"))
+        assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("tap Build again"))
         assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("model bytes only"))
+        assertTrue(AiPackDisclosureCopy.remainingBatchHint(12).contains("12 READY left"))
         assertFalse(all.contains("available now"))
         assertFalse(all.contains("uploads your memories"))
     }

@@ -1072,13 +1072,18 @@ Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
 Runbook + compatibility honesty rows for `midrange_arm64` (pending physical
 device). Emulator embedding/recall = DEGRADED_EXPLICIT candidate — not AVAILABLE.
 Change control: `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
-**Next eng default:** wow product slice while awaiting midrange host — prefer
-**PDF library index progress / cap UI** (enterprise checklist §C), or execute M4
-when a `midrange_arm64` device is available.
+
+**Meaning index progress + per-tap cap UI accepted** 2026-08-04:
+Build meaning index batches ≤25 READY memories/tap with live progress copy and
+honest “tap again for remaining” feedback; bottom Back on disclosure screen.
+Change control: `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`.
+**Next eng default:** execute M4 when a `midrange_arm64` device is available, or
+optional EmbeddingGemma / WorkManager PDF folder extract progress follow-up.
 
 **Enterprise completion (durable):**
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M3 +
-E4b USE smoke + M4 plan; midrange execute / AVAILABLE decision remain.
+E4b USE smoke + M4 plan + meaning-index progress/cap; midrange execute /
+AVAILABLE decision remain.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

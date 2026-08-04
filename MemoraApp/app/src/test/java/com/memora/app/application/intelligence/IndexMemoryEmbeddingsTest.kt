@@ -59,6 +59,41 @@ class IndexMemoryEmbeddingsTest {
         assertEquals(1, store.countForModel(engine.modelIdentity))
     }
 
+    @Test
+    fun progress_callback_reports_each_candidate() {
+        val store = InMemoryMemoryEmbeddingStore()
+        val engine = FixedDimensionEmbeddingEngine()
+        val useCase = IndexMemoryEmbeddings(engine, store)
+        val progress = mutableListOf<Pair<Int, Int>>()
+        val candidates = listOf(
+            MemoryEmbeddingCandidate(
+                revisionId = MemoryRevisionId("rev-1"),
+                memoryId = MemoryId("mem-1"),
+                summaryText = "one",
+            ),
+            MemoryEmbeddingCandidate(
+                revisionId = MemoryRevisionId("rev-2"),
+                memoryId = MemoryId("mem-2"),
+                summaryText = "two",
+            ),
+        )
+
+        val result = useCase(
+            candidates = candidates,
+            nowEpochMs = 1L,
+            onProgress = { processed, total -> progress += processed to total },
+        )
+
+        assertTrue(result is IndexMemoryEmbeddingsResult.Completed)
+        assertEquals(listOf(1 to 2, 2 to 2), progress)
+    }
+
+    @Test
+    fun meaning_index_batch_limit_is_bounded() {
+        assertEquals(25, MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP)
+        assertTrue(MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP <= 25)
+    }
+
     private class FixedDimensionEmbeddingEngine(
         private val model: ModelVersionIdentity =
             ModelVersionIdentity(modelId = "fixed-embed-test", version = "0.0.1"),
