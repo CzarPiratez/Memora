@@ -44,6 +44,6 @@
   scope cut.
 - **Explicitly not delivered:** Product AVAILABLE; midrange_arm64; remove boost;
   EmbeddingGemma install.
-- **Git commit:** (filled at close)
+- **Git commit:** `ce0630a`
 - **Documentation/traceability:** CONTINUE, CHANGELOG, enterprise checklist,
   embedding-first track, ROADMAP.
