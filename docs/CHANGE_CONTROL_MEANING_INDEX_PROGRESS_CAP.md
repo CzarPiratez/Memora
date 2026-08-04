@@ -38,4 +38,4 @@
   - Honest INDEX_BATCH disclosure copy
 - **Verification:** `:app:testDebugUnitTest` (targeted + related) green
 - **Truthfulness:** Candidate meaning path unchanged; not marketing AVAILABLE
-- **Git commit:** (filled at close)
+- **Git commit:** `5331baf`
