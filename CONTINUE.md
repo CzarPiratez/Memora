@@ -2,15 +2,15 @@
 
 ## Current checkpoint
 
-**Project:** Memora Android app  
+**Project:** UNFYND Android app  
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-23
 
-**Checkpoint (playbook Step 2):** ADR-040, `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`, and `docs/PRODUCT_SOURCE_REGISTRY.md` bind identity and hashed architecture; then Experience Memory / PKI; then Grounding constitution + amendment + PDF slice. Product-noun overlay is Step 3.
+**Checkpoint (playbook Step 3):** Living-canon product-noun overlay is UNFYND (formerly Memora). Frozen architecture (invariants, pipelines, gates, Find, Evidence Package, Memory types) is unchanged. User-visible Android copy is Step 4.
 
 ### Where we are (honest)
 
-Memora runs on the Medium Phone emulator as a **local-first memory retrieval**
+UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
 app: permissioned discovery, deterministic extract, Room persistence, keyword
 Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 

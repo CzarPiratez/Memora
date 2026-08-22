@@ -1,11 +1,13 @@
-# Memora Engineering Guide
+# UNFYND Engineering Guide
+
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
 
 ## Product authority
 
 The immutable product baseline and accepted amendments are registered in
 `docs/PRODUCT_SOURCE_REGISTRY.md`. `Memora.docx` defines the product vision;
 `LOCAL_AI_TECHNICAL_SPEC.md` defines the binding local-first implementation rules
-where an AI architecture detail would otherwise conflict. Memora is a **memory
+where an AI architecture detail would otherwise conflict. UNFYND is a **memory
 retrieval engine**, not a file browser, upload tool, or generic chatbot. It must help
 a person recall content by meaning and explain why a result matched.
 
@@ -19,7 +21,7 @@ decision, architecture boundary, or delivery checkpoint changes.
 ## Non-negotiable product behavior
 
 - The durable flow is: discover -> extract -> understand -> store -> recall -> explain.
-- A source is indexed; users do not manually feed individual assets into Memora as
+- A source is indexed; users do not manually feed individual assets into UNFYND as
   the primary workflow.
 - Photos, screenshots, PDFs, and notes are all MVP asset types.
 - A `Memory` is the searchable semantic representation of an `Asset`; it is not a

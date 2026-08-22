@@ -1,4 +1,6 @@
-# Memora Local AI Technical Specification
+# UNFYND Local AI Technical Specification
+
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
 
 **Version:** 1.3
 **Status:** Accepted engineering authority  
@@ -8,9 +10,9 @@
 
 ## 1. Binding principle
 
-Memora remembers on the user's phone, not in the cloud.
+UNFYND remembers on the user's phone, not in the cloud.
 
-**Truth before intelligence:** Memora must never fabricate certainty to appear
+**Truth before intelligence:** UNFYND must never fabricate certainty to appear
 intelligent. No evidence means no assertion; uncalibrated confidence means no precise
 confidence claim.
 
@@ -32,7 +34,7 @@ or evidence-backed explanation rule.
 - **Memory draft:** a private, recoverable intermediate record; it is not searchable.
 - **Memory:** the validated, searchable semantic representation derived from one
   Asset version. It never owns or replaces the original Asset.
-- **Memory identity:** a stable Memora-owned identifier for the same conceptual
+- **Memory identity:** a stable UNFYND-owned identifier for the same conceptual
   Memory. It survives valid reprocessing and revision.
 - **Memory revision:** one immutable, provenance-bearing derived representation of a
   Memory identity. It records why it superseded a prior revision.
@@ -78,14 +80,14 @@ data/platform adapters; interfaces and validated models live inward of them.
 ## 5. Source and data boundaries
 
 1. Android or an approved provider remains owner of the original Asset.
-2. Memora reads only the minimum source content needed after explicit source access.
+2. UNFYND reads only the minimum source content needed after explicit source access.
 3. Extraction and local inference operate on-device. No source content, extraction,
    embedding, prompt, query, or Memory is sent to a remote service in the core path.
-4. Room persists only normalized Memora-owned state: references, fingerprints,
+4. Room persists only normalized UNFYND-owned state: references, fingerprints,
    extraction records, Memories, evidence, embedding/index metadata, model versions,
    and recoverable work state.
 5. A user can revoke source access, remove a source, clear derived data, or clear
-   all Memora data. “Memories live forever” means durable while the user retains
+   all UNFYND data. “Memories live forever” means durable while the user retains
    them; it never overrides user control or platform revocation.
 
 ## 6. AI Pack and model registry
@@ -102,7 +104,7 @@ download size, storage requirement, integrity hash, license, and installation st
 - A model update never silently changes a completed Memory. Reprocessing is queued
   explicitly according to version policy and source availability.
 - A system-managed local runtime may satisfy a capability when available. It must
-  have a documented compatible fallback or a truthful unavailable state; Memora may
+  have a documented compatible fallback or a truthful unavailable state; UNFYND may
   not claim a feature works on unsupported devices.
 
 ## 7. Background execution and device health
@@ -286,7 +288,7 @@ Asset Memory -> evidence-backed links -> Event Memory -> Knowledge Memory
 Every relationship, Event Memory, and Knowledge Memory must remain explainable from
 stored evidence. It must answer, in user-facing language: what evidence supports the
 link, where that evidence came from, why it was considered relevant, and how certain
-Memora is. "Reasoning" means inspectable matching factors and citations, not invented
+UNFYND is. "Reasoning" means inspectable matching factors and citations, not invented
 facts or an unsupported disclosure of model-private reasoning.
 
 Embeddings remain a versioned retrieval aid. They may suggest candidates but cannot,

@@ -1,5 +1,7 @@
 # Grounded Answers Amendment v1.0
 
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+
 **Status:** Accepted product-direction amendment; architecture and contracts first —
 implementation blocked until readiness gates in `docs/GROUNDING_ARCHITECTURE.md`
 pass  
@@ -10,7 +12,7 @@ pass
 
 ## 1. Purpose
 
-Memora is a **Personal Information Engine**: private, local-first, retrieval-first.
+UNFYND is a **Personal Information Engine**: private, local-first, retrieval-first.
 
 This amendment authorizes a governed **Grounded Answers** capability:
 
@@ -25,7 +27,7 @@ AI, chat history, personalities, or unsupported confidence claims.
 | Promise | Meaning |
 |---|---|
 | Find remains the source of truth | Candidates, evidence, and originals stay inspectable |
-| Grounded answers accelerate the goal | When evidence supports a claim, Memora may return a structured, cited answer |
+| Grounded answers accelerate the goal | When evidence supports a claim, UNFYND may return a structured, cited answer |
 | Retrieval quality ≥ answer quality | Weak retrieval must not be papered over by fluent generation |
 | AI is replaceable infrastructure | Models may change; Evidence Package and trust rules must not |
 | Completeness honesty | Silent incompleteness is a trust failure worse than visible abstention |
@@ -76,7 +78,7 @@ Trust invariants (non-negotiable):
 
 Lead invariant:
 
-> Memora is retrieval-first. Every generated statement must be grounded in retrieved
+> UNFYND is retrieval-first. Every generated statement must be grounded in retrieved
 > evidence, or the system must explicitly abstain.
 
 ## 5. ReasoningTask (domain concept)

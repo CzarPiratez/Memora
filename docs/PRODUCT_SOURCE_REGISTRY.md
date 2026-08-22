@@ -29,7 +29,7 @@ conversational memory or an untracked desktop file.
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.
-They clarify Memora's long-term architecture without rewriting the immutable source
+They clarify UNFYND's long-term architecture without rewriting the immutable source
 documents or expanding the current MVP source scope unless an amendment explicitly
 says so:
 
@@ -42,20 +42,22 @@ An internal amendment may not silently enable a source, permission, cloud path, 
 feature excluded by the immutable PRD. Such a change still requires an explicit
 product decision and a recorded ADR.
 
-Product-noun overlay of living constitutions is playbook Step 3; ADR-040 already
-binds identity.
+Product-noun overlay of living constitutions is playbook Step 3 (this checkpoint);
+ADR-040 already binds identity. User-visible Android copy is Step 4.
 
 ## Governed architecture artifacts
 
-SHA-256 values are of the Git blob as committed (playbook Step 2). Change-control
-and changelog files are not product source and are not hashed here.
+SHA-256 values are of the Git blob as committed (playbook Step 3 overlay for the
+files whose identity bytes changed; PDF slice hash unchanged because that file
+was not overlayed). Change-control and changelog files are not product source and
+are not hashed here.
 
 | Artifact | Classification | SHA-256 |
 |---|---|---|
-| `docs/LOCAL_AI_TECHNICAL_SPEC.md` | Canon (engineering constitution) | `7EF9F38F0C33708A7E1E4CC7E21A2D062F037F3471CC4C68A782BB1CEC621DDD` |
-| `docs/GROUNDING_ARCHITECTURE.md` | Canon (engineering constitution; sole Grounded Answers constitution) | `5D667ADAA3505044FC541AEDA38AE10262B832D1023ECA228406A62DC994EDB0` |
-| `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | Amendment (product-direction) | `ED25CDE8FA1DBE2B7EFC422276C8D1A0E5F7A8B9A5339062A6AF2F701796E06A` |
-| `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md` | Amendment (product-direction) | `0B1BA90F8E8943991C2B6640CB67150763CEF51BFF557CFE785A6E3003A1C75A` |
+| `docs/LOCAL_AI_TECHNICAL_SPEC.md` | Canon (engineering constitution) | `0338C2EC7397FF0B71A183890CEE71394A837F94F7436661E86D506CB649BBB8` |
+| `docs/GROUNDING_ARCHITECTURE.md` | Canon (engineering constitution; sole Grounded Answers constitution) | `DF9A53D7116EC1B464A61AB8C0FBFC4B5C7CD28A9D5EB63193F9ABB1C397CEAA` |
+| `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | Amendment (product-direction) | `CAFA233D03C162A26C95C83B4C0279F6D813042C887CD29782C2C8004461FBB3` |
+| `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md` | Amendment (product-direction) | `3C6D753B26E4027D6F886F863FA3B626CC15B31B45B81FC6985E305244EFC1B9` |
 | `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md` | Acceptance / slice spec | `E39CAC711ACA0C571E24A4C91777B879065DECE565DAF4DAC592F74A8DDD4E2F` |
 
 ## Immutable source copies

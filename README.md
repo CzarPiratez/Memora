@@ -1,4 +1,4 @@
-# Memora
+# UNFYND
 
 [![CI](https://github.com/CzarPiratez/Memora/actions/workflows/ci.yml/badge.svg)](https://github.com/CzarPiratez/Memora/actions/workflows/ci.yml)
 
@@ -7,7 +7,7 @@
 Simply describe what you remember.
 
 People don't remember filenames, folders, or exact dates. They remember what it
-was, what it looked like, or why it mattered. Memora is built around the way
+was, what it looked like, or why it mattered. UNFYND is built around the way
 people naturally remember.
 
 Instead of relying on filenames, folders, exact dates, or endless scrolling,
@@ -21,18 +21,18 @@ With thousands of photos, screenshots, documents, notes, and other personal
 information stored on our phones—and more being added every day—finding what
 you're looking for has become increasingly difficult.
 
-Memora retrieves photos, videos, screenshots, documents, notes, receipts,
+UNFYND retrieves photos, videos, screenshots, documents, notes, receipts,
 medical records, and other supported personal content entirely on-device, so
 your private information never leaves your phone.
 
-Built from the ground up for privacy, Memora explains why each result matches
+Built from the ground up for privacy, UNFYND explains why each result matches
 your search, helping you understand and trust what was found.
 
-At its core, Memora is a privacy-first, on-device personal AI memory
+At its core, UNFYND is a privacy-first, on-device personal AI memory
 infrastructure designed to help people retrieve their own digital information.
 
 Your original files always stay exactly where they are. They remain private,
-never leave your phone, and are never copied or taken over by Memora.
+never leave your phone, and are never copied or taken over by UNFYND.
 Everything happens entirely on-device.
 
 ## Current status
@@ -71,4 +71,4 @@ broader source coverage remain later work. See [CONTINUE.md](CONTINUE.md) and
 Become the default interface between people and their own information.
 
 - Google: world's information.
-- Memora: your information.
+- UNFYND: your information.

@@ -1,8 +1,10 @@
 # Product Contract
 
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+
 ## Product definition
 
-Memora is a personal memory retrieval engine. It helps users find what they remember
+UNFYND is a personal memory retrieval engine. It helps users find what they remember
 about an item, not merely what they remember about its filename or folder.
 
 The PRD's required lifecycle is:
@@ -15,7 +17,7 @@ the original source.
 
 ## Long-term product direction; current MVP boundary
 
-Memora's approved north star is **Personal Knowledge Infrastructure**: a private,
+UNFYND's approved north star is **Personal Knowledge Infrastructure**: a private,
 local-first system that can help a person recall evidence-backed Asset Memories and,
 in later governed phases, cautiously link them into Event and Knowledge Memories.
 The Android application is one shell for that memory engine; it does not replace the
@@ -58,6 +60,19 @@ responsible for incremental indexing.
   availability, and material limitations of the result.
 - Search never fabricates facts that are absent from the memory record.
 - A user sees an evidence-backed result, not an unsupported chatbot answer.
+
+## Grounded Answers contract (governed; not yet shipped)
+
+When the Grounded Answers capability is implemented per
+`docs/GROUNDED_ANSWERS_AMENDMENT_V1.md` and `docs/GROUNDING_ARCHITECTURE.md`:
+
+- Find remains the source of truth and a permanent safety rail.
+- Answers are produced only from retrieved, stored, authorized evidence packaged for
+  reasoning, or the system abstains with explicit status and completeness.
+- Every accepted claim cites inspectable evidence; silent incompleteness is forbidden.
+- The capability is not a chatbot, personal assistant, or cloud-dependent core path.
+- Numeric confidence is not shown without calibrated evaluation (E-06).
+- First slice scope is PDF saved text only until a later acceptance spec widens it.
 
 ## Memory integrity contract
 

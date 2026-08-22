@@ -1,13 +1,15 @@
 # Architecture
 
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+
 ## Guiding principle
 
-Android owns original files and source content. Memora owns only source references,
+Android owns original files and source content. UNFYND owns only source references,
 deterministic extraction, semantic memory records, and indexing state.
 
 ## Product capability map
 
-This map describes what Memora becomes for a person. It is not a replacement for the
+This map describes what UNFYND becomes for a person. It is not a replacement for the
 technical layers below, which continue to enforce dependency direction and Android
 safety.
 
@@ -21,6 +23,11 @@ Acquisition -> Understanding -> Memory -> Retrieval and Trust -> Experience
   evidence-backed links, Event Memories, and Knowledge Memories.
 - **Retrieval and Trust:** recall from stored evidence, evidence-based ranking, and
   Explain Mode with source, matching factors, and calibrated uncertainty.
+- **Grounded Answers (governed; not yet implemented):** question → Retriever →
+  Evidence Package → ReasoningEngine → Verifier → StructuredAnswer, per
+  `docs/GROUNDING_ARCHITECTURE.md` and `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`.
+  Find remains the source of truth. No chatbot. Generative implementation blocked
+  until readiness gates in the architecture doc pass.
 - **Experience:** the calm, recognition-first user experience that helps a person
   recall without hiding uncertainty or implementation limitations.
 

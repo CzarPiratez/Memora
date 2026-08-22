@@ -1,8 +1,10 @@
 # Delivery Governance
 
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+
 ## Purpose
 
-This file is the mandatory operating contract for all work on Memora. It applies to
+This file is the mandatory operating contract for all work on UNFYND. It applies to
 product decisions, design, code, dependencies, tests, data handling, documentation,
 and release preparation.
 

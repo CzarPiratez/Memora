@@ -1,5 +1,7 @@
 # Experience Memory Amendment v1.1
 
+**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+
 **Status:** Accepted product-direction amendment; staged beyond the current MVP  
 **Decisions:** ADR-018 and ADR-019
 **Governing baseline:** `docs/product-source/Memora.docx` and accepted local-AI
@@ -7,7 +9,7 @@ addenda registered in `docs/PRODUCT_SOURCE_REGISTRY.md`
 
 ## 1. Purpose
 
-Memora is becoming a private **Personal Knowledge Infrastructure**: a local-first
+UNFYND is becoming a private **Personal Knowledge Infrastructure**: a local-first
 memory system that helps a person retrieve meaningful evidence about their life and
 work. It is not a file browser, import inbox, generic chatbot, or embedding store.
 
@@ -62,7 +64,7 @@ deletes the member memories, absorbs their evidence, or asserts an event title a
 fact when the evidence only suggests one.
 
 For example, a restaurant photo, bill, map screenshot, and permitted reservation may
-be proposed as related. Memora must show why: their evidence, source locations,
+be proposed as related. UNFYND must show why: their evidence, source locations,
 matching factors, and uncertainty. The user can inspect or correct that relationship.
 
 ### 2.4 Knowledge Memory — future, evolving context
@@ -110,7 +112,7 @@ retrieval result an unsupported chatbot “answer.”
 
 ## 5. Truth before intelligence and evidence classes
 
-**Truth before intelligence** is a binding rule: Memora must never fabricate
+**Truth before intelligence** is a binding rule: UNFYND must never fabricate
 certainty to appear intelligent. No evidence means no assertion; uncalibrated
 confidence means no precise confidence claim.
 

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### UNFYND identity Step 3 — living-canon product-noun overlay (docs-only)
+
+- **Date:** 2026-08-23
+- **Delivered:** Overlay of product-as-subject Memora → UNFYND on living constitutions
+  and amendments, with identity headers. Domain language (Memory, Find, Evidence
+  Package) unchanged. Historical ADR-001–039 bodies and `.docx` hashes unchanged.
+- **Truthfulness:** No Kotlin, XML strings, Gradle, package, database, or GitHub
+  rename; no Grounded Answers or Event/Knowledge implementation.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_STEP3_CANON_OVERLAY.md`.
+
 ### UNFYND identity Step 2 — architecture registry (docs-only)
 
 - **Date:** 2026-08-23
