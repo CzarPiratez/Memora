@@ -42,8 +42,9 @@ An internal amendment may not silently enable a source, permission, cloud path, 
 feature excluded by the immutable PRD. Such a change still requires an explicit
 product decision and a recorded ADR.
 
-Product-noun overlay of living constitutions is playbook Step 3 (this checkpoint);
-ADR-040 already binds identity. User-visible Android copy is Step 4.
+Product-noun overlay of living constitutions is playbook Step 3; ADR-040 already
+binds identity. User-visible Android copy is Step 4 (this checkpoint). Optional
+internal names are Step 5.
 
 ## Governed architecture artifacts
 

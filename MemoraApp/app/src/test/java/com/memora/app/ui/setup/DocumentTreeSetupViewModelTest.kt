@@ -198,7 +198,7 @@ class DocumentTreeSetupViewModelTest {
 
         assertEquals(
             DocumentTreeConnectionState.FAILED(
-                "Memora could not save this folder connection. Please choose it again.",
+                "UNFYND could not save this folder connection. Please choose it again.",
             ),
             viewModel.uiState.value.connection,
         )
@@ -281,7 +281,7 @@ class DocumentTreeSetupViewModelTest {
 
         assertEquals(
             DocumentTreeConnectionState.FAILED(
-                "Android no longer allows Memora to read this folder. Please choose it again.",
+                "Android no longer allows UNFYND to read this folder. Please choose it again.",
             ),
             viewModel.uiState.value.connection,
         )
@@ -319,7 +319,7 @@ class DocumentTreeSetupViewModelTest {
 
         assertEquals(
             PdfFolderIndexingState.FAILED(
-                "Memora could not finish reading PDF folder metadata. You can try again.",
+                "UNFYND could not finish reading PDF folder metadata. You can try again.",
             ),
             viewModel.uiState.value.indexing,
         )

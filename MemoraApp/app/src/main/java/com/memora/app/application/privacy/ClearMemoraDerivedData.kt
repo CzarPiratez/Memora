@@ -55,7 +55,7 @@ class ClearMemoraDerivedData @Inject constructor(
 
     companion object {
         const val APPROVED_REBUILD_MESSAGE =
-            "Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged."
+            "Your private UNFYND index needs to be rebuilt. Your original photos, documents, and notes are unchanged."
     }
 }
 

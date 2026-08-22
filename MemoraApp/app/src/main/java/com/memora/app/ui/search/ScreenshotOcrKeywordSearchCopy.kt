@@ -11,7 +11,7 @@ object ScreenshotOcrKeywordSearchCopy {
     const val SCOPE_BODY =
         "Search looks for exact words in screenshot text already saved on this phone. " +
             "This is keyword matching, not meaning-based recall yet. " +
-            "Memora does not reopen your original screenshots for this search. " +
+            "UNFYND does not reopen your original screenshots for this search. " +
             "Ordinary photos are not included."
 
     const val QUERY_LABEL = "Words to find"
@@ -35,7 +35,7 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is saved for search yet. Finish Read text from screenshots in " +
-            "photo setup first. Memora only searches screenshot OCR text already " +
+            "photo setup first. UNFYND only searches screenshot OCR text already " +
             "saved on this phone — this is keyword matching, not meaning-based recall."
 
     const val READINESS_LOADING_BODY = "Checking saved screenshot text on this phone…"
@@ -62,32 +62,32 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val SEARCH_COULD_NOT_FINISH_BODY =
         "Search could not finish on this phone. Try again in a moment. " +
-            "Memora does not reopen your original screenshots for this search."
+            "UNFYND does not reopen your original screenshots for this search."
 
     const val RESULTS_HINT =
         "Matches show the screenshot name and a short excerpt from the saved OCR text. " +
             "Open Why this result? to see the matching evidence. " +
-            "Open original shows a read-only preview inside Memora."
+            "Open original shows a read-only preview inside UNFYND."
 
     const val MAX_LISTED_MATCHES = 20
 
     const val OPEN_ORIGINAL_SCREENSHOT_LABEL = "Open original"
 
     const val OPEN_ORIGINAL_SCREENSHOT_HINT =
-        "Opens a read-only preview of this screenshot inside Memora. " +
-            "Your file stays where it is; Memora does not edit it. " +
+        "Opens a read-only preview of this screenshot inside UNFYND. " +
+            "Your file stays where it is; UNFYND does not edit it. " +
             "Search still used saved OCR text on this phone."
 
     const val OPEN_FEEDBACK_OPENING_BODY =
         "Opening a read-only preview of that screenshot…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "Memora cannot open that screenshot right now. The saved link may be stale " +
+        "UNFYND cannot open that screenshot right now. The saved link may be stale " +
             "after a phone restart, or photo access may have been removed. " +
             "Try Start indexing again in photo setup, then Open original once more."
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
-        "Memora could not show that screenshot. Try again in a moment."
+        "UNFYND could not show that screenshot. Try again in a moment."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
 
@@ -96,7 +96,7 @@ object ScreenshotOcrKeywordSearchCopy {
     const val CLOSE_PREVIEW_LABEL = "Back to results"
 
     const val PREVIEW_SCOPE_BODY =
-        "This is a read-only preview of the screenshot Memora cited. " +
+        "This is a read-only preview of the screenshot UNFYND cited. " +
             "Search still used saved OCR text on this phone — not a live re-read " +
             "of the image for keywords."
 
@@ -123,7 +123,7 @@ object ScreenshotOcrKeywordSearchCopy {
             " Showing $matchCount matches."
         }
         val capLine = if (limitReached) {
-            " Memora lists at most $MAX_LISTED_MATCHES matches for now; " +
+            " UNFYND lists at most $MAX_LISTED_MATCHES matches for now; " +
                 "more saved screenshots may also contain these words."
         } else {
             ""
@@ -148,7 +148,7 @@ object ScreenshotOcrKeywordSearchCopy {
         }
         require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
 
-        return "Memora matched \"$query\" in saved screenshot OCR text from " +
+        return "UNFYND matched \"$query\" in saved screenshot OCR text from " +
             "\"$screenshotLabel\" on this phone. " +
             "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."

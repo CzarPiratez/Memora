@@ -43,7 +43,7 @@ class PdfLocalReadingCopyTest {
             PdfLocalReadingCopy.READY_BODY,
         )
         assertEquals(
-            "Memora finished reading PDFs from this folder and saved text for search on this phone " +
+            "UNFYND finished reading PDFs from this folder and saved text for search on this phone " +
                 "where reading succeeded. Your originals are unchanged.",
             PdfLocalReadingCopy.COMPLETED_BODY,
         )

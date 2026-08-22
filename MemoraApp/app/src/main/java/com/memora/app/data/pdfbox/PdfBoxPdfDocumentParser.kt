@@ -54,12 +54,12 @@ internal class PdfBoxPdfDocumentParser {
     } catch (_: IOException) {
         PdfDocumentParseResult.Failed(
             retryable = true,
-            message = "Memora could not read this PDF. You can try indexing it again later.",
+            message = "UNFYND could not read this PDF. You can try indexing it again later.",
         )
     } catch (_: RuntimeException) {
         PdfDocumentParseResult.Failed(
             retryable = false,
-            message = "Memora could not safely process this PDF.",
+            message = "UNFYND could not safely process this PDF.",
         )
     }
 

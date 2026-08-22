@@ -13,9 +13,9 @@ internal fun completedPdfFolderIndexingSummary(
         "This connected folder's PDF list is currently up to date. " +
             "Text search still needs Local PDF reading for each document."
     }
-    return "Memora indexed $discoveredAssetCount PDF $itemDescription from this connected folder. $nextStep"
+    return "UNFYND indexed $discoveredAssetCount PDF $itemDescription from this connected folder. $nextStep"
 }
 
 internal const val PDF_FOLDER_INDEXING_IN_PROGRESS_BODY =
-    "Memora is reading PDF folder metadata on this phone. " +
+    "UNFYND is reading PDF folder metadata on this phone. " +
         "This lists documents only; it does not save PDF text for search yet."

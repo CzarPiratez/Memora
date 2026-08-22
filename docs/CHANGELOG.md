@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### UNFYND identity Step 4 — user-visible Android product-noun copy
+
+- **Date:** 2026-08-23
+- **Delivered:** Launcher label and user-visible product-as-subject copy now UNFYND
+  (strings, Compose/copy objects, notices header, debug SAF fixture title, matching
+  unit copy tests). Resource IDs such as `clear_memora_index`, classes, packages,
+  and `applicationId` unchanged.
+- **Truthfulness:** No Gradle identity, database, MSAL host, Theme/Application
+  rename (Step 5), or emulator claim in this checkpoint.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_STEP4_ANDROID_COPY.md`.
+
 ### UNFYND identity Step 3 — living-canon product-noun overlay (docs-only)
 
 - **Date:** 2026-08-23

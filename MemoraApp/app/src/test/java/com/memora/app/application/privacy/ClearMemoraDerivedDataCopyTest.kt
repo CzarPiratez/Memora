@@ -9,7 +9,7 @@ class ClearMemoraDerivedDataCopyTest {
     fun approved_rebuild_message_matches_adr_021_and_avoids_encryption_jargon() {
         val message = ClearMemoraDerivedData.APPROVED_REBUILD_MESSAGE
         assertEquals(
-            "Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged.",
+            "Your private UNFYND index needs to be rebuilt. Your original photos, documents, and notes are unchanged.",
             message,
         )
         assertNoForbiddenTerms(message)
@@ -19,9 +19,9 @@ class ClearMemoraDerivedDataCopyTest {
     fun unlock_required_copy_avoids_encryption_jargon() {
         val copy = listOf(
             "Unlock your phone",
-            "Memora opens your private index only after you unlock this phone. " +
+            "UNFYND opens your private index only after you unlock this phone. " +
                 "Your original photos, documents, and notes stay where they are.",
-            "Unlock, then Memora continues automatically.",
+            "Unlock, then UNFYND continues automatically.",
         ).joinToString("\n")
         assertNoForbiddenTerms(copy)
     }

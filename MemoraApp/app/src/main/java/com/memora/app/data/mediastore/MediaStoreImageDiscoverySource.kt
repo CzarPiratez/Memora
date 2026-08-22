@@ -87,14 +87,14 @@ class MediaStoreImageDiscoverySource(
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     code = "INVALID_MEDIASTORE_CHECKPOINT",
-                    message = "Memora could not safely resume the MediaStore scan.",
+                    message = "UNFYND could not safely resume the MediaStore scan.",
                 )
             )
         } catch (_: Exception) {
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     code = "MEDIASTORE_QUERY_FAILED",
-                    message = "Memora could not read the MediaStore image catalogue. You can retry later.",
+                    message = "UNFYND could not read the MediaStore image catalogue. You can retry later.",
                 )
             )
         }

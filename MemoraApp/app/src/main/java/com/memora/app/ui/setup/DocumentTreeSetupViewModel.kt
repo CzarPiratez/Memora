@@ -93,7 +93,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 onFailure = {
                     DocumentTreeSetupUiState(
                         connection = DocumentTreeConnectionState.FAILED(
-                            "Memora could not check saved folder connections. Please choose a folder again.",
+                            "UNFYND could not check saved folder connections. Please choose a folder again.",
                         ),
                     )
                 },
@@ -120,7 +120,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 onFailure = {
                     DocumentTreeSetupUiState(
                         DocumentTreeConnectionState.FAILED(
-                            "Memora could not save this folder connection. Please choose it again.",
+                            "UNFYND could not save this folder connection. Please choose it again.",
                         ),
                     )
                 },
@@ -199,13 +199,13 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 if (reason == SafPdfDiscoveryWorker.REASON_ACCESS_STOPPED) {
                     mutableUiState.value = DocumentTreeSetupUiState(
                         connection = DocumentTreeConnectionState.FAILED(
-                            "Android no longer allows Memora to read this folder. Please choose it again.",
+                            "Android no longer allows UNFYND to read this folder. Please choose it again.",
                         ),
                     )
                 } else {
                     mutableUiState.value = mutableUiState.value.copy(
                         indexing = PdfFolderIndexingState.FAILED(
-                            "Memora could not finish reading PDF folder metadata. You can try again.",
+                            "UNFYND could not finish reading PDF folder metadata. You can try again.",
                         ),
                     )
                 }

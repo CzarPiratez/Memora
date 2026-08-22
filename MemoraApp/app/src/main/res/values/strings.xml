@@ -1,18 +1,18 @@
 <resources>
-    <string name="app_name">Memora</string>
+    <string name="app_name">UNFYND</string>
     <string name="back">Back</string>
     <string name="connect_pdf_folder">Connect a PDF folder</string>
     <string name="open_source_licenses">Open-source licenses</string>
-    <string name="clear_memora_index">Clear Memora index</string>
-    <string name="clear_index_title">Clear Memora index?</string>
-    <string name="clear_index_explanation">This removes only Memora\'s private catalogue on this phone. Your original photos, documents, and notes stay where they are. Android folder permissions are not revoked.</string>
+    <string name="clear_memora_index">Clear UNFYND index</string>
+    <string name="clear_index_title">Clear UNFYND index?</string>
+    <string name="clear_index_explanation">This removes only UNFYND\'s private catalogue on this phone. Your original photos, documents, and notes stay where they are. Android folder permissions are not revoked.</string>
     <string name="clear_index_confirm">Clear index</string>
     <string name="clear_index_cancel">Cancel</string>
-    <string name="clear_index_in_progress">Clearing Memora\'s private catalogue…</string>
-    <string name="clear_index_failed">Memora could not clear its private catalogue. Please try again.</string>
+    <string name="clear_index_in_progress">Clearing UNFYND\'s private catalogue…</string>
+    <string name="clear_index_failed">UNFYND could not clear its private catalogue. Please try again.</string>
     <string name="clear_index_done">Done</string>
-    <string name="rebuild_index_message">Your private Memora index needs to be rebuilt. Your original photos, documents, and notes are unchanged.</string>
+    <string name="rebuild_index_message">Your private UNFYND index needs to be rebuilt. Your original photos, documents, and notes are unchanged.</string>
     <string name="unlock_required_title">Unlock your phone</string>
-    <string name="unlock_required_body">Memora opens your private index only after you unlock this phone. Your original photos, documents, and notes stay where they are.</string>
-    <string name="unlock_required_hint">Unlock, then Memora continues automatically.</string>
+    <string name="unlock_required_body">UNFYND opens your private index only after you unlock this phone. Your original photos, documents, and notes stay where they are.</string>
+    <string name="unlock_required_hint">Unlock, then UNFYND continues automatically.</string>
 </resources>

@@ -14,14 +14,14 @@ object AiPackDisclosureCopy {
     const val SCREEN_TITLE = "On-device meaning search"
 
     const val LEAD_BODY =
-        "Memora can understand what you already saved — PDF text, OCR, and notes — " +
+        "UNFYND can understand what you already saved — PDF text, OCR, and notes — " +
             "so you can search by meaning, not only exact words. That needs an optional " +
             "on-device meaning model installed on this phone."
 
     const val SCOPE_TITLE = "What this is"
 
     const val SCOPE_BODY =
-        "The meaning model is stored privately in Memora. It is not your photos, PDFs, " +
+        "The meaning model is stored privately in UNFYND. It is not your photos, PDFs, " +
             "or notes. This model is MediaPipe’s Universal Sentence Encoder — a stronger " +
             "on-device semantic embedder than the earlier compact average-word model. " +
             "Meaning search stays a candidate path until measured on your device class. " +
@@ -53,7 +53,7 @@ object AiPackDisclosureCopy {
 
     const val STATUS_NOT_ACKNOWLEDGED =
         "No disclosure recorded yet. Meaning search is off. " +
-            "Keyword search on Welcome still works for text Memora has already saved."
+            "Keyword search on Welcome still works for text UNFYND has already saved."
 
     const val STATUS_NEED_MODEL =
         "Disclosure recorded. Download the on-device meaning model next. " +

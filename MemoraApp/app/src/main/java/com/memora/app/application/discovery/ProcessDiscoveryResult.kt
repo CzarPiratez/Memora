@@ -26,7 +26,7 @@ class ProcessDiscoveryResult @Inject constructor(
         DiscoveryResult.Failed(
             DiscoveryFailure(
                 code = PAGE_PERSISTENCE_FAILED,
-                message = "Memora could not safely save this discovery page. Please try again.",
+                message = "UNFYND could not safely save this discovery page. Please try again.",
             ),
         )
     }

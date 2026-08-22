@@ -11,7 +11,7 @@ object PdfKeywordSearchCopy {
     const val SCOPE_BODY =
         "Search looks for exact words in PDF text already saved on this phone. " +
             "This is keyword matching, not meaning-based recall yet. " +
-            "Memora does not reopen your original files for this search."
+            "UNFYND does not reopen your original files for this search."
 
     const val QUERY_LABEL = "Words to find"
 
@@ -38,7 +38,7 @@ object PdfKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is saved for search yet. Finish Local PDF reading for a connected " +
-            "folder first. Memora only searches PDF text already saved on this phone — " +
+            "folder first. UNFYND only searches PDF text already saved on this phone — " +
             "this is keyword matching, not meaning-based recall."
 
     const val READINESS_LOADING_BODY = "Checking saved PDF text on this phone…"
@@ -79,7 +79,7 @@ object PdfKeywordSearchCopy {
 
     const val SEARCH_COULD_NOT_FINISH_BODY =
         "Search could not finish on this phone. Try again in a moment. " +
-            "Memora does not reopen your original files for this search."
+            "UNFYND does not reopen your original files for this search."
 
     const val RESULTS_HINT =
         "Matches show the page and a short excerpt from the saved text. " +
@@ -91,7 +91,7 @@ object PdfKeywordSearchCopy {
     /**
      * Honest results summary: submitted query, listed count, optional cap, then hint.
      *
-     * When [limitReached] is true, Memora may have stopped early at
+     * When [limitReached] is true, UNFYND may have stopped early at
      * [MAX_LISTED_MATCHES]; it does not claim a total corpus match count.
      */
     fun resultsSummary(query: String, matchCount: Int, limitReached: Boolean): String {
@@ -110,7 +110,7 @@ object PdfKeywordSearchCopy {
             " Showing $matchCount matches."
         }
         val capLine = if (limitReached) {
-            " Memora lists at most $MAX_LISTED_MATCHES matches for now; " +
+            " UNFYND lists at most $MAX_LISTED_MATCHES matches for now; " +
                 "more saved pages may also contain these words."
         } else {
             ""
@@ -145,7 +145,7 @@ object PdfKeywordSearchCopy {
         require(pageNumber > 0) { "Why this result needs a positive page number." }
         require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
 
-        return "Memora matched \"$query\" in saved PDF page text from " +
+        return "UNFYND matched \"$query\" in saved PDF page text from " +
             "\"$documentLabel\" on this phone (${pageLabel(pageNumber)}). " +
             "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."
@@ -154,17 +154,17 @@ object PdfKeywordSearchCopy {
     const val OPEN_ORIGINAL_PDF_LABEL = "Open original PDF"
 
     const val OPEN_ORIGINAL_PDF_HINT =
-        "Opens a read-only preview of this page inside Memora. " +
-            "Your file stays where it is; Memora does not edit it."
+        "Opens a read-only preview of this page inside UNFYND. " +
+            "Your file stays where it is; UNFYND does not edit it."
 
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening a read-only preview of that page…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "Memora cannot open that original file right now. Reconnect the PDF folder " +
+        "UNFYND cannot open that original file right now. Reconnect the PDF folder " +
             "if access was removed, then try again."
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
-        "Memora could not render that PDF page. Try again, or reconnect the folder."
+        "UNFYND could not render that PDF page. Try again, or reconnect the folder."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
 
@@ -173,7 +173,7 @@ object PdfKeywordSearchCopy {
     const val CLOSE_PREVIEW_LABEL = "Back to results"
 
     const val PREVIEW_SCOPE_BODY =
-        "This is a read-only preview of the page Memora cited. " +
+        "This is a read-only preview of the page UNFYND cited. " +
             "Search still used saved text on this phone — not a live re-read of the whole file."
 
     fun previewPageCaption(pageNumber: Int, pageCount: Int): String {

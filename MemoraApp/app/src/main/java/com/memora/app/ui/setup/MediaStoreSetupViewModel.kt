@@ -319,7 +319,7 @@ class MediaStoreSetupViewModel @Inject constructor(
                 } else {
                     mutableUiState.value = mutableUiState.value.copy(
                         indexing = MediaStoreIndexingState.FAILED(
-                            "Memora could not finish reading photo metadata. You can try again.",
+                            "UNFYND could not finish reading photo metadata. You can try again.",
                         ),
                     )
                 }
@@ -376,7 +376,7 @@ class MediaStoreSetupViewModel @Inject constructor(
                 } else {
                     mutableUiState.value = mutableUiState.value.copy(
                         exifExtract = ImageExifExtractUiState.Failed(
-                            "Memora could not finish reading photo facts. You can try again.",
+                            "UNFYND could not finish reading photo facts. You can try again.",
                         ),
                     )
                 }
@@ -442,7 +442,7 @@ class MediaStoreSetupViewModel @Inject constructor(
                 } else {
                     mutableUiState.value = mutableUiState.value.copy(
                         screenshotOcr = ScreenshotOcrExtractUiState.Failed(
-                            "Memora could not finish reading text from screenshots. You can try again.",
+                            "UNFYND could not finish reading text from screenshots. You can try again.",
                         ),
                     )
                 }
@@ -485,7 +485,7 @@ class MediaStoreSetupViewModel @Inject constructor(
                         PhotoOcrExtractUiState.AccessStopped
                     } else {
                         PhotoOcrExtractUiState.Failed(
-                            "Memora could not finish reading text from photos. You can try again.",
+                            "UNFYND could not finish reading text from photos. You can try again.",
                         )
                     },
                 )

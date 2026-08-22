@@ -436,7 +436,7 @@ class MsalOneNoteInteractiveAuth(
                 "API permissions, add Microsoft Graph delegated Notes.Read (and User.Read), " +
                 "grant consent if required, then tap Connect OneNote again."
         private const val SCOPE_PARTIAL_MESSAGE =
-            "Microsoft granted some permissions but Memora could not finish Connect. " +
+            "Microsoft granted some permissions but UNFYND could not finish Connect. " +
                 "Tap Connect OneNote once more."
 
         /**

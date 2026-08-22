@@ -1,14 +1,14 @@
-Memora open-source notices
+UNFYND open-source notices
 ==========================
 
 This screen lists third-party software notices required for components shipped
-in Memora. Attribution here does not endorse Memora.
+in UNFYND. Attribution here does not endorse UNFYND.
 
 -------------------------------------------------------------------------------
 SQLCipher Community Edition
 -------------------------------------------------------------------------------
 
-Memora includes SQLCipher Community Edition (Android package
+UNFYND includes SQLCipher Community Edition (Android package)
 net.zetetic:sqlcipher-android).
 
 Copyright (c) 2008-2026, ZETETIC, LLC
@@ -62,7 +62,7 @@ disclaims copyright to this source code.
 Microsoft Authentication Library (MSAL) for Android
 -------------------------------------------------------------------------------
 
-Memora includes com.microsoft.identity.client:msal (8.4.1) for Microsoft
+UNFYND includes com.microsoft.identity.client:msal (8.4.1) for Microsoft
 sign-in to the read-only OneNote connector.
 
 Copyright (c) Microsoft Corporation.

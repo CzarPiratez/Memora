@@ -975,7 +975,7 @@ fun MemoraWelcomeScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Memora",
+            text = "UNFYND",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
         )
@@ -986,7 +986,7 @@ fun MemoraWelcomeScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Memora will help you find photos, documents, screenshots, and notes using the details you remember.",
+            text = "UNFYND will help you find photos, documents, screenshots, and notes using the details you remember.",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -1601,7 +1601,7 @@ fun PrivacyScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Memora needs your permission before it can help you find anything. It will never alter or delete your original files.",
+            text = "UNFYND needs your permission before it can help you find anything. It will never alter or delete your original files.",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -1690,7 +1690,7 @@ fun PrivacyScreen(
 
             is MediaStoreIndexingState.FAILED -> {
                 Text(
-                    text = "Memora could not complete this indexing step. ${setupUiState.indexing.message}",
+                    text = "UNFYND could not complete this indexing step. ${setupUiState.indexing.message}",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -1706,7 +1706,7 @@ fun PrivacyScreen(
             MediaStoreIndexingState.NOT_STARTED -> {
                 if (setupUiState.photoAccess.isGranted) {
                     Text(
-                        text = "Photo access is ready. When you start, Memora will read permitted photo metadata into its private on-device catalogue in the background. It will not open, edit, upload, or delete your photos.",
+                        text = "Photo access is ready. When you start, UNFYND will read permitted photo metadata into its private on-device catalogue in the background. It will not open, edit, upload, or delete your photos.",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -1730,7 +1730,7 @@ fun PrivacyScreen(
             MediaStoreIndexingState.ACCESS_REQUIRED,
             MediaStoreIndexingState.ACCESS_REVOKED -> {
                 Text(
-                    text = "Photo access is needed before Memora can index anything.",
+                    text = "Photo access is needed before UNFYND can index anything.",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -1754,7 +1754,7 @@ private fun ImageExifExtractSection(
     when (exifExtract) {
         ImageExifExtractUiState.NotStarted -> {
             Text(
-                text = "Next, Memora can read basic facts from those photos (date and camera tags when present). " +
+                text = "Next, UNFYND can read basic facts from those photos (date and camera tags when present). " +
                     "This opens permitted photos read-only. It does not read text from images or create searchable memories yet.",
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -1794,7 +1794,7 @@ private fun ImageExifExtractSection(
 
         ImageExifExtractUiState.AccessStopped -> {
             Text(
-                text = "Photo access is needed before Memora can read photo facts.",
+                text = "Photo access is needed before UNFYND can read photo facts.",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -1834,7 +1834,7 @@ private fun ScreenshotOcrExtractSection(
                 )
             } else {
                 Text(
-                    text = "Next, Memora can read text from catalogued screenshots on this phone. " +
+                    text = "Next, UNFYND can read text from catalogued screenshots on this phone. " +
                         "This opens those screenshots read-only and stores OCR text on-device. " +
                         "It does not open keyword search or create meaning-based memories yet.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -1876,7 +1876,7 @@ private fun ScreenshotOcrExtractSection(
 
         ScreenshotOcrExtractUiState.AccessStopped -> {
             Text(
-                text = "Memora could not open screenshots for text reading. " +
+                text = "UNFYND could not open screenshots for text reading. " +
                     "Photo access may have been limited. You can try again.",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
@@ -1922,7 +1922,7 @@ private fun PhotoOcrExtractSection(
                 )
             } else {
                 Text(
-                    "Memora can read Latin text visible in catalogued ordinary photos. " +
+                    "UNFYND can read Latin text visible in catalogued ordinary photos. " +
                         "It opens photos read-only and stores OCR text on-device. " +
                         "This is keyword text extraction, not meaning-based recall.",
                 )
@@ -1945,7 +1945,7 @@ private fun PhotoOcrExtractSection(
         )
         PhotoOcrExtractUiState.AccessStopped -> {
             Text(
-                "Memora could not open photos for text reading. Check photo access and try again.",
+                "UNFYND could not open photos for text reading. Check photo access and try again.",
                 color = MaterialTheme.colorScheme.error,
             )
             Button(onClick = onStartPhotoOcr, modifier = Modifier.fillMaxWidth()) {
@@ -1996,7 +1996,7 @@ fun DocumentTreeSetupScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Choose one folder that Memora may later rescan for PDFs. Android controls this permission, and Memora will keep only a private reference to the folder.",
+            text = "Choose one folder that UNFYND may later rescan for PDFs. Android controls this permission, and UNFYND will keep only a private reference to the folder.",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -2055,7 +2055,7 @@ fun DocumentTreeSetupScreen(
 
             is DocumentTreeConnectionState.CONNECTED -> {
                 Text(
-                    text = "PDF folder connected. You decide when Memora reads one small, read-only page of PDF metadata.",
+                    text = "PDF folder connected. You decide when UNFYND reads one small, read-only page of PDF metadata.",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -2299,7 +2299,7 @@ private fun PdfFolderIndexingControl(
 
         is PdfFolderIndexingState.FAILED -> {
             Text(
-                text = "Memora could not complete this PDF indexing step. ${indexing.message}",
+                text = "UNFYND could not complete this PDF indexing step. ${indexing.message}",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
             )

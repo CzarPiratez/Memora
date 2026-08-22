@@ -54,9 +54,9 @@ internal class ValidatedIsolatedPdfResultToExtractionMapper(
 
             IsolatedPdfParserWireOutcome.FAILURE -> PdfExtractionOutcome.Failed(
                 message = if (retryable) {
-                    "Memora could not finish reading this PDF. You can try indexing it again later."
+                    "UNFYND could not finish reading this PDF. You can try indexing it again later."
                 } else {
-                    "Memora could not safely process this PDF."
+                    "UNFYND could not safely process this PDF."
                 },
                 retryable = retryable,
             )

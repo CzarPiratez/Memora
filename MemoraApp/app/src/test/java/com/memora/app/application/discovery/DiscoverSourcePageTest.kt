@@ -88,7 +88,7 @@ class DiscoverSourcePageTest {
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     "discovery_source_id_mismatch",
-                    "Memora rejected a discovery page from an unexpected source.",
+                    "UNFYND rejected a discovery page from an unexpected source.",
                 ),
             ),
             useCase(store = store)(source),
@@ -167,7 +167,7 @@ class DiscoverSourcePageTest {
     private fun unavailableFailure() = DiscoveryResult.Failed(
         DiscoveryFailure(
             "discovery_source_unavailable",
-            "Memora could not read this source. Please try again.",
+            "UNFYND could not read this source. Please try again.",
         ),
     )
 

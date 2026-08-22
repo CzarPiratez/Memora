@@ -24,7 +24,7 @@ class SyntheticPdfDocumentsProvider : DocumentsProvider() {
         newRow()
             .add(DocumentsContract.Root.COLUMN_ROOT_ID, ROOT_DOCUMENT_ID)
             .add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, ROOT_DOCUMENT_ID)
-            .add(DocumentsContract.Root.COLUMN_TITLE, "Memora synthetic PDF fixture")
+            .add(DocumentsContract.Root.COLUMN_TITLE, "UNFYND synthetic PDF fixture")
             .add(DocumentsContract.Root.COLUMN_FLAGS, 0)
     }
 

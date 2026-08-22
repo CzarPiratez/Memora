@@ -100,7 +100,7 @@ class IndexSafPdfFolderTest {
     fun preservesAProviderFailureForALaterViewModel() = runBlocking {
         val failure = DiscoveryFailure(
             code = "SAF_DOCUMENT_QUERY_FAILED",
-            message = "Memora could not read PDF metadata from the approved folder. You can retry later.",
+            message = "UNFYND could not read PDF metadata from the approved folder. You can retry later.",
         )
 
         val outcome = indexer(

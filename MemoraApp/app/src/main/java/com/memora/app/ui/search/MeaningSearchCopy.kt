@@ -18,7 +18,7 @@ object MeaningSearchCopy {
         "Search ranks Asset Memories you already built, using the on-device meaning " +
             "model on this phone. This is candidate meaning ranking — not a claim that " +
             "full measured meaning search is finished. Keyword Find buttons still search " +
-            "exact words. Memora does not upload your memories for this search."
+            "exact words. UNFYND does not upload your memories for this search."
 
     const val QUERY_LABEL = "What are you trying to remember?"
 
@@ -120,7 +120,7 @@ object MeaningSearchCopy {
     const val OPEN_ORIGINAL_LABEL = "Open original"
 
     const val OPEN_ORIGINAL_HINT =
-        "Opens the original file Memora cited for this memory. Search still used the " +
+        "Opens the original file UNFYND cited for this memory. Search still used the " +
             "on-device meaning index — not a live re-read for ranking."
 
     fun openOriginalPdfHint(
@@ -136,7 +136,7 @@ object MeaningSearchCopy {
         } else {
             "No Memory page cite — page 1 is the fallback if cue-best cannot run."
         }
-        return "$OPEN_ORIGINAL_HINT On Open, Memora may pick a better matching " +
+        return "$OPEN_ORIGINAL_HINT On Open, UNFYND may pick a better matching " +
             "saved page for your cue with the on-device model ($citeBit)."
     }
 
@@ -148,12 +148,12 @@ object MeaningSearchCopy {
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening the original on this phone…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "Memora could not reopen that original. Access may have been revoked, or the " +
+        "UNFYND could not reopen that original. Access may have been revoked, or the " +
             "file is no longer reachable. Meaning search still uses indexed memories " +
             "saved on this phone."
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
-        "Memora could not open that original. Try again in a moment. Meaning search " +
+        "UNFYND could not open that original. Try again in a moment. Meaning search " +
             "still uses indexed memories saved on this phone."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"

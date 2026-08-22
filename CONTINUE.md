@@ -6,7 +6,7 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-23
 
-**Checkpoint (playbook Step 3):** Living-canon product-noun overlay is UNFYND (formerly Memora). Frozen architecture (invariants, pipelines, gates, Find, Evidence Package, Memory types) is unchanged. User-visible Android copy is Step 4.
+**Checkpoint (playbook Step 4):** User-visible Android product-noun copy is UNFYND. Domain language (Memory, Find, evidence), packages, `applicationId`, and persistence stay unchanged. Optional internal class/theme names are Step 5.
 
 ### Where we are (honest)
 

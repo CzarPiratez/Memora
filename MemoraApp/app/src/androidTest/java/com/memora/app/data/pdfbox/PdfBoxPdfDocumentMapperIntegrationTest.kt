@@ -85,7 +85,7 @@ class PdfBoxPdfDocumentMapperIntegrationTest {
 
         val failure = outcome as PdfExtractionOutcome.Failed
         assertTrue(failure.retryable)
-        assertEquals("Memora could not read this PDF. You can try indexing it again later.", failure.message)
+        assertEquals("UNFYND could not read this PDF. You can try indexing it again later.", failure.message)
     }
 
     private fun mapper(): PdfBoxPdfDocumentMapper = PdfBoxPdfDocumentMapper(

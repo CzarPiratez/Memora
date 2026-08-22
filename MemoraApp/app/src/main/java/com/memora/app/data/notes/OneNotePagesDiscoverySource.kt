@@ -55,7 +55,7 @@ class OneNotePagesDiscoverySource(
             return DiscoveryResult.Failed(
                 DiscoveryFailure(
                     code = "onenote_unexpected_provider",
-                    message = "Memora expected a Microsoft OneNote session.",
+                    message = "UNFYND expected a Microsoft OneNote session.",
                 ),
             )
         }
@@ -78,7 +78,7 @@ class OneNotePagesDiscoverySource(
                 ?: return DiscoveryResult.Failed(
                     DiscoveryFailure(
                         code = "onenote_cursor_invalid",
-                        message = "Memora could not resume OneNote discovery from this checkpoint.",
+                        message = "UNFYND could not resume OneNote discovery from this checkpoint.",
                     ),
                 )
         }
@@ -179,7 +179,7 @@ class OneNotePagesDiscoverySource(
         return DiscoveryResult.Failed(
             DiscoveryFailure(
                 code = "onenote_walk_stuck",
-                message = "Memora could not make progress listing OneNote sections. Try Discover again.",
+                message = "UNFYND could not make progress listing OneNote sections. Try Discover again.",
             ),
         )
     }

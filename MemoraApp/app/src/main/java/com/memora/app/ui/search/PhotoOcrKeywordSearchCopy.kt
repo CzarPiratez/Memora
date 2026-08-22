@@ -4,7 +4,7 @@ object PhotoOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved photo text"
     const val SCOPE_BODY =
         "Search looks for exact words in photo text already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall. Memora does not " +
+            "This is keyword matching, not meaning-based recall. UNFYND does not " +
             "reopen original photos during search."
     const val QUERY_LABEL = "Words to find"
     const val SEARCH_LABEL = "Search on this phone"
@@ -20,8 +20,8 @@ object PhotoOcrKeywordSearchCopy {
     const val OPEN_ORIGINAL_LABEL = "Open original"
     const val OPENING_BODY = "Opening a read-only preview of that photo…"
     const val SOURCE_UNAVAILABLE_BODY =
-        "Memora cannot open that photo right now. Photo access may have changed."
-    const val COULD_NOT_OPEN_BODY = "Memora could not show that photo."
+        "UNFYND cannot open that photo right now. Photo access may have changed."
+    const val COULD_NOT_OPEN_BODY = "UNFYND could not show that photo."
     const val DISMISS_LABEL = "Dismiss"
     const val BACK_LABEL = "Back"
     const val PREVIEW_TITLE = "Original photo"
@@ -41,9 +41,9 @@ object PhotoOcrKeywordSearchCopy {
 
     fun resultsSummary(query: String, count: Int, capped: Boolean): String =
         "Results for \"$query\". Showing $count ${if (count == 1) "match" else "matches"}." +
-            if (capped) " Memora lists at most 20 matches." else ""
+            if (capped) " UNFYND lists at most 20 matches." else ""
 
     fun whyThisResultBody(query: String, label: String, excerpt: String) =
-        "Memora matched \"$query\" in saved photo OCR text from \"$label\". " +
+        "UNFYND matched \"$query\" in saved photo OCR text from \"$label\". " +
             "Matching evidence: $excerpt. This is keyword matching, not meaning-based recall."
 }

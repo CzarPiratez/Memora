@@ -28,7 +28,7 @@ class NotesConnectorHonestyCopyTest {
         assertTrue(all.contains("onenote"))
         assertTrue(all.contains("microsoft"))
         assertTrue(all.contains("network"))
-        assertTrue(NotesConnectorHonestyCopy.SCOPE_BODY.contains("not a Memora account"))
+        assertTrue(NotesConnectorHonestyCopy.SCOPE_BODY.contains("not a UNFYND account"))
         assertTrue(NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("Find saved note text"))
         assertTrue(NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("keyword"))
         assertTrue(NotesConnectorHonestyCopy.FEEDBACK_CONNECTED.contains("Find saved note text"))

@@ -56,7 +56,7 @@ class ProcessDiscoveryResultTest {
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     "discovery_page_persistence_failed",
-                    "Memora could not safely save this discovery page. Please try again.",
+                    "UNFYND could not safely save this discovery page. Please try again.",
                 ),
             ),
             processed,

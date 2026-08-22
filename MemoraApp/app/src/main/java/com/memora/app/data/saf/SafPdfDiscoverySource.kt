@@ -63,7 +63,7 @@ class SafPdfDiscoverySource(
                 return@withContext DiscoveryResult.Failed(
                     DiscoveryFailure(
                         code = "SAF_DOCUMENT_CURSOR_STALLED",
-                        message = "Memora could not safely continue the approved PDF folder scan. You can retry later.",
+                        message = "UNFYND could not safely continue the approved PDF folder scan. You can retry later.",
                     )
                 )
             }
@@ -87,14 +87,14 @@ class SafPdfDiscoverySource(
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     code = "INVALID_SAF_CHECKPOINT",
-                    message = "Memora could not safely resume the approved PDF folder scan.",
+                    message = "UNFYND could not safely resume the approved PDF folder scan.",
                 )
             )
         } catch (_: Exception) {
             DiscoveryResult.Failed(
                 DiscoveryFailure(
                     code = "SAF_DOCUMENT_QUERY_FAILED",
-                    message = "Memora could not read PDF metadata from the approved folder. You can retry later.",
+                    message = "UNFYND could not read PDF metadata from the approved folder. You can retry later.",
                 )
             )
         }

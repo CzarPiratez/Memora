@@ -70,7 +70,7 @@ class PdfKeywordSearchCopyTest {
     @Test
     fun why_this_result_cites_query_document_page_and_excerpt() {
         assertEquals(
-            "Memora matched \"meet mira\" in saved PDF page text from " +
+            "UNFYND matched \"meet mira\" in saved PDF page text from " +
                 "\"memora-persist-fixture.pdf\" on this phone (Page 1). " +
                 "Matching evidence: Café memory: meet Mira at 10:30…. " +
                 "This is keyword matching, not meaning-based recall.",
@@ -123,7 +123,7 @@ class PdfKeywordSearchCopyTest {
         )
         assertEquals(
             "Results for \"meet mira\". Showing 20 matches. " +
-                "Memora lists at most 20 matches for now; " +
+                "UNFYND lists at most 20 matches for now; " +
                 "more saved pages may also contain these words. " +
                 PdfKeywordSearchCopy.RESULTS_HINT,
             summary,

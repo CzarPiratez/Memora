@@ -168,7 +168,7 @@ class MediaStoreSetupViewModelTest {
             MediaStoreSetupUiState(
                 photoAccess = PhotoAccessState.GRANTED,
                 indexing = MediaStoreIndexingState.FAILED(
-                    "Memora could not finish reading photo metadata. You can try again.",
+                    "UNFYND could not finish reading photo metadata. You can try again.",
                 ),
             ),
             failVm.uiState.value,

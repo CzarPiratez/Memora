@@ -40,7 +40,7 @@ class DiscoverSourcePage @Inject constructor(
         } ?: DiscoveryResult.Failed(
             DiscoveryFailure(
                 code = SOURCE_ID_MISMATCH,
-                message = "Memora rejected a discovery page from an unexpected source.",
+                    message = "UNFYND rejected a discovery page from an unexpected source.",
             ),
         )
 
@@ -50,7 +50,7 @@ class DiscoverSourcePage @Inject constructor(
     private fun unavailableSourceResult() = DiscoveryResult.Failed(
         DiscoveryFailure(
             code = SOURCE_UNAVAILABLE,
-            message = "Memora could not read this source. Please try again.",
+            message = "UNFYND could not read this source. Please try again.",
         ),
     )
 

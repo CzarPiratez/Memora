@@ -13,7 +13,7 @@ object NotePageKeywordSearchCopy {
     const val SCOPE_BODY =
         "Search looks for exact words in OneNote page text already saved on this phone. " +
             "This is keyword matching, not meaning-based recall yet. " +
-            "Memora does not call Microsoft or reopen OneNote for this search."
+            "UNFYND does not call Microsoft or reopen OneNote for this search."
 
     const val QUERY_LABEL = "Words to find"
 
@@ -36,7 +36,7 @@ object NotePageKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is saved for search yet. In Notes indexing, Connect OneNote, " +
-            "Discover pages, then Extract OneNote page text. Memora only searches note " +
+            "Discover pages, then Extract OneNote page text. UNFYND only searches note " +
             "text already saved on this phone — this is keyword matching, not meaning-based recall."
 
     const val READINESS_LOADING_BODY = "Checking saved note text on this phone…"
@@ -59,7 +59,7 @@ object NotePageKeywordSearchCopy {
 
     const val SEARCH_COULD_NOT_FINISH_BODY =
         "Search could not finish on this phone. Try again in a moment. " +
-            "Memora does not call Microsoft for this search."
+            "UNFYND does not call Microsoft for this search."
 
     const val RESULTS_HINT =
         "Matches show the page title and a short excerpt from the saved note text. " +
@@ -83,7 +83,7 @@ object NotePageKeywordSearchCopy {
             " Showing $matchCount matches."
         }
         val capLine = if (limitReached) {
-            " Memora lists at most $MAX_LISTED_MATCHES matches for now; " +
+            " UNFYND lists at most $MAX_LISTED_MATCHES matches for now; " +
                 "more saved notes may also contain these words."
         } else {
             ""
@@ -100,19 +100,19 @@ object NotePageKeywordSearchCopy {
     const val OPEN_ORIGINAL_NOTE_HINT =
         "Opens this page in the OneNote app when it is installed on this phone; " +
             "otherwise it opens in your browser. That step may need a network connection " +
-            "and your Microsoft OneNote connection. Memora does not edit the original."
+            "and your Microsoft OneNote connection. UNFYND does not edit the original."
 
     const val OPEN_FEEDBACK_OPENING_BODY =
         "Opening that page in OneNote or your browser…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "Memora could not open that original note because the Microsoft OneNote connection " +
+        "UNFYND could not open that original note because the Microsoft OneNote connection " +
             "needs to be renewed. Open Notes indexing, tap Connect OneNote, finish sign-in " +
-            "inside Memora, then try Open original note again. " +
+            "inside UNFYND, then try Open original note again. " +
             "Keyword search still uses text saved on this phone."
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
-        "Memora could not open that page in OneNote or a browser. Check your network and try again. " +
+        "UNFYND could not open that page in OneNote or a browser. Check your network and try again. " +
             "Keyword search still uses text saved on this phone."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
@@ -128,7 +128,7 @@ object NotePageKeywordSearchCopy {
         require(noteLabel.isNotBlank()) { "Why this result needs the saved note label." }
         require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
 
-        return "Memora matched \"$query\" in saved OneNote page text from " +
+        return "UNFYND matched \"$query\" in saved OneNote page text from " +
             "\"$noteLabel\" on this phone. " +
             "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."

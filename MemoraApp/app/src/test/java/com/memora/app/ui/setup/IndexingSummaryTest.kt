@@ -8,7 +8,7 @@ class IndexingSummaryTest {
     @Test
     fun `full-library completion states the bounded count and metadata-only honesty`() {
         assertEquals(
-            "Memora indexed 1 item from your permitted photo library. " +
+            "UNFYND indexed 1 item from your permitted photo library. " +
                 "This permitted photo catalogue is currently up to date. " +
                 "This lists metadata only; it does not read photo contents or create searchable memories yet.",
             completedIndexingSummary(
@@ -22,7 +22,7 @@ class IndexingSummaryTest {
     @Test
     fun `selected-photo completion never describes access as the full library`() {
         assertEquals(
-            "Memora indexed 2 items from only the photos you selected. " +
+            "UNFYND indexed 2 items from only the photos you selected. " +
                 "More permitted items remain. Tap Start indexing to keep listing photo metadata. " +
                 "This does not read photo contents or create searchable memories yet.",
             completedIndexingSummary(
@@ -36,7 +36,7 @@ class IndexingSummaryTest {
     @Test
     fun `zero-item page remains a truthful completed result`() {
         assertEquals(
-            "Memora indexed 0 items from your permitted photo library. " +
+            "UNFYND indexed 0 items from your permitted photo library. " +
                 "This permitted photo catalogue is currently up to date. " +
                 "This lists metadata only; it does not read photo contents or create searchable memories yet.",
             completedIndexingSummary(
@@ -54,7 +54,7 @@ class IndexingSummaryTest {
             catalogueCount = 3,
         )
         assertEquals(
-            "Memora saved basic facts for 3 photos (from 3 catalogued items). " +
+            "UNFYND saved basic facts for 3 photos (from 3 catalogued items). " +
                 "This is EXIF and size metadata only — not OCR, keyword search, or meaning-based recall.",
             summary,
         )
@@ -68,7 +68,7 @@ class IndexingSummaryTest {
             screenshotCatalogueCount = 1,
         )
         assertEquals(
-            "Memora saved on-device text from 1 screenshot " +
+            "UNFYND saved on-device text from 1 screenshot " +
                 "(from 1 catalogued screenshots). " +
                 "This is OCR text only — not meaning-based recall. " +
                 "You can search those words from Find saved screenshot text on the welcome screen. " +

@@ -12,22 +12,22 @@ object NotesConnectorHonestyCopy {
     const val SCREEN_TITLE = "Notes indexing"
 
     const val LEAD_BODY =
-        "Memora will index notes only through an approved connector. " +
-            "The first target is Microsoft OneNote. Memora cannot read other note apps' " +
+        "UNFYND will index notes only through an approved connector. " +
+            "The first target is Microsoft OneNote. UNFYND cannot read other note apps' " +
             "private data on Android."
 
     const val SCOPE_TITLE = "What this is"
 
     const val SCOPE_BODY =
         "Connecting OneNote uses your Microsoft account for OneNote access only. " +
-            "That is not a Memora account, and it does not sync Memora's index to Microsoft. " +
-            "Access stays read-only — Memora will not change or delete your notes."
+            "That is not a UNFYND account, and it does not sync UNFYND's index to Microsoft. " +
+            "Access stays read-only — UNFYND will not change or delete your notes."
 
     const val NETWORK_TITLE = "Network"
 
     const val NETWORK_BODY =
         "Signing in, discovering pages, and extracting note text need a network connection. " +
-            "That is source access, not Memora cloud sync. After note text is saved on " +
+            "That is source access, not UNFYND cloud sync. After note text is saved on " +
             "this phone, Find saved note text can search those words offline. " +
             "That search is keyword matching, not meaning-based recall."
 
@@ -90,10 +90,10 @@ object NotesConnectorHonestyCopy {
         "Discover OneNote pages first, then extract text."
 
     const val FEEDBACK_EXTRACT_FAILED =
-        "Memora could not finish extracting OneNote page text. Check your network and try again."
+        "UNFYND could not finish extracting OneNote page text. Check your network and try again."
 
     const val FEEDBACK_ACCESS_REQUIRED =
-        "Memora needs a Connect OneNote token on this phone before discovering or extracting. " +
+        "UNFYND needs a Connect OneNote token on this phone before discovering or extracting. " +
             "Tap Connect OneNote, finish sign-in, then try again."
 
     const val FEEDBACK_ACCESS_REVOKED =

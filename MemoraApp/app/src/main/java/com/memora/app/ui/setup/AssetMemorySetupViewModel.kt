@@ -90,7 +90,7 @@ object AssetMemorySetupCopy {
     const val BUILD_LABEL = "Build memories from saved facts"
     const val CONTINUE_LABEL = "Continue building saved fact memories"
     const val BUILDING = "Building memories from saved facts on this phone…"
-    const val FAILED = "Memora could not finish building saved fact memories. You can try again."
+    const val FAILED = "UNFYND could not finish building saved fact memories. You can try again."
 
     fun readiness(count: Int): String =
         if (count == 1) "1 current evidence-backed Asset Memory is saved."
