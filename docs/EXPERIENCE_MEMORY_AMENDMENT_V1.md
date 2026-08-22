@@ -185,27 +185,39 @@ failure than a plainly uncertain wrong candidate.
 
 ## 10. Current implementation status
 
-Current code has a one-Asset `Memory` domain contract with evidence-cited summaries
-and anchors. It does not yet persist Memories, run Memory Builder/local AI, retrieve
-by semantic recall, render Explain Mode, or implement links, Event Memories,
-Knowledge Memories, timelines, or personalization. This amendment is therefore a
-directional and behavioral contract, not a completion claim.
+**Updated:** 2026-08-05. This section describes shipped Asset-Memory foundation
+behavior; it does not claim Event/Knowledge Memories, marketing AVAILABLE, or a
+grounded-answer capability.
+
+| Area | Status |
+|---|---|
+| Asset Memory domain + Room persistence | Shipped (evidence-cited summaries/anchors; immutable revisions) |
+| Deterministic extract (PDF text, screenshot/photo OCR, EXIF) | Shipped where built; scanned-PDF OCR remains follow-up |
+| Keyword Find + user-facing Why copy | Shipped for PDF / OCR / note paths where built |
+| On-device embedding (USE) + Find by meaning | Candidate / DEGRADED_EXPLICIT; midrange M4 and AVAILABLE still open |
+| Spec `MemoryBuilder` / `RecallRanker` operate APIs | Contracts exist; production operate paths still outside those interfaces |
+| Links, Event Memories, Knowledge Memories, timelines, personalization | Not implemented (future, governed by this amendment) |
+| Grounded Answers / query-time ReasoningEngine | **Not implemented**; governed by `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md` |
+
+This amendment remains a directional and behavioral contract for Experience Memory
+evolution. It is not a completion claim for AVAILABLE semantic recall or Ask.
 
 ## 11. Change-control record
 
-- **Requirement IDs:** P-01, P-02, P-09–P-13, P-18, A-01–A-05; E-01–E-06.
+- **Requirement IDs:** P-01, P-02, P-09–P-13, P-18, A-01–A-05; E-01–E-06; G-01–G-08.
 - **Source documents read:** `AGENTS.md`, product-source registry, Local-AI
   specification, governance, `CONTINUE.md`, product contract, architecture, ADRs,
-  roadmap, traceability, and current `Memory.kt` domain contract.
-- **Current-code evidence:** `Memory.kt` represents one Asset version and requires
-  all summaries/anchors to cite stored evidence; it contains no link/event/knowledge
-  model.
-- **Open limitations checked:** ADR-003 note-source conflict; P-18 source/scope
-  exclusions; Android private-data sandbox; no current AI or recall implementation.
-- **Privacy/offline impact:** Documentation only. Future direction preserves local,
-  read-only, evidence-first, revocable source access and does not add a dependency.
-- **Smallest safe change:** Governed documentation and ADR only; no code/schema/UI.
-- **Acceptance criteria:** Clear separation of present/MVP/future behavior; links
-  instead of destructive groups; evidence/trust constraints; unchanged P-18 boundary.
-- **Verification:** Cross-reference review completed; no code or emulator change is
-  required for a documentation-only amendment.
+  roadmap, traceability, `Memory.kt`, and grounded-answers architecture docs.
+- **Current-code evidence:** Asset Memories persist; keyword and candidate meaning
+  recall exist; Why copy is UI-assembled; no generative ReasoningEngine; no links/
+  Event/Knowledge Memories.
+- **Open limitations checked:** ADR-003 note-source conflict; P-18 exclusions;
+  Android sandbox; meaning AVAILABLE not claimed; Experience status must stay
+  aligned with `CONTINUE.md`.
+- **Privacy/offline impact:** Documentation only. Future grounded answers remain
+  local-first and evidence-bounded per `GROUNDED_ANSWERS_AMENDMENT_V1.md`.
+- **Smallest safe change:** Status refresh + cross-links; no code/schema/UI.
+- **Acceptance criteria:** Present vs future vs grounded-answer scope are explicit;
+  P-18 boundary unchanged.
+- **Verification:** Cross-reference with `CONTINUE.md` (2026-08-04/05 checkpoint);
+  documentation-only.

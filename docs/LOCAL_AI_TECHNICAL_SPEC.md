@@ -1,6 +1,6 @@
 # Memora Local AI Technical Specification
 
-**Version:** 1.2
+**Version:** 1.3
 **Status:** Accepted engineering authority  
 **Companion to:** `docs/product-source/Memora.docx`  
 **Source basis:** `docs/product-source/Addendum 1.docx` and
@@ -159,9 +159,18 @@ structured filters -> evidence-based ranking -> Memory cards -> explanation
 ```
 
 The phrase “no AI inference at search” means no original-asset analysis and no
-per-result generative reasoning. A lightweight local query encoder or deterministic
-intent classifier is allowed when needed for semantic retrieval; it must be bounded,
-version-compatible with stored vectors, and work without network access.
+per-result generative reasoning **on the ordinary Find / recall path**. A lightweight
+local query encoder or deterministic intent classifier is allowed when needed for
+semantic retrieval; it must be bounded, version-compatible with stored vectors, and
+work without network access.
+
+**Narrow carve-out — Grounded Answers:** Query-time generation is authorized only for
+the separately governed Grounded Answers capability, and only over an immutable
+Evidence Package of stored authorized evidence, with deterministic verification,
+structured status/completeness, and no original reopen during package build or
+reasoning. See `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`,
+`docs/GROUNDING_ARCHITECTURE.md`, and ADR-033. This carve-out does not weaken
+truth-before-intelligence, offline-first, or Find’s non-generative ranking path.
 
 The user-facing name is **Why this result?**; Explain Mode remains the internal
 product/engineering term. It uses the stored Memory and its evidence to present the
@@ -169,7 +178,8 @@ available matching cues, bounded evidence, safe provenance, uncertainty, freshne
 source availability, and material limitations. It never fabricates a reason, calls a
 result an unsupported “answer,” or needs to reopen the original Asset for ordinary
 recall. If an original is unavailable after access revocation, existing explanations
-must say so truthfully.
+must say so truthfully. Grounded Answers use StructuredAnswer + citations as their
+trust surface; they must not invent Find Why copy.
 
 ## 10. Offline and availability contract
 

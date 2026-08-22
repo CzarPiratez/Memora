@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### UNFYND identity Step 2 — architecture registry (docs-only)
+
+- **Date:** 2026-08-23
+- **Delivered:** Inventoried and registered frozen architecture Markdown (hashes of
+  Git blobs). Grounded Answers files now tracked; Experience Memory and Local-AI Spec
+  hashes recorded; no competing Grounded Answers constitution.
+- **Truthfulness:** No product-noun overlay (playbook Step 3); no package, database,
+  Gradle, Kotlin, or UI-string rename; historical `.docx` hashes unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_STEP2_ARCHITECTURE_REGISTRY.md`.
+
 ### UNFYND identity ADR-040 (docs-only)
 
 - **Date:** 2026-08-23

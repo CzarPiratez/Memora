@@ -4,7 +4,9 @@
 
 **Project:** Memora Android app  
 **Project folder:** `MemoraApp/`  
-**Updated:** 2026-08-04
+**Updated:** 2026-08-23
+
+**Checkpoint (playbook Step 2):** ADR-040, `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`, and `docs/PRODUCT_SOURCE_REGISTRY.md` bind identity and hashed architecture; then Experience Memory / PKI; then Grounding constitution + amendment + PDF slice. Product-noun overlay is Step 3.
 
 ### Where we are (honest)
 
@@ -24,14 +26,25 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |
 | Marketing AVAILABLE / SLA | **Not claimed** until midrange measured + product decision |
 | Notes (OneNote etc.) | ADR-003 strategy only — not implemented |
+| **Grounded Answers architecture** | **Docs accepted** (ADR-033–039); **no generative code** |
 | CI (`main`) | Green after E5d boost fixture fix (`970fcf9`) |
 
-**Authoritative backlog:**  
+**Authoritative backlog (retrieval):**  
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`
 
-**Next eng default:** execute **M4** on a physical `midrange_arm64` device when
-available; otherwise optional EmbeddingGemma. Do not flip AVAILABLE from
-emulator alone.
+**Authoritative constitution (grounded answers):**  
+`docs/GROUNDING_ARCHITECTURE.md`  
+`docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`  
+`docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
+
+**Next eng default (parallel workstreams):**
+
+1. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
+   available; do not flip AVAILABLE from emulator alone.
+2. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
+   gates in `GROUNDING_ARCHITECTURE.md` §14 pass (model lifecycle for chosen
+   reasoner, eval corpus, M4 or explicit device policy, adversarial pass). Next
+   docs-only follow-up: reasoning-pack delivery plan when a model is chosen.
 
 ### Early build diary (July 2026)
 
@@ -42,14 +55,18 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/PRODUCT_SOURCE_REGISTRY.md`
-3. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
-4. `docs/GOVERNANCE.md`
-5. `docs/PRODUCT_CONTRACT.md`
-6. `docs/ARCHITECTURE.md`
-7. `docs/DECISIONS.md`
-8. `docs/ROADMAP.md`
-9. `docs/PRD_TRACEABILITY.md`
+2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity interpretation; hashed architecture artifacts)
+3. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040)
+4. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
+5. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
+6. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+7. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
+8. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
+9. `docs/GOVERNANCE.md`
+10. `docs/PRODUCT_CONTRACT.md`
+11. `docs/ARCHITECTURE.md`
+12. `docs/ROADMAP.md`
+13. `docs/PRD_TRACEABILITY.md`
 
 No implementation begins until this read gate is complete and the next change is
 mapped to its requirements, acceptance criteria, risks, and verification plan.
@@ -67,6 +84,12 @@ ADR-019 strengthens this freeze with stable Memory identity/revisions, the “tr
 before intelligence” rule, explicit integrity states, user-facing `Why this result?`,
 evidence-strength classes, and false-confidence evaluation. Treat these as binding
 acceptance criteria for all future Memory, recall, explanation, and AI work.
+
+**ADR-033–039 and `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`** freeze Grounded Answers:
+retrieval-first; Evidence Package → ReasoningEngine → Verifier → StructuredAnswer;
+Find remains source of truth; no chatbot; PDF saved-text first slice; **generative
+implementation blocked** until `docs/GROUNDING_ARCHITECTURE.md` readiness gates pass.
+Do not wire a ReasoningEngine or Ask UI before those gates close.
 
 ## Last verified behavior
 
