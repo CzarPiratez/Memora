@@ -127,7 +127,7 @@ import com.memora.app.ui.setup.AssetMemorySetupCopy
 import com.memora.app.ui.setup.AssetMemorySetupState
 import com.memora.app.ui.setup.AssetMemorySetupViewModel
 import com.memora.app.ui.setup.pdfLocalReadingBody
-import com.memora.app.ui.theme.MemoraTheme
+import com.memora.app.ui.theme.UnfyndTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
@@ -175,9 +175,9 @@ class MainActivity : ComponentActivity() {
             val aiPackDisclosureUiState by aiPackDisclosureViewModel.uiState.collectAsState()
             val meaningSearchUiState by meaningSearchViewModel.uiState.collectAsState()
 
-            MemoraTheme {
+            UnfyndTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MemoraApp(
+                    UnfyndApp(
                         databaseAvailabilityUiState = databaseAvailabilityUiState,
                         setupUiState = setupUiState,
                         documentTreeSetupUiState = documentTreeSetupUiState,
@@ -311,7 +311,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MemoraApp(
+fun UnfyndApp(
     databaseAvailabilityUiState: DatabaseAvailabilityUiState,
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
@@ -407,7 +407,7 @@ fun MemoraApp(
             modifier = modifier,
         )
 
-        DatabaseAvailabilityPhase.Ready -> MemoraAppReady(
+        DatabaseAvailabilityPhase.Ready -> UnfyndAppReady(
             setupUiState = setupUiState,
             documentTreeSetupUiState = documentTreeSetupUiState,
             clearDerivedDataUiState = clearDerivedDataUiState,
@@ -496,7 +496,7 @@ fun MemoraApp(
 }
 
 @Composable
-private fun MemoraAppReady(
+private fun UnfyndAppReady(
     setupUiState: MediaStoreSetupUiState,
     documentTreeSetupUiState: DocumentTreeSetupUiState,
     clearDerivedDataUiState: ClearDerivedDataUiState,
@@ -819,7 +819,7 @@ private fun MemoraAppReady(
                 }
             }
 
-            else -> MemoraWelcomeScreen(
+            else -> UnfyndWelcomeScreen(
                 assetMemorySetupState = assetMemorySetupState,
                 onBuildAssetMemories = onBuildAssetMemories,
                 onBeginSetup = { isShowingPrivacyScreen = true },
@@ -949,7 +949,7 @@ private fun AssetMemorySetupCard(
 }
 
 @Composable
-fun MemoraWelcomeScreen(
+fun UnfyndWelcomeScreen(
     assetMemorySetupState: AssetMemorySetupState,
     onBuildAssetMemories: () -> Unit,
     onBeginSetup: () -> Unit,

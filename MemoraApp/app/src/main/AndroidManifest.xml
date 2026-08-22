@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".MemoraApplication"
+        android:name=".UnfyndApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Memora">
+        android:theme="@style/Theme.Unfynd">
         <service
             android:name=".data.pdfbox.isolation.IsolatedPdfParserService"
             android:exported="false"
@@ -29,7 +29,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Memora"
+            android:theme="@style/Theme.Unfynd"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,7 +55,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Use MemoraApplication Configuration.Provider + HiltWorkerFactory. -->
+        <!-- Use UnfyndApplication Configuration.Provider + HiltWorkerFactory. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

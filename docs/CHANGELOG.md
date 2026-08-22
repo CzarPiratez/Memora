@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### UNFYND identity Step 5 — presentation/entry identifier rename
+
+- **Date:** 2026-08-23
+- **Delivered:** `UnfyndApplication`, `UnfyndTheme` / `Theme.Unfynd`, and
+  Compose entry `UnfyndApp` / `UnfyndAppReady` / `UnfyndWelcomeScreen`. PascalCase
+  Unfynd*, not UNFYND*.
+- **Truthfulness:** No `applicationId`/namespace, database, MSAL host, Gradle folder,
+  or user-visible string changes in this checkpoint. Emulator not claimed here.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_STEP5_PRESENTATION_NAMES.md`.
+
 ### UNFYND identity Step 4 — user-visible Android product-noun copy
 
 - **Date:** 2026-08-23

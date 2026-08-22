@@ -6,7 +6,7 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-23
 
-**Checkpoint (playbook Step 4):** User-visible Android product-noun copy is UNFYND. Domain language (Memory, Find, evidence), packages, `applicationId`, and persistence stay unchanged. Optional internal class/theme names are Step 5.
+**Checkpoint (playbook Step 5):** Presentation/entry identifiers are UnfyndApplication, UnfyndTheme / Theme.Unfynd, UnfyndApp. User-visible copy remains UNFYND. Packages, `applicationId`, and persistence (`MemoraDatabase`, `memora.db`) stay unchanged. Identity playbook steps 0–5 complete; further technical-ID work needs its own ADR.
 
 ### Where we are (honest)
 

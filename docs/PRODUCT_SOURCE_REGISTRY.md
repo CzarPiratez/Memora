@@ -43,8 +43,9 @@ feature excluded by the immutable PRD. Such a change still requires an explicit
 product decision and a recorded ADR.
 
 Product-noun overlay of living constitutions is playbook Step 3; ADR-040 already
-binds identity. User-visible Android copy is Step 4 (this checkpoint). Optional
-internal names are Step 5.
+binds identity. User-visible Android copy is Step 4. Presentation/entry identifiers
+are Step 5 (this checkpoint). Technical IDs (`applicationId`, `memora.db`, MSAL
+host, GitHub) remain deferred.
 
 ## Governed architecture artifacts
 
