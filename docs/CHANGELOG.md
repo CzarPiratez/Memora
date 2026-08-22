@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### UNFYND identity transition playbook (docs-only)
+
+- **Date:** 2026-08-22
+- **Delivered:** Operating playbook for UNFYND product identity (formerly Memora),
+  Personal Knowledge Infrastructure direction, Android as a milestone, branding
+  overlay on frozen architecture, and one-step-at-a-time execution. No identity ADR.
+- **Truthfulness:** No package, database, Gradle, Kotlin, or UI-string rename.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_PLAYBOOK.md`.
+
+### Grounded Answers architecture constitution (docs-only)
+
+- **Date:** 2026-08-05
+- **Delivered:** Canonical `GROUNDING_ARCHITECTURE.md`; `GROUNDED_ANSWERS_AMENDMENT_V1.md`;
+  PDF slice acceptance spec; ADR-033–039; G-01–G-08 traceability; Local-AI Spec §9
+  carve-out; Experience Memory §10 status refresh; registry/CONTINUE/ROADMAP updates.
+- **Truthfulness:** No ReasoningEngine, generative pack, or Ask UI code. Find remains
+  non-generative. Implementation blocked on readiness gates in grounding architecture.
+- **Change control:** `docs/CHANGE_CONTROL_GROUNDED_ANSWERS_ARCHITECTURE.md`.
+
 ### PDF local-reading progress counts
 
 - **Date:** 2026-08-04
