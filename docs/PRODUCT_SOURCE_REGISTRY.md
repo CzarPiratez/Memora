@@ -3,21 +3,28 @@
 ## Purpose
 
 This registry preserves the exact approved product-source documents that govern
-Memora. The copies in `docs/product-source/` are immutable reference artifacts.
-They are version-controlled so delivery never relies on conversational memory or
-an untracked desktop file.
+UNFYND (formerly Memora). The copies in `docs/product-source/` are immutable
+reference artifacts. They are version-controlled so delivery never relies on
+conversational memory or an untracked desktop file.
 
 ## Authority and interpretation
 
-1. `Memora.docx` remains the product baseline: what Memora is, its MVP sources,
-   and its user promise.
-2. `Addendum 1.docx` is the accepted Local AI & Offline-First implementation
+1. **Current product identity (ADR-040):** the product/brand name is **UNFYND**.
+   Personal Knowledge Infrastructure is the north star (already recorded in
+   `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` and ADR-018). The Android app is one
+   milestone/reference implementation, not the whole system. Search/retrieval is
+   one capability, not the product definition. Operating procedure:
+   `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`.
+2. `Memora.docx` remains the **historical** product baseline: MVP sources and
+   user promise as originally written. Identity is superseded by ADR-040, not by
+   editing the `.docx`. Living canon may say UNFYND after later overlay steps.
+3. `Addendum 1.docx` is the accepted Local AI & Offline-First implementation
    amendment. It supersedes the original PRD only where an implementation detail
    conflicts with its local-first rule.
-3. `Addendum 2 Engineering Reference.docx` is the approved blueprint for
+4. `Addendum 2 Engineering Reference.docx` is the approved blueprint for
    `LOCAL_AI_TECHNICAL_SPEC.md`. The Markdown specification is the testable,
    implementation-facing interpretation; it must not weaken Addendum 1.
-4. When an ambiguity remains, stop, record an ADR, and ask for a product decision.
+5. When an ambiguity remains, stop, record an ADR, and ask for a product decision.
 
 ## Governed internal amendments
 

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### UNFYND identity ADR-040 (docs-only)
+
+- **Date:** 2026-08-23
+- **Delivered:** Accepted ADR-040: product/brand name is UNFYND (formerly Memora);
+  PKI north star; Android is a milestone; domain language and technical IDs
+  unchanged. Registry interpretation updated; historical `.docx` hashes unchanged.
+- **Truthfulness:** No constitution overlay; no package, database, Gradle, Kotlin,
+  or UI-string rename; no new architecture-file hashes.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_IDENTITY_ADR040.md`.
+
 ### UNFYND identity transition playbook (docs-only)
 
 - **Date:** 2026-08-22

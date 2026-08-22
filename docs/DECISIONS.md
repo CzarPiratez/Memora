@@ -911,3 +911,178 @@ slice (M3) decides otherwise. EmbeddingGemma (and other packs) stay out of scope
 **Reason:** Closes ADR-030 E4b with Google’s recommended semantic Text Embedder
 while keeping the proven MediaPipe install pipeline.
 
+## ADR-033: Grounded Answers scope — retrieval-first, no chatbot
+
+**Status:** Accepted product and architecture direction; implementation blocked on
+readiness gates in `docs/GROUNDING_ARCHITECTURE.md`
+
+**Decision:** Memora adopts **Grounded Answers** as a governed capability: answer
+questions about the user’s own indexed information using only retrieved, stored,
+authorized evidence, or explicitly abstain. Find remains the source of truth and a
+permanent safety rail. User-facing naming (“Ask”, etc.) is not frozen.
+
+**In scope (direction):** Evidence Package → ReasoningEngine → Verifier →
+StructuredAnswer pipeline; PDF saved-text first slice per
+`docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`.
+
+**Out of scope:** Chatbot, chat history, personalities, agents, cloud core
+reasoning, phone-wide assistant, goal orchestration, Event/Knowledge Memories as
+answer substrate, numeric confidence without calibration.
+
+**Spec carve-out:** Narrowly amends Local-AI Spec §9 to allow query-time generation
+**only** for this capability over an Evidence Package (see
+`docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`). Ordinary Find remains non-generative.
+
+**Reason:** Category differentiation is grounded answers with evidence, not another
+AI chat app. Architecture must be frozen before model wiring.
+
+## ADR-034: Evidence Package contract
+
+**Status:** Accepted contract; no production builder code in this ADR
+
+**Decision:** The **Evidence Package** is the model-agnostic center of Grounded
+Answers. It is an immutable, bounded, deterministic, checksummed snapshot of
+permitted stored excerpts/pages with locators, task, constraints, budget, versions,
+retrieval-path labels, source-availability, and **coverage/omission reasons**.
+
+**Must not:** Call a model; reopen originals; inject unseen text; be named or
+designed as a “prompt builder” that couples Memora to a single LLM API.
+
+**Must:** Prefer stored extracts; record truncation honestly; remain independently
+testable; be ephemeral by default in v1.
+
+**Reason:** Package construction heuristics are long-lived IP; models are
+replaceable. Completeness honesty depends on coverage metadata.
+
+## ADR-035: Retriever port for Grounded Answers
+
+**Status:** Accepted contract; unify later without deleting Find
+
+**Decision:** Grounded Answers consumes candidates through a **Retriever** port that
+returns labeled candidates from stored indexes (keyword, meaning, and future
+authorized corpora). It must not invent candidates, reopen originals for ranking, or
+silently present keyword hits as meaning hits (ADR-024).
+
+**Cited open:** StructuredAnswer citations are authoritative for open-original; silent
+post-answer page re-score that changes the cited page is forbidden.
+
+**Reason:** Today’s dual Find paths would otherwise disagree with Ask and erode
+trust. A port future-proofs approximate indexes without changing package/reasoner
+APIs.
+
+## ADR-036: ReasoningEngine capability and ReasoningTask
+
+**Status:** Accepted contract; no generative SDK authorized here
+
+**Decision:** Introduce a Local Intelligence capability **ReasoningEngine** that
+only reasons over an Evidence Package for a **ReasoningTask**. v1 task is
+`ANSWER_QUESTION`; other tasks are reserved. Do not overload Spec `DocumentEngine`
+or index-time Memory assembly.
+
+**Output:** Untrusted claim-shaped `ReasoningResult` (domain only) — never Compose
+UI types or a bare product `String`.
+
+**Runtime:** Dedicated lifecycle-aware owner; single-flight v1; cancellable;
+not Compose-loaded unmanaged singleton.
+
+**Reason:** Separates replaceable probabilistic reasoning from deterministic
+retrieval/packaging and from index-time understanding.
+
+## ADR-037: Verifier and abstention (structural, not oracle)
+
+**Status:** Accepted contract
+
+**Decision:** Every grounded answer passes a deterministic **Verifier** that checks
+citation∈package, claim citation coverage, limits, and conflict/absence rules.
+Failure yields abstention / `INSUFFICIENT_EVIDENCE` / `CONFLICTING_EVIDENCE` — never
+an unverified prose answer.
+
+**Must not:** Call a model; claim semantic paraphrase equivalence; market
+“hallucination-proof”; invent numeric confidence.
+
+**Reason:** Structural gates catch many fabrications; faithfulness still requires
+evaluation and constrained answer forms (ADR-019).
+
+## ADR-038: StructuredAnswer status and completeness
+
+**Status:** Accepted contract
+
+**Decision:** Grounded Answers return a domain **StructuredAnswer** with:
+
+- status: `ANSWERED`, `INSUFFICIENT_EVIDENCE`, `CONFLICTING_EVIDENCE`,
+  `CAPABILITY_UNAVAILABLE`, `CANCELLED`, `FAILED_SAFELY`, `SHOW_CANDIDATES_ONLY`;
+- **completeness:** `COMPLETE` | `PARTIAL` | `UNKNOWN`;
+- claims with per-claim citations; evidence excerpts; limitations; versions;
+  optional next actions.
+
+**No numeric confidence** in v1. UI maps domain → presentation and must not invent
+supporting narrative.
+
+**Reason:** Completeness honesty beats fake confidence. Silent incompleteness is the
+primary long-term trust failure mode.
+
+## ADR-039: Reasoning pack lifecycle separate from embeddings; interactive execution
+
+**Status:** Accepted planning decision; specific model vendor not chosen here
+
+**Decision:**
+
+1. Reasoning/generation packs are **separate** from embedding packs (ADR-029–032).
+   Each needs capability id, integrity, disclosure, ABI/device matrix, rollback,
+   and measured availability under ADR-023/024/025 patterns.
+2. Interactive grounded answers use a **foreground cancellable** flow with request +
+   package IDs — not WorkManager as the default. Snapshot evidence before inference;
+   never hold a Room transaction across inference. Process-death drops in-flight
+   answers (retry), never restores partial prose.
+3. Choosing and wiring a concrete on-device reasoner requires a follow-up ADR plus
+   closed readiness gates (eval corpus, device policy/M4 honesty, adversarial pass).
+
+**Reason:** Operational trust failures (cancel, OOM, stale UI, pack confusion with
+USE) destroy product trust as surely as bad model output.
+
+## ADR-040: Product identity UNFYND (formerly Memora)
+
+**Status:** Accepted
+
+**Decision:** The current product/brand name is **UNFYND**. Memora is the former
+name. This is a product-identity decision, not an architecture rewrite, package
+rename, or database rename.
+
+**Binding interpretation:**
+
+1. UNFYND is **Personal Knowledge Infrastructure**. That north star is already
+   recorded in ADR-018 and `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md`. This ADR
+   does not implement Event Memory, Knowledge Memory, or any later PKI stage.
+2. The Android application is **one milestone / reference implementation**, not
+   the whole system.
+3. Search/retrieval is **one capability**, not the product definition.
+4. Living canon may say UNFYND after later overlay steps in
+   `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`. Accepted ADRs **keep their
+   original wording**. Identity is superseded here, not by editing history.
+5. Domain language stays: `Memory`, `MemoryEvidence`, `MemoryAnchor`, `Asset`,
+   Find, Evidence Package, Memory Builder, and Event/Knowledge Memory as staged
+   concepts.
+6. Immutable `docs/product-source/Memora.docx` and addenda stay historical
+   baselines. Their SHA-256 hashes must not change in this step. New UNFYND
+   architecture files are registered in playbook Step 2, not invented here.
+7. No repository-wide find-and-replace of `Memora`.
+
+**Out of scope until a later ADR:**
+
+- `applicationId` / namespace (`com.memora.app`)
+- `memora.db` and Keystore/file identities
+- MSAL redirect host
+- GitHub repository name
+- `MemoraApp/` folder
+- Event/Knowledge Memory implementation
+- Grounded Answers code
+- Agents
+
+**Reason:** Brand and technical identity must stay distinct so a rename cannot
+create a second app install, drop folder grants, break provider sign-in, or
+make the encrypted index unreadable.
+
+**Consequences:** Overlay of living constitutions, user-visible Android copy,
+and any later technical-ID migration are separate playbook steps. This ADR
+authorizes none of those by itself.
+
