@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### ADR-043 PKI vision vs freeze; Act remains out (docs-only)
+
+- **Date:** 2026-08-24
+- **Delivered:** Accepted ADR-043: PKI is the north star; search is one
+  capability; Android is the first reference implementation. Frozen architecture
+  is suitable through See/Remember, staged Connect, retrieve-by-meaning, and
+  Understand / converse-as-Q&A. Act remains out of current architecture. MIG-*
+  not started. Hashed freeze/spec/amendment files unchanged.
+- **Truthfulness:** No application, database, migration, retrieval, or package
+  rename. Historical changelog entries unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_ADR043_PKI_VISION_ALIGNMENT.md`.
+
 ### ADR-042 Freeze vs Grounding and GOVERNANCE order (docs-only)
 
 - **Date:** 2026-08-24

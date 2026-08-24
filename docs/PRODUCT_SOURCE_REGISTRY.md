@@ -25,6 +25,14 @@ conversational memory or an untracked desktop file.
    `LOCAL_AI_TECHNICAL_SPEC.md`. The Markdown specification is the testable,
    implementation-facing interpretation; it must not weaken Addendum 1.
 5. When an ambiguity remains, stop, record an ADR, and ask for a product decision.
+6. **PKI vision vs freeze (ADR-043):** the frozen architecture (Product Contract
+   + Local AI Spec + Experience Memory Amendment + Freeze change-control;
+   Grounding Architecture for Grounded Answers only, per ADR-042) is accepted as
+   suitable for the Personal Knowledge Infrastructure north star through
+   See/Remember, staged Connect, retrieve-by-meaning, and Understand /
+   converse-as-Q&A. Act / agentic Personal AI remains out of current architecture
+   until a later ADR and product-contract change. This ADR does not rewrite
+   hashed blobs, reopen the Architecture Freeze, or start MIG-*.
 
 ## Governed internal amendments
 

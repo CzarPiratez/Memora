@@ -1281,3 +1281,75 @@ order is rewritten in this step. MIG-* remains unstarted. Grounded Answers
 remain architecture, not implementation. No `MemoraApp/` identity or schema
 change.
 
+## ADR-043: Confirm PKI vision vs frozen architecture; Act is out of current architecture
+
+**Status:** Accepted
+
+**Decision:** The user confirmed the north star in conversation.
+Search/retrieval is one capability, not what UNFYND is. UNFYND is Personal
+Knowledge Infrastructure: a local-first, storage-agnostic Memory Core that
+perceives, remembers, connects, understands, and (later) reasons over a
+person's digital life. The Android app is the first reference implementation,
+not the full product.
+
+Product-language progression: See → Remember → Connect → Understand →
+Converse → Act.
+
+This ADR does not rewrite hashed constitutions, reopen Architecture Freeze
+v1.0, start MIG-01–MIG-11 or MIG-07B, or authorize application, database,
+retrieval, UI, Grounded Answers, Event/Knowledge/Links, or identity change.
+
+**Binding interpretation:**
+
+1. **Cite ADR-040.** Identity is UNFYND. Personal Knowledge Infrastructure is
+   the north star. Android is a milestone / reference implementation.
+   Search/retrieval is not the product definition.
+2. **The frozen architecture is accepted as suitable for that vision** through
+   the stages already written. Frozen authority is Product Contract + Local AI
+   Technical Spec + Experience Memory Amendment + Freeze change-control;
+   Grounding Architecture governs Grounded Answers only (ADR-042).
+   - **See / Remember:** source-neutral read-only Assets; Memory as derived
+     intelligence; originals are not owned or uploaded as the core model.
+   - **Connect / life-not-files:** staged Asset Memory → evidence-backed Link
+     → Event Memory → Knowledge Memory (not implemented; not claimed).
+   - **Retrieve by meaning:** one Memory / evidence substrate; embeddings are
+     retrieval signals only.
+   - **Understand / converse-as-Q&A:** Grounded Answers over retrieved stored
+     evidence (or abstain); Find remains a safety rail. Not a generic chatbot.
+3. **Explicitly out of current architecture** until a later ADR and
+   product-contract change:
+   - Act / agentic Personal AI / tools that act on the user's behalf
+   - Chat history, agents, personalities, goal orchestration, multi-step life
+     tasks (already deferred in `docs/GROUNDING_ARCHITECTURE.md` §16)
+   - Treating UNFYND as a personal assistant that mutates originals
+4. **Connector / asset-type expansions** (Drive, iCloud, NAS, email, video,
+   audio, non-PDF office docs) are not a new Memory Core. They need their own
+   source adapters, approval, and an explicit contract/ADR when added. Do not
+   treat PRD MVP exclusions as silently in-scope.
+5. **Product Contract still leads with “personal memory retrieval engine.”**
+   That line is narrower than the north star. This ADR does not rewrite hashed
+   `docs/PRODUCT_CONTRACT.md`. A later overlay/ADR may align the one-line
+   definition; this ADR does not change hashed blobs.
+6. **Do not reopen the Architecture Freeze for this vision.** Do not start
+   MIG-01–MIG-11 or MIG-07B in this change. Do not skip Asset-Memory quality
+   to jump to Links, Events, Grounded Answers, or conversation UI.
+
+**Out of scope until a later ADR and product-contract change:**
+
+- Act / agentic Personal AI
+- Chat history, agents, personalities, goal orchestration
+- Mutating original user content
+- Rewriting hashed Product Contract, Freeze, Spec, or Amendment blobs
+- MIG-* implementation
+- New source types treated as already in-scope
+
+**Reason:** The north star and the freeze already agree through See, Remember,
+Connect (staged), retrieve-by-meaning, and Grounded Answers. Recording that
+fit prevents two failure modes: treating UNFYND as “just search,” and treating
+Act / assistant mutation as already architected.
+
+**Consequences:** Registry interpretation points here. Optional human-readable
+map `docs/UNFYND_VISION_ALIGNMENT.md` is not hashed and is not architectural
+authority. MIG-* remains unstarted. Act remains out. Hashed architecture files
+are unchanged.
+

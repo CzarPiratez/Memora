@@ -6,12 +6,13 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-24
 
-**Checkpoint (ADR-042):** ADR-041 authority conflicts 1–3 are decided. Freeze
-§1 exclusivity is the Asset-Memory / PKI core; Grounding Architecture remains
-the sole Grounded Answers constitution. GOVERNANCE numbered order aligns with
-Freeze §2. Freeze §7’s §15/§7 deferral is errata (hashed Spec/Amendment
-unchanged). MIG-01–MIG-11 and MIG-07B are not started.
-`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not permission to implement.
+**Checkpoint (ADR-043):** ADR-043 accepted. PKI vision vs frozen architecture
+is recorded: UNFYND is Personal Knowledge Infrastructure; search is one
+capability; Android is the first reference implementation. The freeze is
+suitable through See/Remember, staged Connect, retrieve-by-meaning, and
+Understand / converse-as-Q&A (Grounded Answers). Act remains out of current
+architecture. MIG-01–MIG-11 and MIG-07B are not started. Hashed freeze/spec/
+amendment files are unchanged. ADR-042 authority decisions remain in force.
 Identity playbook steps 0–5 remain complete; packages, `applicationId`, and
 persistence (`MemoraDatabase`, `memora.db`) stay unchanged.
 
@@ -66,8 +67,8 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity interpretation; hashed architecture artifacts)
-3. `docs/GOVERNANCE.md` (ADR-042 governing order; aligned with Freeze §2)
+2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity; ADR-043 PKI vs freeze; hashed architecture artifacts)
+3. `docs/GOVERNANCE.md` (ADR-042 governing order; ADR-043 Act remains out; aligned with Freeze §2)
 4. `docs/PRODUCT_CONTRACT.md`
 5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
 6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
@@ -76,7 +77,7 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 9. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
 10. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
 11. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
-12. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041 / ADR-042)
+12. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041 / ADR-042 / ADR-043)
 13. `docs/ARCHITECTURE.md`
 14. `docs/ROADMAP.md`
 15. `docs/PRD_TRACEABILITY.md`
@@ -103,6 +104,12 @@ retrieval-first; Evidence Package → ReasoningEngine → Verifier → Structure
 Find remains source of truth; no chatbot; PDF saved-text first slice; **generative
 implementation blocked** until `docs/GROUNDING_ARCHITECTURE.md` readiness gates pass.
 Do not wire a ReasoningEngine or Ask UI before those gates close.
+
+**ADR-043** confirms that PKI vision against the freeze. Act / agentic Personal AI
+is out of current architecture until a later ADR and product-contract change. Do
+not skip Asset-Memory quality to jump to Links, Events, Grounded Answers, or
+conversation UI. Optional map: `docs/UNFYND_VISION_ALIGNMENT.md` (not hashed;
+not architectural authority).
 
 ## Last verified behavior
 
