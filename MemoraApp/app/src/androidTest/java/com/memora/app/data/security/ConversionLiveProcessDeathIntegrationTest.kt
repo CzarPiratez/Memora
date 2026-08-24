@@ -155,6 +155,7 @@ class ConversionLiveProcessDeathIntegrationTest {
                 MemoraDatabaseMigrations.MIGRATION_1_2,
                 MemoraDatabaseMigrations.MIGRATION_2_3,
                 MemoraDatabaseMigrations.MIGRATION_3_4,
+                MemoraDatabaseMigrations.MIGRATION_12_13,
             )
             .build()
         try {

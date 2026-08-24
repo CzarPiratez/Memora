@@ -81,6 +81,7 @@ class MemoryTest {
     private fun evidence(): MemoryEvidence = MemoryEvidence(
         id = MemoryEvidenceId("ocr-1"),
         kind = MemoryEvidenceKind.OCR_TEXT,
+        evidenceClass = MemoryEvidenceClass.DIRECT,
         locator = EvidenceLocator("image:whole"),
         excerpt = MemoryText("Ana's lake picnic"),
     )

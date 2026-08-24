@@ -66,7 +66,9 @@ retired. Delivery governing order is aligned with Freeze §2 in
 errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
-authority only. Do not start MIG-*. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is
+authority only. MIG-01 is authorized and in this delivery; do not start
+MIG-02–MIG-11 or MIG-07B until MIG-01 is verified. Phase A plan is still not
+permission for later MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is
 not hashed and is not permission to implement.
 
 ## Governed architecture artifacts

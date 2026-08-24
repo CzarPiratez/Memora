@@ -15,6 +15,7 @@ import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
+import com.memora.app.domain.memory.MemoryEvidenceClass
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryMeaningLookup
@@ -72,6 +73,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
             memory.evidence.map { it.kind },
         )
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
         assertEquals("Project Atlas launch notes", memory.signature.summary.text.value)
         assertEquals(
             memory.evidence.first { it.kind == MemoryEvidenceKind.DOCUMENT_TEXT }.id,
@@ -118,6 +120,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             listOf(MemoryEvidenceKind.NOTE_TEXT, MemoryEvidenceKind.SOURCE_METADATA),
             memory.evidence.map { it.kind },
         )
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
         assertEquals("Meeting notes for Project Atlas", memory.signature.summary.text.value)
         assertEquals(setOf("onenote-page-text-v1"), memory.extractionSchemaVersions)
     }
@@ -163,6 +166,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
 
         val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
         assertEquals("Cafe receipt total 12.50", memory.signature.summary.text.value)
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
         assertEquals(
             MemoryEvidenceKind.OCR_TEXT,
             memory.evidence.first { it.id == memory.signature.summary.evidenceIds.single() }.kind,
@@ -215,6 +219,8 @@ class AssembleAssetMemoryFromExtractionFactsTest {
 
         assertEquals(firstMemory.id, secondMemory.id)
         assertTrue(firstMemory.revisionId != secondMemory.revisionId)
+        assertTrue(firstMemory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
+        assertTrue(secondMemory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
         assertEquals(2, repository.history.size)
     }
 

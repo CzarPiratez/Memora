@@ -6,15 +6,18 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-24
 
-**Checkpoint (ADR-043):** ADR-043 accepted. PKI vision vs frozen architecture
-is recorded: UNFYND is Personal Knowledge Infrastructure; search is one
-capability; Android is the first reference implementation. The freeze is
-suitable through See/Remember, staged Connect, retrieve-by-meaning, and
-Understand / converse-as-Q&A (Grounded Answers). Act remains out of current
-architecture. MIG-01–MIG-11 and MIG-07B are not started. Hashed freeze/spec/
-amendment files are unchanged. ADR-042 authority decisions remain in force.
-Identity playbook steps 0–5 remain complete; packages, `applicationId`, and
-persistence (`MemoraDatabase`, `memora.db`) stay unchanged.
+**Checkpoint (MIG-01):** Evidence Class Taxonomy is implemented on Asset
+Memory evidence. `MemoryEvidence` now requires `MemoryEvidenceClass`; current
+assembly tags every produced item `DIRECT`. Room schema is version 13 with
+additive `memory_evidence.evidence_class` and non-destructive 12→13 backfill
+`DIRECT`. Ranking, Find, Why, UI, Links, Event/Knowledge, Grounded Answers
+code, package rename, and MIG-02+ are not started. Hashed freeze/spec/
+amendment files are unchanged. ADR-043 is unchanged (Act still out).
+`ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
+journal, not Room). Identity playbook steps 0–5 remain complete.
+
+Focused unit tests passed (10/10). Room generated `13.json`.
+`MemoraDatabaseMigrationTest` was **not** run here: adb could not start.
 
 ### Where we are (honest)
 
@@ -27,6 +30,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Photos / screenshots / PDF folders | Discover → extract → save facts (bounded, read-only) |
 | Keyword Find (PDF / OCR / photo text) | Shipped; Why evidence; open original / page where built |
 | Asset Memory build | Shipped (≤25 READY facts per tap) |
+| Evidence class (MIG-01) | On Asset Memory evidence; all current assembly is DIRECT; not used for ranking/UI/links. Links still not implemented. |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -51,12 +55,16 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
+1. **MIG-02** (only after MIG-01 is verified): remove artificial evidence
+   item/length caps in memory assembly. Do not start MIG-03+ / MIG-07B.
+2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
    available; do not flip AVAILABLE from emulator alone.
-2. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
+3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
    gates in `GROUNDING_ARCHITECTURE.md` §14 pass (model lifecycle for chosen
-   reasoner, eval corpus, M4 or explicit device policy, adversarial pass). Next
-   docs-only follow-up: reasoning-pack delivery plan when a model is chosen.
+   reasoner, eval corpus, M4 or explicit device policy, adversarial pass).
+
+Experience Memory Amendment §10 is hashed and was not edited; evidence-class
+status for this checkpoint is recorded here and in `docs/CHANGELOG.md`.
 
 ### Early build diary (July 2026)
 
@@ -73,7 +81,7 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
 6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
 7. `docs/ARCHITECTURE_FREEZE_v1.0.md` (freeze/change-control for that core; §1 exclusivity scoped by ADR-042)
-8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; do not start MIG-*)
+8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; MIG-01 is this delivery; do not start MIG-02+)
 9. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
 10. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
 11. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`

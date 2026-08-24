@@ -66,6 +66,7 @@ data class MemoryEvidenceEntity(
     @ColumnInfo(name = "revision_id") val revisionId: String,
     @ColumnInfo(name = "evidence_id") val evidenceId: String,
     @ColumnInfo(name = "evidence_kind") val evidenceKind: String,
+    @ColumnInfo(name = "evidence_class") val evidenceClass: String,
     @ColumnInfo(name = "locator") val locator: String,
     @ColumnInfo(name = "excerpt") val excerpt: String,
 )

@@ -43,12 +43,13 @@ When guidance conflicts, use this order (ADR-042; aligned with Freeze §2):
 
 Nothing lower in this list may silently override anything above it.
 
-Do not start MIG-01–MIG-11 or MIG-07B. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
-is not architectural authority and is not permission to implement. ADR-043
-confirms the freeze is suitable for the PKI north star through See/Remember,
-staged Connect, retrieve-by-meaning, and Understand / converse-as-Q&A; Act
-remains out of current architecture. That confirmation does not authorize
-MIG-* or reopen the Architecture Freeze.
+MIG-01 is authorized and in this delivery; do not start MIG-02–MIG-11 or
+MIG-07B until MIG-01 is verified. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
+is not architectural authority and is not permission to implement later MIGs.
+ADR-043 confirms the freeze is suitable for the PKI north star through
+See/Remember, staged Connect, retrieve-by-meaning, and Understand /
+converse-as-Q&A; Act remains out of current architecture. That confirmation
+does not authorize later MIG-* or reopen the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

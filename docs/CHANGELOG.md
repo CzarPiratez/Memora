@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### MIG-01 Evidence Class Taxonomy (Room 12→13)
+
+- **Date:** 2026-08-24
+- **Delivered:** Additive `MemoryEvidenceClass` on Asset Memory evidence
+  (`DIRECT`, `VALIDATED_OBSERVATION`, `RETRIEVAL_SIGNAL`, `HYPOTHESIS`). All
+  evidence currently assembled from deterministic extraction facts is tagged
+  `DIRECT`. Existing `memory_evidence` rows backfill `DIRECT` via Room
+  migration 12→13. Construction without an explicit class does not compile.
+- **Truthfulness:** No ranking, Find, Why, or UI change. Class is not used
+  for display or link eligibility. Links remain unimplemented. Hashed
+  freeze/spec/amendment files unchanged. ADR-043 Act-out unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG01_EVIDENCE_CLASS.md`.
+
 ### ADR-043 PKI vision vs freeze; Act remains out (docs-only)
 
 - **Date:** 2026-08-24

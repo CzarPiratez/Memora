@@ -11,6 +11,7 @@ import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEvidence
+import com.memora.app.domain.memory.MemoryEvidenceClass
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryId
@@ -28,16 +29,18 @@ class MemoryRoomMapperTest {
     fun `normalized Room rows round trip every citation and revision field`() {
         val evidence = listOf(
             MemoryEvidence(
-                MemoryEvidenceId("e1"),
-                MemoryEvidenceKind.OCR_TEXT,
-                EvidenceLocator("image:whole"),
-                MemoryText("Boarding gate B7"),
+                id = MemoryEvidenceId("e1"),
+                kind = MemoryEvidenceKind.OCR_TEXT,
+                evidenceClass = MemoryEvidenceClass.DIRECT,
+                locator = EvidenceLocator("image:whole"),
+                excerpt = MemoryText("Boarding gate B7"),
             ),
             MemoryEvidence(
-                MemoryEvidenceId("e2"),
-                MemoryEvidenceKind.SOURCE_METADATA,
-                EvidenceLocator("exif:fields"),
-                MemoryText("Date taken: 2026-07-31"),
+                id = MemoryEvidenceId("e2"),
+                kind = MemoryEvidenceKind.SOURCE_METADATA,
+                evidenceClass = MemoryEvidenceClass.VALIDATED_OBSERVATION,
+                locator = EvidenceLocator("exif:fields"),
+                excerpt = MemoryText("Date taken: 2026-07-31"),
             ),
         )
         val memory = Memory(

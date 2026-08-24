@@ -11,6 +11,7 @@ import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEvidence
+import com.memora.app.domain.memory.MemoryEvidenceClass
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryId
@@ -45,6 +46,7 @@ internal object MemoryRoomMapper {
                     revisionId = revisionId,
                     evidenceId = it.id.value,
                     evidenceKind = it.kind.name,
+                    evidenceClass = it.evidenceClass.name,
                     locator = it.locator.value,
                     excerpt = it.excerpt.value,
                 )
@@ -107,6 +109,7 @@ internal object MemoryRoomMapper {
                 MemoryEvidence(
                     id = MemoryEvidenceId(it.evidenceId),
                     kind = MemoryEvidenceKind.valueOf(it.evidenceKind),
+                    evidenceClass = MemoryEvidenceClass.valueOf(it.evidenceClass),
                     locator = EvidenceLocator(it.locator),
                     excerpt = MemoryText(it.excerpt),
                 )

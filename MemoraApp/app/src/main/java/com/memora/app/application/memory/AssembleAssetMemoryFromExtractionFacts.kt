@@ -11,6 +11,7 @@ import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEvidence
+import com.memora.app.domain.memory.MemoryEvidenceClass
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryId
@@ -61,6 +62,7 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
             MemoryEvidence(
                 id = MemoryEvidenceId("e${index + 1}"),
                 kind = fact.kind,
+                evidenceClass = MemoryEvidenceClass.DIRECT,
                 locator = EvidenceLocator(fact.locator),
                 excerpt = MemoryText(fact.excerpt),
             )

@@ -74,6 +74,20 @@ enum class MemoryEvidenceKind {
 }
 
 /**
+ * Epistemic class of an evidence item, orthogonal to [MemoryEvidenceKind].
+ *
+ * Classes express support and provenance, not automatic truth. A retrieval
+ * signal may generate candidates only; it cannot independently justify a
+ * durable claim.
+ */
+enum class MemoryEvidenceClass {
+    DIRECT,
+    VALIDATED_OBSERVATION,
+    RETRIEVAL_SIGNAL,
+    HYPOTHESIS,
+}
+
+/**
  * A source-specific pointer used to explain where an evidence item came from, such
  * as a metadata field, image region, PDF page, or note section. The source adapter
  * owns how this pointer is interpreted; it is never a direct file handle.
@@ -94,6 +108,7 @@ value class EvidenceLocator(val value: String) {
 data class MemoryEvidence(
     val id: MemoryEvidenceId,
     val kind: MemoryEvidenceKind,
+    val evidenceClass: MemoryEvidenceClass,
     val locator: EvidenceLocator,
     val excerpt: MemoryText,
 )

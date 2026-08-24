@@ -25,7 +25,7 @@ import androidx.room.RoomDatabase
         MemoryEmbeddingEntity::class,
         PdfPageEmbeddingEntity::class,
     ],
-    version = 12,
+    version = 13,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {

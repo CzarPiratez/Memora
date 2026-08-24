@@ -505,4 +505,12 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE `memory_evidence` ADD COLUMN `evidence_class` TEXT NOT NULL DEFAULT 'DIRECT'",
+            )
+        }
+    }
 }
