@@ -4,13 +4,16 @@
 
 **Project:** UNFYND Android app  
 **Project folder:** `MemoraApp/`  
-**Updated:** 2026-08-23
+**Updated:** 2026-08-24
 
-**Checkpoint (governance registration):** Architecture Freeze v1.0 and Architectural
-Migration Spec V1 are registered as supplied (ADR-041). Open authority conflicts
-in ADR-041 are unresolved. MIG-01–MIG-11 and MIG-07B are not started. Identity
-playbook steps 0–5 remain complete; packages, `applicationId`, and persistence
-(`MemoraDatabase`, `memora.db`) stay unchanged.
+**Checkpoint (ADR-042):** ADR-041 authority conflicts 1–3 are decided. Freeze
+§1 exclusivity is the Asset-Memory / PKI core; Grounding Architecture remains
+the sole Grounded Answers constitution. GOVERNANCE numbered order aligns with
+Freeze §2. Freeze §7’s §15/§7 deferral is errata (hashed Spec/Amendment
+unchanged). MIG-01–MIG-11 and MIG-07B are not started.
+`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not permission to implement.
+Identity playbook steps 0–5 remain complete; packages, `applicationId`, and
+persistence (`MemoraDatabase`, `memora.db`) stay unchanged.
 
 ### Where we are (honest)
 
@@ -36,11 +39,11 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 **Authoritative backlog (retrieval):**  
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`
 
-**Registered freeze / sequencing (ADR-041; conflicts open):**  
+**Registered freeze / sequencing (ADR-041; conflicts decided by ADR-042):**  
 `docs/ARCHITECTURE_FREEZE_v1.0.md`  
 `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
 
-**Authoritative constitution (grounded answers):**  
+**Authoritative constitution (grounded answers; not unseated by Freeze §1):**  
 `docs/GROUNDING_ARCHITECTURE.md`  
 `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`  
 `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
@@ -64,16 +67,16 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 
 1. `AGENTS.md`
 2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity interpretation; hashed architecture artifacts)
-3. `docs/ARCHITECTURE_FREEZE_v1.0.md` (registered freeze declaration; ADR-041 conflicts open)
-4. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; do not start MIG-* yet)
-5. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041)
+3. `docs/GOVERNANCE.md` (ADR-042 governing order; aligned with Freeze §2)
+4. `docs/PRODUCT_CONTRACT.md`
+5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
 6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
-7. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution until a human decision says otherwise)
-8. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
-9. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
-10. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
-11. `docs/GOVERNANCE.md`
-12. `docs/PRODUCT_CONTRACT.md`
+7. `docs/ARCHITECTURE_FREEZE_v1.0.md` (freeze/change-control for that core; §1 exclusivity scoped by ADR-042)
+8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; do not start MIG-*)
+9. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
+10. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+11. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
+12. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041 / ADR-042)
 13. `docs/ARCHITECTURE.md`
 14. `docs/ROADMAP.md`
 15. `docs/PRD_TRACEABILITY.md`

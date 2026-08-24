@@ -10,25 +10,41 @@ and release preparation.
 
 ## Governing order
 
-When guidance conflicts, use this order:
+When guidance conflicts, use this order (ADR-042; aligned with Freeze §2):
 
 1. The user's latest explicit instruction.
 2. The immutable product baseline and accepted amendments registered in
    `docs/PRODUCT_SOURCE_REGISTRY.md`.
-3. `docs/LOCAL_AI_TECHNICAL_SPEC.md` for local-AI implementation details.
-4. Accepted decisions in `docs/DECISIONS.md`.
-5. `docs/PRODUCT_CONTRACT.md`, `docs/ARCHITECTURE.md`, and
-   `docs/PRD_TRACEABILITY.md`.
-6. `docs/ROADMAP.md` and `CONTINUE.md`.
-7. Engineering implementation details.
+3. `docs/PRODUCT_CONTRACT.md` — foundational product and privacy commitments.
+   Nothing below may contradict it.
+4. `docs/LOCAL_AI_TECHNICAL_SPEC.md` — accepted local-AI engineering authority.
+   The spec wins only where an implementation detail would otherwise require
+   cloud AI or repeated original-asset analysis at recall. Subordinate to the
+   Product Contract.
+5. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` — staged Asset → Link → Event →
+   Knowledge model, evidence classes, and the Explain/Trust contract.
+   Subordinate to the Product Contract and Local AI Technical Spec; where it
+   defines behavior not otherwise specified by either, it is authoritative for
+   that core.
+6. `docs/ARCHITECTURE_FREEZE_v1.0.md` — freeze and change-control declaration
+   for the Asset-Memory / PKI core named in Freeze §2 items 1–3. Freeze §1
+   exclusivity is that core only (ADR-042 option (a)); it does not unseat
+   Grounded Answers constitutions.
+7. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` — sequencing and
+   implementation-planning authority only. It does not define architecture.
+   Where it appears to imply a rule not stated in items 3–5, those documents
+   govern.
+8. `docs/GROUNDING_ARCHITECTURE.md` and `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+   — sole Grounded Answers constitution and product-direction amendment.
+   They govern Grounded Answers only.
+9. Other accepted decisions in `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`,
+   `docs/PRD_TRACEABILITY.md`, `docs/ROADMAP.md`, and `CONTINUE.md`.
+10. Engineering implementation details.
 
 Nothing lower in this list may silently override anything above it.
 
-`docs/ARCHITECTURE_FREEZE_v1.0.md` and `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
-are registered hashed artifacts (ADR-041). This numbered order is **not** rewritten
-to insert them until the open authority conflicts in ADR-041 receive an explicit
-human decision. Do not start MIG-01–MIG-11 or MIG-07B while a chosen winner would
-be required.
+Do not start MIG-01–MIG-11 or MIG-07B. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
+is not architectural authority and is not permission to implement.
 
 ## Mandatory pre-work gate
 

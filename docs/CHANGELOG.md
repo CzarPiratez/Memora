@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### ADR-042 Freeze vs Grounding and GOVERNANCE order (docs-only)
+
+- **Date:** 2026-08-24
+- **Delivered:** Accepted ADR-042: Freeze §1 exclusivity is the Asset-Memory /
+  PKI core; Grounding Architecture remains the sole Grounded Answers
+  constitution; GOVERNANCE numbered order aligned with Freeze §2; Freeze §7
+  §15/§7 deferral recorded as errata without rewriting hashed specs. MIG-*
+  not started.
+- **Truthfulness:** No application, database, migration, retrieval, or package
+  rename. Historical changelog entries unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_ADR042_FREEZE_GROUNDING.md`.
+
 ### Architecture Freeze v1.0 and Migration Spec V1 registration (docs-only)
 
 - **Date:** 2026-08-23

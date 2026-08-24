@@ -48,11 +48,18 @@ are Step 5. Technical IDs (`applicationId`, `memora.db`, MSAL host, GitHub) rema
 deferred.
 
 `docs/ARCHITECTURE_FREEZE_v1.0.md` and `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
-are registered as supplied (ADR-041). The freeze is the change-control declaration
-for the architecture it names. The migration spec is sequencing authority only.
-Open authority conflicts recorded in ADR-041 are **not** resolved by this
-registration. `docs/GROUNDING_ARCHITECTURE.md` remains listed as the sole Grounded
-Answers constitution until a human decision says otherwise.
+are registered hashed artifacts (ADR-041). ADR-042 resolves the open authority
+conflicts: Freeze §1 exclusivity is the Asset-Memory / PKI core (Freeze §2
+items 1–3, Migration Spec sequencing only); Freeze §1 text is not rewritten.
+`docs/GROUNDING_ARCHITECTURE.md` and `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+remain the sole Grounded Answers constitution and amendment; Grounding is not
+retired. Delivery governing order is aligned with Freeze §2 in
+`docs/GOVERNANCE.md`. Freeze §7’s “§15 defers to Experience Memory §7” claim is
+errata relative to the current hashed Spec and Amendment; that correction is
+deferred and those hashes are unchanged. The freeze is the change-control
+declaration for the architecture it names. The migration spec is sequencing
+authority only. Do not start MIG-*. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is
+not hashed and is not permission to implement.
 
 ## Governed architecture artifacts
 

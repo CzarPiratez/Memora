@@ -1088,7 +1088,7 @@ authorizes none of those by itself.
 
 ## ADR-041: Register Architecture Freeze v1.0 and Architectural Migration Spec V1
 
-**Status:** Accepted as a registration record; **authority conflicts remain open**
+**Status:** Accepted as a registration record; **authority conflicts resolved by ADR-042**
 
 **Decision:** The user-supplied documents
 
@@ -1199,5 +1199,85 @@ rewritten in this step.
   to describe the repo text as it actually is.
 
 **Consequences:** Registration only. No engineering. MIG-* stays unstarted.
-Nothing in this ADR picks a winner among the conflicts.
+Nothing in this ADR picks a winner among the conflicts. ADR-042 records the
+human decisions for conflicts 1–3.
+
+## ADR-042: Resolve ADR-041 Freeze vs Grounding and GOVERNANCE order
+
+**Status:** Accepted
+
+**Decision:** The three open authority conflicts recorded in ADR-041 are
+resolved as follows. This ADR does not pick different winners than the
+user-chosen options. It does not rewrite Freeze §1. It does not retire
+Grounding Architecture. It does not edit hashed `docs/LOCAL_AI_TECHNICAL_SPEC.md`
+or `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` §7. It does not change the
+Architecture Freeze blob hash. It does not authorize MIG-01–MIG-11, MIG-07B, or
+any application, database, retrieval, OCR, MemoryBuilder, RecallRanker,
+Grounded Answers, Event/Knowledge/Links, package, or identity change.
+`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not architectural authority and is
+not permission to implement.
+
+**Conflict 1 — Freeze §1 exclusivity vs Grounding Architecture**
+
+**Winner: option (a).** Freeze §1 exclusivity is the Asset-Memory / PKI core
+named by Freeze §2 items 1–3 (`PRODUCT_CONTRACT.md`,
+`LOCAL_AI_TECHNICAL_SPEC.md`, `EXPERIENCE_MEMORY_AMENDMENT_V1.md`), with
+`ARCHITECTURAL_MIGRATION_SPEC_V1.md` as sequencing only. That core freeze does
+not unseat already-registered Grounded Answers constitutions.
+
+`docs/GROUNDING_ARCHITECTURE.md` and `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+remain the sole Grounded Answers constitution and product-direction amendment
+(ADR-033–039; Local AI Spec §9 carve-out). Grounding is not retired. Freeze §1
+text is not rewritten in this step; the exclusivity claim is interpreted as
+scoped to the audited Asset-Memory / PKI core, not as a global revocation of
+other hashed constitutions.
+
+Rejected here: option (b) amend Freeze §1 to list Grounding; option (c) retire
+Grounding.
+
+**Conflict 2 — GOVERNANCE numbered order vs Freeze §2**
+
+**Winner: align `docs/GOVERNANCE.md` with Freeze §2.** After the user's latest
+explicit instruction and the immutable PRD / addenda / registry amendments, the
+delivery governing order is:
+
+1. Product Contract
+2. Local AI Technical Spec (the spec wins only where an implementation detail
+   would otherwise require cloud AI or repeated original-asset analysis at
+   recall)
+3. Experience Memory Amendment
+4. Architecture Freeze, as freeze / change-control for that Asset-Memory / PKI
+   core
+5. Migration Spec, sequencing only
+6. Grounding Architecture, for Grounded Answers only
+7. Other accepted ADRs, `docs/ARCHITECTURE.md`, traceability, `docs/ROADMAP.md`,
+   and `CONTINUE.md`
+
+Rejected here: amend Freeze §2 to match the prior GOVERNANCE inversion, or
+confine Freeze §2 to the four named freeze documents only.
+
+**Conflict 3 — Freeze §7 claimed Spec/Amendment correction vs hashed copies**
+
+**Winner: record Freeze §7 as errata; do not rewrite hashed documents now.**
+Freeze §7’s statement that Local AI Spec §15 now summarizes the
+retrieval-signal rule and defers to Experience Memory Amendment §7 as the
+single authoritative statement is **not present** in the current hashed
+`docs/LOCAL_AI_TECHNICAL_SPEC.md` §15 or `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md`
+§7. Experience Memory §7 still speaks to embeddings/learning; Local AI §15
+still restates embedding limits and defers to the amendment as a whole.
+
+That claimed correction is deferred until a later hashed amendment of those
+two documents (or a Freeze §7 text correction) under Freeze §5–§6. Preferring
+not to change the Freeze blob hash, this ADR does not edit
+`docs/ARCHITECTURE_FREEZE_v1.0.md`. Until a hashed correction lands, engineers
+must read the current hashed Spec and Amendment text as written, not the
+Freeze §7 description of a correction that is not in those blobs.
+
+Rejected here: applying the Freeze-described Spec/Amendment edits and
+re-hashing them in this step.
+
+**Consequences:** ADR-041 registration remains valid. GOVERNANCE numbered
+order is rewritten in this step. MIG-* remains unstarted. Grounded Answers
+remain architecture, not implementation. No `MemoraApp/` identity or schema
+change.
 
