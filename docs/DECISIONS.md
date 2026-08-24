@@ -1086,3 +1086,118 @@ make the encrypted index unreadable.
 and any later technical-ID migration are separate playbook steps. This ADR
 authorizes none of those by itself.
 
+## ADR-041: Register Architecture Freeze v1.0 and Architectural Migration Spec V1
+
+**Status:** Accepted as a registration record; **authority conflicts remain open**
+
+**Decision:** The user-supplied documents
+
+- `docs/ARCHITECTURE_FREEZE_v1.0.md`
+- `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
+
+are now hashed, tracked product-source artifacts. They are registered as
+supplied. Their substantive text is not rewritten in this step. This ADR does
+**not** authorize MIG-01–MIG-11, MIG-07B, or any application, database, retrieval,
+OCR, MemoryBuilder, RecallRanker, Grounded Answers, Event/Knowledge/Links,
+package, or identity change.
+
+**Why they are being registered:** They were provided as binding UNFYND Core
+architecture artifacts. Repository governance requires accepted architecture
+files to be inventoried, hashed, and listed in `docs/PRODUCT_SOURCE_REGISTRY.md`
+rather than used from conversational memory (playbook Step 2; registry change
+rule).
+
+**Intended placement (not a silent winner):**
+
+1. Architecture Freeze v1.0 is the freeze / change-control declaration for the
+   architecture it names (its §2 items 1–3 plus the sequencing role of the
+   Migration Spec).
+2. Architectural Migration Spec V1 governs implementation **sequencing only**. It
+   does not define new architecture. Where it appears to imply a rule not stated
+   in Product Contract, Local AI Technical Spec, or Experience Memory Amendment,
+   those documents govern (Freeze §2 item 4; Migration Spec authority line).
+3. Existing subsystem constitutions remain authoritative **within their defined
+   scope** unless a later **human** decision accepts an explicit Freeze
+   supersession. This ADR does not make that decision.
+
+**Does Architecture Freeze supersede any existing document?**  
+**Unresolved.** Freeze §1 claims four documents are the complete and exclusive
+architectural authority and that no other document carries architectural
+authority. That wording, if accepted as written, would strip authority from
+already-registered artifacts (notably Grounding Architecture). This ADR does
+**not** accept or reject that exclusivity claim.
+
+**Does Grounding Architecture remain authoritative for Grounded Answers?**  
+**Still listed as the sole Grounded Answers constitution** in the registry,
+CONTINUE, ADR-033–039, and Local AI Spec §9 carve-out. Whether Freeze §1
+revokes that status is the open conflict below. No Grounded Answers code is
+authorized either way.
+
+**Does the Migration Spec govern sequencing without changing architecture?**  
+**Yes, as written.** Sequencing authority only. Starting any MIG-* item remains
+blocked while the conflicts below are open if the work would depend on a chosen
+authority winner.
+
+**What happens if future documents conflict?**  
+Stop. Record the conflict. Do not conceal it with a shortcut. Do not invent a
+new constitution to paper over it. Use Freeze §5–§6 only for a proven
+architectural flaw **after** a human owner has decided how Freeze §1 relates to
+already-registered constitutions. `docs/GOVERNANCE.md` numbered order is not
+rewritten in this step.
+
+### Open conflicts (human decision required)
+
+**CONFLICT 1**
+
+- **SOURCE A:** `docs/ARCHITECTURE_FREEZE_v1.0.md` §1 (four documents are
+  complete exclusive architectural authority).
+- **SOURCE B:** `docs/PRODUCT_SOURCE_REGISTRY.md`,
+  `docs/GROUNDING_ARCHITECTURE.md`, `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`,
+  ADR-033–039, Local AI Spec §9 carve-out.
+- **EXACT ISSUE:** The freeze’s exclusive list omits Grounding Architecture and
+  the Grounded Answers amendment, and denies architectural authority to any
+  other document.
+- **WHY IT MATTERS:** Accepting exclusivity as written would unseat the
+  registered Grounded Answers constitution. Rejecting exclusivity leaves Freeze
+  §1 false as a global claim.
+- **PROPOSED HUMAN DECISION:** Either (a) treat Freeze exclusivity as limited to
+  the Asset-Memory / PKI core it audited, leaving Grounding Architecture as the
+  sole Grounded Answers constitution, or (b) amend Freeze §1 to list Grounding
+  Architecture / the GA amendment, or (c) explicitly retire Grounding
+  Architecture — with a written product decision.
+
+**CONFLICT 2**
+
+- **SOURCE A:** `docs/ARCHITECTURE_FREEZE_v1.0.md` §2 (Product Contract above
+  Local AI Technical Spec).
+- **SOURCE B:** `docs/GOVERNANCE.md` governing order (Local AI Technical Spec
+  above Product Contract).
+- **EXACT ISSUE:** The two hierarchies invert Product Contract vs Local AI Spec.
+- **WHY IT MATTERS:** A future conflict between those two living documents would
+  be resolved in opposite directions.
+- **PROPOSED HUMAN DECISION:** Align GOVERNANCE’s numbered order with Freeze §2,
+  or amend Freeze §2 to match GOVERNANCE, or write a scoped rule (for example
+  Freeze §2 applies only inside the four named freeze documents).
+
+**CONFLICT 3**
+
+- **SOURCE A:** `docs/ARCHITECTURE_FREEZE_v1.0.md` §7 (claims LOCAL_AI §15 now
+  summarizes the retrieval-signal rule and defers to Experience Memory
+  Amendment §7 after that §7 was generalized to cover confidence values and
+  explanation elements).
+- **SOURCE B:** Current hashed `docs/LOCAL_AI_TECHNICAL_SPEC.md` §15 and
+  `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` §7.
+- **EXACT ISSUE:** The registered repo copies do not contain that claimed
+  correction. Experience Memory §7 still speaks only to embeddings/learning;
+  Local AI §15 still restates embedding limits and defers to the amendment as a
+  whole, not as “§15 defers to §7 as the single authoritative statement.”
+- **WHY IT MATTERS:** The freeze certifies a published-document state that the
+  hashed repo copies do not match. Applying the claimed edits here would rewrite
+  already-hashed constitutions without a separate amendment step.
+- **PROPOSED HUMAN DECISION:** Either apply the smallest Freeze-described
+  correction to those two hashed documents and re-hash them, or amend Freeze §7
+  to describe the repo text as it actually is.
+
+**Consequences:** Registration only. No engineering. MIG-* stays unstarted.
+Nothing in this ADR picks a winner among the conflicts.
+

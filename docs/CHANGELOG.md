@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Architecture Freeze v1.0 and Migration Spec V1 registration (docs-only)
+
+- **Date:** 2026-08-23
+- **Delivered:** Registered `ARCHITECTURE_FREEZE_v1.0.md` and
+  `ARCHITECTURAL_MIGRATION_SPEC_V1.md` with SHA-256 hashes; ADR-041 records
+  registration and open authority conflicts. No MIG-* implementation.
+- **Truthfulness:** No application, database, migration, retrieval, or package
+  rename. Historical changelog Memora wording unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_ARCHITECTURE_FREEZE_REGISTRATION.md`.
+
 ### UNFYND identity Step 5 — presentation/entry identifier rename
 
 - **Date:** 2026-08-23

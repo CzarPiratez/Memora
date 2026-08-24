@@ -44,18 +44,27 @@ product decision and a recorded ADR.
 
 Product-noun overlay of living constitutions is playbook Step 3; ADR-040 already
 binds identity. User-visible Android copy is Step 4. Presentation/entry identifiers
-are Step 5 (this checkpoint). Technical IDs (`applicationId`, `memora.db`, MSAL
-host, GitHub) remain deferred.
+are Step 5. Technical IDs (`applicationId`, `memora.db`, MSAL host, GitHub) remain
+deferred.
+
+`docs/ARCHITECTURE_FREEZE_v1.0.md` and `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
+are registered as supplied (ADR-041). The freeze is the change-control declaration
+for the architecture it names. The migration spec is sequencing authority only.
+Open authority conflicts recorded in ADR-041 are **not** resolved by this
+registration. `docs/GROUNDING_ARCHITECTURE.md` remains listed as the sole Grounded
+Answers constitution until a human decision says otherwise.
 
 ## Governed architecture artifacts
 
-SHA-256 values are of the Git blob as committed (playbook Step 3 overlay for the
-files whose identity bytes changed; PDF slice hash unchanged because that file
-was not overlayed). Change-control and changelog files are not product source and
-are not hashed here.
+SHA-256 values are of the Git blob content (playbook Step 3 overlay for the files
+whose identity bytes changed; PDF slice hash unchanged because that file was not
+overlayed). Change-control and changelog files are not product source and are not
+hashed here.
 
 | Artifact | Classification | SHA-256 |
 |---|---|---|
+| `docs/ARCHITECTURE_FREEZE_v1.0.md` | Canon (architecture freeze declaration) | `5CB1D4D4FA4BC9762A58E13839EBF479ECDECAE03CEE793D76D887844F801758` |
+| `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` | Canon (implementation sequencing; Freeze §2 item 4) | `D10AD7C3742529148EB6A14B2DCF106B889CCAA81F0A1B483835800A11EF526E` |
 | `docs/LOCAL_AI_TECHNICAL_SPEC.md` | Canon (engineering constitution) | `0338C2EC7397FF0B71A183890CEE71394A837F94F7436661E86D506CB649BBB8` |
 | `docs/GROUNDING_ARCHITECTURE.md` | Canon (engineering constitution; sole Grounded Answers constitution) | `DF9A53D7116EC1B464A61AB8C0FBFC4B5C7CD28A9D5EB63193F9ABB1C397CEAA` |
 | `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` | Amendment (product-direction) | `CAFA233D03C162A26C95C83B4C0279F6D813042C887CD29782C2C8004461FBB3` |

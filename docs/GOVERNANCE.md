@@ -24,6 +24,12 @@ When guidance conflicts, use this order:
 
 Nothing lower in this list may silently override anything above it.
 
+`docs/ARCHITECTURE_FREEZE_v1.0.md` and `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
+are registered hashed artifacts (ADR-041). This numbered order is **not** rewritten
+to insert them until the open authority conflicts in ADR-041 receive an explicit
+human decision. Do not start MIG-01–MIG-11 or MIG-07B while a chosen winner would
+be required.
+
 ## Mandatory pre-work gate
 
 Before every implementation, product, UX, dependency, data-access, or release step:

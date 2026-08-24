@@ -6,7 +6,11 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-23
 
-**Checkpoint (playbook Step 5):** Presentation/entry identifiers are UnfyndApplication, UnfyndTheme / Theme.Unfynd, UnfyndApp. User-visible copy remains UNFYND. Packages, `applicationId`, and persistence (`MemoraDatabase`, `memora.db`) stay unchanged. Identity playbook steps 0–5 complete; further technical-ID work needs its own ADR.
+**Checkpoint (governance registration):** Architecture Freeze v1.0 and Architectural
+Migration Spec V1 are registered as supplied (ADR-041). Open authority conflicts
+in ADR-041 are unresolved. MIG-01–MIG-11 and MIG-07B are not started. Identity
+playbook steps 0–5 remain complete; packages, `applicationId`, and persistence
+(`MemoraDatabase`, `memora.db`) stay unchanged.
 
 ### Where we are (honest)
 
@@ -25,12 +29,16 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | PDF local reading UX | Aggregate N of M progress during WorkManager drain |
 | Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |
 | Marketing AVAILABLE / SLA | **Not claimed** until midrange measured + product decision |
-| Notes (OneNote etc.) | ADR-003 strategy only — not implemented |
+| Notes (OneNote etc.) | OneNote connector N0–N7 accepted (keyword Find; not all phone notes) |
 | **Grounded Answers architecture** | **Docs accepted** (ADR-033–039); **no generative code** |
 | CI (`main`) | Green after E5d boost fixture fix (`970fcf9`) |
 
 **Authoritative backlog (retrieval):**  
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`
+
+**Registered freeze / sequencing (ADR-041; conflicts open):**  
+`docs/ARCHITECTURE_FREEZE_v1.0.md`  
+`docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md`
 
 **Authoritative constitution (grounded answers):**  
 `docs/GROUNDING_ARCHITECTURE.md`  
@@ -56,17 +64,19 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 
 1. `AGENTS.md`
 2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity interpretation; hashed architecture artifacts)
-3. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040)
-4. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
-5. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
-6. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
-7. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
-8. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
-9. `docs/GOVERNANCE.md`
-10. `docs/PRODUCT_CONTRACT.md`
-11. `docs/ARCHITECTURE.md`
-12. `docs/ROADMAP.md`
-13. `docs/PRD_TRACEABILITY.md`
+3. `docs/ARCHITECTURE_FREEZE_v1.0.md` (registered freeze declaration; ADR-041 conflicts open)
+4. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; do not start MIG-* yet)
+5. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041)
+6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
+7. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution until a human decision says otherwise)
+8. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
+9. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
+10. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
+11. `docs/GOVERNANCE.md`
+12. `docs/PRODUCT_CONTRACT.md`
+13. `docs/ARCHITECTURE.md`
+14. `docs/ROADMAP.md`
+15. `docs/PRD_TRACEABILITY.md`
 
 No implementation begins until this read gate is complete and the next change is
 mapped to its requirements, acceptance criteria, risks, and verification plan.
