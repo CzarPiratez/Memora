@@ -34,6 +34,13 @@ conversational memory or an untracked desktop file.
    until a later ADR and product-contract change. This ADR does not rewrite
    hashed blobs, reopen the Architecture Freeze, or start MIG-*.
 
+7. **Low-power posture (ADR-044):** interpretation only — UNFYND’s on-device
+   power behavior is the event-driven Memory lifecycle already in Local AI Spec
+   §7 / §9 and Freeze retrieval-first / truth-before-intelligence (“hippocampus,
+   not GPU cluster”), not neuromorphic silicon or always-on sensing. ADR-044 is
+   not hashed and does not rewrite Spec, Freeze, or authorize MIG-* / Grounded
+   Answers code.
+
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.

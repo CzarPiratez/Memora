@@ -1353,3 +1353,60 @@ map `docs/UNFYND_VISION_ALIGNMENT.md` is not hashed and is not architectural
 authority. MIG-* remains unstarted. Act remains out. Hashed architecture files
 are unchanged.
 
+## ADR-044: Low-power product behavior is the event-driven Memory lifecycle
+
+**Status:** Accepted
+
+**Decision:** UNFYND’s on-device power posture is not neuromorphic silicon and
+not always-on sensing. It is the event-driven Memory lifecycle already required
+by the Local AI Technical Spec and Architecture Freeze: do expensive work
+rarely, store durable Memory / evidence / embeddings, stay quiet until a
+discovery, fingerprint, user, or pack-upgrade cue, recall cheaply from stored
+rows, and run expensive reasoning only when explicitly asked (Grounded Answers
+over a frozen Evidence Package). Team language may say “hippocampus, not GPU
+cluster” or “sparse index → cheap recall → rare deep thought.” This ADR records
+that interpretation only.
+
+This ADR does not add new architectural principles, reopen Architecture Freeze
+v1.0, authorize MIG-*, authorize Grounded Answers implementation, authorize
+always-on camera/mic, or authorize cloud AI on the core path.
+
+**Binding interpretation:**
+
+1. **Cite Local AI Spec §7.** Background discovery, extraction, and
+   understanding run through WorkManager with battery-not-low,
+   storage-not-low, prefer-charging/idle for heavier models, and stop when
+   constraints or thermal/memory pressure require it. Honest paused /
+   retryable UI when indexing yields to device health is correct product
+   behavior, not a silent failure.
+2. **Cite Local AI Spec §9 and Freeze §3.** Ordinary Find / recall does not
+   reopen originals and does not run per-result generative reasoning.
+   Retrieval-first and truth-before-intelligence remain binding. The narrow
+   Grounded Answers carve-out (expensive reasoning over a frozen Evidence
+   Package when explicitly asked) is unchanged and still not an
+   implementation authorization.
+3. **Cite ADR-043.** Personal Knowledge Infrastructure is the north star;
+   Android remains a reference shell; Act remains out of current
+   architecture. This ADR does not change that scope.
+4. **No new requirements.** No neuromorphic hardware mandate. No performance
+   number claims without benchmarks. No rewrite of hashed Spec, Freeze,
+   Amendment, Grounding, or Product Contract blobs.
+
+**Out of scope:**
+
+- Application, database, Room, retrieval, UI, or MIG-* code
+- Neuromorphic or always-on sensing requirements
+- Grounded Answers implementation
+- Cloud AI on the core path
+- Rewriting hashed architecture files
+- Performance SLAs without measured baselines
+
+**Reason:** The product already behaves like a sparse, event-driven memory
+system on phone constraints. Recording the interpretation prevents treating
+paused indexing as a bug, or treating “low power” as a call for new silicon
+or always-on capture.
+
+**Consequences:** Registry and CONTINUE point here for language only. Spec §7 /
+§9 and Freeze retrieval-first / truth-before-intelligence remain the binding
+rules. Hashed architecture files are unchanged. No code in this decision.
+

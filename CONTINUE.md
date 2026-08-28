@@ -23,6 +23,9 @@ still out). `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5
 
 Focused unit tests for the assembler passed (see CHANGE_CONTROL_MIG02).
 
+**Docs note (ADR-044):** Low-power product behavior = event-driven Memory
+lifecycle (interpretation only; cites Spec §7 / §9). No code.
+
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**

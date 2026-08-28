@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### ADR-044 low-power equals event-driven Memory lifecycle (docs-only)
+
+- **Date:** 2026-08-28
+- **Delivered:** Accepted ADR-044: on-device power posture is the event-driven
+  Memory lifecycle (sparse index → cheap recall → rare deep thought), not
+  neuromorphic silicon or always-on sensing. Cites Spec §7 / §9 and Freeze
+  retrieval-first / truth-before-intelligence. Paused indexing under
+  battery/storage/thermal/WorkManager constraints is correct product behavior
+  with honest UI. Interpretation only.
+- **Truthfulness:** No application, database, Room, retrieval, UI, or MIG-*
+  code. Does not reopen Architecture Freeze, authorize Grounded Answers
+  implementation, always-on camera/mic, or cloud AI on the core path. Hashed
+  freeze/spec/amendment/grounding/contract files unchanged. ADR-043 Act-out
+  unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_ADR044_LOW_POWER_MEMORY_LIFECYCLE.md`.
+
 ### MIG-01 residual closed (Room 12→13 device-verified)
 
 - **Date:** 2026-08-28
