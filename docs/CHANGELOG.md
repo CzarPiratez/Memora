@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### MIG-01 residual closed (Room 12→13 device-verified)
+
+- **Date:** 2026-08-28
+- **Delivered (docs only):** `MemoraDatabaseMigrationTest` passed **2/2** on
+  the Medium Phone emulator. Room 12→13 evidence-class backfill is
+  device-verified. No application code change in this residual close.
+- **Truthfulness:** Hashed freeze/spec/amendment files unchanged. MIG-03+ not
+  claimed here.
+- **Change control:** `docs/CHANGE_CONTROL_MIG01_RESIDUAL_CLOSED.md`.
+
 ### MIG-02 Remove Artificial Evidence Item/Length Caps
 
 - **Date:** 2026-08-28
@@ -13,10 +23,10 @@
   `asset-memory-facts-v3` so the next legitimate reassembly gets richer
   evidence; no forced mass reindex of existing memories.
 - **Truthfulness:** Search paths, embeddings, typed anchors, Grounded Answers,
-  ranking/Find/Why UI, Links, package rename, and MIG-03+ are not started.
-  Hashed freeze/spec/amendment files unchanged. MIG-01 Room 12→13
-  instrumentation (`MemoraDatabaseMigrationTest`) remains unverified on
-  emulator (adb/connect residual); that gap is not claimed closed here.
+  ranking/Find/Why UI, Links, package rename, and MIG-03+ are not started in
+  this entry. Hashed freeze/spec/amendment files unchanged. MIG-01 Room 12→13
+  instrumentation residual later closed separately (see Unreleased residual
+  entry above).
 - **Change control:** `docs/CHANGE_CONTROL_MIG02_EVIDENCE_CAPS.md`.
 
 ### MIG-01 Evidence Class Taxonomy (Room 12→13)
