@@ -1,6 +1,10 @@
 # UNFYND Engineering Guide
 
-**Product identity:** UNFYND (formerly Memora). Direction: UNFYND Core — on-device memory and intelligence infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040 / ADR-045 / ADR-046).
+**Product identity:** **UNFYND App** (the product people use) and **UNFYND Core**
+(on-device memory and intelligence infrastructure). Formerly Memora. The Android
+project folder path `MemoraApp/` is a deferred technical ID (ADR-040), not the
+product name. This document’s freeze is the technical invariants below. Naming is
+not an architectural invariant (ADR-040 / ADR-045 / ADR-046).
 
 ## Product authority
 

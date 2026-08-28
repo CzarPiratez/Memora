@@ -2,9 +2,12 @@
 
 ## Current checkpoint
 
-**Project:** UNFYND Android app  
-**Project folder:** `MemoraApp/`  
+**Project:** UNFYND App (Android surface in this monorepo)  
+**Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-08-29
+
+**Docs note:** Root `README.md` is site-aligned product/App vs Core voice
+([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
 
 **Checkpoint (MIG-04):** Spec §4 `MemoryBuilder` contract seam is live:
 `assemble` accepts deterministic facts + optional local observations and returns
@@ -38,10 +41,10 @@ from those ADRs alone.
 **Docs note (ADR-047):** Class A authorized — curated UNFYND Core Public
 Specification / Contract pack under Apache-2.0 (essential open, inspectable
 element of Core). **Pack files landed** under `public/unfynd-core/` (Apache-2.0
-distillation; follow-up a). Root README App vs Core rewrite and public GitHub
-publish of **only** that pack remain deferred. Android app and proprietary
-assets stay private until a later ADR. No MIG-* / Freeze reopen / Act from
-ADR-047.
+distillation; follow-up a). **Root README App vs Core rewrite landed**
+(follow-up b; site-aligned). Public GitHub publish of **only** that pack
+remains deferred (follow-up c). UNFYND App and proprietary assets stay private
+until a later ADR. No MIG-* / Freeze reopen / Act from ADR-047.
 
 ### Where we are (honest)
 

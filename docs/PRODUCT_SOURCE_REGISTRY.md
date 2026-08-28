@@ -55,9 +55,10 @@ conversational memory or an untracked desktop file.
 9. **Class A Core contracts (ADR-047):** Release Class A authorizes a curated
    UNFYND Core Public Specification / Contract pack under Apache-2.0 (essential
    open, inspectable element of Core). Pack files live under
-   `public/unfynd-core/` (follow-up a landed). Root README Class A rewrite and
-   public GitHub publish of **only** that pack remain follow-ups. The Android
-   reference app and proprietary assets stay private until a later ADR.
+   `public/unfynd-core/` (follow-up a landed). Root README App vs Core rewrite
+   landed (follow-up b). Public GitHub publish of **only** that pack remains a
+   follow-up (c). UNFYND App and proprietary assets stay private until a later
+   ADR.
    Openness is product strategy; do not frame the product by external grant
    programs.
 

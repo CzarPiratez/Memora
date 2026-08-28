@@ -60,8 +60,9 @@ Do not stage unrelated dirty files (`docs/ROADMAP.md`,
 - **Emulator/manual verification and result:** Not required.
 - **Failure/recovery paths verified:** N/A.
 - **Known limitation or follow-up:** Root README App vs Core rewrite (ADR-047
-  b) and separate public GitHub publish of **only** this pack (ADR-047 c)
-  remain deferred. Class B requires a later ADR.
+  b) landed in `CHANGE_CONTROL_README_APP_VS_CORE.md`. Separate public GitHub
+  publish of **only** this pack (ADR-047 c) remains deferred. Class B requires
+  a later ADR.
 - **Documentation/traceability/ADR updates:** This record; CONTINUE; changelog;
   registry pointer. ADR-047 text unchanged (authorization already accepted).
 - **Git commit:** Local checkpoint after verification (no push).

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Root README / identity alignment — App vs Core (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Root `README.md` rewritten to site-aligned UNFYND App vs
+  UNFYND Core voice (privacy-first, vision ladder as direction with Act/agents
+  and AVAILABLE non-claims, Class A honesty, multiplatform App surfaces). Light
+  App vs Core table fix in `public/unfynd-core/README.md`; light identity touch
+  in `CONTINUE.md` / `AGENTS.md`. No MIG-*; no technical-ID renames; no push;
+  public Core GitHub still TBD.
+- **Change control:** `docs/CHANGE_CONTROL_README_APP_VS_CORE.md`.
+
 ### Class A NOTICE copyright attribution fix (docs-only)
 
 - **Date:** 2026-08-29

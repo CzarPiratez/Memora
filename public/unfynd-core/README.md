@@ -16,8 +16,8 @@ stack is open source.
 
 | | **UNFYND App** | **UNFYND Core** |
 |---|---|---|
-| What it is | The Android reference product people install and use | On-device **memory and intelligence infrastructure**: durable multimodal memory next to data that cannot leave; local-first; evidence-backed |
-| Role | First shell / reference implementation | The substrate: Asset → Memory → evidence, capability seams, retrieval and explain contracts |
+| What it is | The product people use across Android, Windows, iOS, and Mac | On-device **memory and intelligence infrastructure**: durable multimodal memory next to data that cannot leave; local-first; evidence-backed |
+| Role | Multiplatform product surface | The substrate: Asset → Memory → evidence, capability seams, retrieval and explain contracts |
 | Openness (today) | Private until a later decision | **This pack** opens contracts and specs under Apache-2.0 |
 
 Search and Find are capabilities of the product. They are not the whole definition
