@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### ADR-046 Core noun on-device memory and intelligence infrastructure (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-046: living-canon and public product language is
+  **UNFYND Core — on-device memory and intelligence infrastructure**. Supersedes
+  ADR-045 public wording (“on-device intelligence infrastructure”) only; ADR-045
+  still stands for retired PKI/PII/grant metaphors, hashed PKI untouched,
+  technical IDs unchanged, and non-authorization of Class A / app open / MIG /
+  Act. Prefer “memory and intelligence” so Core is not read as a generic
+  local-LLM stack without a Memory substrate.
+- **Truthfulness:** No Class A pack, public GitHub, MIG-*, Grounded Answers
+  code, Act/agents, or Architecture Freeze reopen. Hashed freeze/spec/amendment/
+  grounding/contract/GA files unchanged. No `MemoraApp/` edits.
+- **Change control:**
+  `docs/CHANGE_CONTROL_ADR046_ON_DEVICE_MEMORY_AND_INTELLIGENCE_INFRASTRUCTURE.md`.
+
 ### ADR-045 UNFYND Core as on-device intelligence infrastructure (docs-only)
 
 - **Date:** 2026-08-29

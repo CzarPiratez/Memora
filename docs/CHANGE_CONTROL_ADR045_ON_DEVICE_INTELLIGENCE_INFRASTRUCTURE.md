@@ -71,7 +71,9 @@ No deploy. No push. Do not stage unrelated dirty files
 - **Emulator/manual verification and result:** Not required.
 - **Failure/recovery paths verified:** N/A.
 - **Known limitation or follow-up:** Living-canon noun only. Does not start
-  Class A, ADR-046, MIG-*, Grounded Answers code, or Act. Historical ADRs and
-  hashed documents may still say PKI; substance of ADR-043 stands.
+  Class A, MIG-*, Grounded Answers code, or Act. Historical ADRs and hashed
+  documents may still say PKI; substance of ADR-043 stands. **Public noun
+  refined by ADR-046** to “on-device memory and intelligence infrastructure”
+  (see `docs/CHANGE_CONTROL_ADR046_ON_DEVICE_MEMORY_AND_INTELLIGENCE_INFRASTRUCTURE.md`).
 - **Documentation/traceability/ADR updates:** ADR-045; this record.
 - **Git commit:** Local checkpoint after verification (no push).

@@ -9,11 +9,12 @@ conversational memory or an untracked desktop file.
 
 ## Authority and interpretation
 
-1. **Current product identity (ADR-040 / ADR-045):** the product/brand name is
-   **UNFYND**. Living-canon product language for the substrate is **UNFYND Core
-   — on-device intelligence infrastructure** (ADR-045). The Android app is one
-   milestone/reference implementation, not the whole system. Search/retrieval is
-   one capability, not the product definition. Operating procedure:
+1. **Current product identity (ADR-040 / ADR-045 / ADR-046):** the product/brand
+   name is **UNFYND**. Living-canon product language for the substrate is
+   **UNFYND Core — on-device memory and intelligence infrastructure** (ADR-046
+   refining ADR-045 wording). The Android app is one milestone/reference
+   implementation, not the whole system. Search/retrieval is one capability, not
+   the product definition. Operating procedure:
    `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`.
 2. `Memora.docx` remains the **historical** product baseline: MVP sources and
    user promise as originally written. Identity is superseded by ADR-040, not by
@@ -25,30 +26,32 @@ conversational memory or an untracked desktop file.
    `LOCAL_AI_TECHNICAL_SPEC.md`. The Markdown specification is the testable,
    implementation-facing interpretation; it must not weaken Addendum 1.
 5. When an ambiguity remains, stop, record an ADR, and ask for a product decision.
-6. **Vision vs freeze (ADR-043; noun updated by ADR-045):** the frozen
+6. **Vision vs freeze (ADR-043; noun updated by ADR-045 / ADR-046):** the frozen
    architecture (Product Contract + Local AI Spec + Experience Memory Amendment
    + Freeze change-control; Grounding Architecture for Grounded Answers only,
-   per ADR-042) is accepted as suitable for UNFYND Core / on-device intelligence
-   infrastructure through See/Remember, staged Connect, retrieve-by-meaning, and
-   Understand / converse-as-Q&A. Act / agentic Personal AI remains out of current
-   architecture until a later ADR and product-contract change. ADR-043’s body and
-   hashed blobs that still say “Personal Knowledge Infrastructure” / PKI are
-   left unchanged; PKI is a prior internal noun (ADR-045). This does not rewrite
-   hashed blobs, reopen the Architecture Freeze, or start MIG-*.
+   per ADR-042) is accepted as suitable for UNFYND Core / on-device memory and
+   intelligence infrastructure through See/Remember, staged Connect,
+   retrieve-by-meaning, and Understand / converse-as-Q&A. Act / agentic Personal
+   AI remains out of current architecture until a later ADR and product-contract
+   change. ADR-043’s body and hashed blobs that still say “Personal Knowledge
+   Infrastructure” / PKI are left unchanged; PKI is a prior internal noun
+   (ADR-045). This does not rewrite hashed blobs, reopen the Architecture
+   Freeze, or start MIG-*.
 7. **Low-power posture (ADR-044):** interpretation only — UNFYND’s on-device
    power behavior is the event-driven Memory lifecycle already in Local AI Spec
    §7 / §9 and Freeze retrieval-first / truth-before-intelligence (“hippocampus,
    not GPU cluster”), not neuromorphic silicon or always-on sensing. ADR-044 is
    not hashed and does not rewrite Spec, Freeze, or authorize MIG-* / Grounded
    Answers code.
-8. **Product noun (ADR-045):** living-canon and public product language is
-   **UNFYND Core — on-device intelligence infrastructure**. Do not use
-   “Personal Knowledge Infrastructure,” “Personal Intelligence Infrastructure,”
-   or third-party grant metaphors in new living-canon, CONTINUE, AGENTS identity
-   blurb, or registry interpretation lines. Technical IDs remain deferred
-   (`com.memora.app`, `memora.db`, Keystore/MSAL hosts, GitHub/`Memora`). ADR-045
-   does not authorize Class A publish, opening the Android app, MIG-*, Grounded
-   Answers code, Act/agents, or Freeze reopen.
+8. **Product noun (ADR-045; public wording refined by ADR-046):** living-canon
+   and public product language is **UNFYND Core — on-device memory and
+   intelligence infrastructure**. Do not use “Personal Knowledge Infrastructure,”
+   “Personal Intelligence Infrastructure,” or third-party grant metaphors in new
+   living-canon, CONTINUE, AGENTS identity blurb, or registry interpretation
+   lines. Technical IDs remain deferred (`com.memora.app`, `memora.db`,
+   Keystore/MSAL hosts, GitHub/`Memora`). ADR-045 / ADR-046 do not authorize
+   Class A publish, opening the Android app, MIG-*, Grounded Answers code,
+   Act/agents, or Freeze reopen.
 
 ## Governed internal amendments
 

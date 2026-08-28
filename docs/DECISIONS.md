@@ -1467,3 +1467,49 @@ hashed constitutions and ADR-043’s architectural substance.
 living pointers, and changelog record this noun. Historical ADRs and hashed
 blobs keep their original wording. No application or schema change.
 
+Public noun refined by ADR-046.
+
+## ADR-046: Refine UNFYND Core public noun to on-device memory and intelligence infrastructure
+
+**Status:** Accepted
+
+**Decision:** Living-canon and public product language for the substrate is now
+**UNFYND Core — on-device memory and intelligence infrastructure**: durable
+multimodal memory next to data that cannot leave; local-first; evidence-backed.
+This supersedes the public wording in ADR-045 (“on-device intelligence
+infrastructure”) only. Prefer “memory and intelligence” so Core is not read as
+a generic local-LLM stack without a Memory substrate.
+
+**Binding interpretation:**
+
+1. **Refined living noun.** New living-canon lines, `CONTINUE.md`, the
+   `AGENTS.md` identity blurb, and registry interpretation use **UNFYND Core —
+   on-device memory and intelligence infrastructure** (or short forms “UNFYND
+   Core” / “on-device memory and intelligence infrastructure”).
+2. **ADR-045 still stands** for: drop “Personal Knowledge Infrastructure” /
+   “Personal Intelligence Infrastructure” in new living canon; no grant
+   metaphors; hashed PKI blobs untouched; technical IDs unchanged; no Class A /
+   app open / MIG-* / Act from ADR-045 alone. Only the public noun wording is
+   refined here.
+3. **Non-authorization.** This ADR does not authorize Class A publish, opening
+   the Android app, MIG-*, Grounded Answers code, Act/agents, or Architecture
+   Freeze reopen.
+
+**Out of scope:**
+
+- Class A pack folder, README Class A rewrite, public GitHub repo setup
+- MIG-* implementation
+- Grounded Answers code; Act / agents
+- Rewriting hashed Architecture Freeze, Local AI Spec, Experience Memory
+  Amendment, Grounding Architecture, Product Contract, or Grounded Answers
+  amendment blobs
+- Package, database, Keystore, MSAL, or repository rename
+
+**Reason:** Naming memory in the public noun keeps UNFYND Core from being
+mistaken for a generic on-device LLM product without the Memory substrate.
+
+**Consequences:** CONTINUE, registry interpretation, AGENTS identity line, and
+ADR-045 change-control / CONTINUE pointers use the refined noun. ADR-045 body
+keeps its original wording plus the one-line refinement note. No application or
+schema change.
+
