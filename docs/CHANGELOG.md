@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Class A pack published to public GitHub (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** ADR-047 follow-up (c): Class A Apache-2.0 pack published to
+  https://github.com/CzarPiratez/unfynd-core root only (`LICENSE`, `NOTICE`,
+  `README.md`, `SPEC.md`, `ROADMAP-OPEN.md`, `SECURITY.md`, `CITATIONS.md`).
+  Private Memora monorepo was not pushed.
+- **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_V1.md`.
+
 ### Root README / identity alignment — App vs Core (docs-only)
 
 - **Date:** 2026-08-29
@@ -9,8 +18,8 @@
   UNFYND Core voice (privacy-first, vision ladder as direction with Act/agents
   and AVAILABLE non-claims, Class A honesty, multiplatform App surfaces). Light
   App vs Core table fix in `public/unfynd-core/README.md`; light identity touch
-  in `CONTINUE.md` / `AGENTS.md`. No MIG-*; no technical-ID renames; no push;
-  public Core GitHub still TBD.
+  in `CONTINUE.md` / `AGENTS.md`. No MIG-*; no technical-ID renames; no private
+  Memora push. Public Core GitHub publish tracked as Class A follow-up (c).
 - **Change control:** `docs/CHANGE_CONTROL_README_APP_VS_CORE.md`.
 
 ### Class A NOTICE copyright attribution fix (docs-only)
@@ -32,9 +41,10 @@
   seams including MemoryBuilder, local-first / truth-before-intelligence /
   retrieval-first). No hashed Freeze/Spec/Amendment/Grounding/Product Contract
   blob edits.
-- **Truthfulness:** Public GitHub publish of **only** this pack and root README
-  App vs Core rewrite remain deferred. No MIG-*, no push, no app source, no
-  secrets. Act still out; no AVAILABLE / Act shipped claims.
+- **Truthfulness:** Root README App vs Core rewrite and public GitHub publish of
+  **only** this pack were deferred at pack landing; publish completed as
+  follow-up (c). No MIG-*, no private Memora push, no app source, no secrets.
+  Act still out; no AVAILABLE / Act shipped claims.
 - **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_V1.md`.
 
 ### ADR-047 Class A UNFYND Core contracts under Apache-2.0 (docs-only)

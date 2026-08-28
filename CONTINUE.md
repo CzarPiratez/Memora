@@ -42,9 +42,11 @@ from those ADRs alone.
 Specification / Contract pack under Apache-2.0 (essential open, inspectable
 element of Core). **Pack files landed** under `public/unfynd-core/` (Apache-2.0
 distillation; follow-up a). **Root README App vs Core rewrite landed**
-(follow-up b; site-aligned). Public GitHub publish of **only** that pack
-remains deferred (follow-up c). UNFYND App and proprietary assets stay private
-until a later ADR. No MIG-* / Freeze reopen / Act from ADR-047.
+(follow-up b; site-aligned). **Class A pack published** at
+https://github.com/CzarPiratez/unfynd-core (follow-up c; Apache-2.0 root
+LICENSE/NOTICE/README/SPEC/ROADMAP-OPEN/SECURITY/CITATIONS only). UNFYND App
+and proprietary assets stay private until a later ADR. No MIG-* / Freeze
+reopen / Act from ADR-047.
 
 ### Where we are (honest)
 
