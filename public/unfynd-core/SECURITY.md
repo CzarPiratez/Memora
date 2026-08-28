@@ -17,7 +17,7 @@ incident: do not reshare the material; report it (below).
 
 ## Reporting a vulnerability or sensitive leak
 
-**Public issue tracker URL:** TBD  
+**Public issue tracker URL:** https://github.com/CzarPiratez/unfynd-core/issues  
 (Use the public GitHub issues URL once the Class A-only public repository exists.)
 
 Until that URL is published:
