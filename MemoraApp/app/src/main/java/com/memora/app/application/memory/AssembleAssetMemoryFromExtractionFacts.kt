@@ -30,10 +30,12 @@ import javax.inject.Inject
 /**
  * Builds a truthful pre-AI Asset Memory from already-persisted deterministic facts.
  *
- * This does not infer people, places, topics, meaning, or confidence. Every usable
- * deterministic fact becomes one [MemoryEvidence] row (DIRECT). Summary and TEXT
- * anchor are display-bounded excerpts of evidence already persisted with the revision;
- * those display bounds are not evidence-completeness limits.
+ * This does not invent people, places, objects, activities, purposes, meaning, or
+ * confidence. Every usable deterministic fact becomes one [MemoryEvidence] row
+ * (DIRECT). Summary and anchors are display-bounded excerpts of evidence already
+ * persisted with the revision; those display bounds are not evidence-completeness
+ * limits. TIME and TOPIC anchors are added only when EXIF date-taken or PDF/note
+ * title facts survive sanitize (MIG-03).
  */
 class AssembleAssetMemoryFromExtractionFacts internal constructor(
     private val assetRepository: AssetRepository,
@@ -69,6 +71,7 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
             )
         }
         val primary = selectPrimaryEvidence(evidence)
+        val anchors = buildAnchors(evidence, primary)
         val now = clock.instant()
         val memoryId = MemoryId(hash(asset.identity.sourceId.value, asset.identity.sourceAssetKey.value))
         val memory = Memory(
@@ -88,14 +91,7 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
                     text = MemoryText(primary.excerpt.value.take(MAX_SUMMARY_CHARS)),
                     evidenceIds = setOf(primary.id),
                 ),
-                anchors = listOf(
-                    MemoryAnchor(
-                        id = MemoryAnchorId("text-1"),
-                        kind = MemoryAnchorKind.TEXT,
-                        text = MemoryText(primary.excerpt.value.take(MAX_ANCHOR_CHARS)),
-                        evidenceIds = setOf(primary.id),
-                    ),
-                ),
+                anchors = anchors,
             ),
             evidence = evidence,
             createdAt = now,
@@ -132,6 +128,67 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
         return evidence.firstOrNull { it.kind.isPrimaryTextKind() } ?: evidence.first()
     }
 
+    /**
+     * TEXT always; TIME when a surviving EXIF date-taken fact exists; TOPIC when a
+     * PDF or note title fact exists. Never fabricates PERSON/PLACE/OBJECT/ACTIVITY/
+     * PURPOSE. Every anchor cites evidence already on the revision.
+     */
+    private fun buildAnchors(
+        evidence: List<MemoryEvidence>,
+        primary: MemoryEvidence,
+    ): List<MemoryAnchor> = buildList {
+        add(
+            MemoryAnchor(
+                id = MemoryAnchorId("text-1"),
+                kind = MemoryAnchorKind.TEXT,
+                text = MemoryText(primary.excerpt.value.take(MAX_ANCHOR_CHARS)),
+                evidenceIds = setOf(primary.id),
+            ),
+        )
+        findTimeEvidence(evidence)?.let { timeEvidence ->
+            val timeText = dateTakenField(timeEvidence.excerpt.value)
+                ?: timeEvidence.excerpt.value
+            add(
+                MemoryAnchor(
+                    id = MemoryAnchorId("time-1"),
+                    kind = MemoryAnchorKind.TIME,
+                    text = MemoryText(timeText.take(MAX_ANCHOR_CHARS)),
+                    evidenceIds = setOf(timeEvidence.id),
+                ),
+            )
+        }
+        findTopicEvidence(evidence)?.let { topicEvidence ->
+            add(
+                MemoryAnchor(
+                    id = MemoryAnchorId("topic-1"),
+                    kind = MemoryAnchorKind.TOPIC,
+                    text = MemoryText(topicEvidence.excerpt.value.take(MAX_ANCHOR_CHARS)),
+                    evidenceIds = setOf(topicEvidence.id),
+                ),
+            )
+        }
+    }
+
+    private fun findTimeEvidence(evidence: List<MemoryEvidence>): MemoryEvidence? =
+        evidence.firstOrNull { item ->
+            item.kind == MemoryEvidenceKind.SOURCE_METADATA &&
+                item.locator.value == EXIF_FIELDS_LOCATOR &&
+                dateTakenField(item.excerpt.value) != null
+        }
+
+    private fun findTopicEvidence(evidence: List<MemoryEvidence>): MemoryEvidence? =
+        evidence.firstOrNull { item ->
+            item.kind == MemoryEvidenceKind.SOURCE_METADATA &&
+                item.locator.value in TOPIC_TITLE_LOCATORS
+        }
+
+    /** Returns the Date-taken field from an EXIF excerpt, or null if absent. */
+    private fun dateTakenField(excerpt: String): String? =
+        excerpt.split(';')
+            .map { it.trim() }
+            .firstOrNull { it.startsWith(DATE_TAKEN_PREFIX, ignoreCase = true) }
+            ?.takeIf { it.length > DATE_TAKEN_PREFIX.length }
+
     private fun MemoryEvidenceKind.isPrimaryTextKind(): Boolean =
         this == MemoryEvidenceKind.OCR_TEXT ||
             this == MemoryEvidenceKind.DOCUMENT_TEXT ||
@@ -158,12 +215,12 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
 
     companion object {
         /**
-         * v3 (MIG-02): every usable deterministic fact becomes evidence; no fixed
-         * item-count cap. Prior v2 revisions remain readable; next legitimate
-         * assembly for the current schema produces richer evidence without a forced
-         * mass reindex.
+         * v4 (MIG-03): TIME/TOPIC anchors from EXIF date-taken and PDF/note title
+         * facts, in addition to uncapped DIRECT evidence (v3). Prior v3 revisions
+         * remain readable; next legitimate assembly for the current schema produces
+         * typed anchors without a forced mass reindex.
          */
-        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v3")
+        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v4")
 
         /**
          * Pathological per-item guard, not a completeness policy. Caps one fact so a
@@ -178,6 +235,9 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
         const val MAX_SUMMARY_CHARS = 240
         const val MAX_ANCHOR_CHARS = 160
         const val MAX_LOCATOR_CHARS = 160
+        private const val EXIF_FIELDS_LOCATOR = "exif:fields"
+        private const val DATE_TAKEN_PREFIX = "Date taken:"
+        private val TOPIC_TITLE_LOCATORS = setOf("pdf:title", "note:title")
         private val WHITESPACE = Regex("\\s+")
         private val UNIT_SEPARATOR = byteArrayOf(0x1f)
     }

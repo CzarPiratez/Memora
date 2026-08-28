@@ -13,6 +13,7 @@ import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.memory.AssetMemoryFact
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.Memory
+import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceClass
@@ -26,6 +27,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -79,10 +81,17 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             memory.evidence.first { it.kind == MemoryEvidenceKind.DOCUMENT_TEXT }.id,
             memory.signature.summary.evidenceIds.single(),
         )
+        val textAnchor = memory.signature.anchors.single { it.kind == MemoryAnchorKind.TEXT }
         assertEquals(
             memory.evidence.first { it.kind == MemoryEvidenceKind.DOCUMENT_TEXT }.id,
-            memory.signature.anchors.single().evidenceIds.single(),
+            textAnchor.evidenceIds.single(),
         )
+        val timeAnchor = memory.signature.anchors.single { it.kind == MemoryAnchorKind.TIME }
+        val exifEvidence = memory.evidence.single {
+            it.kind == MemoryEvidenceKind.SOURCE_METADATA && it.locator.value == "exif:fields"
+        }
+        assertEquals(exifEvidence.id, timeAnchor.evidenceIds.single())
+        assertEquals("Date taken: 2026:07:31 10:30:00", timeAnchor.text.value)
         assertEquals(
             setOf("pdf-extraction-v1", "screenshot-ocr-v1", "image-exif-v1"),
             memory.extractionSchemaVersions,
@@ -122,7 +131,106 @@ class AssembleAssetMemoryFromExtractionFactsTest {
         )
         assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
         assertEquals("Meeting notes for Project Atlas", memory.signature.summary.text.value)
+        val topicAnchor = memory.signature.anchors.single { it.kind == MemoryAnchorKind.TOPIC }
+        val titleEvidence = memory.evidence.single {
+            it.kind == MemoryEvidenceKind.SOURCE_METADATA && it.locator.value == "note:title"
+        }
+        assertEquals(titleEvidence.id, topicAnchor.evidenceIds.single())
+        assertEquals("Title: Project Atlas", topicAnchor.text.value)
+        assertTrue(memory.signature.anchors.any { it.kind == MemoryAnchorKind.TEXT })
+        assertNull(memory.signature.anchors.firstOrNull { it.kind == MemoryAnchorKind.TIME })
         assertEquals(setOf("onenote-page-text-v1"), memory.extractionSchemaVersions)
+    }
+
+    @Test
+    fun `emits TOPIC anchor from pdf title fact citing that evidence`() = runTest {
+        val asset = asset()
+        val facts = listOf(
+            AssetMemoryFact(
+                MemoryEvidenceKind.DOCUMENT_TEXT,
+                "pdf:page:1",
+                "Body of the quarterly plan",
+                "pdf-extraction-v1",
+            ),
+            AssetMemoryFact(
+                MemoryEvidenceKind.SOURCE_METADATA,
+                "pdf:title",
+                "Title: Quarterly Plan",
+                "pdf-extraction-v1",
+            ),
+        )
+        val memory = (
+            AssembleAssetMemoryFromExtractionFacts(
+                FakeAssetRepository(asset),
+                FakeFactSource(facts),
+                FakeMemoryRepository(),
+                Clock.systemUTC(),
+            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            ).memory
+
+        val topicAnchor = memory.signature.anchors.single { it.kind == MemoryAnchorKind.TOPIC }
+        val titleEvidence = memory.evidence.single { it.locator.value == "pdf:title" }
+        assertEquals(titleEvidence.id, topicAnchor.evidenceIds.single())
+        assertEquals("Title: Quarterly Plan", topicAnchor.text.value)
+        assertTrue(memory.signature.anchors.any { it.kind == MemoryAnchorKind.TEXT })
+        assertNull(memory.signature.anchors.firstOrNull { it.kind == MemoryAnchorKind.TIME })
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
+    }
+
+    @Test
+    fun `does not fabricate TIME or TOPIC when those facts are absent`() = runTest {
+        val asset = asset()
+        val facts = listOf(
+            AssetMemoryFact(
+                MemoryEvidenceKind.DOCUMENT_TEXT,
+                "pdf:page:1",
+                "Only page text remains",
+                "pdf-extraction-v1",
+            ),
+        )
+        val memory = (
+            AssembleAssetMemoryFromExtractionFacts(
+                FakeAssetRepository(asset),
+                FakeFactSource(facts),
+                FakeMemoryRepository(),
+                Clock.systemUTC(),
+            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            ).memory
+
+        assertEquals(listOf(MemoryAnchorKind.TEXT), memory.signature.anchors.map { it.kind })
+        assertEquals("Only page text remains", memory.signature.anchors.single().text.value)
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
+    }
+
+    @Test
+    fun `does not invent TIME when EXIF has camera but no date taken`() = runTest {
+        val asset = asset(type = AssetType.PHOTO)
+        val facts = listOf(
+            AssetMemoryFact(
+                MemoryEvidenceKind.OCR_TEXT,
+                "image:whole",
+                "Cafe menu board",
+                "photo-ocr-v1",
+            ),
+            AssetMemoryFact(
+                MemoryEvidenceKind.SOURCE_METADATA,
+                "exif:fields",
+                "Camera: Pixel 8; Dimensions: 640 × 480",
+                "image-exif-v1",
+            ),
+        )
+        val memory = (
+            AssembleAssetMemoryFromExtractionFacts(
+                FakeAssetRepository(asset),
+                FakeFactSource(facts),
+                FakeMemoryRepository(),
+                Clock.systemUTC(),
+            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            ).memory
+
+        assertNull(memory.signature.anchors.firstOrNull { it.kind == MemoryAnchorKind.TIME })
+        assertTrue(memory.signature.anchors.any { it.kind == MemoryAnchorKind.TEXT })
+        assertTrue(memory.evidence.any { it.locator.value == "exif:fields" })
     }
 
     @Test
@@ -227,7 +335,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA,
             memory.assemblySchemaVersion,
         )
-        assertEquals("asset-memory-facts-v3", memory.assemblySchemaVersion.value)
+        assertEquals("asset-memory-facts-v4", memory.assemblySchemaVersion.value)
     }
 
     @Test

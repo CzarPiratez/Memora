@@ -6,22 +6,21 @@
 **Project folder:** `MemoraApp/`  
 **Updated:** 2026-08-28
 
-**Checkpoint (MIG-02 + MIG-01 residual closed):** Artificial evidence
-item-count cap removed from Asset Memory assembly (MIG-02). Every usable
-deterministic fact becomes `MemoryEvidence` (`DIRECT`). Per-item character
-bound is a pathological guard at 8192 chars (aligned with provisional PDF
-page write budget), not a completeness policy. `MAX_SUMMARY_CHARS` ≤ 240
-remains display-only. Assembly schema is `asset-memory-facts-v3` so the next
-legitimate reassembly gets richer evidence; existing capped memories are not
-force-reindexed. **MIG-01 residual closed:** `MemoraDatabaseMigrationTest`
-passed **2/2** on the Medium Phone emulator (Room 12→13 device-verified).
-Ranking, Find, Why UI redesign, Links, Event/Knowledge, Grounded Answers
-code, package rename, and MIG-03+ are not started in the MIG-02 commit;
-hashed freeze/spec/amendment files are unchanged. ADR-043 is unchanged (Act
-still out). `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5
+**Checkpoint (MIG-03):** Asset Memory assembly populates typed TIME and TOPIC
+anchors from already-extracted deterministic facts (EXIF `Date taken:` on
+`exif:fields`; PDF/note titles on `pdf:title` / `note:title`), in addition to
+the existing TEXT anchor. PERSON / PLACE / OBJECT / ACTIVITY / PURPOSE are not
+fabricated. Evidence remains uncapped DIRECT (MIG-02). Assembly schema is
+`asset-memory-facts-v4` so the next legitimate “Build memories” pass picks up
+typed anchors; existing memories are not force-reindexed. **MIG-01 residual
+closed:** `MemoraDatabaseMigrationTest` **2/2** on Medium Phone emulator
+(Room 12→13). Ranking, Find, Why UI redesign, Links, Event/Knowledge, Grounded
+Answers code, package rename, and MIG-04+ are not started. Hashed
+freeze/spec/amendment files are unchanged. ADR-043 is unchanged (Act still
+out). `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5
 (conversion journal, not Room). Identity playbook steps 0–5 remain complete.
 
-Focused unit tests for the assembler passed (see CHANGE_CONTROL_MIG02).
+Focused unit tests for the assembler passed (see CHANGE_CONTROL_MIG03).
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
 lifecycle (interpretation only; cites Spec §7 / §9). No code.
@@ -38,7 +37,8 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Keyword Find (PDF / OCR / photo text) | Shipped; Why evidence; open original / page where built |
 | Asset Memory build | Shipped (≤25 READY facts per tap); evidence uncapped per MIG-02 |
 | Evidence class (MIG-01) | On Asset Memory evidence; all current assembly is DIRECT; not used for ranking/UI/links. Links still not implemented. Room 12→13 **device-verified** (`MemoraDatabaseMigrationTest` 2/2 on Medium Phone emulator). |
-| Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only; schema `asset-memory-facts-v3` |
+| Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only |
+| Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -63,8 +63,9 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-03:** populate TIME/TOPIC anchors from deterministic EXIF / title
-   facts (authorized next delivery). Do not start MIG-04+ / MIG-07B.
+1. **MIG-04** (MemoryBuilder contract boundary) when authorized, or **M4**
+   midrange meaning measurement when a physical `midrange_arm64` device is
+   available. Do not start MIG-05+ / MIG-07B from this checkpoint.
 2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
    available; do not flip AVAILABLE from emulator alone.
 3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
@@ -90,7 +91,7 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
 6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
 7. `docs/ARCHITECTURE_FREEZE_v1.0.md` (freeze/change-control for that core; §1 exclusivity scoped by ADR-042)
-8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; MIG-03 is next; do not start MIG-04+)
+8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; MIG-03 is this delivery; do not start MIG-04+)
 9. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
 10. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
 11. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`

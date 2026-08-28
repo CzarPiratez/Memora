@@ -33,7 +33,6 @@ conversational memory or an untracked desktop file.
    converse-as-Q&A. Act / agentic Personal AI remains out of current architecture
    until a later ADR and product-contract change. This ADR does not rewrite
    hashed blobs, reopen the Architecture Freeze, or start MIG-*.
-
 7. **Low-power posture (ADR-044):** interpretation only — UNFYND’s on-device
    power behavior is the event-driven Memory lifecycle already in Local AI Spec
    §7 / §9 and Freeze retrieval-first / truth-before-intelligence (“hippocampus,
@@ -73,8 +72,8 @@ retired. Delivery governing order is aligned with Freeze §2 in
 errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
-authority only. MIG-02 is authorized and in this delivery; do not start
-MIG-03–MIG-11 or MIG-07B. Phase A plan is still not permission for later
+authority only. MIG-03 is authorized and in this delivery; do not start
+MIG-04–MIG-11 or MIG-07B. Phase A plan is still not permission for later
 MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not hashed and is not
 permission to implement.
 

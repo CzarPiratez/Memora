@@ -18,6 +18,21 @@
   unchanged.
 - **Change control:** `docs/CHANGE_CONTROL_ADR044_LOW_POWER_MEMORY_LIFECYCLE.md`.
 
+### MIG-03 TIME and TOPIC Memory Anchors
+
+- **Date:** 2026-08-28
+- **Delivered:** `AssembleAssetMemoryFromExtractionFacts` emits TIME anchors
+  from surviving EXIF `Date taken:` facts (`exif:fields`) and TOPIC anchors
+  from `pdf:title` / `note:title` SOURCE_METADATA, in addition to TEXT.
+  PERSON / PLACE / OBJECT / ACTIVITY / PURPOSE are not fabricated. Evidence
+  class remains DIRECT. Assembly schema bumped to `asset-memory-facts-v4`
+  (non-forced reindex). No Room schema migration.
+- **Truthfulness:** Ranking/Find/Why do not filter by anchor kind. Links,
+  Grounded Answers code, package rename, and MIG-04+ are not started. Hashed
+  freeze/spec/amendment files unchanged. MIG-01 residual already closed
+  (Room 12→13 device-verified).
+- **Change control:** `docs/CHANGE_CONTROL_MIG03_TIME_TOPIC_ANCHORS.md`.
+
 ### MIG-01 residual closed (Room 12→13 device-verified)
 
 - **Date:** 2026-08-28
