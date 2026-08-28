@@ -19,8 +19,8 @@ The everyday product goal is to help a person **recall** content by meaning and
 **explain why** a result matched — not to act as a file browser, upload tool, or
 generic chatbot.
 
-**UNFYND App** (Android reference shell) is one way to run that substrate. This
-pack describes Core contracts, not the private app implementation.
+**UNFYND App** is the multiplatform product surface that uses this substrate.
+This pack describes Core contracts, not the private App implementation.
 
 ### 1.1 Local-first / no cloud on the core path
 
@@ -121,8 +121,8 @@ recoverable failure, and cancellation.
   schema-validated Memory (or an honest build outcome).
 - Production assembly today is **deterministic** (extraction facts). Local
   observations default empty until a Vision path exists.
-- **Vision observations are not yet consumed** into Memory assembly in the
-  reference product. Do not claim vision-backed Asset Memories as shipped Core.
+- **Vision observations are not yet consumed** into Memory assembly in current
+  product surfaces. Do not claim vision-backed Asset Memories as shipped Core.
 
 ---
 
@@ -184,7 +184,7 @@ failure.
 
 This Class A pack does **not** claim or authorize:
 
-- That the Android reference app or private monorepo is open source
+- That the UNFYND App or private monorepo is open source
 - Marketing **AVAILABLE** semantic recall / SLA numbers without measured product
   decision
 - Shipped Links, Event Memories, or Knowledge Memories

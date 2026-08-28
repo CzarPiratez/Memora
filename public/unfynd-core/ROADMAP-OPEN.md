@@ -39,7 +39,7 @@ Exact file lists and licenses for any expansion need an explicit later ADR.
 
 ## Stays closed until a later ADR (typical)
 
-- UNFYND Android reference application
+- UNFYND App
 - Private monorepo (may still use historical folder names)
 - AI Pack weights, proprietary configs, and pack delivery secrets
 - Proprietary tuning and evaluation corpora
@@ -55,8 +55,10 @@ Exact file lists and licenses for any expansion need an explicit later ADR.
 quality, commercial) for redistributable technology packages, enterprise SDKs,
 OEM licensing, and similar.
 
-Class B is **not** done by this pack. Class A must not be read as permission to
-commercially redistribute components that need a separate commercial license.
+Class B is **not** done by this pack. Commercial product and enterprise
+technology licensing is **separate** from this Apache-2.0 contracts pack. Class A
+must not be read as permission to commercially redistribute components that need
+a separate commercial license.
 
 Any Class B (or broader Core source) publish requires a **new ADR** and clear
 artifact boundaries.
@@ -66,6 +68,6 @@ artifact boundaries.
 ## Publish mechanics (out of band)
 
 Landing files under `public/unfynd-core/` in the private monorepo is **not** the
-same as creating a public GitHub repository. Publishing **only** this pack to a
-separate public remote is a later step: copy or subtree this folder, verify no
-secrets, then push that public repo alone — never the private app tree.
+same as publishing this public repository. Publishing **only** this pack to a
+separate public remote means: copy or subtree this folder, verify no secrets,
+then push that public repo alone — never the private monorepo.

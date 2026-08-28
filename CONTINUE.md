@@ -44,9 +44,12 @@ element of Core). **Pack files landed** under `public/unfynd-core/` (Apache-2.0
 distillation; follow-up a). **Root README App vs Core rewrite landed**
 (follow-up b; site-aligned). **Class A pack published** at
 https://github.com/CzarPiratez/unfynd-core (follow-up c; Apache-2.0 root
-LICENSE/NOTICE/README/SPEC/ROADMAP-OPEN/SECURITY/CITATIONS only). UNFYND App
-and proprietary assets stay private until a later ADR. No MIG-* / Freeze
-reopen / Act from ADR-047.
+LICENSE/NOTICE/README/SPEC/ROADMAP-OPEN/SECURITY/CITATIONS only). **Pack copy
+fix:** App vs Core softened; Android-as-product / “reference application”
+framing removed from public pack; commercial licensing called out as separate
+from Apache contracts (no fake license limits). LICENSE remains Apache-2.0.
+UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
+Freeze reopen / Act from ADR-047.
 
 ### Where we are (honest)
 

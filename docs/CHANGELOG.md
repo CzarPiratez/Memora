@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Class A pack copy fix — App vs Core / no Android-only framing (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Public pack under `public/unfynd-core/` rewritten for honest
+  App vs Core nouns (multiplatform App; Core = infrastructure). Removed
+  Android-as-product / “reference application” framing from README, SPEC,
+  SECURITY, ROADMAP-OPEN, and NOTICE. Optional line: commercial / enterprise
+  licensing is separate from this Apache-2.0 contracts pack. LICENSE unchanged
+  (Apache-2.0). Synced pack files only to https://github.com/CzarPiratez/unfynd-core.
+  Private Memora monorepo not pushed.
+- **Change control:** ADR-047 Class A pack (docs copy).
+
 ### Class A pack published to public GitHub (docs-only)
 
 - **Date:** 2026-08-29

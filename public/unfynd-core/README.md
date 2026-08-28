@@ -4,11 +4,14 @@
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/)  
 **Release class:** Class A — Public Specification / Contract (docs only)
 
-This folder is the curated **open, inspectable** contracts pack for
+This repository is the curated **open, inspectable** contracts pack for
 **UNFYND Core — on-device memory and intelligence infrastructure**.
 
-It is **not** the UNFYND Android app, and it is **not** a claim that the full
-stack is open source.
+It is **not** the UNFYND App, and it is **not** a claim that the full stack is
+open source.
+
+Commercial product and enterprise technology licensing (when offered) is
+**separate** from this Apache-2.0 contracts pack.
 
 ---
 
@@ -46,7 +49,7 @@ and [`SECURITY.md`](SECURITY.md).
 
 Until a later public decision (and typically a new ADR in the private monorepo):
 
-- The Android reference application and its private monorepo
+- The UNFYND App and its private monorepo
 - AI Pack weights, manifests, and proprietary configs
 - Proprietary tuning, evaluation corpora, and quality fixtures
 - Secrets, keystores, credentials, and machine-local config

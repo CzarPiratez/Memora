@@ -2,8 +2,8 @@
 
 ## Scope of this pack
 
-This repository folder contains **documentation and contracts only**
-(Apache-2.0). It must not include:
+This repository contains **documentation and contracts only** (Apache-2.0). It
+must not include:
 
 - API keys, tokens, or provider secrets
 - Keystores, signing material, or passwords
@@ -17,12 +17,9 @@ incident: do not reshare the material; report it (below).
 
 ## Reporting a vulnerability or sensitive leak
 
-**Public issue tracker URL:** https://github.com/CzarPiratez/unfynd-core/issues  
-(Use the public GitHub issues URL once the Class A-only public repository exists.)
+**Public issue tracker URL:** https://github.com/CzarPiratez/unfynd-core/issues
 
-Until that URL is published:
-
-1. Prefer a private channel to the product owner (website contact at
+1. Prefer a private channel for secrets or personal data (website contact at
    [https://www.unfynd.com/](https://www.unfynd.com/) or the copyright contact in
    `NOTICE`).
 2. Do **not** paste secrets, keystores, or personal data into public issues or
@@ -33,6 +30,6 @@ Until that URL is published:
 ## Expectations
 
 - Reports about **documentation accuracy** (over-claims, missing non-claims) are
-  welcome once the public tracker exists.
-- Reports about the **private Android app** or monorepo are out of scope for this
+  welcome.
+- Reports about the **UNFYND App** or private monorepo are out of scope for this
   pack’s tracker unless the publisher explicitly expands scope later.
