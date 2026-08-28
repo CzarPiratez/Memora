@@ -65,3 +65,6 @@ Do not stage unrelated dirty files (`docs/ROADMAP.md`,
 - **Documentation/traceability/ADR updates:** This record; CONTINUE; changelog;
   registry pointer. ADR-047 text unchanged (authorization already accepted).
 - **Git commit:** Local checkpoint after verification (no push).
+- **Follow-up (2026-08-29):** NOTICE copyright corrected to
+  `Copyright 2026 UNFYND <czar.piratez@gmail.com>`; pack rescanned — no other
+  Memora / mir.m.hameedi copyright lines.

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Class A NOTICE copyright attribution fix (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** `public/unfynd-core/NOTICE` copyright holder set to
+  `Copyright 2026 UNFYND <czar.piratez@gmail.com>`. Pack scan: no other
+  Memora / mir.m.hameedi copyright lines. Trademark and Apache NOTICE body
+  unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_V1.md`.
+
 ### Class A pack files under `public/unfynd-core/` (docs-only)
 
 - **Date:** 2026-08-29
