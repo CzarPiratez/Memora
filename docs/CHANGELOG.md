@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Class A pack files under `public/unfynd-core/` (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** ADR-047 follow-up (a): curated Class A pack landed at
+  `public/unfynd-core/` under Apache-2.0 (`LICENSE`, `NOTICE`, `README.md`,
+  `SPEC.md`, `ROADMAP-OPEN.md`, `SECURITY.md`, `CITATIONS.md`). Plain-language
+  distillation of Core contracts (Memory/Evidence, evidence classes, capability
+  seams including MemoryBuilder, local-first / truth-before-intelligence /
+  retrieval-first). No hashed Freeze/Spec/Amendment/Grounding/Product Contract
+  blob edits.
+- **Truthfulness:** Public GitHub publish of **only** this pack and root README
+  App vs Core rewrite remain deferred. No MIG-*, no push, no app source, no
+  secrets. Act still out; no AVAILABLE / Act shipped claims.
+- **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_V1.md`.
+
 ### ADR-047 Class A UNFYND Core contracts under Apache-2.0 (docs-only)
 
 - **Date:** 2026-08-29

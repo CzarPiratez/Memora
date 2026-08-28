@@ -1,0 +1,15 @@
+UNFYND Core — Public Specification / Contract pack
+Copyright 2026 Memora <mir.m.hameedi@gmail.com>
+
+UNFYND® and UNFYND Core® are product marks of the copyright holder.
+This NOTICE does not grant trademark rights beyond the Apache License 2.0
+trademark exception for reasonable attribution.
+
+This product includes software and documentation released under the
+Apache License, Version 2.0.
+See the accompanying LICENSE file for the full license text.
+
+This pack is a curated public distillation of UNFYND Core contracts and
+specifications. It does not include the UNFYND Android reference application,
+private monorepo source, AI Pack weights or configs, evaluation corpora,
+proprietary tuning, secrets, or keystores.

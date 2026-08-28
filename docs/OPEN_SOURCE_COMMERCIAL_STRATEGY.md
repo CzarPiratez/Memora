@@ -2,7 +2,7 @@
 
 # Memora Open Source & Commercial Strategy V3.2 — Enterprise Draft
 
-**Status:** Enterprise Draft — final candidate pending adversarial/legal review. **Class A (Public Specification / Contract pack under Apache-2.0) authorized by ADR-047; pack implementation pending.**  
+**Status:** Enterprise Draft — final candidate pending adversarial/legal review. **Class A (Public Specification / Contract pack under Apache-2.0) authorized by ADR-047; pack files landed under `public/unfynd-core/`; public GitHub publish still deferred.**  
 **Version:** 3.2  
 **Purpose:** Define Memora's open-source, source-available, proprietary, intellectual-property, commercial licensing, and enterprise governance strategy without modifying the frozen Memora architecture.
 
