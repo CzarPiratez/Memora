@@ -49,9 +49,16 @@ conversational memory or an untracked desktop file.
    “Personal Intelligence Infrastructure,” or third-party grant metaphors in new
    living-canon, CONTINUE, AGENTS identity blurb, or registry interpretation
    lines. Technical IDs remain deferred (`com.memora.app`, `memora.db`,
-   Keystore/MSAL hosts, GitHub/`Memora`). ADR-045 / ADR-046 do not authorize
-   Class A publish, opening the Android app, MIG-*, Grounded Answers code,
-   Act/agents, or Freeze reopen.
+   Keystore/MSAL hosts, GitHub/`Memora`). ADR-045 / ADR-046 do not by themselves
+   open the Android app, MIG-*, Grounded Answers code, Act/agents, or Freeze
+   reopen.
+9. **Class A Core contracts (ADR-047):** Release Class A authorizes a curated
+   UNFYND Core Public Specification / Contract pack under Apache-2.0 (essential
+   open, inspectable element of Core). Pack file tree, README Class A rewrite,
+   and public GitHub publish of **only** that pack are follow-ups — not done
+   by ADR-047 alone. The Android reference app and proprietary assets stay
+   private until a later ADR. Openness is product strategy; do not frame the
+   product by external grant programs.
 
 ## Governed internal amendments
 

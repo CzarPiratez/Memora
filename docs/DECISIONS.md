@@ -1513,3 +1513,91 @@ ADR-045 change-control / CONTINUE pointers use the refined noun. ADR-045 body
 keeps its original wording plus the one-line refinement note. No application or
 schema change.
 
+## ADR-047: Class A public release of UNFYND Core contracts under Apache-2.0
+
+**Status:** Accepted
+
+**Decision:** UNFYND will publish a curated **Public Specification / Contract**
+pack for UNFYND Core under **Apache License 2.0** (Release Class A per
+`docs/OPEN_SOURCE_COMMERCIAL_STRATEGY.md` §23). This ADR authorizes the Class A
+decision and boundary. Exact pack file set and publish mechanics are a
+**following step**, not this ADR.
+
+**Binding interpretation:**
+
+1. **Product / Core noun (cite ADR-046).** UNFYND Core is **on-device memory and
+   intelligence infrastructure** — durable multimodal memory next to data that
+   cannot leave; local-first; evidence-backed. Do not use “Personal Knowledge
+   Infrastructure,” “Personal Intelligence Infrastructure,” or third-party grant
+   metaphors in new living canon.
+
+2. **Release Class A (cite strategy §23).** The Class A pack is an **essential
+   open, inspectable element** of Core: Memory/Evidence model, evidence classes,
+   capability seams including MemoryBuilder, and local-first /
+   truth-before-intelligence / retrieval-first principles in plain public
+   markdown, licensed under Apache-2.0. Exact file set is implemented later;
+   this ADR authorizes the decision and boundary, not the file tree yet.
+
+3. **What stays private until a later ADR.** The Android reference application,
+   private monorepo (GitHub path may still say Memora), proprietary tuning,
+   evaluation corpora, AI Pack weights/configs, secrets, keystores, and anything
+   not explicitly listed in the Class A pack. Class A does **not** mean the whole
+   stack is open.
+
+4. **Technical IDs unchanged (cite ADR-040 / playbook).** `com.memora.app`,
+   `memora.db`, Keystore/MSAL hosts, and GitHub repo/folder name `Memora` are
+   not renamed in this ADR.
+
+5. **License without external counsel.** The product owner explicitly chooses
+   Apache-2.0 for this Class A **docs/contracts** pack and accepts residual
+   legal risk without external counsel for this step. Class B commercial
+   licensing is **not** described as done.
+
+6. **Honesty / vision.** We are **building toward** open on-device memory and
+   intelligence. Do not claim unfinished Converse, Act, agents, or marketing
+   AVAILABLE semantic recall. Vision ladder Sees→Remember→Connect→Understand→
+   Converse→Act is direction; Act remains out of current architecture
+   (ADR-043).
+
+7. **Independence from any grant program.** Openness is product strategy. Do
+   **not** name external grant programs, foundations, or RFPs in this ADR,
+   CONTINUE, or registry. Language may align with industry themes; the product
+   is not defined by a grant.
+
+8. **Website alignment.** Public materials may state that UNFYND Core is open
+   **in the Class A sense** (contracts/specs inspectable under Apache-2.0) with
+   an explicit scope boundary — not that the entire Android app is open source
+   until a later ADR says so.
+
+9. **Non-goals.** Opening the full app; secrets; Architecture Freeze reopen;
+   Act/GA implementation; MIG-* authorization; Class B commercial release
+   gates; CLA/contributor policy beyond noting they are future work before
+   accepting significant external code contributions (strategy §13).
+
+10. **Follow-ups (not this ADR).** (a) Build `public/unfynd-core/` (or
+    equivalent) pack contents; (b) rewrite root README to App vs Core; (c)
+    create separate public GitHub repo and publish **only** the pack; (d)
+    optional later Class B / more Core source under new ADRs.
+
+**Out of scope:**
+
+- Creating `public/unfynd-core/` or any Class A pack files
+- Root README Class A rewrite
+- Public GitHub repository creation or push
+- MIG-* implementation
+- Grounded Answers code; Act / agents
+- Rewriting hashed Architecture Freeze, Local AI Spec, Experience Memory
+  Amendment, Grounding Architecture, Product Contract, or Grounded Answers
+  amendment blobs
+- Package, database, Keystore, MSAL, or repository rename
+- Class B commercial licensing completion
+
+**Reason:** Strategy §23 / §24 allow Class A docs/contracts under an artifact-
+specific license before full Model A vs B / Class B gates. Apache-2.0 for the
+curated Core contracts pack makes an essential inspectable element of Core
+public without opening the Android reference app or proprietary assets.
+
+**Consequences:** Registry, CONTINUE, changelog, and strategy status note record
+Class A authorization. Pack implementation, README rewrite, and public repo
+publish remain deferred follow-ups. No application or schema change.
+

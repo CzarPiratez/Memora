@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### ADR-047 Class A UNFYND Core contracts under Apache-2.0 (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-047: Release Class A authorizes a curated
+  **Public Specification / Contract** pack for UNFYND Core under **Apache
+  License 2.0** (Memory/Evidence model, evidence classes, capability seams
+  including MemoryBuilder, local-first / truth-before-intelligence /
+  retrieval-first principles in plain public markdown). Cites ADR-046 Core
+  noun; strategy §23 Class A; ADR-040 technical IDs unchanged. Product owner
+  accepts Apache-2.0 residual legal risk without external counsel for this
+  docs/contracts pack. Class A does not open the Android app or proprietary
+  assets. Openness is product strategy (no grant-program framing).
+- **Truthfulness:** Pack files (`public/unfynd-core/` or equivalent), root
+  README Class A rewrite, and public GitHub repo publish are **not** created
+  in this step — deferred follow-ups. No MIG-*, Grounded Answers code,
+  Act/agents, Class B commercial licensing completion, or Architecture Freeze
+  reopen. Hashed freeze/spec/amendment/grounding/contract/GA files unchanged.
+  No `MemoraApp/` edits.
+- **Change control:**
+  `docs/CHANGE_CONTROL_ADR047_CLASS_A_CORE_CONTRACTS.md`.
+
 ### ADR-046 Core noun on-device memory and intelligence infrastructure (docs-only)
 
 - **Date:** 2026-08-29
