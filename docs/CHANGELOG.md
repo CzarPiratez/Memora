@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### MIG-02 Remove Artificial Evidence Item/Length Caps
+
+- **Date:** 2026-08-28
+- **Delivered:** Asset Memory assembly no longer truncates to 8 evidence items.
+  Every usable deterministic fact becomes `MemoryEvidence` (`DIRECT`). Per-item
+  character bound is a pathological guard at 8192 chars (aligned with the
+  provisional PDF page write budget), documented as not a completeness policy.
+  `MAX_SUMMARY_CHARS` ≤ 240 remains display-only. Assembly schema bumped to
+  `asset-memory-facts-v3` so the next legitimate reassembly gets richer
+  evidence; no forced mass reindex of existing memories.
+- **Truthfulness:** Search paths, embeddings, typed anchors, Grounded Answers,
+  ranking/Find/Why UI, Links, package rename, and MIG-03+ are not started.
+  Hashed freeze/spec/amendment files unchanged. MIG-01 Room 12→13
+  instrumentation (`MemoraDatabaseMigrationTest`) remains unverified on
+  emulator (adb/connect residual); that gap is not claimed closed here.
+- **Change control:** `docs/CHANGE_CONTROL_MIG02_EVIDENCE_CAPS.md`.
+
 ### MIG-01 Evidence Class Taxonomy (Room 12→13)
 
 - **Date:** 2026-08-24

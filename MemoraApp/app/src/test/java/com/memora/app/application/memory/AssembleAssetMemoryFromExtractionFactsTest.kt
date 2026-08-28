@@ -196,6 +196,104 @@ class AssembleAssetMemoryFromExtractionFactsTest {
     }
 
     @Test
+    fun `persists every usable fact when more than eight are available`() = runTest {
+        val asset = asset()
+        val facts = (1..12).map { page ->
+            AssetMemoryFact(
+                MemoryEvidenceKind.DOCUMENT_TEXT,
+                "pdf:page:$page",
+                "Page $page body for Atlas launch notes",
+                "pdf-extraction-v1",
+            )
+        }
+        val result = AssembleAssetMemoryFromExtractionFacts(
+            FakeAssetRepository(asset),
+            FakeFactSource(facts),
+            FakeMemoryRepository(),
+            Clock.systemUTC(),
+        )(asset.identity)
+
+        val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
+        assertEquals(12, memory.evidence.size)
+        assertTrue(memory.evidence.size > 8)
+        assertTrue(
+            memory.evidence.all {
+                it.excerpt.value.length <=
+                    AssembleAssetMemoryFromExtractionFacts.MAX_EVIDENCE_CHARS_PER_ITEM
+            },
+        )
+        assertTrue(memory.evidence.all { it.evidenceClass == MemoryEvidenceClass.DIRECT })
+        assertEquals(
+            AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA,
+            memory.assemblySchemaVersion,
+        )
+        assertEquals("asset-memory-facts-v3", memory.assemblySchemaVersion.value)
+    }
+
+    @Test
+    fun `summary stays within display bound regardless of evidence volume`() = runTest {
+        val asset = asset()
+        val longPage = "Atlas ".repeat(80) // well over MAX_SUMMARY_CHARS
+        val facts = (1..10).map { page ->
+            AssetMemoryFact(
+                MemoryEvidenceKind.DOCUMENT_TEXT,
+                "pdf:page:$page",
+                if (page == 1) longPage else "Secondary page $page",
+                "pdf-extraction-v1",
+            )
+        }
+        val memory = (
+            AssembleAssetMemoryFromExtractionFacts(
+                FakeAssetRepository(asset),
+                FakeFactSource(facts),
+                FakeMemoryRepository(),
+                Clock.systemUTC(),
+            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            ).memory
+
+        assertEquals(10, memory.evidence.size)
+        assertTrue(
+            memory.signature.summary.text.value.length <=
+                AssembleAssetMemoryFromExtractionFacts.MAX_SUMMARY_CHARS,
+        )
+        assertEquals(
+            AssembleAssetMemoryFromExtractionFacts.MAX_SUMMARY_CHARS,
+            memory.signature.summary.text.value.length,
+        )
+    }
+
+    @Test
+    fun `truncates a single pathological fact to the per-item character bound`() = runTest {
+        val asset = asset()
+        val oversized = "x".repeat(
+            AssembleAssetMemoryFromExtractionFacts.MAX_EVIDENCE_CHARS_PER_ITEM + 250,
+        )
+        val memory = (
+            AssembleAssetMemoryFromExtractionFacts(
+                FakeAssetRepository(asset),
+                FakeFactSource(
+                    listOf(
+                        AssetMemoryFact(
+                            MemoryEvidenceKind.DOCUMENT_TEXT,
+                            "pdf:page:1",
+                            oversized,
+                            "pdf-extraction-v1",
+                        ),
+                    ),
+                ),
+                FakeMemoryRepository(),
+                Clock.systemUTC(),
+            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            ).memory
+
+        assertEquals(1, memory.evidence.size)
+        assertEquals(
+            AssembleAssetMemoryFromExtractionFacts.MAX_EVIDENCE_CHARS_PER_ITEM,
+            memory.evidence.single().excerpt.value.length,
+        )
+    }
+
+    @Test
     fun `changed fingerprint creates a new revision without rewriting prior history`() = runTest {
         val first = asset(fingerprint = "fp-1")
         val second = asset(fingerprint = "fp-2")

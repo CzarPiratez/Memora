@@ -30,8 +30,10 @@ import javax.inject.Inject
 /**
  * Builds a truthful pre-AI Asset Memory from already-persisted deterministic facts.
  *
- * This does not infer people, places, topics, meaning, or confidence. Summary and
- * TEXT anchor are bounded excerpts of the same evidence persisted with the revision.
+ * This does not infer people, places, topics, meaning, or confidence. Every usable
+ * deterministic fact becomes one [MemoryEvidence] row (DIRECT). Summary and TEXT
+ * anchor are display-bounded excerpts of evidence already persisted with the revision;
+ * those display bounds are not evidence-completeness limits.
  */
 class AssembleAssetMemoryFromExtractionFacts internal constructor(
     private val assetRepository: AssetRepository,
@@ -55,7 +57,6 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
         val facts = factSource.loadCurrentFacts(asset)
             .mapNotNull(::sanitize)
             .distinctBy { Triple(it.kind, it.locator, it.excerpt) }
-            .take(MAX_EVIDENCE_ITEMS)
         if (facts.isEmpty()) return AssetMemoryAssemblyResult.NoUsableEvidence
 
         val evidence = facts.mapIndexed { index, fact ->
@@ -112,7 +113,8 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
     }
 
     private fun sanitize(fact: AssetMemoryFact): AssetMemoryFact? {
-        val excerpt = fact.excerpt.replace(WHITESPACE, " ").trim().take(MAX_EVIDENCE_CHARS)
+        val excerpt = fact.excerpt.replace(WHITESPACE, " ").trim()
+            .take(MAX_EVIDENCE_CHARS_PER_ITEM)
         val locator = fact.locator.trim().take(MAX_LOCATOR_CHARS)
         if (excerpt.isBlank() || locator.isBlank()) return null
         if (fact.kind == MemoryEvidenceKind.SOURCE_METADATA && isWeakExifNoise(excerpt)) {
@@ -155,10 +157,24 @@ class AssembleAssetMemoryFromExtractionFacts internal constructor(
     }
 
     companion object {
-        /** v2: OCR/text-first summaries; no dimension-only EXIF memories. */
-        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v2")
-        const val MAX_EVIDENCE_ITEMS = 8
-        const val MAX_EVIDENCE_CHARS = 500
+        /**
+         * v3 (MIG-02): every usable deterministic fact becomes evidence; no fixed
+         * item-count cap. Prior v2 revisions remain readable; next legitimate
+         * assembly for the current schema produces richer evidence without a forced
+         * mass reindex.
+         */
+        val ASSEMBLY_SCHEMA = MemoryAssemblySchemaVersion("asset-memory-facts-v3")
+
+        /**
+         * Pathological per-item guard, not a completeness policy. Caps one fact so a
+         * single oversized OCR/PDF/note blob cannot dominate a Memory revision.
+         * Aligned with the provisional PDF page write budget
+         * (`PdfExtractionWriteBudgets.MAX_CHARS_PER_PAGE` = 8192) so accepted
+         * extraction pages can become evidence without an extra artificial cut.
+         */
+        const val MAX_EVIDENCE_CHARS_PER_ITEM = 8_192
+
+        /** UI-facing summary display bound only — not an evidence completeness limit. */
         const val MAX_SUMMARY_CHARS = 240
         const val MAX_ANCHOR_CHARS = 160
         const val MAX_LOCATOR_CHARS = 160
