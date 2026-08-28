@@ -1,6 +1,6 @@
 # UNFYND Engineering Guide
 
-**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+**Product identity:** UNFYND (formerly Memora). Direction: UNFYND Core — on-device intelligence infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040 / ADR-045).
 
 ## Product authority
 

@@ -1410,3 +1410,60 @@ or always-on capture.
 §9 and Freeze retrieval-first / truth-before-intelligence remain the binding
 rules. Hashed architecture files are unchanged. No code in this decision.
 
+## ADR-045: UNFYND Core is on-device intelligence infrastructure
+
+**Status:** Accepted
+
+**Decision:** Living-canon and public product language for the substrate is
+**UNFYND Core — on-device intelligence infrastructure**: durable multimodal
+memory next to data that cannot leave; local-first; evidence-backed. This is a
+product-language decision. It does not reopen Architecture Freeze, authorize
+MIG-*, Class A publish, opening the Android app, Grounded Answers code, or
+Act / agents.
+
+**Binding interpretation:**
+
+1. **Living noun.** New living-canon lines, `CONTINUE.md`, the `AGENTS.md`
+   identity blurb, and registry interpretation use **UNFYND Core — on-device
+   intelligence infrastructure** (or short forms “UNFYND Core” / “on-device
+   intelligence infrastructure”) for the substrate.
+2. **Retired living phrases.** Do **not** use these going forward in new
+   living-canon lines, CONTINUE, AGENTS identity blurb, or registry
+   interpretation:
+   - “Personal Knowledge Infrastructure”
+   - “Personal Intelligence Infrastructure”
+   - Third-party grant metaphors (for example “open her”) or naming external
+     foundations
+3. **Prior internal noun; hashed text unchanged.** Where already-hashed
+   documents or ADR-043 still say “Personal Knowledge Infrastructure” / PKI,
+   leave those blobs and accepted ADR bodies unchanged. PKI is a **prior
+   internal noun**. The substance of ADR-043 stands: Android is a reference
+   shell; search/retrieval is not the product definition; Act remains out of
+   current architecture; the vision ladder is direction only.
+4. **Technical IDs unchanged.** `com.memora.app`, `memora.db`, Keystore/MSAL
+   hosts, and GitHub repo/folder name `Memora` remain deferred per ADR-040 and
+   `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md`. Identity is UNFYND; Memora is
+   the former name plus deferred technical IDs.
+5. **Non-authorization.** This ADR does not authorize Class A publish, opening
+   the Android app, MIG-*, Grounded Answers code, Act/agents, or Architecture
+   Freeze reopen.
+
+**Out of scope:**
+
+- Class A pack folder, README Class A rewrite, public GitHub repo setup
+- MIG-* implementation
+- Grounded Answers code; Act / agents
+- Rewriting hashed Architecture Freeze, Local AI Spec, Experience Memory
+  Amendment, Grounding Architecture, Product Contract, or Grounded Answers
+  amendment blobs
+- Package, database, Keystore, MSAL, or repository rename
+
+**Reason:** Product language must name the on-device intelligence substrate
+without implying a third-party grant narrative or reusing retired PKI /
+“Personal Intelligence Infrastructure” nouns in living canon, while preserving
+hashed constitutions and ADR-043’s architectural substance.
+
+**Consequences:** Registry interpretation, AGENTS identity blurb, CONTINUE
+living pointers, and changelog record this noun. Historical ADRs and hashed
+blobs keep their original wording. No application or schema change.
+

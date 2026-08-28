@@ -4,7 +4,7 @@
 
 **Project:** UNFYND Android app  
 **Project folder:** `MemoraApp/`  
-**Updated:** 2026-08-28
+**Updated:** 2026-08-29
 
 **Checkpoint (MIG-04):** Spec §4 `MemoryBuilder` contract seam is live:
 `assemble` accepts deterministic facts + optional local observations and returns
@@ -26,6 +26,13 @@ CHANGE_CONTROL_MIG04).
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
 lifecycle (interpretation only; cites Spec §7 / §9). No code.
+
+**Docs note (ADR-045):** Living product language for the substrate is **UNFYND
+Core — on-device intelligence infrastructure**. Do not use “Personal Knowledge
+Infrastructure,” “Personal Intelligence Infrastructure,” or third-party grant
+metaphors in new living-canon lines. PKI is a prior internal noun where hashed
+docs / ADR-043 still say it; ADR-043 substance stands. No Class A / MIG-* /
+Grounded Answers code / Act.
 
 ### Where we are (honest)
 
@@ -89,17 +96,17 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity; ADR-043 PKI vs freeze; hashed architecture artifacts)
+2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity; ADR-045 UNFYND Core noun; ADR-043 vision vs freeze; hashed architecture artifacts)
 3. `docs/GOVERNANCE.md` (ADR-042 governing order; ADR-043 Act remains out; aligned with Freeze §2)
 4. `docs/PRODUCT_CONTRACT.md`
 5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`
-6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (Personal Knowledge Infrastructure / Asset Memory freeze)
+6. `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` (UNFYND Core / on-device intelligence infrastructure; Asset Memory freeze; hashed text may still say PKI)
 7. `docs/ARCHITECTURE_FREEZE_v1.0.md` (freeze/change-control for that core; §1 exclusivity scoped by ADR-042)
 8. `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (sequencing only; MIG-04 is this delivery; do not start MIG-05+)
 9. `docs/GROUNDING_ARCHITECTURE.md` (sole Grounded Answers constitution)
 10. `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`
 11. `docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`
-12. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041 / ADR-042 / ADR-043)
+12. `docs/UNFYND_IDENTITY_TRANSITION_PLAYBOOK.md` and `docs/DECISIONS.md` (ADR-040 / ADR-041 / ADR-042 / ADR-043 / ADR-045)
 13. `docs/ARCHITECTURE.md`
 14. `docs/ROADMAP.md`
 15. `docs/PRD_TRACEABILITY.md`
@@ -127,11 +134,14 @@ Find remains source of truth; no chatbot; PDF saved-text first slice; **generati
 implementation blocked** until `docs/GROUNDING_ARCHITECTURE.md` readiness gates pass.
 Do not wire a ReasoningEngine or Ask UI before those gates close.
 
-**ADR-043** confirms that PKI vision against the freeze. Act / agentic Personal AI
-is out of current architecture until a later ADR and product-contract change. Do
-not skip Asset-Memory quality to jump to Links, Events, Grounded Answers, or
-conversation UI. Optional map: `docs/UNFYND_VISION_ALIGNMENT.md` (not hashed;
-not architectural authority).
+**ADR-043** confirms the vision against the freeze (Android = reference shell;
+search ≠ product definition; Act out; vision ladder is direction only).
+**ADR-045** sets living product language to **UNFYND Core — on-device
+intelligence infrastructure**; PKI is a prior internal noun where older text
+still uses it. Act / agentic Personal AI remains out of current architecture
+until a later ADR and product-contract change. Do not skip Asset-Memory quality
+to jump to Links, Events, Grounded Answers, or conversation UI. Optional map:
+`docs/UNFYND_VISION_ALIGNMENT.md` (not hashed; not architectural authority).
 
 ## Last verified behavior
 

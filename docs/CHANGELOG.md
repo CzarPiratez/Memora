@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### ADR-045 UNFYND Core as on-device intelligence infrastructure (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-045: living-canon and public product language for
+  the substrate is **UNFYND Core — on-device intelligence infrastructure**
+  (durable multimodal memory next to data that cannot leave; local-first;
+  evidence-backed). Retires “Personal Knowledge Infrastructure,” “Personal
+  Intelligence Infrastructure,” and third-party grant metaphors from new
+  living-canon / CONTINUE / AGENTS identity / registry interpretation lines.
+  PKI remains a prior internal noun where hashed docs or ADR-043 still use it;
+  ADR-043 substance stands. Technical IDs unchanged (`com.memora.app`,
+  `memora.db`, Keystore/MSAL hosts, GitHub/`Memora` folder).
+- **Truthfulness:** No Class A publish, app open, MIG-*, Grounded Answers code,
+  Act/agents, or Architecture Freeze reopen. Hashed freeze/spec/amendment/
+  grounding/contract/GA files unchanged. No `MemoraApp/` edits.
+- **Change control:**
+  `docs/CHANGE_CONTROL_ADR045_ON_DEVICE_INTELLIGENCE_INFRASTRUCTURE.md`.
+
 ### MIG-04 MemoryBuilder contract boundary
 
 - **Date:** 2026-08-28
