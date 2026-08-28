@@ -10,6 +10,7 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.IndexingState
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.intelligence.DeterministicMemoryBuilder
 import com.memora.app.domain.memory.AssetMemoryFact
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.Memory
@@ -32,6 +33,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AssembleAssetMemoryFromExtractionFactsTest {
+    private fun assembler(
+        asset: Asset,
+        facts: List<AssetMemoryFact>,
+        repository: FakeMemoryRepository = FakeMemoryRepository(),
+        clock: Clock = Clock.systemUTC(),
+    ) = AssembleAssetMemoryFromExtractionFacts(
+        assetRepository = FakeAssetRepository(asset),
+        factSource = FakeFactSource(facts),
+        memoryRepository = repository,
+        memoryBuilder = DeterministicMemoryBuilder(),
+        clock = clock,
+    )
+
     @Test
     fun `assembles PDF OCR and EXIF facts as cited deterministic evidence`() = runTest {
         val asset = asset()
@@ -56,10 +70,10 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
         )
         val repository = FakeMemoryRepository()
-        val assembler = AssembleAssetMemoryFromExtractionFacts(
-            assetRepository = FakeAssetRepository(asset),
-            factSource = FakeFactSource(facts),
-            memoryRepository = repository,
+        val assembler = assembler(
+            asset = asset,
+            facts = facts,
+            repository = repository,
             clock = Clock.fixed(Instant.parse("2026-07-31T10:00:00Z"), ZoneOffset.UTC),
         )
 
@@ -116,11 +130,11 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
         )
         val repository = FakeMemoryRepository()
-        val result = AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(noteAsset),
-            FakeFactSource(facts),
-            repository,
-            Clock.fixed(Instant.parse("2026-08-02T10:00:00Z"), ZoneOffset.UTC),
+        val result = assembler(
+            asset = noteAsset,
+            facts = facts,
+            repository = repository,
+            clock = Clock.fixed(Instant.parse("2026-08-02T10:00:00Z"), ZoneOffset.UTC),
         )(noteAsset.identity)
 
         assertTrue(result is AssetMemoryAssemblyResult.Persisted)
@@ -160,12 +174,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
         )
         val memory = (
-            AssembleAssetMemoryFromExtractionFacts(
-                FakeAssetRepository(asset),
-                FakeFactSource(facts),
-                FakeMemoryRepository(),
-                Clock.systemUTC(),
-            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            assembler(asset, facts)(asset.identity) as AssetMemoryAssemblyResult.Persisted
             ).memory
 
         val topicAnchor = memory.signature.anchors.single { it.kind == MemoryAnchorKind.TOPIC }
@@ -189,12 +198,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
         )
         val memory = (
-            AssembleAssetMemoryFromExtractionFacts(
-                FakeAssetRepository(asset),
-                FakeFactSource(facts),
-                FakeMemoryRepository(),
-                Clock.systemUTC(),
-            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            assembler(asset, facts)(asset.identity) as AssetMemoryAssemblyResult.Persisted
             ).memory
 
         assertEquals(listOf(MemoryAnchorKind.TEXT), memory.signature.anchors.map { it.kind })
@@ -220,12 +224,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             ),
         )
         val memory = (
-            AssembleAssetMemoryFromExtractionFacts(
-                FakeAssetRepository(asset),
-                FakeFactSource(facts),
-                FakeMemoryRepository(),
-                Clock.systemUTC(),
-            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            assembler(asset, facts)(asset.identity) as AssetMemoryAssemblyResult.Persisted
             ).memory
 
         assertNull(memory.signature.anchors.firstOrNull { it.kind == MemoryAnchorKind.TIME })
@@ -237,12 +236,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
     fun `skips persistence when extracts contain no usable evidence`() = runTest {
         val asset = asset()
         val repository = FakeMemoryRepository()
-        val result = AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(asset),
-            FakeFactSource(emptyList()),
-            repository,
-            Clock.systemUTC(),
-        )(asset.identity)
+        val result = assembler(asset, emptyList(), repository)(asset.identity)
 
         assertEquals(AssetMemoryAssemblyResult.NoUsableEvidence, result)
         assertEquals(null, repository.stored)
@@ -265,12 +259,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
                 "photo-ocr-v1",
             ),
         )
-        val result = AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(asset),
-            FakeFactSource(facts),
-            FakeMemoryRepository(),
-            Clock.systemUTC(),
-        )(asset.identity)
+        val result = assembler(asset, facts)(asset.identity)
 
         val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
         assertEquals("Cafe receipt total 12.50", memory.signature.summary.text.value)
@@ -284,20 +273,16 @@ class AssembleAssetMemoryFromExtractionFactsTest {
     @Test
     fun `rejects dimension-only EXIF noise as unusable evidence`() = runTest {
         val asset = asset(type = AssetType.PHOTO)
-        val result = AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(asset),
-            FakeFactSource(
-                listOf(
-                    AssetMemoryFact(
-                        MemoryEvidenceKind.SOURCE_METADATA,
-                        "exif:fields",
-                        "Dimensions: 640 × 480; Orientation: 1",
-                        "image-exif-v1",
-                    ),
+        val result = assembler(
+            asset,
+            listOf(
+                AssetMemoryFact(
+                    MemoryEvidenceKind.SOURCE_METADATA,
+                    "exif:fields",
+                    "Dimensions: 640 × 480; Orientation: 1",
+                    "image-exif-v1",
                 ),
             ),
-            FakeMemoryRepository(),
-            Clock.systemUTC(),
         )(asset.identity)
 
         assertEquals(AssetMemoryAssemblyResult.NoUsableEvidence, result)
@@ -314,12 +299,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
                 "pdf-extraction-v1",
             )
         }
-        val result = AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(asset),
-            FakeFactSource(facts),
-            FakeMemoryRepository(),
-            Clock.systemUTC(),
-        )(asset.identity)
+        val result = assembler(asset, facts)(asset.identity)
 
         val memory = (result as AssetMemoryAssemblyResult.Persisted).memory
         assertEquals(12, memory.evidence.size)
@@ -351,12 +331,7 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             )
         }
         val memory = (
-            AssembleAssetMemoryFromExtractionFacts(
-                FakeAssetRepository(asset),
-                FakeFactSource(facts),
-                FakeMemoryRepository(),
-                Clock.systemUTC(),
-            )(asset.identity) as AssetMemoryAssemblyResult.Persisted
+            assembler(asset, facts)(asset.identity) as AssetMemoryAssemblyResult.Persisted
             ).memory
 
         assertEquals(10, memory.evidence.size)
@@ -377,20 +352,16 @@ class AssembleAssetMemoryFromExtractionFactsTest {
             AssembleAssetMemoryFromExtractionFacts.MAX_EVIDENCE_CHARS_PER_ITEM + 250,
         )
         val memory = (
-            AssembleAssetMemoryFromExtractionFacts(
-                FakeAssetRepository(asset),
-                FakeFactSource(
-                    listOf(
-                        AssetMemoryFact(
-                            MemoryEvidenceKind.DOCUMENT_TEXT,
-                            "pdf:page:1",
-                            oversized,
-                            "pdf-extraction-v1",
-                        ),
+            assembler(
+                asset,
+                listOf(
+                    AssetMemoryFact(
+                        MemoryEvidenceKind.DOCUMENT_TEXT,
+                        "pdf:page:1",
+                        oversized,
+                        "pdf-extraction-v1",
                     ),
                 ),
-                FakeMemoryRepository(),
-                Clock.systemUTC(),
             )(asset.identity) as AssetMemoryAssemblyResult.Persisted
             ).memory
 
@@ -406,22 +377,13 @@ class AssembleAssetMemoryFromExtractionFactsTest {
         val first = asset(fingerprint = "fp-1")
         val second = asset(fingerprint = "fp-2")
         val repository = FakeMemoryRepository()
-        val factSource = FakeFactSource(
-            listOf(AssetMemoryFact(MemoryEvidenceKind.OCR_TEXT, "image:whole", "Receipt 42", "ocr-v1")),
+        val facts = listOf(
+            AssetMemoryFact(MemoryEvidenceKind.OCR_TEXT, "image:whole", "Receipt 42", "ocr-v1"),
         )
-
-        val firstMemory = (AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(first),
-            factSource,
-            repository,
-            Clock.systemUTC(),
-        )(first.identity) as AssetMemoryAssemblyResult.Persisted).memory
-        val secondMemory = (AssembleAssetMemoryFromExtractionFacts(
-            FakeAssetRepository(second),
-            factSource,
-            repository,
-            Clock.systemUTC(),
-        )(second.identity) as AssetMemoryAssemblyResult.Persisted).memory
+        val firstMemory = (assembler(first, facts, repository)(first.identity)
+            as AssetMemoryAssemblyResult.Persisted).memory
+        val secondMemory = (assembler(second, facts, repository)(second.identity)
+            as AssetMemoryAssemblyResult.Persisted).memory
 
         assertEquals(firstMemory.id, secondMemory.id)
         assertTrue(firstMemory.revisionId != secondMemory.revisionId)

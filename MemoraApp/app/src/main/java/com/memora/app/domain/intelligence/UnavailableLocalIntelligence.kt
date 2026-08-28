@@ -1,10 +1,18 @@
 package com.memora.app.domain.intelligence
 
+import com.memora.app.domain.asset.AssetFingerprint
+import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.memory.AssetMemoryFact
+import java.time.Instant
+
 /**
  * Truthful unavailable stubs for Local Intelligence capabilities.
  *
  * They never invent observations, text, embeddings, Memories, or rankings.
  * Used until an approved on-device AI Pack (or system runtime) is installed.
+ *
+ * Production MemoryBuilder is [DeterministicMemoryBuilder] (MIG-04), not
+ * [UnavailableMemoryBuilder].
  */
 class UnavailableVisionEngine(
     private val reason: String = DEFAULT_REASON,
@@ -54,6 +62,14 @@ class UnavailableMemoryBuilder(
         CapabilityAvailability.Unavailable(reason)
 
     override fun limits(): CapabilityLimits? = null
+
+    override fun assemble(
+        assetIdentity: AssetIdentity,
+        assetFingerprint: AssetFingerprint,
+        facts: List<AssetMemoryFact>,
+        localObservations: List<LocalObservation>,
+        createdAt: Instant,
+    ): MemoryBuildResult = MemoryBuildResult.Unavailable(reason)
 }
 
 class UnavailableRecallRanker(

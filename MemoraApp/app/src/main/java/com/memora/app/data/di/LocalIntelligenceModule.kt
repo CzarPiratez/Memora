@@ -5,7 +5,9 @@ import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
 import com.memora.app.domain.intelligence.AiPackPayloadStore
+import com.memora.app.domain.intelligence.DeterministicMemoryBuilder
 import com.memora.app.domain.intelligence.EmbeddingEngine
+import com.memora.app.domain.intelligence.MemoryBuilder
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import dagger.Binds
 import dagger.Module
@@ -29,6 +31,13 @@ abstract class LocalIntelligenceModule {
     abstract fun bindOnDeviceEmbeddingModelStore(
         impl: NoBackupOnDeviceEmbeddingModelStore,
     ): OnDeviceEmbeddingModelStore
+
+    /** MIG-04: production MemoryBuilder is deterministic assembly, not Unavailable. */
+    @Binds
+    @Singleton
+    abstract fun bindMemoryBuilder(
+        impl: DeterministicMemoryBuilder,
+    ): MemoryBuilder
 }
 
 @Module

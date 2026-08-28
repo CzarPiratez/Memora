@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### MIG-04 MemoryBuilder contract boundary
+
+- **Date:** 2026-08-28
+- **Delivered:** Spec §4 `MemoryBuilder` gains `assemble` returning a
+  schema-validated Memory (or pure build outcome). Deterministic assembly is
+  `DeterministicMemoryBuilder` (Available; no AI Pack). Production drain path is
+  `RunPendingAssetMemoryAssembly` → `AssembleAssetMemoryFromExtractionFacts` →
+  `MemoryBuilder` with empty local observations. Non-empty observations fail
+  clearly (not silently dropped). Assembly schema remains
+  `asset-memory-facts-v4`. No Room migration. No user-visible Find change.
+- **Truthfulness:** VisionEngine / observation processing, MIG-05+ embeddings
+  store, RecallRanker operate, ranking/Find/Why UI, Links, Grounded Answers
+  code, and package rename are not started. Hashed freeze/spec/amendment files
+  unchanged. ADR-044 unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG04_MEMORY_BUILDER_CONTRACT.md`.
+
 ### ADR-044 low-power equals event-driven Memory lifecycle (docs-only)
 
 - **Date:** 2026-08-28
