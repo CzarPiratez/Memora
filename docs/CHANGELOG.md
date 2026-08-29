@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Escape-hatch audit + Live/Dual metric habit (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Added `docs/ESCAPE_HATCH_AUDIT.md` (cadence, checklist,
+  record template) and `docs/RECALL_ENFORCEMENT_INDEX.md` (Steps 1–7).
+  Allowlist Audit cadence + CONTINUE Live/Dual = 7 one-liner. Enforcement
+  program complete (docs); MIG code not started.
+- **Change control:** `docs/CHANGE_CONTROL_ESCAPE_HATCH_AUDIT.md`.
+
 ### Canonical Recall shared result + Why contract (docs-only)
 
 - **Date:** 2026-08-29

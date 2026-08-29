@@ -66,9 +66,17 @@ code). MIG-06 `SearchMemoryEvidence` = keyword candidate generation into it;
 Grounding Retriever = Option C same pipeline (not a competing Find). Does not
 authorize MIG-06+ / MIG-05 step 4; does not change MIG-05 step 3 acceptance.
 
-**Legacy recall surface:** `docs/LEGACY_RECALL_SURFACE.md` — Live/Dual count = 7  
-Cursor rule: `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).  
+**Legacy recall surface:** Live/Dual = **7** (see `docs/LEGACY_RECALL_SURFACE.md`;
+audit: `docs/ESCAPE_HATCH_AUDIT.md`).
+
+**Docs note (Recall enforcement program Steps 1–7):** Landed (docs only) —
+index `docs/RECALL_ENFORCEMENT_INDEX.md` (ADR-049 → allowlist → Cursor rule →
+change-control / exception → DONE checklists → result contract → escape-hatch
+audit). Cursor rule:
+`.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
+**MIG code still requires separate authorization** (MIG-05 step 4 / MIG-06+
+not started from this program).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only
 (unchecked). Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md`. MIG-05

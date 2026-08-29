@@ -16,6 +16,12 @@ cannot quietly become permanent.
 | Retired | 1 (L6) |
 | **Live/Dual count (N)** | **7** |
 
+**Enforcement program index:** `docs/RECALL_ENFORCEMENT_INDEX.md` (Steps 1–7).  
+**Escape-hatch audit:** `docs/ESCAPE_HATCH_AUDIT.md` (cadence + record template).
+
+**Metric habit:** Whenever any row’s Status changes, recompute **Live/Dual
+count N** in this header and mirror N in `CONTINUE.md`.
+
 ---
 
 ## Purpose
@@ -26,7 +32,9 @@ MIG-07 cutover. The allowlist must **shrink only**. Extending a non-Retired
 row with new ranking, hit types, asset Finds, or Why pipelines is forbidden
 by default.
 
-This is not a new constitution and not a Cursor rule (those come later).
+This is not a new constitution. Cursor invariants and the full enforcement
+map live in `.cursor/rules/unfynd-architecture-invariants.mdc` and
+`docs/RECALL_ENFORCEMENT_INDEX.md`.
 
 ---
 
@@ -62,6 +70,25 @@ L7, L8**. Canonical Recall does not yet exist as a single application API
 (ADR-049). Keyword Finds (L1–L4) and product-facing meaning Find (L8, with
 local ranking L7) remain live paths. L5 is writer/compatibility dual-write
 only after MIG-05 step 3 — it must not feed product ranking (confirmed).
+
+Full procedure, grep hints, and copy-paste record template:
+`docs/ESCAPE_HATCH_AUDIT.md`.
+
+---
+
+## Audit cadence
+
+Run the escape-hatch audit per `docs/ESCAPE_HATCH_AUDIT.md`:
+
+- At every search / MIG / Find checkpoint
+- At minimum before claiming MIG-05 full / MIG-07 / Recall convergence DONE
+- Recommended when opening Find / Recall change-control
+
+After each audit: update **Live/Dual N** in this header if status changed;
+mirror N in `CONTINUE.md`; if N increased, require ADR +
+`docs/LEGACY_EXTENSION_EXCEPTION.md`.
+
+CI grep enforcement is **out of scope** until after MIG-07 cutover.
 
 ---
 
@@ -104,16 +131,20 @@ only after MIG-05 step 3 — it must not feed product ranking (confirmed).
 
 At every search or MIG checkpoint (and when accepting a related ADR):
 
-1. Re-run the escape-hatch test; list enabling L# rows.
+1. Re-run the escape-hatch audit (`ESCAPE_HATCH_AUDIT.md`); list enabling L#
+   rows.
 2. Confirm statuses against **current code** (do not invent).
 3. Advance status only forward when the replacement is verified.
-4. Recompute **Live/Dual count N** in the header.
-5. Point `CONTINUE.md` Current checkpoint at this file with the current N.
+4. Recompute **Live/Dual count N** in the header (mandatory on every status
+   change).
+5. Point `CONTINUE.md` Current checkpoint at this file with the current N and
+   the audit pointer.
 6. Record the checkpoint in CHANGELOG / change-control when governance requires
    it.
 7. Do **not** add rows without an ADR; do **not** extend non-Retired rows
    with new Find features.
 
-**Out of scope for this file:** Authorizing MIG-05 step 4, MIG-06+, Cursor
-rules, deleting keyword Find or `PdfPageEmbedding*` tables, or claiming
-Canonical Recall exists in code.
+**Out of scope for this file:** Authorizing MIG-05 step 4, MIG-06+, deleting
+keyword Find or `PdfPageEmbedding*` tables, or claiming Canonical Recall
+exists in code. CI grep enforcement waits until after MIG-07 cutover (see
+`ESCAPE_HATCH_AUDIT.md`).
