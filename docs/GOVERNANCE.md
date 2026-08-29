@@ -50,20 +50,22 @@ MIG-05 / claim **B** complete while the non-PDF evidence indexer remains
 explicitly deferred
 (see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` step 4).
 
-**MIG-07 photo only** is authorized in this delivery: cut photo keyword Find
-over to `SearchMemoryEvidence` (L3 Retired; Live/Dual **N=3**). See
-`docs/CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`. PDF + screenshot
-cutovers (L1+L2 Retired) remain delivered
+**MIG-07 note only** is authorized in this delivery: cut note keyword Find
+over to `SearchMemoryEvidence` (L4 Retired; Live/Dual **N=2**). See
+`docs/CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`. PDF + screenshot +
+photo cutovers (L1–L3 Retired) remain delivered
 (`CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER`,
-`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER`). Do **not** start note
-cutover (L4), MIG-07B, or MIG-08–MIG-11 from this authorization alone. Do
-**not** claim full MIG-07 / Recall DONE or that Canonical Recall exists as a
-live App API (ADR-049). `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not
-architectural authority and is not permission to implement unauthorized MIGs.
-ADR-043 confirms the freeze is suitable for the PKI north star through
-See/Remember, staged Connect, retrieve-by-meaning, and Understand /
-converse-as-Q&A; Act remains out of current architecture. That confirmation
-does not authorize L4 / MIG-07B or reopen the Architecture Freeze.
+`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER`,
+`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`). **MIG-07 keyword L1–L4
+cutovers complete** — do **not** claim full MIG-07 / Recall DONE or that
+Canonical Recall exists as a live App API (ADR-049). Do **not** start
+MIG-07B or MIG-08–MIG-11 from this authorization alone.
+`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not architectural authority and
+is not permission to implement unauthorized MIGs. ADR-043 confirms the freeze
+is suitable for the PKI north star through See/Remember, staged Connect,
+retrieve-by-meaning, and Understand / converse-as-Q&A; Act remains out of
+current architecture. That confirmation does not authorize MIG-07B or reopen
+the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

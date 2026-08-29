@@ -50,7 +50,7 @@ Non-CI until after MIG-07 cutover. Prefer current-code inspection over memory.
 
 | Hint | What to look for |
 |------|------------------|
-| L1–L4 | `ui/search` ViewModels calling `SearchPersisted*` (PDF / screenshot / photo / note keyword) |
+| L1–L4 | `ui/search` ViewModels formerly calling `SearchPersisted*` (PDF / screenshot / photo / note keyword) — **Retired**; now MemoryEvidence-backed |
 | L8 | `SearchAssetMemoriesByMeaning` called from `MeaningSearchViewModel` (product meaning Find) |
 | L7 | Ranking/boost still local inside `SearchAssetMemoriesByMeaning` (counts Live until shared Canonical Recall ranking) |
 | L5 | `PdfPageEmbeddingStore` / `pdf_page_embeddings` must be **absent** from main source after MIG-05 step 4 (L5 Retired); migrations may mention DROP |
@@ -174,6 +174,19 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 
 ---
 
+## Checkpoint — MIG-07 note keyword cutover
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-30 |
+| Live/Dual N | **2** |
+| Enabling L#s | L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049; L1–L4 no longer enable) |
+| Delta | L4 Live → Retired; N 3 → 2; note Find → `SearchMemoryEvidence` (NOTE filter); `SearchPersistedNotePageText` + `NotePageKeywordSearchSupport` deleted |
+| Auditor | MIG-07 note cutover delivery |
+
+---
+
 ## Related
 
 - Allowlist + metric: `docs/LEGACY_RECALL_SURFACE.md`
@@ -184,3 +197,4 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 - MIG-07 PDF: `docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`
 - MIG-07 screenshot: `docs/CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md`
 - MIG-07 photo: `docs/CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`
+- MIG-07 note: `docs/CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`

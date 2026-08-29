@@ -4,20 +4,20 @@
 # Authority: docs/LEGACY_RECALL_SURFACE.md; docs/RECALL_ENFORCEMENT_INDEX.md;
 # ADR-049 (Canonical Recall target-only); MIG-05 step 4 (page store retired);
 # MIG-06 SearchMemoryEvidence application use case;
-# MIG-07 PDF + screenshot + photo keyword Find cutovers (L1–L3 Retired; L4 still Live).
+# MIG-07 PDF + screenshot + photo + note keyword Find cutovers (L1–L4 Retired;
+# L7 + L8 still Live).
 #
-# Does NOT authorize note cutover, MIG-07B, or Canonical Recall
-# as a live product API. Run from repo root (Git Bash / WSL / GitHub Actions ubuntu):
+# Does NOT authorize MIG-07B or Canonical Recall as a live product API.
+# Run from repo root (Git Bash / WSL / GitHub Actions ubuntu):
 #   bash scripts/check-legacy-recall-surface.sh
 # Windows helper (forwards to this script):
 #   powershell -File scripts/check-legacy-recall-surface.ps1
 #
-# Allowlisted L4 keyword Find files + remaining PDF/screenshot/photo keyword UI helpers
-# (ui/** + application/** only). Any NEW *KeywordSearch* or SearchPersisted*
+# Allowlisted keyword Find UI/helper files for L1–L4 Retired MemoryEvidence-backed
+# paths (ui/** + application/** only). Any NEW *KeywordSearch* or SearchPersisted*
 # file under those trees fails.
 # SearchMemoryEvidence is ALLOWED as the MIG-06 application use case (+ support)
-# and in PdfKeywordSearchViewModel + ScreenshotOcrKeywordSearchViewModel +
-# PhotoOcrKeywordSearchViewModel (MIG-07 PDF + screenshot + photo cutovers);
+# and in Pdf/Screenshot/Photo/Note keyword ViewModels (MIG-07 cutovers);
 # still FORBIDDEN under other ui/** paths or as a Find clone.
 # ---------------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ MAIN="MemoraApp/app/src/main"
 MAIN_JAVA="${MAIN}/java"
 MIGRATIONS_REL="MemoraApp/app/src/main/java/com/memora/app/data/local/MemoraDatabaseMigrations.kt"
 
-# MIG-06 application use case + port + Room adapter; MIG-07 PDF + screenshot + photo adapters.
+# MIG-06 application use case + port + Room adapter; MIG-07 PDF + screenshot + photo + note adapters.
 ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/SearchMemoryEvidence.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/MemoryEvidenceExcerptSearch.kt"
@@ -46,13 +46,17 @@ ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/images/PhotoMemoryEvidenceKeywordAdapter.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/images/PhotoOcrKeywordSearchModels.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/images/LoadPersistedPhotoOcrKeywordSearchReadiness.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/notes/NoteMemoryEvidenceKeywordAdapter.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/notes/NotePageKeywordSearchModels.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/notes/LoadPersistedNotePageKeywordSearchReadiness.kt"
 )
 
-# MIG-07 PDF + screenshot + photo cutover: UI files allowed to bind SearchMemoryEvidence.
+# MIG-07 PDF + screenshot + photo + note cutover: UI files allowed to bind SearchMemoryEvidence.
 ALLOW_SEARCH_MEMORY_EVIDENCE_UI_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PdfKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/ScreenshotOcrKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchViewModel.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/ui/search/NotePageKeywordSearchViewModel.kt"
 )
 
 failures=0
@@ -71,11 +75,12 @@ if [[ ! -d "${MAIN}" ]]; then
   exit 2
 fi
 
-# --- Allowlist: existing keyword Find surfaces (L4 Live; PDF/SS/photo UI helpers) --
+# --- Allowlist: existing keyword Find surfaces (L1–L4 Retired; MemoryEvidence-backed) --
 # Paths relative to repo root. Extend only with ADR + LEGACY_EXTENSION_EXCEPTION.
 # L1 SearchPersistedPdfPageText deleted (MIG-07 PDF cutover).
 # L2 SearchPersistedScreenshotOcrText deleted (MIG-07 screenshot cutover).
 # L3 SearchPersistedPhotoOcrText deleted (MIG-07 photo cutover).
+# L4 SearchPersistedNotePageText + NotePageKeywordSearchSupport deleted (MIG-07 note).
 ALLOWLIST_KEYWORD_FIND=(
   # PDF keyword UI / helpers (L1 Retired — MemoryEvidence-backed; no SearchPersisted*)
   "MemoraApp/app/src/main/java/com/memora/app/application/documents/LoadPersistedPdfKeywordSearchReadiness.kt"
@@ -101,10 +106,10 @@ ALLOWLIST_KEYWORD_FIND=(
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchScreen.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchCopy.kt"
-  # L4 Note keyword
-  "MemoraApp/app/src/main/java/com/memora/app/application/notes/SearchPersistedNotePageText.kt"
+  # Note keyword UI / helpers (L4 Retired — MemoryEvidence-backed; no SearchPersisted*)
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/LoadPersistedNotePageKeywordSearchReadiness.kt"
-  "MemoraApp/app/src/main/java/com/memora/app/application/notes/NotePageKeywordSearchSupport.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/notes/NotePageKeywordSearchModels.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/notes/NoteMemoryEvidenceKeywordAdapter.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/NotePageKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/NotePageKeywordSearchScreen.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/NotePageKeywordSearchCopy.kt"
@@ -181,7 +186,7 @@ do
   esac
 done
 if [[ "${b_failed}" -eq 0 ]]; then
-  ok "all KeywordSearch/SearchPersisted files are allowlisted (L4 + PDF/SS/photo helpers)"
+  ok "all KeywordSearch/SearchPersisted files are allowlisted (L1–L4 helpers + PDF highlight)"
 fi
 
 # --- C: CanonicalRecall type name must not exist in main yet ------------------
@@ -194,7 +199,7 @@ else
 fi
 
 # --- D: SearchMemoryEvidence — MIG-06/07 allowlist; forbid other UI Find ------
-echo "== D: SearchMemoryEvidence allowlist (MIG-07 PDF + screenshot + photo UI) =="
+echo "== D: SearchMemoryEvidence allowlist (MIG-07 PDF + screenshot + photo + note UI) =="
 d_failed=0
 d_tmp="$(mktemp)"
 grep -RIn --include='*.kt' --include='*.java' -E '\bSearchMemoryEvidence\b' "${MAIN}" \
@@ -210,7 +215,7 @@ while IFS= read -r line || [[ -n "${line}" ]]; do
      [[ "${rel}" == "MemoraApp/app/src/main/java/com/memora/app/data/local/RoomMemoryEvidenceExcerptSearch.kt" ]]; then
     continue
   fi
-  # Forbidden: UI Find clones other than authorized PDF + screenshot + photo ViewModels.
+  # Forbidden: UI Find clones other than authorized PDF + screenshot + photo + note ViewModels.
   if [[ "${rel}" == *"/ui/"* ]]; then
     local_ok=0
     for a in "${ALLOW_SEARCH_MEMORY_EVIDENCE_UI_FILES[@]}"; do
@@ -264,8 +269,14 @@ if [[ -f "${MAIN_JAVA}/com/memora/app/application/images/SearchPersistedPhotoOcr
   d_failed=1
 fi
 
+# L4 resurrection: SearchPersistedNotePageText must stay deleted
+if [[ -f "${MAIN_JAVA}/com/memora/app/application/notes/SearchPersistedNotePageText.kt" ]]; then
+  fail "SearchPersistedNotePageText.kt resurrected (L4 Retired — MIG-07 note)"
+  d_failed=1
+fi
+
 if [[ "${d_failed}" -eq 0 ]]; then
-  ok "SearchMemoryEvidence confined to MIG-06/07 allowlist (PDF + screenshot + photo UI)"
+  ok "SearchMemoryEvidence confined to MIG-06/07 allowlist (PDF + screenshot + photo + note UI)"
 fi
 
 echo

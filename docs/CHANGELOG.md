@@ -2,17 +2,34 @@
 
 ## Unreleased
 
+### MIG-07 note — keyword Find cutover to SearchMemoryEvidence
+
+- **Date:** 2026-08-30
+- **Delivered:** Note keyword Find ViewModel binds `SearchMemoryEvidence`
+  (`AssetType.NOTE`); adapter maps hits to existing UI models; readiness
+  counts READY note Memory evidence; `SearchPersistedNotePageText` and
+  `NotePageKeywordSearchSupport` deleted. L4 Retired; Live/Dual **N=2**
+  (L7, L8). Guard updated (no L4 SearchPersisted allowlist; note UI
+  allowlisted for SearchMemoryEvidence). **MIG-07 keyword L1–L4 cutovers
+  complete.** Canonical Recall not a live API; full MIG-07 / Recall DONE
+  not claimed.
+- **Truthfulness:** Escape-hatch still YES via L7, L8. Marketing AVAILABLE
+  not claimed. ADR-050 claim A done / B open.
+- **Change control:** `docs/CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`.
+
 ### MIG-07 photo — keyword Find cutover to SearchMemoryEvidence
 
 - **Date:** 2026-08-30
 - **Delivered:** Photo keyword Find ViewModel binds `SearchMemoryEvidence`
   (`AssetType.PHOTO`); adapter maps hits to existing UI models; readiness
   counts READY photo Memory evidence; `SearchPersistedPhotoOcrText` deleted.
-  L3 Retired; Live/Dual **N=3**. Guard updated (no L3 SearchPersisted
-  allowlist; photo UI allowlisted for SearchMemoryEvidence). L4 unchanged.
-  Canonical Recall not a live API; full MIG-07 / Recall DONE not claimed.
-- **Truthfulness:** Escape-hatch still YES via L4, L7, L8. Marketing AVAILABLE
-  not claimed. ADR-050 claim A done / B open.
+  L3 Retired; Live/Dual **N=3** (superseded for N by note cutover above;
+  L3 remains Retired). Guard updated (no L3 SearchPersisted
+  allowlist; photo UI allowlisted for SearchMemoryEvidence). L4 unchanged
+  at landing. Canonical Recall not a live API; full MIG-07 / Recall DONE
+  not claimed.
+- **Truthfulness:** Escape-hatch still YES via L4, L7, L8 at landing.
+  Marketing AVAILABLE not claimed. ADR-050 claim A done / B open.
 - **Change control:** `docs/CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`.
 
 ### MIG-07 screenshot — keyword Find cutover to SearchMemoryEvidence

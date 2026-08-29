@@ -1,33 +1,30 @@
 package com.memora.app.application.notes
 
-import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.application.memory.MemoryEvidenceExcerptSearch
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Loads how much current-fingerprint OneNote page text is ready for keyword search.
+ * Loads how much READY note Memory evidence is available for keyword Find.
  *
- * Honest inventory only. Does not call Graph, invoke AI, or claim Memory recall.
+ * MIG-07 readiness source: Memory evidence substrate (not raw
+ * NotePageExtractionDao searchable corpus). Honest inventory only — does
+ * not claim meaning recall. [noteCount] is distinct note assets
+ * with READY Memory evidence (not raw note extraction rows).
  */
-class LoadPersistedNotePageKeywordSearchReadiness(
-    private val database: () -> MemoraDatabase,
+class LoadPersistedNotePageKeywordSearchReadiness @Inject constructor(
+    private val excerptSearch: MemoryEvidenceExcerptSearch,
 ) {
-    @Inject
-    constructor(
-        databaseHandle: MemoraDatabaseHandle,
-    ) : this(
-        database = { databaseHandle.database() },
-    )
-
-    constructor(database: MemoraDatabase) : this(database = { database })
-
     suspend operator fun invoke(): NotePageKeywordSearchReadiness =
         withContext(Dispatchers.IO) {
-            val counts = database().notePageExtractionDao()
-                .countCurrentSearchableCorpus(NotePageKeywordSearchSupport.SCHEMA_VERSION)
-            NotePageKeywordSearchReadiness(noteCount = counts.noteCount)
+            val counts = excerptSearch.countCurrentReadyEvidenceCorpus(
+                assemblySchemaVersion = SearchMemoryEvidence.DEFAULT_ASSEMBLY_SCHEMA,
+                assetType = AssetType.NOTE,
+            )
+            NotePageKeywordSearchReadiness(noteCount = counts.documentCount)
         }
 }
 

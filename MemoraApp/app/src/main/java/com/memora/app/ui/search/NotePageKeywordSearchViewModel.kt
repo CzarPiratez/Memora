@@ -2,14 +2,16 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.memory.SearchMemoryEvidence
 import com.memora.app.application.notes.ExternalUrlLauncher
 import com.memora.app.application.notes.LoadPersistedNotePageKeywordSearchReadiness
+import com.memora.app.application.notes.NoteMemoryEvidenceKeywordAdapter
 import com.memora.app.application.notes.NotePageKeywordSearchHit
 import com.memora.app.application.notes.NotePageKeywordSearchOutcome
 import com.memora.app.application.notes.NotePageKeywordSearchReadiness
 import com.memora.app.application.notes.OpenPersistedNotePageInOneNote
 import com.memora.app.application.notes.OpenPersistedNotePageResult
-import com.memora.app.application.notes.SearchPersistedNotePageText
+import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -101,6 +103,13 @@ sealed interface NotePageKeywordSearchPhase {
     data object SearchCouldNotFinish : NotePageKeywordSearchPhase
 }
 
+/**
+ * Note keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
+ * (AssetType.NOTE).
+ *
+ * L4 `SearchPersistedNotePageText` retired; UI models preserved via adapter.
+ * Open-original remains source-identity based (OneNote web/client URLs).
+ */
 @HiltViewModel
 class NotePageKeywordSearchViewModel(
     private val searchPersistedNotePageText: suspend (String) -> NotePageKeywordSearchOutcome,
@@ -112,12 +121,19 @@ class NotePageKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchPersistedNotePageText: SearchPersistedNotePageText,
+        searchMemoryEvidence: SearchMemoryEvidence,
         loadPersistedNotePageKeywordSearchReadiness: LoadPersistedNotePageKeywordSearchReadiness,
         openPersistedNotePageInOneNote: OpenPersistedNotePageInOneNote,
         externalUrlLauncher: ExternalUrlLauncher,
     ) : this(
-        searchPersistedNotePageText = { rawQuery -> searchPersistedNotePageText(rawQuery) },
+        searchPersistedNotePageText = { rawQuery ->
+            NoteMemoryEvidenceKeywordAdapter.toNoteOutcome(
+                searchMemoryEvidence(
+                    rawQuery = rawQuery,
+                    assetType = AssetType.NOTE,
+                ),
+            )
+        },
         loadReadiness = { loadPersistedNotePageKeywordSearchReadiness() },
         openPersistedNotePage = { sourceId, sourceAssetKey ->
             openPersistedNotePageInOneNote(sourceId, sourceAssetKey)

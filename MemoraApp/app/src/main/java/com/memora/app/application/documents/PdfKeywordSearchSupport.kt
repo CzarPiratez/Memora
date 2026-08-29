@@ -1,10 +1,10 @@
 package com.memora.app.application.documents
 
 /**
- * Pure helpers shared by interim on-device keyword search (highlight + L2–L4).
+ * Pure helpers shared by PDF excerpt highlight (and remaining shared normalize/span utils).
  *
- * PDF product Find no longer searches via these helpers (MIG-07 → MemoryEvidence),
- * but L2–L4 and PDF excerpt highlight still reuse normalize/escape/span helpers.
+ * PDF/screenshot/photo/note product Finds no longer search via these helpers
+ * (MIG-07 → MemoryEvidence). Keep for [PdfKeywordSearchHighlight] and tests.
  */
 internal object PdfKeywordSearchSupport {
     const val MAX_QUERY_LENGTH = 120

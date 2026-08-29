@@ -9,24 +9,27 @@
 **Docs note:** Root `README.md` is site-aligned product/App vs Core voice
 ([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
 
-**Checkpoint (MIG-07 photo keyword cutover):** Photo Find ViewModel
-binds `SearchMemoryEvidence` with `AssetType.PHOTO`;
-`SearchPersistedPhotoOcrText` deleted; readiness counts READY photo
-Memory evidence. **L3 Retired**; Live/Dual **N = 3** (L4, L7, L8). PDF +
-screenshot cutovers remain delivered (**L1+L2 Retired**). Note keyword
-cutover **remains**. Canonical Recall still **not** a live single App API
-(**ADR-049**). Do **not** claim full MIG-07 / Recall DONE. Per **ADR-050:**
-claim **A** (PDF evidence-embedding delivery slice steps 1–4) **COMPLETE**;
-claim **B** (Migration Spec MIG-05 full) remains **open** — non-PDF evidence
-indexer **deferred**. **MIG-04** MemoryBuilder seam remains live. Ranking,
+**Checkpoint (MIG-07 note keyword cutover):** Note Find ViewModel
+binds `SearchMemoryEvidence` with `AssetType.NOTE`;
+`SearchPersistedNotePageText` + `NotePageKeywordSearchSupport` deleted;
+readiness counts READY note Memory evidence. **L4 Retired**; Live/Dual
+**N = 2** (L7, L8). PDF + screenshot + photo cutovers remain delivered
+(**L1–L3 Retired**). **MIG-07 keyword L1–L4 cutovers complete** — this is
+**not** full MIG-07 / Recall DONE. Canonical Recall still **not** a live
+single App API (**ADR-049**). L7/L8, MIG-07B, shared ranking, and
+`RECALL_CONVERGENCE_DONE` boxes remain open. Per **ADR-050:** claim **A**
+(PDF evidence-embedding delivery slice steps 1–4) **COMPLETE**; claim **B**
+(Migration Spec MIG-05 full) remains **open** — non-PDF evidence indexer
+**deferred**. **MIG-04** MemoryBuilder seam remains live. Ranking,
 Find/Why UI redesign, Links, Event/Knowledge, Grounded Answers code, package
-rename, VisionEngine, and MIG-07B / L4 cutover are not started. Hashed
+rename, VisionEngine, and MIG-07B are not started. Hashed
 freeze/spec/amendment files unchanged. ADR-043 unchanged (Act still out).
 ADR-044 unchanged (interpretation only).
 `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
 journal, not Room). Identity playbook steps 0–5 remain complete.
 
-See `CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`. Screenshot cutover:
+See `CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER`. Photo cutover:
+`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`. Screenshot cutover:
 `CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER`. PDF cutover:
 `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER`. MIG-06 step 1 additive use case
 remains the shared substrate (`CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`).
@@ -67,44 +70,45 @@ App/fixture dump; no App open / Class B / Act from this ADR alone.
 **Docs note (ADR-049):** Canonical Recall naming accepted — sole App
 product-facing retrieval boundary after MIG-07 cutover (not yet one API in
 code). MIG-06 `SearchMemoryEvidence` = keyword/literal **candidate-generation**;
-MIG-07 PDF + screenshot + photo cutovers wire those Finds only (L1–L3 Retired).
-Grounding Retriever = Option C same pipeline (not a competing Find). Does not
-authorize L4 / MIG-07B from ADR-049 alone; does not change MIG-05 step 4 /
-ADR-050 acceptance.
+MIG-07 PDF + screenshot + photo + note cutovers wire those Finds (L1–L4
+Retired). Grounding Retriever = Option C same pipeline (not a competing
+Find). Does not authorize MIG-07B from ADR-049 alone; does not change
+MIG-05 step 4 / ADR-050 acceptance.
 
 **Docs note (ADR-050):** MIG-05 claim levels — **A** PDF delivery slice
 (steps 1–4) COMPLETE for eng checkpoints; **B** Spec MIG-05 full STILL OPEN
 (non-PDF evidence indexing deferred). Grants/public must not say “MIG-05
 complete” without stating B open. Does not authorize the non-PDF indexer.
-Does not rewrite hashed Spec/Freeze. MIG-07 photo cutover is separately
+Does not rewrite hashed Spec/Freeze. MIG-07 note cutover is separately
 authorized in GOVERNANCE /
-`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`.
+`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER`.
 
-**Legacy recall surface:** Live/Dual = **3** (see `docs/LEGACY_RECALL_SURFACE.md`;
-audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-07 photo checkpoint; L3 Retired).
+**Legacy recall surface:** Live/Dual = **2** (see `docs/LEGACY_RECALL_SURFACE.md`;
+audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-07 note checkpoint; L4 Retired).
 
-**Status truth check 2026-08-30:** CONTINUE + LEGACY + code agree; N=3
-(L4, L7, L8 Live; L1/L2/L3/L5/L6 Retired; Room 15; evidence-only index;
+**Status truth check 2026-08-30:** CONTINUE + LEGACY + code agree; N=2
+(L7, L8 Live; L1–L6 Retired; Room 15; evidence-only index;
 `SearchAssetMemoriesByMeaning` on `MemoryEvidenceEmbeddingStore`; PDF +
-screenshot + photo keyword Finds on `SearchMemoryEvidence`; ADR-049 Canonical
-Recall not yet one API; full MIG-07 / Recall DONE **open**).
+screenshot + photo + note keyword Finds on `SearchMemoryEvidence`; ADR-049
+Canonical Recall not yet one API; full MIG-07 / Recall DONE **open** —
+keyword L1–L4 cutovers complete ≠ program DONE).
 
 **Docs note (Recall enforcement program Steps 1–7):** Landed (docs only).
 **Operator entry:** `docs/RECALL_ENFORCEMENT_INDEX.md` (60s checklist) +
-LEGACY Live/Dual **N=3**. Cursor rule:
+LEGACY Live/Dual **N=2**. Cursor rule:
 `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
-**L4 / MIG-07B still require separate authorization.** **Machine check:**
+**MIG-07B still requires separate authorization.** **Machine check:**
 `scripts/check-legacy-recall-surface.sh` + CI job `Legacy recall surface guard`
-(see RECALL_ENFORCEMENT_INDEX; MIG-07 PDF + screenshot + photo allowlist).
+(see RECALL_ENFORCEMENT_INDEX; MIG-07 PDF + screenshot + photo + note allowlist).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only.
-Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open). MIG-05
-FULL DONE checklist in
-`docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` — per **ADR-050**,
+Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open — L7/L8,
+Canonical Recall facade, MIG-07B, shared ranking). MIG-05 FULL DONE checklist
+in `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` — per **ADR-050**,
 claim **A** (PDF slice) may be treated complete; claim **B** / Spec full and
-the non-PDF box remain **open**. MIG-07 PDF alone does **not** satisfy Recall
-convergence DONE.
+the non-PDF box remain **open**. MIG-07 keyword L1–L4 cutovers alone do
+**not** satisfy Recall convergence DONE.
 
 **Docs note (Canonical Recall result + Why contract):** DRAFT logical shared
 hit/Why shape for MIG-06/07 — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`.
@@ -126,7 +130,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
 | Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **ADR-050 A** PDF slice complete; **B** Spec full open (non-PDF deferred) |
-| Unified evidence keyword search (MIG-06/07 PDF+SS+photo) | `SearchMemoryEvidence` live for PDF + screenshot + photo Finds; L1–L3 Retired; L4 still Live |
+| Unified evidence keyword search (MIG-06/07 L1–L4) | `SearchMemoryEvidence` live for PDF + screenshot + photo + note Finds; L1–L4 Retired; L7/L8 still Live |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; evidence-level embeddings (MIG-05 step 3+); summary embeddings remain; E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -151,11 +155,11 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-07 remaining asset cutover (when authorized)** — note
-   keyword Find (L4) → `SearchMemoryEvidence`. PDF + screenshot + photo
-   cutovers **done** (L1–L3 Retired). Do not authorize L4 from photo cutover
-   alone. Recall program exit gate: `docs/RECALL_CONVERGENCE_DONE.md` (still
-   open; PDF + screenshot alone ≠ program complete).
+1. **MIG-07B / Canonical Recall wiring (when authorized)** — fold L8
+   meaning Find + L7 local ranking into Canonical Recall; shared result/Why.
+   Keyword L1–L4 cutovers **done**. Recall program exit gate:
+   `docs/RECALL_CONVERGENCE_DONE.md` (still open; keyword cutovers ≠
+   program complete).
 2. **MIG-05 remaining / deferral (ADR-050 claim B)** — non-PDF evidence
    indexer when authorized, or accept PDF-only vectors via a future ADR.
    Do not claim Spec MIG-05 / claim **B** complete while non-PDF remains
