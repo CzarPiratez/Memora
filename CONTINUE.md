@@ -106,7 +106,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
 | Evidence embeddings (MIG-05 step 3) | Search cut over to evidence store; PdfPageEmbedding* still dual-written; retirement = step 4; full MIG-05 open |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
-| Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
+| Find by meaning | Candidate recall; evidence-level embeddings (MIG-05 step 3); summary embeddings remain; E5d token assist; PdfPageEmbedding* dual-write until step 4 |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
 | PDF local reading UX | Aggregate N of M progress during WorkManager drain |
 | Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |

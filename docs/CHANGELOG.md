@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### CONTINUE status table honesty (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Find-by-meaning status row now reflects MIG-05 step 3
+  evidence-level embedding ranking (not PdfPageEmbedding* for search).
+
 ### Escape-hatch audit + Live/Dual metric habit (docs-only)
 
 - **Date:** 2026-08-29
