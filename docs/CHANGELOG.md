@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### MIG-05 + Recall convergence DONE checklists (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Added MIG-05 FULL DONE retirement checklist (unchecked) to
+  `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE`; new
+  `docs/RECALL_CONVERGENCE_DONE.md` (Canonical Recall program exit; retirement
+  mandatory). CONTINUE pointers only. No app code; checklists remain open;
+  does not authorize MIG-05 step 4 / MIG-06+.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_RECALL_CONVERGENCE_DONE_CHECKLISTS.md`.
+
 ### Change-control architectural convergence (docs-only)
 
 - **Date:** 2026-08-29

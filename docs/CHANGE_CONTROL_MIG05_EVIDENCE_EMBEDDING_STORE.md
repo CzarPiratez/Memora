@@ -570,3 +570,50 @@ next Build Index tap can dual-write-fill the evidence store.
 Step 3 does **not** retire `PdfPageEmbedding*`, does **not** add a full
 non-PDF evidence indexer, and does **not** close Migration Spec MIG-05 until
 step 4 / remaining acceptance criteria are verified.
+
+---
+
+## Already true after step 3 (must not regress)
+
+These are **not** claims that full MIG-05 is closed. They are regression
+anchors after the step 3 search cutover; keep them true until step 4 and
+beyond:
+
+- Product meaning ranking does **not** read `PdfPageEmbeddingStore`.
+- Product meaning ranking does **not** use `SavedPdfPageTextSource`
+  (`LEGACY_RECALL_SURFACE` L6 remains Retired).
+- Product meaning ranking reads `MemoryEvidenceEmbeddingStore` +
+  `MemoryEvidence` (excerpt / locator→page).
+
+Do **not** check the full MIG-05 DONE boxes below from this subsection alone.
+
+---
+
+## MIG-05 FULL DONE only when (retirement checklist)
+
+**Status: OPEN** — do not claim full MIG-05 complete until every box below is
+verified. Step 3 alone ≠ full MIG-05. Step 4 retirement is mandatory for L5.
+
+Must **ALL** be true before claiming full MIG-05 complete:
+
+- [ ] Product meaning ranking does not use `PdfPageEmbeddingStore`
+      (step 3 — already true; keep as regression gate)
+- [ ] Product meaning ranking does not use `SavedPdfPageTextSource`
+      (step 3 — already true; L6 Retired; keep as regression gate)
+- [ ] Product meaning ranking reads `MemoryEvidenceEmbeddingStore` +
+      `MemoryEvidence`
+- [ ] `IndexPdfPageEmbeddings` dual-write of `PdfPageEmbedding*` stopped OR
+      PdfPage path is write-obsolete with documented no readers
+- [ ] `PdfPageEmbedding*` store/table/DAO retired or formally deleted per
+      step 4 plan (L5 → Retired on `LEGACY_RECALL_SURFACE`)
+- [ ] `LEGACY_RECALL_SURFACE` updated: L5 Retired; Live/Dual count decreased
+- [ ] Cutover STALE / backfill path verified empty or no longer needed for
+      page→evidence gap
+- [ ] Non-PDF evidence embedding: either implemented end-to-end OR
+      explicitly deferred with ADR/CHANGE_CONTROL note (do not silently
+      claim full Spec MIG-05 if only PDF evidence vectors exist)
+- [ ] CHANGELOG + CONTINUE record full MIG-05 closed only after above
+
+**Explicit:** Step 3 alone ≠ full MIG-05. Step 4 retirement is mandatory for
+L5. “New path works” is insufficient; migration finished means old paths
+retired.

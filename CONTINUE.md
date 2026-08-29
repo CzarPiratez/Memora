@@ -70,6 +70,13 @@ authorize MIG-06+ / MIG-05 step 4; does not change MIG-05 step 3 acceptance.
 Cursor rule: `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).  
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 
+**Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only
+(unchecked). Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md`. MIG-05
+full close: retirement checklist in
+`docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` (MIG-05 FULL DONE).
+Neither checklist is complete; does not authorize MIG-06+ / MIG-05 step 4
+implementation from this note alone.
+
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
@@ -115,6 +122,10 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
    measurement when a physical `midrange_arm64` device is available.
    Do not start MIG-06+ / MIG-07B from this checkpoint without explicit
    authorization. Do not claim full MIG-05 complete from step 3 alone.
+   Full MIG-05 close gate:
+   `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` retirement checklist
+   (still open). Recall program exit gate: `docs/RECALL_CONVERGENCE_DONE.md`
+   (still open; MIG-06 additive alone ≠ program complete).
 2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
    available; do not flip AVAILABLE from emulator alone.
 3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
