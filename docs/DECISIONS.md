@@ -1633,3 +1633,65 @@ leaking private fixtures.
 **Consequences:** Pack may ship `examples/` and cite this ADR in ROADMAP-OPEN /
 CITATIONS. Update CONTINUE / CHANGELOG when samples land.
 
+## ADR-049: Canonical Recall naming (App Find boundary)
+
+**Status:** Accepted
+
+**Decision:** The sole App product-facing retrieval boundary that ViewModels
+will call after MIG-07 cutover is named **Canonical Recall**. It does not exist
+as a single application API in code yet. Today’s keyword Finds and
+`SearchAssetMemoriesByMeaning` remain live legacy / interim paths and are not
+renamed by this ADR.
+
+**Binding interpretation:**
+
+1. **Canonical Recall** is the frozen App Find / search boundary name. A future
+   Cursor rule may say “ViewModels call Canonical Recall” with one meaning:
+   the sole product-facing retrieval boundary after MIG-07 cutover. Naming only;
+   no code claim.
+
+2. **MIG-06 `SearchMemoryEvidence`** is keyword/literal **candidate-generation**
+   into Canonical Recall. It is not a second product Find system and not a
+   permanent parallel UI search architecture.
+
+3. **Grounding Retriever — Option C (phased, same pipeline).** Near term: App
+   Find converges under Canonical Recall (MIG-06 / MIG-07 / MIG-07B). Later,
+   Grounded Answers binds to the **same** retrieval candidate pipeline
+   (Grounding’s Retriever responsibilities). Do not create a second
+   keyword/meaning candidate stack for Ask. “Retriever” and “Canonical Recall”
+   are not competing product search systems: Retriever is the Grounding-facing
+   name for the shared retrieval port/responsibilities; Canonical Recall is the
+   App Find-facing boundary over that converged pipeline. This ADR does not
+   implement Retriever code.
+
+4. **Spec `RecallRanker`** is the ranking stage **inside** Canonical Recall —
+   the future capability implementation for model-backed ranking, not an
+   independent product search system. MIG-07B structured/anchor filter is a
+   deterministic stage inside Canonical Recall, not `RecallRanker`.
+
+5. **False-positive guard.** Extraction tables → `AssetMemoryFactSource` →
+   MemoryBuilder remains **ALLOWED**. Forbidden (target after cutover):
+   extraction DAO → user-visible search result outside Canonical Recall (or
+   outside a future legacy allowlist).
+
+**Out of scope / non-claims:**
+
+- Does not authorize MIG-06, MIG-07, MIG-07B, or MIG-05 step 4
+- Does not claim Canonical Recall exists in code
+- Does not retire legacy keyword Find or `PdfPageEmbedding*` dual-write
+- Does not change MIG-05 step 3 acceptance or search implementation
+- Does not implement Grounded Answers, VisionEngine, Act, or package rename
+- Does not rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs
+- Does not start `LEGACY_RECALL_SURFACE`, Cursor rules, or later naming steps
+
+**Reason:** Architecture Freeze §3 already requires one canonical recall
+pipeline (literal + semantic as candidate generation into one
+structured-filter-and-ranking stage). Product and Grounding docs needed a
+single App-facing name and Option C binding so MIG-06/07/07B and future Ask
+do not spawn competing Find architectures. ADR-035’s Retriever port remains
+the Grounding-facing name for shared retrieval responsibilities.
+
+**Consequences:** Registry, CONTINUE, changelog, and change-control record
+this naming decision. Implementation remains gated on future authorized
+MIG steps. No application or schema change.
+

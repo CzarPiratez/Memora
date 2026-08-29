@@ -59,6 +59,15 @@ conversational memory or an untracked desktop file.
    non-personal reference samples under the same Apache-2.0 license. UNFYND App
    and proprietary assets stay private until a later ADR. Openness is product
    strategy; do not frame the product by external grant programs.
+10. **Canonical Recall naming (ADR-049):** the sole App product-facing
+    retrieval boundary after MIG-07 cutover is **Canonical Recall** (not yet a
+    single application API). MIG-06 `SearchMemoryEvidence` is keyword/literal
+    candidate generation into that boundary, not a second Find system.
+    Grounding’s Retriever is the same converged pipeline under Option C (App
+    Find near term; Ask later) — not a competing search architecture. Spec
+    `RecallRanker` and MIG-07B structured/anchor filter are stages inside
+    Canonical Recall. ADR-049 does not authorize MIG-06+, MIG-05 step 4, or
+    rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
 
 ## Governed internal amendments
 
