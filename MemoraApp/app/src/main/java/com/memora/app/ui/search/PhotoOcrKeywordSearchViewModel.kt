@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.images.LoadPersistedPhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.OpenPersistedPhotoForViewing
+import com.memora.app.application.images.PhotoMemoryEvidenceKeywordAdapter
 import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 import com.memora.app.application.images.PhotoOcrKeywordSearchOutcome
 import com.memora.app.application.images.PhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.PhotoPreviewRenderResult
-import com.memora.app.application.images.SearchPersistedPhotoOcrText
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -62,6 +64,13 @@ data class PhotoOriginalPreviewUi(
     val argb8888: IntArray,
 )
 
+/**
+ * Photo keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
+ * (AssetType.PHOTO).
+ *
+ * L3 `SearchPersistedPhotoOcrText` retired; UI models preserved via adapter.
+ * Open-original remains source-identity based (no PDF page).
+ */
 @HiltViewModel
 class PhotoOcrKeywordSearchViewModel(
     private val search: suspend (String) -> PhotoOcrKeywordSearchOutcome,
@@ -70,11 +79,18 @@ class PhotoOcrKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        search: SearchPersistedPhotoOcrText,
+        searchMemoryEvidence: SearchMemoryEvidence,
         readiness: LoadPersistedPhotoOcrKeywordSearchReadiness,
         opener: OpenPersistedPhotoForViewing,
     ) : this(
-        search = { search(it) },
+        search = { rawQuery ->
+            PhotoMemoryEvidenceKeywordAdapter.toPhotoOutcome(
+                searchMemoryEvidence(
+                    rawQuery = rawQuery,
+                    assetType = AssetType.PHOTO,
+                ),
+            )
+        },
         loadReadiness = { readiness() },
         openPhoto = { opener(it.sourceId, it.sourceAssetKey, it.label) },
     )

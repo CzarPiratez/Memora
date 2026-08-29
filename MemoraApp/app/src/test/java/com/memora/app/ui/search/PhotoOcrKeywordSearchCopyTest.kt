@@ -1,21 +1,37 @@
 package com.memora.app.ui.search
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PhotoOcrKeywordSearchCopyTest {
     @Test
-    fun scopeAndWhyStayKeywordHonest() {
-        assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("keyword matching"))
-        assertTrue(
-            PhotoOcrKeywordSearchCopy.whyThisResultBody(
-                "total",
-                "receipt.jpg",
-                "Total 42",
-            ).contains("not meaning-based recall"),
+    fun scope_and_why_stay_keyword_honest_not_meaning_or_screenshot() {
+        val why = PhotoOcrKeywordSearchCopy.whyThisResultBody(
+            query = "total",
+            label = "receipt.jpg",
+            excerpt = "…Total 42…",
         )
-        assertFalse(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory ranking"))
+        assertTrue(why.contains("keyword matching, not meaning-based recall"))
+        assertTrue(why.contains("Memory evidence"))
+        assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Screenshots are not included"))
+        assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
+        assertFalse(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("SCREENSHOT OCR"))
+    }
+
+    @Test
+    fun readiness_empty_and_non_empty_are_honest() {
+        assertEquals(
+            "Nothing is ready for photo keyword search yet. " +
+                "Finish Read text from photos and Memory assembly in photo setup first.",
+            PhotoOcrKeywordSearchCopy.readinessBody(0),
+        )
+        assertEquals(
+            "1 photo with READY Memory evidence is ready for keyword search on this phone. " +
+                "This is keyword matching, not meaning-based recall.",
+            PhotoOcrKeywordSearchCopy.readinessBody(1),
+        )
     }
 
     @Test
@@ -24,5 +40,10 @@ class PhotoOcrKeywordSearchCopyTest {
             PhotoOcrKeywordSearchCopy.resultsSummary("total", 20, true)
                 .contains("at most 20"),
         )
+    }
+
+    @Test
+    fun preview_copy_stays_memory_evidence_honest() {
+        assertTrue(PhotoOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY.contains("Memory evidence"))
     }
 }

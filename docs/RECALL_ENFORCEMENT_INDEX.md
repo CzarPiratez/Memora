@@ -8,22 +8,23 @@ index.**
 Operational map for Canonical Recall convergence: keep interim Find paths on the
 allowlist measurable and shrinking. Authority remains Freeze §3 + ADR-049 +
 Migration Spec — this page does not redefine architecture and does **not**
-authorize L3–L4 / MIG-07B from this index alone. MIG-07 PDF + screenshot
+authorize L4 / MIG-07B from this index alone. MIG-07 PDF + screenshot + photo
 cutovers are separately authorized (see GOVERNANCE /
 `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER` /
-`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER`); L1+L2 Retired.
+`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER` /
+`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`); L1–L3 Retired.
 
 ## Heartbeat
 
-**Live/Dual N = 4** — source of truth: [`docs/LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md)
+**Live/Dual N = 3** — source of truth: [`docs/LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md)
 
 **Rule:** N may **only shrink**, or grow only with an **ADR** (+
 [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) when required).
 Mirror N in `CONTINUE.md` whenever status changes.
 
 Canonical Recall is **not** a live single App API yet (ADR-049). Escape-hatch
-today: **YES** (enabling Live: L3–L4, L7, L8). L1+L2 Retired (MIG-07 PDF +
-screenshot).
+today: **YES** (enabling Live: L4, L7, L8). L1–L3 Retired (MIG-07 PDF +
+screenshot + photo).
 
 ## 60-second checklist (any Find / Recall / embedding-search change)
 
@@ -31,7 +32,7 @@ screenshot).
 2. Do **not** extend a non-Retired Live/Dual row (new ranking, hit types, asset Finds, or Why pipelines) unless ADR + exception with sunset.
 3. On any cutover / status change: recompute **N** in the LEGACY header and mirror it in `CONTINUE.md`.
 4. If opening Find/Recall change-control: fill the architectural convergence block ([`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md)).
-5. Do **not** claim Canonical Recall exists in code, or authorize L3–L4 /
+5. Do **not** claim Canonical Recall exists in code, or authorize L4 /
    MIG-07B from this index alone.
 
 ## Machine check
@@ -45,12 +46,13 @@ screenshot).
 
 **Guards:** retired page-embedding tokens outside migration history; no new
 `*KeywordSearch*` / `SearchPersisted*` under `ui/**` or `application/**` beyond
-the allowlist in the script (L3–L4 Live + PDF/screenshot helpers; L1
-`SearchPersistedPdfPageText` and L2 `SearchPersistedScreenshotOcrText`
-deleted); no `CanonicalRecall` type in main; `SearchMemoryEvidence` **ALLOWED**
-as MIG-06 application use case files + MIG-07 PDF + screenshot ViewModel/adapter
-only (still **FORBIDDEN** under other `ui/**` / as a new Find clone). Does
-**not** ban MemoryBuilder / AssetMemoryFactSource.
+the allowlist in the script (L4 Live + PDF/screenshot/photo helpers; L1
+`SearchPersistedPdfPageText`, L2 `SearchPersistedScreenshotOcrText`, and L3
+`SearchPersistedPhotoOcrText` deleted); no `CanonicalRecall` type in main;
+`SearchMemoryEvidence` **ALLOWED** as MIG-06 application use case files +
+MIG-07 PDF + screenshot + photo ViewModel/adapter only (still **FORBIDDEN**
+under other `ui/**` / as a new Find clone). Does **not** ban MemoryBuilder /
+AssetMemoryFactSource.
 
 ## Deeper docs (links only)
 
@@ -65,9 +67,10 @@ only (still **FORBIDDEN** under other `ui/**` / as a new Find clone). Does
 | MIG-06 step 1 (additive) | [`CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`](CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md) |
 | MIG-07 PDF cutover | [`CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md) |
 | MIG-07 screenshot cutover | [`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md) |
+| MIG-07 photo cutover | [`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
 
-Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 PDF + screenshot
-cutovers authorized separately** (L1+L2 Retired). **L3–L4 / MIG-07B still need
-separate authorization.** This index does not authorize those from the
+Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 PDF + screenshot +
+photo cutovers authorized separately** (L1–L3 Retired). **L4 / MIG-07B still
+need separate authorization.** This index does not authorize those from the
 heartbeat alone.

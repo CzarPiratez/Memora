@@ -1,19 +1,30 @@
 package com.memora.app.ui.search
 
+/**
+ * Plain-language copy for interim keyword search over photo Memory evidence.
+ *
+ * Must not claim meaning-based Memory recall, AI understanding, screenshot OCR,
+ * or cloud.
+ */
 object PhotoOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved photo text"
+
     const val SCOPE_BODY =
-        "Search looks for exact words in photo text already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall. UNFYND does not " +
-            "reopen original photos during search."
+        "Search looks for exact words in photo Memory evidence already saved on this phone. " +
+            "This is keyword matching, not meaning-based recall yet. " +
+            "UNFYND does not reopen your original photos for this search. " +
+            "Screenshots are not included."
+
     const val QUERY_LABEL = "Words to find"
     const val SEARCH_LABEL = "Search on this phone"
     const val CLEAR_QUERY_LABEL = "Clear"
     const val CANCEL_SEARCH_LABEL = "Cancel search"
     const val EMPTY_QUERY_BODY = "Type a word or short phrase, then search."
-    const val SEARCHING_BODY = "Searching saved photo text on this phone…"
+    const val SEARCHING_BODY = "Searching saved photo memory evidence on this phone…"
     const val NOTHING_SAVED_BODY =
-        "Nothing is saved for search yet. Finish Read text from photos in photo setup first."
+        "Nothing is ready for photo keyword search yet. Finish Read text from photos " +
+            "and Memory assembly in photo setup first. UNFYND only searches READY photo " +
+            "Memory evidence on this phone — this is keyword matching, not meaning-based recall."
     const val SEARCH_COULD_NOT_FINISH_BODY = "Search could not finish. Try again in a moment."
     const val WHY_THIS_RESULT_LABEL = "Why this result?"
     const val HIDE_WHY_LABEL = "Hide explanation"
@@ -27,23 +38,36 @@ object PhotoOcrKeywordSearchCopy {
     const val PREVIEW_TITLE = "Original photo"
     const val CLOSE_PREVIEW_LABEL = "Back to results"
     const val PREVIEW_SCOPE_BODY =
-        "This is a read-only preview. Search used saved OCR text, not a live image search."
+        "This is a read-only preview of the photo UNFYND cited. " +
+            "Search still used saved Memory evidence on this phone — not a live re-read " +
+            "of the image for keywords."
 
-    fun noMatchesBody(query: String) = "No saved photo text matched \"$query\"."
+    fun noMatchesBody(query: String) =
+        "No photo memory evidence on this phone matched \"$query\"."
 
-    fun readinessBody(photoCount: Int): String =
+    /**
+     * Honest inventory of READY photo Memory assets for keyword search.
+     *
+     * Counts distinct photos with READY Memory evidence (not raw OCR
+     * extraction DAO rows) after MIG-07.
+     */
+    fun readinessBody(photoCount: Int): String {
+        require(photoCount >= 0) { "Readiness photo count cannot be negative." }
         if (photoCount == 0) {
-            "Nothing is saved for keyword search yet."
-        } else {
-            "$photoCount ${if (photoCount == 1) "photo is" else "photos are"} ready for keyword search. " +
-                "This is keyword matching, not meaning-based recall."
+            return "Nothing is ready for photo keyword search yet. " +
+                "Finish Read text from photos and Memory assembly in photo setup first."
         }
+        val items = if (photoCount == 1) "1 photo" else "$photoCount photos"
+        val verb = if (photoCount == 1) "is" else "are"
+        return "$items with READY Memory evidence $verb ready for keyword search on this phone. " +
+            "This is keyword matching, not meaning-based recall."
+    }
 
     fun resultsSummary(query: String, count: Int, capped: Boolean): String =
         "Results for \"$query\". Showing $count ${if (count == 1) "match" else "matches"}." +
             if (capped) " UNFYND lists at most 20 matches." else ""
 
     fun whyThisResultBody(query: String, label: String, excerpt: String) =
-        "UNFYND matched \"$query\" in saved photo OCR text from \"$label\". " +
+        "UNFYND matched \"$query\" in saved photo Memory evidence from \"$label\". " +
             "Matching evidence: $excerpt. This is keyword matching, not meaning-based recall."
 }

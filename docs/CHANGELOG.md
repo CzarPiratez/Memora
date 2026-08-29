@@ -2,18 +2,32 @@
 
 ## Unreleased
 
+### MIG-07 photo — keyword Find cutover to SearchMemoryEvidence
+
+- **Date:** 2026-08-30
+- **Delivered:** Photo keyword Find ViewModel binds `SearchMemoryEvidence`
+  (`AssetType.PHOTO`); adapter maps hits to existing UI models; readiness
+  counts READY photo Memory evidence; `SearchPersistedPhotoOcrText` deleted.
+  L3 Retired; Live/Dual **N=3**. Guard updated (no L3 SearchPersisted
+  allowlist; photo UI allowlisted for SearchMemoryEvidence). L4 unchanged.
+  Canonical Recall not a live API; full MIG-07 / Recall DONE not claimed.
+- **Truthfulness:** Escape-hatch still YES via L4, L7, L8. Marketing AVAILABLE
+  not claimed. ADR-050 claim A done / B open.
+- **Change control:** `docs/CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`.
+
 ### MIG-07 screenshot — keyword Find cutover to SearchMemoryEvidence
 
 - **Date:** 2026-08-30
 - **Delivered:** Screenshot keyword Find ViewModel binds `SearchMemoryEvidence`
   (`AssetType.SCREENSHOT`); adapter maps hits to existing UI models; readiness
   counts READY screenshot Memory evidence; `SearchPersistedScreenshotOcrText`
-  deleted. L2 Retired; Live/Dual **N=4**. Guard updated (no L2 SearchPersisted
+  deleted. L2 Retired; Live/Dual **N=4** (superseded for N by photo cutover
+  above; L2 remains Retired). Guard updated (no L2 SearchPersisted
   allowlist; screenshot UI allowlisted for SearchMemoryEvidence). L3–L4
-  unchanged. Canonical Recall not a live API; full MIG-07 / Recall DONE not
-  claimed.
-- **Truthfulness:** Escape-hatch still YES via L3–L4, L7, L8. Marketing
-  AVAILABLE not claimed. ADR-050 claim A done / B open.
+  unchanged at landing. Canonical Recall not a live API; full MIG-07 / Recall
+  DONE not claimed.
+- **Truthfulness:** Escape-hatch still YES via L3–L4, L7, L8 at landing.
+  Marketing AVAILABLE not claimed. ADR-050 claim A done / B open.
 - **Change control:** `docs/CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md`.
 
 ### MIG-07 PDF — keyword Find cutover to SearchMemoryEvidence
