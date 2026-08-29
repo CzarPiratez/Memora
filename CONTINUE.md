@@ -28,9 +28,8 @@ journal, not Room). Identity playbook steps 0–5 remain complete.
 
 Focused unit tests for evidence embedding store passed (see
 CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE). Room 13→14 migration
-instrumentation (`MemoraDatabaseMigrationTest`) compiled but was **not**
-device-verified here (emulator stuck `offline`); re-run on a healthy Medium
-Phone session before treating the migration as emulator-closed.
+instrumentation (`MemoraDatabaseMigrationTest`) **3/3 PASSED** on Medium
+Phone emulator (Studio Run of class); device residual closed.
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
 lifecycle (interpretation only; cites Spec §7 / §9). No code.

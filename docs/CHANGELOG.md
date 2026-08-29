@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### MIG-05 step 1 residual closed (Room 13→14 device-verified)
+
+- **Date:** 2026-08-29
+- **Delivered (docs only):** `MemoraDatabaseMigrationTest` passed **3/3** on
+  the Medium Phone emulator (Android Studio Run of class). Room 13→14
+  evidence-embedding store foundation is device-verified. No application
+  code change in this residual close. MIG-05 step 2 not started.
+- **Truthfulness:** Full MIG-05 acceptance remains open. Hashed
+  freeze/spec/amendment files unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`.
+
 ### MIG-05 step 1 — evidence-level embedding store foundation
 
 - **Date:** 2026-08-29
@@ -15,7 +26,8 @@
   AVAILABLE, Act, Grounded Answers code, Links/Event/Knowledge, VisionEngine,
   and package/db rename are not started. Hashed freeze/spec/amendment files
   unchanged. `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5
-  (conversion journal, not Room).
+  (conversion journal, not Room). Device residual later closed separately
+  (see Unreleased residual entry above).
 - **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`.
 
 ### Class A pack enrichment — status, examples, open-foundation docs (docs-only)

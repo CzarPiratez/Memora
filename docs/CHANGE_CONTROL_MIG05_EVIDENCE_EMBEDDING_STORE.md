@@ -123,24 +123,17 @@ public unfynd-core sync. Leave unrelated dirty files (`docs/ROADMAP.md`,
     `app/schemas/.../14.json` present with `memory_evidence_embeddings`.
   - `EXPECTED_SCHEMA_VERSION` unchanged at **5** (conversion journal).
 - **Emulator/manual verification and result:**
-  - `MemoraDatabaseMigrationTest` **not device-verified in this environment.**
-  - Commands attempted:
-    1. `adb devices` initially listed `emulator-5554 device`, then later
-       empty / `offline`.
-    2. `.\gradlew.bat :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.memora.app.data.local.MemoraDatabaseMigrationTest"`
-       → failed: `DeviceException: No connected devices!` (androidTest APK
-       did compile successfully before install).
-    3. Started AVD `Medium_Phone` via
-       `emulator -avd Medium_Phone -no-snapshot-save`; device remained
-       `emulator-5554 offline` for >2 minutes of polling; boot never
-       completed.
-  - Do **not** treat Room 13→14 migration as emulator-verified. Prefer
-    re-run from Android Studio terminal on a healthy Medium Phone session:
-    same `connectedDebugAndroidTest` class filter as above (expect 3 tests).
-  - Emulator smoke (app opens): **skipped** — emulator stuck offline.
+  - `MemoraDatabaseMigrationTest` **device-verified:** **3/3 PASSED** on
+    Medium Phone emulator via Android Studio Run of class
+    (`com.memora.app.data.local.MemoraDatabaseMigrationTest`). Room **13→14**
+    additive CREATE (`memory_evidence_embeddings`) and dual-store assertions
+    confirmed on device. Prior CLI residual (emulator stuck `offline` /
+    `No connected devices!`) is closed by this Studio run.
+  - Emulator smoke (app opens): not required for this residual close
+    (migration class gate only).
 - **Failure/recovery paths verified:** Empty-store honesty (null find, count
   0, empty list). Additive migration leaves `pdf_page_embeddings` intact
-  (asserted in instrumentation test source; device run pending).
+  (asserted in instrumentation; **3/3** device PASS).
 - **Known limitation or follow-up (NOT done — remaining MIG-05):**
   - Rewriting `SearchAssetMemoriesByMeaning` / removing
     `SavedPdfPageTextSource` query-time dependency
@@ -151,15 +144,15 @@ public unfynd-core sync. Leave unrelated dirty files (`docs/ROADMAP.md`,
   - End-to-end non-PDF meaning indexing
   - `STALE_REINDEX` marking / mass reindex at cutover
   - MIG-06, MIG-07, MIG-07B, MIG-11
-  - Device-verify `MemoraDatabaseMigrationTest` (3 tests) when emulator is healthy
+  - MIG-05 step 2+ (search/index cutover) — **not started**
 - **Residual risks:** Dual-store divergence until cutover (new store empty;
   live path still PDF-page keyed). Operators must not treat empty evidence
   embedding counts as “meaning index empty” while PdfPageEmbedding remains
-  authoritative. Migration instrumentation pending device confirmation.
+  authoritative. Room 13→14 migration device residual is closed.
 - **Documentation/traceability/ADR updates:** GOVERNANCE,
   PRODUCT_SOURCE_REGISTRY, CONTINUE, CHANGELOG Unreleased, this record.
   Hashed specs unchanged. ADR-043 / ADR-040 substance unchanged.
-- **Git commit:** Local checkpoint after unit + compile verification (no push).
+- **Git commit:** Local docs checkpoint after device verification (no push).
 
 ## Explicit “not done” — full MIG-05 acceptance
 
