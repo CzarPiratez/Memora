@@ -5,26 +5,28 @@ import org.junit.Test
 
 class ScreenshotOcrKeywordSearchCopyTest {
     @Test
-    fun scope_and_why_never_claim_memory_or_photo_ocr() {
+    fun scope_and_why_stay_keyword_honest_not_meaning_or_photo() {
         val why = ScreenshotOcrKeywordSearchCopy.whyThisResultBody(
             query = "note",
             screenshotLabel = "Screenshot_memora_note.png",
             excerpt = "…Screenshot note…",
         )
         assertEquals(true, why.contains("keyword matching, not meaning-based recall"))
+        assertEquals(true, why.contains("Memory evidence"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Ordinary photos"))
+        assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
         assertEquals(false, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("PHOTO OCR"))
     }
 
     @Test
     fun readiness_empty_and_non_empty_are_honest() {
         assertEquals(
-            "Nothing is saved for keyword search yet. " +
-                "Finish Read text from screenshots in photo setup first.",
+            "Nothing is ready for screenshot keyword search yet. " +
+                "Finish Read text from screenshots and Memory assembly in photo setup first.",
             ScreenshotOcrKeywordSearchCopy.readinessBody(0),
         )
         assertEquals(
-            "1 screenshot with saved OCR text is ready for keyword search on this phone. " +
+            "1 screenshot with READY Memory evidence is ready for keyword search on this phone. " +
                 "This is keyword matching, not meaning-based recall.",
             ScreenshotOcrKeywordSearchCopy.readinessBody(1),
         )
@@ -49,7 +51,7 @@ class ScreenshotOcrKeywordSearchCopyTest {
         )
         assertEquals(
             true,
-            ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY.contains("saved OCR text"),
+            ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY.contains("Memory evidence"),
         )
         assertEquals(
             "Read-only preview of \"Screenshot_memora_note.png\".",

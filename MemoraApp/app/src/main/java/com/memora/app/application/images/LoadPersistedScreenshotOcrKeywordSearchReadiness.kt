@@ -1,33 +1,30 @@
 package com.memora.app.application.images
 
-import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.application.memory.MemoryEvidenceExcerptSearch
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Loads how much current-fingerprint screenshot OCR text is ready for keyword search.
+ * Loads how much READY screenshot Memory evidence is available for keyword Find.
  *
- * Honest inventory only. Does not reopen images, invoke AI, or claim Memory recall.
+ * MIG-07 readiness source: Memory evidence substrate (not raw
+ * ScreenshotOcrExtractionDao searchable corpus). Honest inventory only — does
+ * not claim meaning recall. [screenshotCount] is distinct screenshot assets
+ * with READY Memory evidence (not raw OCR extraction rows).
  */
-class LoadPersistedScreenshotOcrKeywordSearchReadiness(
-    private val database: () -> MemoraDatabase,
+class LoadPersistedScreenshotOcrKeywordSearchReadiness @Inject constructor(
+    private val excerptSearch: MemoryEvidenceExcerptSearch,
 ) {
-    @Inject
-    constructor(
-        databaseHandle: MemoraDatabaseHandle,
-    ) : this(
-        database = { databaseHandle.database() },
-    )
-
-    constructor(database: MemoraDatabase) : this(database = { database })
-
     suspend operator fun invoke(): ScreenshotOcrKeywordSearchReadiness =
         withContext(Dispatchers.IO) {
-            val counts = database().screenshotOcrExtractionDao()
-                .countCurrentSearchableCorpus(ScreenshotOcrKeywordSearchSupport.SCHEMA_VERSION)
-            ScreenshotOcrKeywordSearchReadiness(screenshotCount = counts.screenshotCount)
+            val counts = excerptSearch.countCurrentReadyEvidenceCorpus(
+                assemblySchemaVersion = SearchMemoryEvidence.DEFAULT_ASSEMBLY_SCHEMA,
+                assetType = AssetType.SCREENSHOT,
+            )
+            ScreenshotOcrKeywordSearchReadiness(screenshotCount = counts.documentCount)
         }
 }
 

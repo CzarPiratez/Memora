@@ -17,8 +17,9 @@ import kotlinx.coroutines.withContext
  * Literal search over stored [com.memora.app.domain.memory.MemoryEvidence] excerpts.
  *
  * Keyword / substring candidate generation into future Canonical Recall (ADR-049).
- * MIG-07 PDF keyword Find is cut over to this use case (AssetType.PDF filter).
- * Screenshot / photo / note keyword Finds remain on Live L2–L4 until authorized.
+ * MIG-07 PDF + screenshot keyword Finds are cut over (AssetType.PDF /
+ * AssetType.SCREENSHOT filters). Photo / note keyword Finds remain on Live
+ * L3–L4 until authorized.
  */
 class SearchMemoryEvidence @Inject constructor(
     private val excerptSearch: MemoryEvidenceExcerptSearch,

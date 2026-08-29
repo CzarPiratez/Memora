@@ -148,6 +148,19 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 
 ---
 
+## Checkpoint — MIG-07 screenshot keyword cutover
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-30 |
+| Live/Dual N | **4** |
+| Enabling L#s | L3, L4, L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049; L1/L2 no longer enable) |
+| Delta | L2 Live → Retired; N 5 → 4; screenshot Find → `SearchMemoryEvidence` (SCREENSHOT filter); `SearchPersistedScreenshotOcrText` deleted |
+| Auditor | MIG-07 screenshot cutover delivery |
+
+---
+
 ## Related
 
 - Allowlist + metric: `docs/LEGACY_RECALL_SURFACE.md`
@@ -156,3 +169,4 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 - Extension if N grows: `docs/LEGACY_EXTENSION_EXCEPTION.md`
 - MIG-06 step 1: `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`
 - MIG-07 PDF: `docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`
+- MIG-07 screenshot: `docs/CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md`

@@ -2,17 +2,32 @@
 
 ## Unreleased
 
+### MIG-07 screenshot — keyword Find cutover to SearchMemoryEvidence
+
+- **Date:** 2026-08-30
+- **Delivered:** Screenshot keyword Find ViewModel binds `SearchMemoryEvidence`
+  (`AssetType.SCREENSHOT`); adapter maps hits to existing UI models; readiness
+  counts READY screenshot Memory evidence; `SearchPersistedScreenshotOcrText`
+  deleted. L2 Retired; Live/Dual **N=4**. Guard updated (no L2 SearchPersisted
+  allowlist; screenshot UI allowlisted for SearchMemoryEvidence). L3–L4
+  unchanged. Canonical Recall not a live API; full MIG-07 / Recall DONE not
+  claimed.
+- **Truthfulness:** Escape-hatch still YES via L3–L4, L7, L8. Marketing
+  AVAILABLE not claimed. ADR-050 claim A done / B open.
+- **Change control:** `docs/CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER.md`.
+
 ### MIG-07 PDF — keyword Find cutover to SearchMemoryEvidence
 
 - **Date:** 2026-08-29
 - **Delivered:** PDF keyword Find ViewModel binds `SearchMemoryEvidence`
   (`AssetType.PDF`); adapter maps hits to existing UI models; readiness counts
   READY PDF Memory evidence; `SearchPersistedPdfPageText` deleted. L1 Retired;
-  Live/Dual **N=5**. Guard updated (no L1 SearchPersisted allowlist; PDF UI
-  allowlisted for SearchMemoryEvidence). L2–L4 unchanged. Canonical Recall not
-  a live API; full MIG-07 / Recall DONE not claimed.
-- **Truthfulness:** Escape-hatch still YES via L2–L4, L7, L8. Marketing
-  AVAILABLE not claimed. ADR-050 claim A done / B open.
+  Live/Dual **N=5** (superseded for N by screenshot cutover above; L1 remains
+  Retired). Guard updated (no L1 SearchPersisted allowlist; PDF UI
+  allowlisted for SearchMemoryEvidence). L2–L4 unchanged at landing. Canonical
+  Recall not a live API; full MIG-07 / Recall DONE not claimed.
+- **Truthfulness:** Escape-hatch still YES via L2–L4, L7, L8 at landing.
+  Marketing AVAILABLE not claimed. ADR-050 claim A done / B open.
 - **Change control:** `docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`.
 
 ### MIG-06 step 1 — additive SearchMemoryEvidence

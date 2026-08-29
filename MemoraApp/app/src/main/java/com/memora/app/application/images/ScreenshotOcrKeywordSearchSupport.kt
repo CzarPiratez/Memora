@@ -4,10 +4,11 @@ import com.memora.app.application.documents.PdfKeywordSearchSupport
 import com.memora.app.domain.extraction.ScreenshotOcrSchemaVersion
 
 /**
- * Pure helpers for interim on-device keyword search over saved screenshot OCR text.
+ * Pure helpers shared with L3–L4 / highlight paths (normalize, LIKE, excerpt).
  *
- * Reuses PDF keyword normalize / LIKE / excerpt rules so both interim paths stay
- * consistent. This is not semantic recall.
+ * Product screenshot Find no longer reads extraction DAOs (MIG-07 L2 Retired).
+ * Keep this object so photo/note interim paths and shared excerpt rules stay
+ * consistent with PDF keyword helpers.
  */
 internal object ScreenshotOcrKeywordSearchSupport {
     const val MAX_QUERY_LENGTH = PdfKeywordSearchSupport.MAX_QUERY_LENGTH

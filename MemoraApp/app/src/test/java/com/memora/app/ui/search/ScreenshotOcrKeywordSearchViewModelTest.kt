@@ -157,7 +157,7 @@ class ScreenshotOcrKeywordSearchViewModelTest {
         monotonicMs: () -> Long = { 0L },
         search: suspend (String) -> ScreenshotOcrKeywordSearchOutcome,
     ) = ScreenshotOcrKeywordSearchViewModel(
-        searchPersistedScreenshotOcrText = search,
+        searchScreenshotKeyword = search,
         loadReadiness = readiness,
         openPersistedScreenshotForViewing = open,
         minSearchingVisibleMs = minSearchingVisibleMs,

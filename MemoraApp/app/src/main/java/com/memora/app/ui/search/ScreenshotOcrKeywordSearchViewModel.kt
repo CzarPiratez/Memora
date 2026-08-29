@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.images.LoadPersistedScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.OpenPersistedScreenshotForViewing
+import com.memora.app.application.images.ScreenshotMemoryEvidenceKeywordAdapter
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchOutcome
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.ScreenshotPreviewRenderResult
-import com.memora.app.application.images.SearchPersistedScreenshotOcrText
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -132,9 +134,16 @@ data class ScreenshotOriginalPreviewUi(
     }
 }
 
+/**
+ * Screenshot keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
+ * (AssetType.SCREENSHOT).
+ *
+ * L2 `SearchPersistedScreenshotOcrText` retired; UI models preserved via adapter.
+ * Open-original remains source-identity based (no PDF page).
+ */
 @HiltViewModel
 class ScreenshotOcrKeywordSearchViewModel(
-    private val searchPersistedScreenshotOcrText: suspend (String) -> ScreenshotOcrKeywordSearchOutcome,
+    private val searchScreenshotKeyword: suspend (String) -> ScreenshotOcrKeywordSearchOutcome,
     private val loadReadiness: suspend () -> ScreenshotOcrKeywordSearchReadiness,
     private val openPersistedScreenshotForViewing:
         suspend (ScreenshotOcrKeywordSearchHit) -> ScreenshotPreviewRenderResult,
@@ -143,12 +152,19 @@ class ScreenshotOcrKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchPersistedScreenshotOcrText: SearchPersistedScreenshotOcrText,
+        searchMemoryEvidence: SearchMemoryEvidence,
         loadPersistedScreenshotOcrKeywordSearchReadiness:
             LoadPersistedScreenshotOcrKeywordSearchReadiness,
         openPersistedScreenshotForViewing: OpenPersistedScreenshotForViewing,
     ) : this(
-        searchPersistedScreenshotOcrText = { rawQuery -> searchPersistedScreenshotOcrText(rawQuery) },
+        searchScreenshotKeyword = { rawQuery ->
+            ScreenshotMemoryEvidenceKeywordAdapter.toScreenshotOutcome(
+                searchMemoryEvidence(
+                    rawQuery = rawQuery,
+                    assetType = AssetType.SCREENSHOT,
+                ),
+            )
+        },
         loadReadiness = { loadPersistedScreenshotOcrKeywordSearchReadiness() },
         openPersistedScreenshotForViewing = { hit ->
             openPersistedScreenshotForViewing(
@@ -206,7 +222,7 @@ class ScreenshotOcrKeywordSearchViewModel(
             )
             val startedAtMs = monotonicMs()
             val outcome = try {
-                searchPersistedScreenshotOcrText(query)
+                searchScreenshotKeyword(query)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

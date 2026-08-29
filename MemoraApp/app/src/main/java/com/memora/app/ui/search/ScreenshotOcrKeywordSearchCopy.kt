@@ -1,7 +1,7 @@
 package com.memora.app.ui.search
 
 /**
- * Plain-language copy for interim keyword search over saved screenshot OCR text.
+ * Plain-language copy for interim keyword search over screenshot Memory evidence.
  *
  * Must not claim meaning-based Memory recall, AI understanding, PHOTO OCR, or cloud.
  */
@@ -9,7 +9,7 @@ object ScreenshotOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved screenshot text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in screenshot text already saved on this phone. " +
+        "Search looks for exact words in screenshot Memory evidence already saved on this phone. " +
             "This is keyword matching, not meaning-based recall yet. " +
             "UNFYND does not reopen your original screenshots for this search. " +
             "Ordinary photos are not included."
@@ -25,30 +25,37 @@ object ScreenshotOcrKeywordSearchCopy {
     const val EMPTY_QUERY_BODY = "Type a word or short phrase, then search."
 
     const val SEARCHING_BODY =
-        "Searching saved screenshot text on this phone…"
+        "Searching saved screenshot memory evidence on this phone…"
 
     fun noMatchesBody(query: String): String {
         require(query.isNotBlank()) { "No-matches copy needs the submitted query." }
-        return "No saved screenshot text on this phone matched \"$query\". " +
-            "Try different words, or finish Read text from screenshots first."
+        return "No screenshot memory evidence on this phone matched \"$query\". " +
+            "Try different words, or finish Read text from screenshots and Memory assembly first."
     }
 
     const val NOTHING_SAVED_BODY =
-        "Nothing is saved for search yet. Finish Read text from screenshots in " +
-            "photo setup first. UNFYND only searches screenshot OCR text already " +
-            "saved on this phone — this is keyword matching, not meaning-based recall."
+        "Nothing is ready for screenshot keyword search yet. Finish Read text from " +
+            "screenshots and Memory assembly in photo setup first. UNFYND only searches " +
+            "READY screenshot Memory evidence on this phone — this is keyword matching, " +
+            "not meaning-based recall."
 
-    const val READINESS_LOADING_BODY = "Checking saved screenshot text on this phone…"
+    const val READINESS_LOADING_BODY = "Checking screenshot memory evidence on this phone…"
 
     const val READINESS_COULD_NOT_LOAD_BODY =
-        "Could not check how much screenshot text is saved for search on this phone. " +
+        "Could not check how much screenshot memory evidence is ready for search on this phone. " +
             "Try opening this screen again in a moment."
 
+    /**
+     * Honest inventory of READY screenshot Memory assets for keyword search.
+     *
+     * Counts distinct screenshots with READY Memory evidence (not raw OCR
+     * extraction DAO rows) after MIG-07.
+     */
     fun readinessBody(screenshotCount: Int): String {
         require(screenshotCount >= 0) { "Readiness screenshot count cannot be negative." }
         if (screenshotCount == 0) {
-            return "Nothing is saved for keyword search yet. " +
-                "Finish Read text from screenshots in photo setup first."
+            return "Nothing is ready for screenshot keyword search yet. " +
+                "Finish Read text from screenshots and Memory assembly in photo setup first."
         }
         val items = if (screenshotCount == 1) {
             "1 screenshot"
@@ -56,7 +63,7 @@ object ScreenshotOcrKeywordSearchCopy {
             "$screenshotCount screenshots"
         }
         val verb = if (screenshotCount == 1) "is" else "are"
-        return "$items with saved OCR text $verb ready for keyword search on this phone. " +
+        return "$items with READY Memory evidence $verb ready for keyword search on this phone. " +
             "This is keyword matching, not meaning-based recall."
     }
 
@@ -65,7 +72,7 @@ object ScreenshotOcrKeywordSearchCopy {
             "UNFYND does not reopen your original screenshots for this search."
 
     const val RESULTS_HINT =
-        "Matches show the screenshot name and a short excerpt from the saved OCR text. " +
+        "Matches show the screenshot name and a short excerpt from saved Memory evidence. " +
             "Open Why this result? to see the matching evidence. " +
             "Open original shows a read-only preview inside UNFYND."
 
@@ -76,7 +83,7 @@ object ScreenshotOcrKeywordSearchCopy {
     const val OPEN_ORIGINAL_SCREENSHOT_HINT =
         "Opens a read-only preview of this screenshot inside UNFYND. " +
             "Your file stays where it is; UNFYND does not edit it. " +
-            "Search still used saved OCR text on this phone."
+            "Search still used saved Memory evidence on this phone."
 
     const val OPEN_FEEDBACK_OPENING_BODY =
         "Opening a read-only preview of that screenshot…"
@@ -97,7 +104,7 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val PREVIEW_SCOPE_BODY =
         "This is a read-only preview of the screenshot UNFYND cited. " +
-            "Search still used saved OCR text on this phone — not a live re-read " +
+            "Search still used saved Memory evidence on this phone — not a live re-read " +
             "of the image for keywords."
 
     fun previewImageContentDescription(screenshotLabel: String): String {
@@ -148,7 +155,7 @@ object ScreenshotOcrKeywordSearchCopy {
         }
         require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
 
-        return "UNFYND matched \"$query\" in saved screenshot OCR text from " +
+        return "UNFYND matched \"$query\" in saved screenshot Memory evidence from " +
             "\"$screenshotLabel\" on this phone. " +
             "Matching evidence: $excerpt. " +
             "This is keyword matching, not meaning-based recall."

@@ -6,15 +6,15 @@ sequencing (MIG-05 / MIG-06 / MIG-07 / MIG-07B). This file does **not** redefine
 architecture; it is operational enforcement so temporary product Find paths
 cannot quietly become permanent.
 
-**Updated:** 2026-08-29  
-**Live/Dual count:** **5** (rows with Status Live or Dual; Retired excluded)
+**Updated:** 2026-08-30  
+**Live/Dual count:** **4** (rows with Status Live or Dual; Retired excluded)
 
 | Metric | Value |
 |--------|-------|
-| Live | 5 (L2–L4, L7, L8) |
+| Live | 4 (L3–L4, L7, L8) |
 | Dual | 0 |
-| Retired | 3 (L1, L5, L6) |
-| **Live/Dual count (N)** | **5** |
+| Retired | 4 (L1, L2, L5, L6) |
+| **Live/Dual count (N)** | **4** |
 
 **Operator entry (60s):** `docs/RECALL_ENFORCEMENT_INDEX.md`.  
 **Escape-hatch audit:** `docs/ESCAPE_HATCH_AUDIT.md` (cadence + record template).
@@ -65,12 +65,15 @@ Ask at every search / MIG checkpoint:
 > Can a user-visible search result be produced **without** Canonical Recall?
 > If yes, which **L#** rows still enable that?
 
-Today the answer is **yes**. Enabling rows (Live/Dual): **L2, L3, L4,
+Today the answer is **yes**. Enabling rows (Live/Dual): **L3, L4,
 L7, L8**. Canonical Recall does not yet exist as a single application API
-(ADR-049). Keyword Finds for screenshot/photo/note (L2–L4) and product-facing
+(ADR-049). Keyword Finds for photo/note (L3–L4) and product-facing
 meaning Find (L8, with local ranking L7) remain live paths. **L1 is Retired**
 (MIG-07 PDF cutover) — PDF keyword Find uses `SearchMemoryEvidence`
-(PDF-filtered); do not resurrect `SearchPersistedPdfPageText`. **L5 is Retired**
+(PDF-filtered); do not resurrect `SearchPersistedPdfPageText`. **L2 is Retired**
+(MIG-07 screenshot cutover) — screenshot keyword Find uses
+`SearchMemoryEvidence` (SCREENSHOT-filtered); do not resurrect
+`SearchPersistedScreenshotOcrText`. **L5 is Retired**
 (MIG-05 step 4) — `PdfPageEmbedding*` types/table deleted; do not resurrect.
 
 Full procedure, grep hints, and copy-paste record template:
@@ -101,7 +104,7 @@ Broader post–MIG-07 cutover gates remain future work.
 | ID | Legacy product path | Replacement | Status | Retire by |
 |----|---------------------|-------------|--------|-----------|
 | L1 | PDF keyword Find (`SearchPersistedPdfPageText` → ViewModel) | Canonical Recall via `SearchMemoryEvidence` (MIG-06/07) | Retired | MIG-07 PDF (done) |
-| L2 | Screenshot OCR keyword Find | same | Live | MIG-07 |
+| L2 | Screenshot OCR keyword Find (`SearchPersistedScreenshotOcrText` → ViewModel) | Canonical Recall via `SearchMemoryEvidence` (MIG-06/07) | Retired | MIG-07 screenshot (done) |
 | L3 | Photo OCR keyword Find | same | Live | MIG-07 |
 | L4 | Note keyword Find | same | Live | MIG-07 |
 | L5 | `PdfPageEmbedding*` dual-write / page vector table | Evidence-only index path (`MemoryEvidenceEmbeddingStore`); table DROP Room 15 | Retired | MIG-05 step 4 (done) |
@@ -114,9 +117,16 @@ Broader post–MIG-07 cutover gates remain future work.
 - **L1 Retired** (MIG-07 PDF): `SearchPersistedPdfPageText` deleted. PDF
   keyword Find ViewModel binds `SearchMemoryEvidence` with `AssetType.PDF`.
   Readiness counts READY PDF Memory evidence (not `PdfExtractionDao` search
-  corpus). `PdfKeywordSearchSupport` remains as shared helpers for L2–L4 +
+  corpus). `PdfKeywordSearchSupport` remains as shared helpers for L3–L4 +
   highlight. If `SearchPersistedPdfPageText` or extraction-DAO PDF Find
   reappears, **STOP** — do not keep L1 Retired.
+- **L2 Retired** (MIG-07 screenshot): `SearchPersistedScreenshotOcrText`
+  deleted. Screenshot keyword Find ViewModel binds `SearchMemoryEvidence`
+  with `AssetType.SCREENSHOT`. Readiness counts READY screenshot Memory
+  evidence (distinct documents; not `ScreenshotOcrExtractionDao` search
+  corpus). `ScreenshotOcrKeywordSearchSupport` remains for shared helpers.
+  If `SearchPersistedScreenshotOcrText` or extraction-DAO screenshot Find
+  reappears, **STOP** — do not keep L2 Retired.
 - **L6 Retired** means out of **product recall ranking**. Verified 2026-08-29
   against `SearchAssetMemoriesByMeaning`: constructor injects
   `MemoryEvidenceEmbeddingStore`; KDoc and constructor params exclude
@@ -134,8 +144,9 @@ Broader post–MIG-07 cutover gates remain future work.
 - **L7** is ranking/boost local to the meaning use case, not a separate Find
   surface; it still counts toward Live/Dual until shared ranking lives inside
   Canonical Recall.
-- **MIG-07 PDF note (N=5):** L1 Retired. L2–L4 still Live. Canonical Recall
-  still **not** a live App API. Do **not** claim full MIG-07 / Recall DONE.
+- **MIG-07 screenshot note (N=4):** L1+L2 Retired. L3–L4 still Live. Canonical
+  Recall still **not** a live App API. Do **not** claim full MIG-07 / Recall
+  DONE.
 
 ---
 
@@ -144,7 +155,7 @@ Broader post–MIG-07 cutover gates remain future work.
 At every search or MIG checkpoint (and when accepting a related ADR):
 
 1. Re-run the escape-hatch audit (`ESCAPE_HATCH_AUDIT.md`); list enabling L#
-   rows (after step 4: **without L5**).
+   rows (after step 4: **without L5**; after screenshot: **without L1/L2**).
 2. Confirm statuses against **current code** (do not invent).
 3. Advance status only forward when the replacement is verified.
 4. Recompute **Live/Dual count N** in the header (mandatory on every status
@@ -158,7 +169,7 @@ At every search or MIG checkpoint (and when accepting a related ADR):
 
 **Out of scope for this file:** Claiming Canonical Recall exists in code, or
 claiming full MIG-05 Spec close while non-PDF evidence indexer remains deferred,
-or authorizing L2–L4 / MIG-07B from this file alone. Soft resurrection guard
+or authorizing L3–L4 / MIG-07B from this file alone. Soft resurrection guard
 lives in `scripts/check-legacy-recall-surface.sh` (see
-`RECALL_ENFORCEMENT_INDEX`; MIG-07 PDF allowlist). Broader post–MIG-07 full
-cutover gates remain future work.
+`RECALL_ENFORCEMENT_INDEX`; MIG-07 PDF + screenshot allowlist). Broader
+post–MIG-07 full cutover gates remain future work.
