@@ -1,0 +1,75 @@
+---
+description: UNFYND Canonical Recall and Memory substrate invariants (do not extend legacy Find)
+alwaysApply: true
+---
+
+# UNFYND architecture invariants
+
+Thin enforcement for agents. Not a second constitution — link authority, do not
+paste Freeze.
+
+## Authority
+
+- `docs/ARCHITECTURE_FREEZE_v1.0.md` §3 (one Memory/evidence substrate; one
+  canonical recall pipeline)
+- `docs/DECISIONS.md` ADR-049 (Canonical Recall naming; Option C Retriever)
+- `docs/LEGACY_RECALL_SURFACE.md` (living Live/Dual allowlist; shrink-only)
+- `docs/GOVERNANCE.md` + `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (MIG
+  sequencing; authorize steps explicitly)
+
+## Invariants
+
+1. **Memory / MemoryEvidence / MemoryAnchor** = canonical semantic representation,
+   provenance, and structured cues for an Asset.
+2. **MemoryBuilder** = sole canonical construction boundary into that substrate.
+3. **Canonical Recall** = sole product-facing Find boundary **after MIG-07**
+   (named now; not yet one application API — ADR-049).
+4. Keyword / semantic / evidence / anchor retrieval = **candidate generation**,
+   not independent product search systems.
+5. Ranking belongs **inside** Canonical Recall (future); do not add new
+   per-asset product rankers.
+6. Models/runtimes = capability implementations; never domain architecture.
+7. No asset-specific durable Memory model.
+8. No new asset-specific product Find pipeline.
+9. Once Canonical Recall exists: no new search path that bypasses it. Until
+   then, **only** Live/Dual rows on `LEGACY_RECALL_SURFACE` may produce
+   user-visible search results.
+10. Temporary/migration paths need explicit **Retire-by** on that allowlist.
+11. Do **not** extend a non-Retired legacy row (features / ranking / Why / hit
+    types). Defect fixes that preserve the contract are OK.
+12. Before adding retrieval capability: state where it enters Canonical Recall,
+    or which **L#** it temporarily uses + Retire-by.
+
+## False-positive guard (mandatory)
+
+- **ALLOWED:** extraction tables → `AssetMemoryFactSource` → MemoryBuilder →
+  Memory (construction; not a Find path).
+- **FORBIDDEN as product Find:** extraction DAO → user-visible search result
+  except via Canonical Recall (target) or a listed Live/Dual **L#** (interim).
+
+## Operational gate
+
+Before code that touches `ui/search`, `application/**/Search*`, meaning
+index/search, or ranking, state:
+
+```
+ARCHITECTURAL BOUNDARY:
+CURRENT LEGACY PATH (L# or none):
+TARGET PATH:
+WHY THIS CONVERGES:
+WHAT OLD PATH WILL EVENTUALLY BE RETIRED:
+EXTENDS LEGACY? yes/no (if yes → STOP unless ADR/exception with sunset)
+```
+
+## Hard stops
+
+- Do not add `PhotoKeywordSearchV2` / `VideoSearchService` / parallel Find.
+- Do not work around missing Canonical Recall by creating a new product path.
+- Do not authorize MIG-06+ from this rule alone.
+- Do not claim marketing AVAILABLE / Act / Grounded Answers from this rule.
+- This rule does not replace `git-checkpoint-commits.mdc`.
+
+## Success metric
+
+`LEGACY_RECALL_SURFACE` Live/Dual count must **shrink over time**; never grow
+without an ADR.

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Cursor architecture invariants rule (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Added alwaysApply Cursor rule
+  `.cursor/rules/unfynd-architecture-invariants.mdc` — Canonical Recall /
+  Memory substrate invariants, false-positive guard, pre-code gate; links
+  Freeze §3, ADR-049, `LEGACY_RECALL_SURFACE`. No app code; does not authorize
+  MIG-05 step 4 / MIG-06+.
+- **Change control:** `docs/CHANGE_CONTROL_UNFYND_ARCHITECTURE_INVARIANTS_RULE.md`.
+
 ### Legacy recall surface allowlist (docs-only)
 
 - **Date:** 2026-08-29
