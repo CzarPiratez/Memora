@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Canonical Recall fiction scan (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Living docs/rules scan PASS — Canonical Recall remains
+  target-only (ADR-049); not claimed as a live ViewModel/API. Recorded in
+  `ESCAPE_HATCH_AUDIT.md`. No app code.
+
 ### Status truth check — recall / MIG-05 (docs-only)
 
 - **Date:** 2026-08-29

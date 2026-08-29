@@ -116,6 +116,8 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 | Delta | none — CONTINUE + LEGACY + code agree (re-verify after MIG-05 step 4) |
 | Auditor | enterprise status truth check (read-only) |
 
+**Canonical Recall fiction scan 2026-08-29: PASS — target-only**
+
 ---
 
 ## Related
