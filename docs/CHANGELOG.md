@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### MIG-05 pre-step-3 — e2e dual-write device proof
+
+- **Date:** 2026-08-29
+- **Delivered:** `IndexPdfPageEmbeddingsDualWriteInstrumentedTest` proves on
+  Medium Phone that dual-write persists both `pdf_page_embeddings` and
+  `memory_evidence_embeddings` with real `e{n}` evidence ids (Room v14);
+  unresolved path writes page store only. Search constructor assert confirms
+  no cutover.
+- **Truthfulness:** MIG-05 step 3 (Search cutover) not started. Room stays 14.
+  Full MIG-05 acceptance remains open.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`
+  (pre-step-3 e2e dual-write section).
+
 ### MIG-05 step 2 — PDF page embedding dual-write to evidence store
 
 - **Date:** 2026-08-29

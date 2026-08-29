@@ -305,3 +305,98 @@ Step 2 does **not** satisfy Migration Spec MIG-05 acceptance criteria that
 require Search to stop using `SavedPdfPageTextSource`, evidence-level
 indexing for non-PDF kinds, or retirement of `PdfPageEmbedding*`. Those remain
 step 3+ / later MIG-05 work.
+
+---
+
+# Change control: MIG-05 pre-step-3 — e2e dual-write device proof
+
+**Date:** 2026-08-29  
+**Type:** Device/Room instrumentation gate (no production Search cutover)  
+**Decision guardrails:** Prove on emulator that step-2 dual-write persists into
+both Room stores with a real `MemoryEvidence.id` (`e{n}`). Do **not** start
+MIG-05 step 3 (Search cutover). Do not retire `PdfPageEmbedding*`. Do not mass
+`STALE_REINDEX`. Do not expand non-PDF indexers. No Room version bump. No push.
+No public pack sync. Leave unrelated dirty files (`docs/ROADMAP.md`,
+`libs.versions.toml`) unstaged.
+
+## Lead decisions (LOCKED)
+
+1. Preferred verification = focused `androidTest` against real Room + real
+   `IndexPdfPageEmbeddings` + Available `EmbeddingEngine` test double.
+2. `SearchAssetMemoriesByMeaning` remains on `PdfPageEmbeddingStore` +
+   `SavedPdfPageTextSource` (asserted; no production search rewire).
+3. `evidenceId` must be real `MemoryEvidence.id` (`e{n}`); locator-shaped ids
+   rejected by production dual-write path (covered by unit + unresolved case).
+4. No mass STALE; no PdfPage retirement; no non-PDF indexer expansion.
+5. Record results here + CONTINUE one line; local commit after green device run.
+6. Residual = MIG-05 step 3 (search cutover) still open.
+
+## Purpose
+
+Enterprise-grade e2e proof that the dual-write path from step 2 actually lands
+rows in `memory_evidence_embeddings` on device Room (schema **v14**) keyed by
+real evidence id, while `pdf_page_embeddings` continues to receive the same
+vector — before any Search cutover.
+
+## Method
+
+- New instrumentation:
+  `IndexPdfPageEmbeddingsDualWriteInstrumentedTest`
+  (`androidTest/.../application/intelligence/`).
+- Harness: `Room.inMemoryDatabaseBuilder` at current schema **14**
+  (same in-memory pattern as other Room androidTests; no migration bump).
+- Seeds minimal `memories` + `memory_evidence` with locator `pdf:page:N` and id
+  `e{n}`.
+- Runs `IndexPdfPageEmbeddings` with a fixed Available `EmbeddingEngine` fake.
+- Asserts:
+  - PdfPageEmbedding row present **and** MemoryEvidenceEmbedding row present
+    for same revision/model with `evidenceId == e3` (not locator).
+  - Unresolved (`evidenceId == null`) writes page store only; evidence store
+    count stays 0.
+  - `SearchAssetMemoriesByMeaning` constructor still takes
+    `PdfPageEmbeddingStore` and does **not** take
+    `MemoryEvidenceEmbeddingStore`.
+
+## Results
+
+- Device: **Medium_Phone(AVD) - API 17** (`emulator-5554`,
+  `sdk_gphone16k_x86_64`).
+- `JAVA_HOME=C:\Users\DELL\.jdks\jdk-21.0.11+10`.
+- Known-good command path (PASS):
+  ```
+  .\gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest
+  adb install -r app\build\outputs\apk\debug\app-debug.apk
+  adb install -r app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
+  adb shell am instrument -w -r ^
+    -e class com.memora.app.application.intelligence.IndexPdfPageEmbeddingsDualWriteInstrumentedTest ^
+    com.memora.app.test/androidx.test.runner.AndroidJUnitRunner
+  ```
+  **OK (3 tests)** — PASS count **3/3**, 0 failures. Alternate: Android Studio
+  Run of that class on Medium Phone.
+- Note: filtered
+  `:app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=...`
+  currently reports “Starting 0 tests” / process crash on this AGP setup for
+  the same class; direct `am instrument` (and Studio Run) are the authoritative
+  gate for this residual.
+
+## Search not cut over
+
+Production `SearchAssetMemoriesByMeaning` still depends on
+`PdfPageEmbeddingStore` + `SavedPdfPageTextSource` only (confirmed by source
+inspection + instrumentation constructor assert). No Search file changes in
+this gate. Step 3 remains **not started**.
+
+## Residual (still open)
+
+- MIG-05 **step 3**: rewire Search to `MemoryEvidenceEmbeddingStore` /
+  `MemoryEvidence`; readiness / open-page alignment; PdfPage retirement /
+  STALE decision; non-PDF evidence embedding end-to-end; full MIG-05
+  acceptance; MIG-06+.
+
+## Files / commit scope
+
+- Test:
+  `MemoraApp/app/src/androidTest/.../IndexPdfPageEmbeddingsDualWriteInstrumentedTest.kt`
+- Docs: this section; CONTINUE one-line checkpoint; CHANGELOG Unreleased note
+- Unchanged (intentional): Search production path, Room **14**, PdfPage live
+  path, ROADMAP, `libs.versions.toml`, hashed specs

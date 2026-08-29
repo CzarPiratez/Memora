@@ -9,24 +9,22 @@
 **Docs note:** Root `README.md` is site-aligned product/App vs Core voice
 ([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
 
-**Checkpoint (MIG-05 step 2):** PDF page embedding **dual-write** into
-`MemoryEvidenceEmbeddingStore` landed via `IndexPdfPageEmbeddings` when
-`MemoryEvidence.id` resolves from locator `pdf:page:N` (never the locator
-string as id). Fingerprint-skip backfills the evidence store without mass
-`STALE_REINDEX`. **Search still live on** `PdfPageEmbedding*` +
-`SavedPdfPageTextSource` (`SearchAssetMemoriesByMeaning` unchanged). Room
-remains **14** (no schema bump). Full MIG-05 acceptance (search cutover,
-retire PdfPageEmbedding*, non-PDF meaning indexing) remains **open**.
-**MIG-04** MemoryBuilder seam remains live. Ranking, Find/Why UI redesign,
-Links, Event/Knowledge, Grounded Answers code, package rename, VisionEngine,
-and MIG-06+ are not started. Hashed freeze/spec/amendment files unchanged.
+**Checkpoint (MIG-05 pre-step-3 gate):** Device/Room dual-write proof
+**PASS 3/3** (`IndexPdfPageEmbeddingsDualWriteInstrumentedTest` on Medium
+Phone). PDF page embedding dual-write into `MemoryEvidenceEmbeddingStore`
+persists real `e{n}` evidence ids while still writing `PdfPageEmbeddingStore`.
+**Search still live on** `PdfPageEmbedding*` + `SavedPdfPageTextSource`
+(`SearchAssetMemoriesByMeaning` unchanged; step 3 **not started**). Room
+remains **14**. Full MIG-05 acceptance remains **open**. **MIG-04**
+MemoryBuilder seam remains live. Ranking, Find/Why UI redesign, Links,
+Event/Knowledge, Grounded Answers code, package rename, VisionEngine, and
+MIG-06+ are not started. Hashed freeze/spec/amendment files unchanged.
 ADR-043 unchanged (Act still out). ADR-044 unchanged (interpretation only).
 `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
 journal, not Room). Identity playbook steps 0–5 remain complete.
 
-Focused unit tests for dual-write + meaning-search regression passed (see
-CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE step 2). Room 13→14 migration
-instrumentation residual remains closed from step 1.
+See CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE (pre-step-3 e2e dual-write).
+Room 13→14 migration residual remains closed from step 1.
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
 lifecycle (interpretation only; cites Spec §7 / §9). No code.
@@ -74,7 +72,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only |
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
-| Evidence embeddings (MIG-05 step 2) | Dual-write from PDF page index into evidence store when evidenceId resolves; PdfPageEmbedding* still live for Search; full MIG-05 open |
+| Evidence embeddings (MIG-05 pre-step-3) | Dual-write device-proven (3/3 androidTest); PdfPageEmbedding* still live for Search; step 3 cutover not started; full MIG-05 open |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
