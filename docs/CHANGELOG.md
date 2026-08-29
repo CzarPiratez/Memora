@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Status truth check — recall / MIG-05 (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Recorded that CONTINUE + `LEGACY_RECALL_SURFACE` + code agree
+  after MIG-05 step 4; Live/Dual **N=6**. No app behavior change.
+
 ### MIG-05 step 4 — retire PdfPageEmbedding*
 
 - **Date:** 2026-08-29

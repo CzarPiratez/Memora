@@ -105,6 +105,19 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 
 ---
 
+## Status truth check — 2026-08-29
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-29 |
+| Live/Dual N | **6** |
+| Enabling L#s | L1, L2, L3, L4, L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049) |
+| Delta | none — CONTINUE + LEGACY + code agree (re-verify after MIG-05 step 4) |
+| Auditor | enterprise status truth check (read-only) |
+
+---
+
 ## Related
 
 - Allowlist + metric: `docs/LEGACY_RECALL_SURFACE.md`

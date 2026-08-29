@@ -67,6 +67,11 @@ authorize MIG-06+; does not change MIG-05 step 4 acceptance.
 **Legacy recall surface:** Live/Dual = **6** (see `docs/LEGACY_RECALL_SURFACE.md`;
 audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-05 step 4 checkpoint).
 
+**Status truth check 2026-08-29:** CONTINUE + LEGACY + code agree; N=6
+(L1–L4, L7, L8 Live; L5/L6 Retired; Room 15; evidence-only index;
+`SearchAssetMemoriesByMeaning` on `MemoryEvidenceEmbeddingStore`; ADR-049
+Canonical Recall not yet one API; MIG-06+ not started).
+
 **Docs note (Recall enforcement program Steps 1–7):** Landed (docs only) —
 index `docs/RECALL_ENFORCEMENT_INDEX.md` (ADR-049 → allowlist → Cursor rule →
 change-control / exception → DONE checklists → result contract → escape-hatch
