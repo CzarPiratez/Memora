@@ -11,6 +11,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  legacy-recall-surface:
+    name: Legacy recall surface guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run legacy recall surface checks
+        run: bash scripts/check-legacy-recall-surface.sh
+
   unit-tests:
     name: Android unit tests
     runs-on: ubuntu-latest

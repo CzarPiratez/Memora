@@ -85,7 +85,8 @@ LEGACY Live/Dual **N=6**. Cursor rule:
 `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 **MIG code still requires separate authorization** (MIG-06+ not started from
-this program).
+this program). **Machine check:** `scripts/check-legacy-recall-surface.sh` +
+CI job `Legacy recall surface guard` (see RECALL_ENFORCEMENT_INDEX).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only.
 Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open). MIG-05

@@ -18,7 +18,7 @@ import kotlinx.coroutines.sync.withLock
  *
  * Trigger: first readiness / search path (and after meaning-index taps).
  * Selection is intentional and narrow — never mass-STALE.
- * MIG-05 step 4: does not use PdfPageEmbeddingStore (retired).
+ * MIG-05 step 4: does not use the retired page-embedding store.
  */
 @Singleton
 class ApplyMig05EvidenceSearchCutover @Inject constructor(

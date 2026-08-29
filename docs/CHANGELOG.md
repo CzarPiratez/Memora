@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Legacy recall surface CI grep guard
+
+- **Date:** 2026-08-29
+- **Delivered:** Added `scripts/check-legacy-recall-surface.sh` and CI job
+  `Legacy recall surface guard` (no JDK). Fails on retired page-embedding
+  tokens outside migration history, new unallowlisted `*KeywordSearch*` /
+  `SearchPersisted*` under ui/application, or premature `CanonicalRecall` /
+  `SearchMemoryEvidence` in main. Does not authorize MIG-06+. N=6 unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_LEGACY_RECALL_SURFACE_CI.md`.
+
 ### ADR-050 MIG-05 claim levels (docs-only)
 
 - **Date:** 2026-08-29

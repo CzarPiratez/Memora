@@ -29,6 +29,20 @@ today: **YES** (enabling Live: L1–L4, L7, L8).
 4. If opening Find/Recall change-control: fill the architectural convergence block ([`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md)).
 5. Do **not** claim Canonical Recall exists in code, or authorize MIG-06+ from this index alone.
 
+## Machine check
+
+**Script:** [`scripts/check-legacy-recall-surface.sh`](../scripts/check-legacy-recall-surface.sh)
+(run from repo root via Git Bash, WSL, or CI). Optional Windows forwarder:
+[`scripts/check-legacy-recall-surface.ps1`](../scripts/check-legacy-recall-surface.ps1).
+
+**CI job:** `Legacy recall surface guard` in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+(fast; no JDK). Fails the workflow on violation.
+
+**Guards:** retired page-embedding tokens outside migration history; no new
+`*KeywordSearch*` / `SearchPersisted*` under `ui/**` or `application/**` beyond
+the L1–L4 allowlist in the script; no `CanonicalRecall` / `SearchMemoryEvidence`
+in main until authorized. Does **not** ban MemoryBuilder / AssetMemoryFactSource.
+
 ## Deeper docs (links only)
 
 | Need | Link |

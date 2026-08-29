@@ -7,8 +7,10 @@ cadence.
 **Authority:** `docs/LEGACY_RECALL_SURFACE.md`; ADR-049; Cursor rule
 `unfynd-architecture-invariants.mdc`; `docs/RECALL_CONVERGENCE_DONE.md`.
 
-**Does not:** Authorize MIG-06+; run CI grep gates (future after
-MIG-07 cutover); treat Memory construction as Find.
+**Does not:** Authorize MIG-06+; claim full cutover CI (post–MIG-07) is done.
+Soft resurrection guard: `scripts/check-legacy-recall-surface.sh` + CI job
+`Legacy recall surface guard` (see `RECALL_ENFORCEMENT_INDEX`).
+
 
 ---
 

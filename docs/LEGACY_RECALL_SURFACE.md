@@ -88,7 +88,9 @@ After each audit: update **Live/Dual N** in this header if status changed;
 mirror N in `CONTINUE.md`; if N increased, require ADR +
 `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 
-CI grep enforcement is **out of scope** until after MIG-07 cutover.
+Soft machine guard (not full cutover CI): `scripts/check-legacy-recall-surface.sh`
++ CI job `Legacy recall surface guard` — see `RECALL_ENFORCEMENT_INDEX`.
+Broader post–MIG-07 cutover gates remain future work.
 
 ---
 
@@ -147,4 +149,5 @@ At every search or MIG checkpoint (and when accepting a related ADR):
 **Out of scope for this file:** Authorizing MIG-06+, claiming Canonical Recall
 exists in code, or claiming full MIG-05 Spec close while non-PDF evidence
 indexer remains deferred. CI grep enforcement waits until after MIG-07
-cutover (see `ESCAPE_HATCH_AUDIT.md`).
+cutover (see `ESCAPE_HATCH_AUDIT.md`). Soft resurrection guard already lives in
+`scripts/check-legacy-recall-surface.sh` (see `RECALL_ENFORCEMENT_INDEX`).
