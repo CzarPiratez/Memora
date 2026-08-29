@@ -122,9 +122,23 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 
 ---
 
+## Checkpoint — MIG-06 step 1 (additive SearchMemoryEvidence)
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-29 |
+| Live/Dual N | **6** |
+| Enabling L#s | L1, L2, L3, L4, L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049; UI still on L1–L4) |
+| Delta | none — MIG-06 candidate generator exists; product escape-hatch unchanged |
+| Auditor | MIG-06 step 1 delivery |
+
+---
+
 ## Related
 
 - Allowlist + metric: `docs/LEGACY_RECALL_SURFACE.md`
 - Program exit: `docs/RECALL_CONVERGENCE_DONE.md`
 - Enforcement index: `docs/RECALL_ENFORCEMENT_INDEX.md`
 - Extension if N grows: `docs/LEGACY_EXTENSION_EXCEPTION.md`
+- MIG-06 step 1: `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`

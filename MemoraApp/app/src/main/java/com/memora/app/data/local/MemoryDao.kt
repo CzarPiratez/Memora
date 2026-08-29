@@ -168,6 +168,66 @@ interface MemoryDao {
         revisionIds: List<String>,
     ): List<MemoryEvidenceSearchRowEntity>
 
+    /**
+     * Count of evidence rows on current-fingerprint READY Memories (MIG-06).
+     * Zero means nothing is available for literal evidence search yet.
+     */
+    @Query(
+        """
+        SELECT COUNT(*) FROM memory_evidence AS e
+        INNER JOIN memories AS m
+          ON m.revision_id = e.revision_id
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND e.excerpt != ''
+        """,
+    )
+    suspend fun countCurrentReadyEvidence(assemblySchemaVersion: String): Int
+
+    /**
+     * Literal substring search over [memory_evidence.excerpt] for current-fingerprint
+     * READY Memories (MIG-06 additive candidate generator). No FTS; no schema bump.
+     */
+    @Query(
+        """
+        SELECT
+            m.revision_id AS revision_id,
+            m.memory_id AS memory_id,
+            m.source_id AS source_id,
+            m.source_asset_key AS source_asset_key,
+            a.asset_type AS asset_type,
+            a.display_name AS display_name,
+            e.evidence_id AS evidence_id,
+            e.evidence_kind AS evidence_kind,
+            e.locator AS locator,
+            e.excerpt AS excerpt
+        FROM memory_evidence AS e
+        INNER JOIN memories AS m
+          ON m.revision_id = e.revision_id
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND e.excerpt != ''
+          AND e.excerpt LIKE '%' || :escapedNeedle || '%' ESCAPE '\'
+        ORDER BY
+            m.updated_at_epoch_millis DESC,
+            e.evidence_id ASC
+        LIMIT :limit
+        """,
+    )
+    suspend fun searchCurrentReadyEvidenceByExcerpt(
+        escapedNeedle: String,
+        assemblySchemaVersion: String,
+        limit: Int,
+    ): List<MemoryEvidenceLiteralSearchRowEntity>
+
     @Query(
         """
         SELECT
@@ -315,6 +375,20 @@ data class MemoryEvidenceLocatorRow(
 data class MemoryEvidenceSearchRowEntity(
     @ColumnInfo(name = "revision_id") val revisionId: String,
     @ColumnInfo(name = "evidence_id") val evidenceId: String,
+    @ColumnInfo(name = "locator") val locator: String,
+    @ColumnInfo(name = "excerpt") val excerpt: String,
+)
+
+/** MIG-06 literal evidence-search projection (joined Memory + Asset identity). */
+data class MemoryEvidenceLiteralSearchRowEntity(
+    @ColumnInfo(name = "revision_id") val revisionId: String,
+    @ColumnInfo(name = "memory_id") val memoryId: String,
+    @ColumnInfo(name = "source_id") val sourceId: String,
+    @ColumnInfo(name = "source_asset_key") val sourceAssetKey: String,
+    @ColumnInfo(name = "asset_type") val assetType: String,
+    @ColumnInfo(name = "display_name") val displayName: String?,
+    @ColumnInfo(name = "evidence_id") val evidenceId: String,
+    @ColumnInfo(name = "evidence_kind") val evidenceKind: String,
     @ColumnInfo(name = "locator") val locator: String,
     @ColumnInfo(name = "excerpt") val excerpt: String,
 )

@@ -8,7 +8,10 @@ index.**
 Operational map for Canonical Recall convergence: keep interim Find paths on the
 allowlist measurable and shrinking. Authority remains Freeze §3 + ADR-049 +
 Migration Spec — this page does not redefine architecture and does **not**
-authorize MIG-06+.
+authorize MIG-07+ from this index alone. MIG-06 step 1 additive
+`SearchMemoryEvidence` is separately authorized (see GOVERNANCE /
+`CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`); this index does not authorize
+MIG-07 cutover.
 
 ## Heartbeat
 
@@ -27,7 +30,8 @@ today: **YES** (enabling Live: L1–L4, L7, L8).
 2. Do **not** extend a non-Retired Live/Dual row (new ranking, hit types, asset Finds, or Why pipelines) unless ADR + exception with sunset.
 3. On any cutover / status change: recompute **N** in the LEGACY header and mirror it in `CONTINUE.md`.
 4. If opening Find/Recall change-control: fill the architectural convergence block ([`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md)).
-5. Do **not** claim Canonical Recall exists in code, or authorize MIG-06+ from this index alone.
+5. Do **not** claim Canonical Recall exists in code, or authorize MIG-07 from
+   this index alone.
 
 ## Machine check
 
@@ -40,8 +44,10 @@ today: **YES** (enabling Live: L1–L4, L7, L8).
 
 **Guards:** retired page-embedding tokens outside migration history; no new
 `*KeywordSearch*` / `SearchPersisted*` under `ui/**` or `application/**` beyond
-the L1–L4 allowlist in the script; no `CanonicalRecall` / `SearchMemoryEvidence`
-in main until authorized. Does **not** ban MemoryBuilder / AssetMemoryFactSource.
+the L1–L4 allowlist in the script; no `CanonicalRecall` type in main;
+`SearchMemoryEvidence` **ALLOWED** only as MIG-06 application use case files
+(still **FORBIDDEN** under `ui/**` / as a new Find clone). Does **not** ban
+MemoryBuilder / AssetMemoryFactSource.
 
 ## Deeper docs (links only)
 
@@ -53,8 +59,8 @@ in main until authorized. Does **not** ban MemoryBuilder / AssetMemoryFactSource
 | Change-control + exception | [`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md) · [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) |
 | Program / MIG-05 DONE | [`RECALL_CONVERGENCE_DONE.md`](RECALL_CONVERGENCE_DONE.md) · MIG-05 FULL DONE in [`CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`](CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md) (**ADR-050:** A=PDF slice complete; B=Spec full open) |
 | MIG-05 claim levels | ADR-050 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR050_MIG05_CLAIM_LEVELS.md`](CHANGE_CONTROL_ADR050_MIG05_CLAIM_LEVELS.md) |
-| Escape-hatch audit | [`ESCAPE_HATCH_AUDIT.md`](ESCAPE_HATCH_AUDIT.md) |
+| MIG-06 step 1 (additive) | [`CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`](CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
 
-Program Steps 1–7 landed as docs (2026-08-29). **MIG code still needs separate
-authorization.**
+Program Steps 1–7 landed as docs (2026-08-29). **MIG-07+ still needs separate
+authorization** (MIG-06 step 1 additive is separately authorized).

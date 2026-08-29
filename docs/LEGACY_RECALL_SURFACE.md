@@ -126,6 +126,10 @@ Broader post–MIG-07 cutover gates remain future work.
 - **L7** is ranking/boost local to the meaning use case, not a separate Find
   surface; it still counts toward Live/Dual until shared ranking lives inside
   Canonical Recall.
+- **MIG-06 step 1 note (N unchanged):** Additive application use case
+  `SearchMemoryEvidence` exists (candidate generator over `MemoryEvidence`).
+  Product escape-hatch is **unchanged** — UI keyword Find still uses L1–L4
+  `SearchPersisted*`. Do **not** retire L1–L4 until MIG-07 cutover.
 
 ---
 
@@ -146,8 +150,9 @@ At every search or MIG checkpoint (and when accepting a related ADR):
 7. Do **not** add rows without an ADR; do **not** extend non-Retired rows
    with new Find features.
 
-**Out of scope for this file:** Authorizing MIG-06+, claiming Canonical Recall
+**Out of scope for this file:** Authorizing MIG-07+, claiming Canonical Recall
 exists in code, or claiming full MIG-05 Spec close while non-PDF evidence
-indexer remains deferred. CI grep enforcement waits until after MIG-07
-cutover (see `ESCAPE_HATCH_AUDIT.md`). Soft resurrection guard already lives in
-`scripts/check-legacy-recall-surface.sh` (see `RECALL_ENFORCEMENT_INDEX`).
+indexer remains deferred. Soft resurrection guard lives in
+`scripts/check-legacy-recall-surface.sh` (see `RECALL_ENFORCEMENT_INDEX`;
+MIG-06 application allowlist). Broader post–MIG-07 cutover gates remain
+future work.

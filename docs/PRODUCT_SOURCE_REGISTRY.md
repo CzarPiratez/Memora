@@ -66,8 +66,10 @@ conversational memory or an untracked desktop file.
     Grounding’s Retriever is the same converged pipeline under Option C (App
     Find near term; Ask later) — not a competing search architecture. Spec
     `RecallRanker` and MIG-07B structured/anchor filter are stages inside
-    Canonical Recall. ADR-049 does not authorize MIG-06+, MIG-05 step 4, or
-    rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
+    Canonical Recall. ADR-049 naming alone does not authorize MIG-07 cutover
+    or rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
+    MIG-06 step 1 (additive use case) is authorized separately in GOVERNANCE /
+    `CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`.
 11. **MIG-05 claim levels (ADR-050):** **A** = PDF evidence-embedding delivery
     slice (steps 1–4) COMPLETE for engineering checkpoint language.
     **B** = Migration Spec MIG-05 full acceptance STILL OPEN until non-PDF
@@ -75,8 +77,7 @@ conversational memory or an untracked desktop file.
     reinterprets MVP scope — not a hashed Spec rewrite). Grants / public /
     marketing must not say “MIG-05 complete” or “Spec MIG-05 done” without
     stating non-PDF evidence indexing remains open (or wait until B closes).
-    ADR-050 does not authorize the non-PDF indexer or MIG-06+.
-
+    ADR-050 does not authorize the non-PDF indexer.
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.
@@ -112,10 +113,12 @@ declaration for the architecture it names. The migration spec is sequencing
 authority only. MIG-05 step 4 (`PdfPageEmbedding*` retired; Room 15;
 evidence-only index writer; L5 Retired; Live/Dual **6**) delivered claim **A**
 (ADR-050 PDF slice complete). Do **not** claim Spec MIG-05 / claim **B**
-complete while non-PDF evidence indexer remains deferred; do not start
-MIG-06–MIG-11, or MIG-07B. Phase A plan is still not permission for later
-MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not hashed and is not
-permission to implement.
+complete while non-PDF evidence indexer remains deferred.
+**MIG-06 step 1 only** is authorized (additive `SearchMemoryEvidence`; no
+UI cutover — see `CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`). Do **not**
+start MIG-07, MIG-07B, or MIG-08–MIG-11 from this registry alone. Phase A plan
+is still not permission for later MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
+is not hashed and is not permission to implement.
 
 ## Governed architecture artifacts
 

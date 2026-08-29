@@ -45,15 +45,21 @@ Nothing lower in this list may silently override anything above it.
 
 MIG-05 step 4 (`PdfPageEmbedding*` retirement: evidence-only
 `IndexPdfPageEmbeddings`, Room 14→15 DROP `pdf_page_embeddings`, L5 Retired,
-Live/Dual **6**) is authorized and in this delivery. Do **not** claim full
-MIG-05 complete while the non-PDF evidence indexer remains explicitly deferred
-(see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` step 4). Do not start
-MIG-06–MIG-11 or MIG-07B. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
-is not architectural authority and is not permission to implement later MIGs.
+Live/Dual **6**) is authorized and delivered (ADR-050 claim **A**). Do **not**
+claim full MIG-05 / claim **B** complete while the non-PDF evidence indexer
+remains explicitly deferred
+(see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` step 4).
+
+**MIG-06 step 1 only** is authorized in this delivery: additive
+`SearchMemoryEvidence` (application use case + tests + DI; no UI/VM cutover).
+See `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`. Do **not** start
+MIG-07, MIG-07B, or MIG-08–MIG-11. Do **not** claim Canonical Recall exists as
+a live App API (ADR-049). `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not
+architectural authority and is not permission to implement unauthorized MIGs.
 ADR-043 confirms the freeze is suitable for the PKI north star through
 See/Remember, staged Connect, retrieve-by-meaning, and Understand /
 converse-as-Q&A; Act remains out of current architecture. That confirmation
-does not authorize later MIG-* beyond step 4 or reopen the Architecture Freeze.
+does not authorize MIG-07+ or reopen the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

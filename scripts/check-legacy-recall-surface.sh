@@ -2,9 +2,10 @@
 # Legacy recall surface — machine guard (soft CI)
 #
 # Authority: docs/LEGACY_RECALL_SURFACE.md; docs/RECALL_ENFORCEMENT_INDEX.md;
-# ADR-049 (Canonical Recall target-only); MIG-05 step 4 (page store retired).
+# ADR-049 (Canonical Recall target-only); MIG-05 step 4 (page store retired);
+# MIG-06 step 1 (additive SearchMemoryEvidence application use case allowed).
 #
-# Does NOT authorize MIG-06+ or Canonical Recall implementation.
+# Does NOT authorize MIG-07 cutover or Canonical Recall as a live product API.
 # Run from repo root (Git Bash / WSL / GitHub Actions ubuntu):
 #   bash scripts/check-legacy-recall-surface.sh
 # Windows helper (forwards to this script):
@@ -12,6 +13,8 @@
 #
 # Allowlisted L1–L4 keyword Find files (ui/** + application/** only).
 # Any NEW *KeywordSearch* or SearchPersisted* file under those trees fails.
+# SearchMemoryEvidence is ALLOWED only as the MIG-06 application use case
+# (and its support/port files); still FORBIDDEN under ui/** or as a Find clone.
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
@@ -23,6 +26,14 @@ cd "${ROOT}"
 MAIN="MemoraApp/app/src/main"
 MAIN_JAVA="${MAIN}/java"
 MIGRATIONS_REL="MemoraApp/app/src/main/java/com/memora/app/data/local/MemoraDatabaseMigrations.kt"
+
+# MIG-06 step 1: additive application use case + port + Room adapter (not UI Find).
+ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/SearchMemoryEvidence.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/MemoryEvidenceExcerptSearch.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/MemoryEvidenceLiteralSearchSupport.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/data/local/RoomMemoryEvidenceExcerptSearch.kt"
+)
 
 failures=0
 
@@ -77,6 +88,17 @@ is_allowlisted() {
   local rel="$1"
   local a
   for a in "${ALLOWLIST_KEYWORD_FIND[@]}"; do
+    if [[ "${rel}" == "${a}" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+is_allowed_search_memory_evidence_file() {
+  local rel="$1"
+  local a
+  for a in "${ALLOW_SEARCH_MEMORY_EVIDENCE_FILES[@]}"; do
     if [[ "${rel}" == "${a}" ]]; then
       return 0
     fi
@@ -140,13 +162,52 @@ else
   ok "no CanonicalRecall in main"
 fi
 
-# --- D: SearchMemoryEvidence forbidden until MIG-06 authorized ----------------
-echo "== D: SearchMemoryEvidence not in main (MIG-06 not authorized) =="
-if grep -RIn --include='*.kt' --include='*.java' -E '\bSearchMemoryEvidence\b' "${MAIN}" >/dev/null 2>&1; then
-  fail "SearchMemoryEvidence appears in main (MIG-06 not authorized)"
-  grep -RIn --include='*.kt' --include='*.java' -E '\bSearchMemoryEvidence\b' "${MAIN}" >&2 || true
-else
-  ok "no SearchMemoryEvidence in main"
+# --- D: SearchMemoryEvidence — MIG-06 application allowlist; forbid UI Find ---
+echo "== D: SearchMemoryEvidence MIG-06 application allowlist (not UI Find) =="
+d_failed=0
+d_tmp="$(mktemp)"
+grep -RIn --include='*.kt' --include='*.java' -E '\bSearchMemoryEvidence\b' "${MAIN}" \
+  >"${d_tmp}" 2>/dev/null || true
+while IFS= read -r line || [[ -n "${line}" ]]; do
+  [[ -z "${line}" ]] && continue
+  file="${line%%:*}"
+  rel="${file#./}"
+  rel="${rel//\\//}"
+  # Forbidden: any UI Find clone / ViewModel binding of SearchMemoryEvidence.
+  if [[ "${rel}" == *"/ui/"* ]]; then
+    fail "SearchMemoryEvidence under ui/ (MIG-07 cutover not authorized): ${rel}"
+    echo "  ${line}" >&2
+    d_failed=1
+    continue
+  fi
+  # Mentions in PersistenceModule / MemoryDao KDoc are OK (not a new Find type).
+  if [[ "${rel}" == "MemoraApp/app/src/main/java/com/memora/app/data/di/PersistenceModule.kt" ]] ||
+     [[ "${rel}" == "MemoraApp/app/src/main/java/com/memora/app/data/local/MemoryDao.kt" ]] ||
+     [[ "${rel}" == "MemoraApp/app/src/main/java/com/memora/app/data/local/RoomMemoryEvidenceExcerptSearch.kt" ]]; then
+    continue
+  fi
+  if ! is_allowed_search_memory_evidence_file "${rel}"; then
+    fail "SearchMemoryEvidence outside MIG-06 allowlist: ${rel}"
+    echo "  ${line}" >&2
+    d_failed=1
+  fi
+done < "${d_tmp}"
+rm -f "${d_tmp}"
+
+# Also forbid inventing a UI/ViewModel Find clone named *SearchMemoryEvidence*
+for file in "${MAIN_JAVA}/com/memora/app/ui"/**/*.kt; do
+  [[ -f "${file}" ]] || continue
+  base="$(basename "${file}")"
+  if [[ "${base}" == *SearchMemoryEvidence* ]]; then
+    rel="${file#./}"
+    rel="${rel//\\//}"
+    fail "forbidden SearchMemoryEvidence UI/Find clone file: ${rel}"
+    d_failed=1
+  fi
+done
+
+if [[ "${d_failed}" -eq 0 ]]; then
+  ok "SearchMemoryEvidence confined to MIG-06 application allowlist (not UI Find)"
 fi
 
 echo

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### MIG-06 step 1 — additive SearchMemoryEvidence
+
+- **Date:** 2026-08-29
+- **Delivered:** Additive `SearchMemoryEvidence` application use case querying
+  `MemoryEvidence` excerpts (Room LIKE; no schema bump), Hilt-bound excerpt
+  search port, unit tests for all current evidence kinds + empty-query honesty.
+  CI guard allowlists MIG-06 application files; still forbids UI Find clones
+  and `CanonicalRecall`. **No** ViewModel/screen/`SearchPersisted*` cutover.
+- **Truthfulness:** L1–L4 still Live; Live/Dual **N=6**; Canonical Recall not
+  a live API (ADR-049); MIG-07 not started; ADR-050 claim A done / B open;
+  marketing AVAILABLE not claimed.
+- **Change control:** `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`.
+
 ### M4 midrange USE page-recall execute
 
 - **Date:** 2026-08-29

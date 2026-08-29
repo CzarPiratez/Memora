@@ -1,16 +1,18 @@
 package com.memora.app.data.di
 
 import android.content.Context
+import com.memora.app.application.memory.MemoryEvidenceExcerptSearch
 import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.local.RoomAiPackInstallLedger
+import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
-import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
+import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
 import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
-import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomMemoryEmbeddingStore
 import com.memora.app.data.local.RoomMemoryEvidenceEmbeddingStore
+import com.memora.app.data.local.RoomMemoryEvidenceExcerptSearch
 import com.memora.app.data.local.RoomMemoryRepository
 import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
 import com.memora.app.data.local.RoomSavedPdfPageTextSource
@@ -84,6 +86,14 @@ object PersistenceModule {
     @Singleton
     fun provideMemoryRepository(handle: MemoraDatabaseHandle): MemoryRepository =
         RoomMemoryRepository { handle.database() }
+
+    /** MIG-06 additive literal evidence search (not a UI Find path). */
+    @Provides
+    @Singleton
+    fun provideMemoryEvidenceExcerptSearch(
+        handle: MemoraDatabaseHandle,
+    ): MemoryEvidenceExcerptSearch =
+        RoomMemoryEvidenceExcerptSearch(memoryDao = { handle.database().memoryDao() })
 
     @Provides
     @Singleton
