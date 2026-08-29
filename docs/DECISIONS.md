@@ -1601,3 +1601,35 @@ public without opening the Android reference app or proprietary assets.
 Class A authorization. Pack implementation, README rewrite, and public repo
 publish remain deferred follow-ups. No application or schema change.
 
+## ADR-048: Synthetic non-personal Class A reference samples under Apache-2.0
+
+**Status:** Accepted
+
+**Decision:** The Class A pack may include **synthetic, non-personal** reference
+samples (JSON and/or short markdown sketches) under the **same Apache License
+2.0** as the contracts pack. Samples illustrate Memory / evidence acceptance and
+rejection shapes for human inspection.
+
+**Binding interpretation:**
+
+1. **Scope.** Authorized content is fabricated illustrative data only. No
+   personal user content, private App fixtures, evaluation corpora, keys, or
+   AI Pack material.
+2. **Not a schema lock.** Samples do not freeze production App schemas or APIs.
+3. **License.** Same Apache-2.0 as the Class A pack; no personal-vs-business
+   license split on these files.
+4. **Location.** Prefer `public/unfynd-core/examples/` (synced to the public
+   unfynd-core repository).
+5. **Non-authorization.** Does not open the UNFYND App, Class B packages, MIG-*,
+   Act/agents, or runnable validator requirements.
+
+**Out of scope:** App source release; proprietary corpora; CLA systems; CI for
+the private monorepo; validator implementation (may be a later decision).
+
+**Reason:** ROADMAP-OPEN listed “selected non-secret reference samples” as
+needing an explicit decision. Synthetic examples improve inspectability without
+leaking private fixtures.
+
+**Consequences:** Pack may ship `examples/` and cite this ADR in ROADMAP-OPEN /
+CITATIONS. Update CONTINUE / CHANGELOG when samples land.
+

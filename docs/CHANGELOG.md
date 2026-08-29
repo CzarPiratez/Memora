@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Class A pack enrichment — status, examples, open-foundation docs (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** `public/unfynd-core/` enrichment: `SPEC-STATUS.md` (honest
+  contract vs App table); synthetic `examples/` (valid Memory+evidence + reject
+  cases; ADR-048); `PUBLIC_CHANGELOG.md`, `CONTRIBUTING.md`, `GOVERNANCE.md`;
+  README pack revision + inspect/build-on/run section; ROADMAP-OPEN / SPEC /
+  NOTICE / CITATIONS pointers. LICENSE remains Apache-2.0. Synced pack files
+  only to https://github.com/CzarPiratez/unfynd-core. Private Memora not pushed.
+  No App code, AI Packs, or personal fixtures.
+- **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_ENRICHMENT.md`; ADR-048.
+
+### ADR-048 synthetic Class A reference samples (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-048: synthetic non-personal Class A examples under
+  the same Apache-2.0 license as the pack; not a schema lock; no App open.
+- **Change control:** `docs/CHANGE_CONTROL_CLASS_A_PACK_ENRICHMENT.md`.
+
 ### Class A pack copy fix — App vs Core / no Android-only framing (docs-only)
 
 - **Date:** 2026-08-29

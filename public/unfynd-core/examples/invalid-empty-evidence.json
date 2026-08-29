@@ -1,0 +1,19 @@
+{
+  "_comment": "Synthetic illustrative REJECT case — not production schema lock, not personal data.",
+  "sketchKind": "invalid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_reject_empty_001",
+    "assetRef": "asset://synthetic/demo-blank-note",
+    "revisionHint": 1,
+    "summary": "Travel itinerary for Paris next Tuesday.",
+    "anchors": [
+      { "type": "PLACE", "value": "Paris", "citedEvidenceIds": [] },
+      { "type": "TIME", "value": "next Tuesday", "citedEvidenceIds": [] }
+    ],
+    "evidence": []
+  },
+  "rejection": {
+    "status": "reject",
+    "why": "Truth before intelligence: no evidence means no durable assertion. An empty evidence list cannot support a READY Memory summary or PLACE/TIME anchors. Incomplete or failed derivation must not be presented as a fully ready Memory."
+  }
+}

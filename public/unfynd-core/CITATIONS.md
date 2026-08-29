@@ -15,7 +15,10 @@ the public pack as hashed freeze blobs.
 | `SPEC.md` low-power | `docs/DECISIONS.md` ADR-044; Spec §7 / §9 |
 | `SPEC.md` Act out / honesty | `docs/DECISIONS.md` ADR-043, ADR-047 |
 | `SPEC.md` MemoryBuilder seam | `CONTINUE.md` MIG-04 summary; Spec §4 MemoryBuilder |
-| `ROADMAP-OPEN.md` Class A vs B | Strategy §23–§24; ADR-047 |
+| `SPEC-STATUS.md` App column | `CONTINUE.md` honest status table (MIG-01–04; Find/Why; non-claims); not a dump of App source |
+| `examples/` | Synthetic only; authorized by ADR-048; **not** copied from App fixtures |
+| `ROADMAP-OPEN.md` Class A vs B | Strategy §23–§24; ADR-047; ADR-048 for samples |
+| `CONTRIBUTING.md` / `GOVERNANCE.md` / `PUBLIC_CHANGELOG.md` | Pack hygiene; Class A scope |
 | License choice | ADR-047; Apache-2.0 text in `LICENSE` |
 
 Hashed Product Contract, Local AI Spec, Experience Memory Amendment, Architecture

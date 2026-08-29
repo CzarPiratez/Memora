@@ -8,14 +8,17 @@ closed. It is product strategy documentation, not a shipping schedule.
 ## Open now (Release Class A)
 
 Curated **Public Specification / Contract** materials under Apache-2.0 in this
-folder:
+repository:
 
-- Core definition and local-first rules
+- Core definition and local-first rules ([`SPEC.md`](SPEC.md))
 - Memory / evidence model and evidence classes
 - Capability seams (including MemoryBuilder)
 - Truth-before-intelligence / retrieval-first principles
 - Staged direction and explicit non-claims
-- Security reporting placeholder and notices
+- Honest contract vs App status ([`SPEC-STATUS.md`](SPEC-STATUS.md))
+- Synthetic illustrative examples ([`examples/`](examples/); ADR-048)
+- Security reporting, notices, contributing, and short governance
+- Pack changelog ([`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md))
 
 Public materials may say UNFYND Core is open **in the Class A sense**
 (contracts/specs inspectable under Apache-2.0) with an explicit scope boundary.
@@ -29,11 +32,17 @@ Examples that are **not** authorized by Class A alone:
 | Candidate | Notes |
 |---|---|
 | Additional public SDK / interface docs | Only if curated and provenance-cleared |
-| Selected non-secret reference samples | Must not leak corpora, keys, or private fixtures |
 | Broader Core source under a separate license decision | Requires Model A vs B / licensing ADR |
+| Public runnable validator / reference tooling | Planned direction; not shipped in this pack |
 | Website “open Core” wording beyond Class A | Must keep App vs Core boundary honest |
 
-Exact file lists and licenses for any expansion need an explicit later ADR.
+**Reference samples:** Synthetic, non-personal Class A examples under the same
+Apache-2.0 license as this pack are authorized (private monorepo ADR-048). They
+must not leak corpora, keys, or private App fixtures. Further sample expansions
+stay curated.
+
+Exact file lists and licenses for any expansion beyond that need an explicit
+later ADR where required.
 
 ---
 

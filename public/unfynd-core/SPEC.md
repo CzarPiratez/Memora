@@ -7,6 +7,10 @@
 This document is a plain-language public contract pack. It is **not** a shipping
 manifest, performance SLA, or claim that every described stage is implemented.
 
+**Related:** Honest App status — [`SPEC-STATUS.md`](SPEC-STATUS.md). Synthetic
+illustrative sketches — [`examples/`](examples/). Pack revision and changelog —
+[`README.md`](README.md) / [`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md).
+
 ---
 
 ## 1. What UNFYND Core is

@@ -48,8 +48,15 @@ LICENSE/NOTICE/README/SPEC/ROADMAP-OPEN/SECURITY/CITATIONS only). **Pack copy
 fix:** App vs Core softened; Android-as-product / “reference application”
 framing removed from public pack; commercial licensing called out as separate
 from Apache contracts (no fake license limits). LICENSE remains Apache-2.0.
+**Pack enrichment (2026-08-29):** `SPEC-STATUS.md`, synthetic `examples/`
+(ADR-048), PUBLIC_CHANGELOG / CONTRIBUTING / GOVERNANCE, README revision stamp
+and inspect/build-on/run honesty. Synced pack-only to public unfynd-core.
 UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
-Freeze reopen / Act from ADR-047.
+Freeze reopen / Act from ADR-047 / ADR-048.
+
+**Docs note (ADR-048):** Synthetic, non-personal Class A reference samples under
+the same Apache-2.0 license as the pack are authorized. Not a schema lock; no
+App/fixture dump; no App open / Class B / Act from this ADR alone.
 
 ### Where we are (honest)
 
@@ -113,7 +120,7 @@ true now.” Do not treat early “no AI / no Memory persisted” lines as curre
 ## Read in this order
 
 1. `AGENTS.md`
-2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity; ADR-046 UNFYND Core noun; ADR-047 Class A contracts; ADR-043 vision vs freeze; hashed architecture artifacts)
+2. `docs/PRODUCT_SOURCE_REGISTRY.md` (ADR-040 identity; ADR-046 UNFYND Core noun; ADR-047 Class A contracts; ADR-048 synthetic Class A samples; ADR-043 vision vs freeze; hashed architecture artifacts)
 3. `docs/GOVERNANCE.md` (ADR-042 governing order; ADR-043 Act remains out; aligned with Freeze §2)
 4. `docs/PRODUCT_CONTRACT.md`
 5. `docs/LOCAL_AI_TECHNICAL_SPEC.md`

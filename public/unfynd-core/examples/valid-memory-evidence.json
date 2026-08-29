@@ -1,0 +1,31 @@
+{
+  "_comment": "Synthetic illustrative sketch only — not production schema lock, not personal data.",
+  "sketchKind": "valid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_demo_001",
+    "assetRef": "asset://synthetic/demo-cafe-receipt-photo",
+    "revisionHint": 1,
+    "summary": "Demo cafe receipt photo noting a latte and a recorded capture time.",
+    "anchors": [
+      { "type": "TEXT", "value": "latte", "citedEvidenceIds": ["ev_ocr_01"] },
+      { "type": "TIME", "value": "2024-06-15", "citedEvidenceIds": ["ev_exif_01"] }
+    ],
+    "evidence": [
+      {
+        "evidenceId": "ev_ocr_01",
+        "evidenceClass": "DIRECT",
+        "kind": "ocr_text",
+        "excerpt": "Cafe Demo — Latte 4.50",
+        "provenance": "ocr:region:0"
+      },
+      {
+        "evidenceId": "ev_exif_01",
+        "evidenceClass": "DIRECT",
+        "kind": "exif_datetime",
+        "excerpt": "2024-06-15T14:22:00Z",
+        "provenance": "exif:DateTimeOriginal"
+      }
+    ]
+  },
+  "whyAcceptable": "Summary and anchors cite stored DIRECT evidence; no unsupported invented facts."
+}

@@ -1,0 +1,27 @@
+{
+  "_comment": "Synthetic illustrative REJECT case — not production schema lock, not personal data.",
+  "sketchKind": "invalid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_reject_invented_001",
+    "assetRef": "asset://synthetic/demo-cafe-receipt-photo",
+    "revisionHint": 1,
+    "summary": "User met Alice at Cafe Demo and paid with corporate card ending 4242.",
+    "anchors": [
+      { "type": "PERSON", "value": "Alice", "citedEvidenceIds": [] },
+      { "type": "TEXT", "value": "latte", "citedEvidenceIds": ["ev_ocr_01"] }
+    ],
+    "evidence": [
+      {
+        "evidenceId": "ev_ocr_01",
+        "evidenceClass": "DIRECT",
+        "kind": "ocr_text",
+        "excerpt": "Cafe Demo — Latte 4.50",
+        "provenance": "ocr:region:0"
+      }
+    ]
+  },
+  "rejection": {
+    "status": "reject",
+    "why": "MemoryBuilder must not invent unsupported source facts. PERSON/Alice and payment-card claims have no DIRECT (or validated) evidence; empty citation lists do not authorize durable claims. RETRIEVAL_SIGNAL alone would also be insufficient."
+  }
+}

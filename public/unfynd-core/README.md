@@ -2,7 +2,8 @@
 
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/)  
-**Release class:** Class A — Public Specification / Contract (docs only)
+**Release class:** Class A — Public Specification / Contract (docs + synthetic examples)  
+**Pack revision:** 2026-08-29
 
 This repository is the curated **open, inspectable** contracts pack for
 **UNFYND Core — on-device memory and intelligence infrastructure**.
@@ -39,9 +40,23 @@ Under Apache-2.0, this pack publishes plain-language contracts for:
 - Staged direction (Asset → Link → Event → Knowledge) as **future**, not shipped
 - Low-power posture as an event-driven Memory lifecycle
 - Explicit non-claims
+- Honest **status** vs App today ([`SPEC-STATUS.md`](SPEC-STATUS.md))
+- **Synthetic** illustrative examples ([`examples/`](examples/))
 
-Start with [`SPEC.md`](SPEC.md). See also [`ROADMAP-OPEN.md`](ROADMAP-OPEN.md)
-and [`SECURITY.md`](SECURITY.md).
+Start with [`SPEC.md`](SPEC.md). See also [`SPEC-STATUS.md`](SPEC-STATUS.md),
+[`examples/`](examples/), [`ROADMAP-OPEN.md`](ROADMAP-OPEN.md),
+[`SECURITY.md`](SECURITY.md), [`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md),
+[`CONTRIBUTING.md`](CONTRIBUTING.md), and [`GOVERNANCE.md`](GOVERNANCE.md).
+
+---
+
+## How to inspect / build on / what’s next for run
+
+| Mode | Today |
+|---|---|
+| **Inspect** | Read `SPEC.md`, `SPEC-STATUS.md`, and `examples/` under Apache-2.0. |
+| **Build on** | Design and review against the seams and evidence rules; pair with your own tests and device budgets. Examples are sketches, not schema locks. |
+| **Run** | No public runnable validator or Core runtime is shipped in this pack yet. A docs-aligned validator may come later under a separate decision. |
 
 ---
 
@@ -72,6 +87,7 @@ We are **building toward** open on-device memory and intelligence.
 - Grounded Answers (evidence-backed Q&A over stored evidence) is a governed
   future capability — architecture exists; generative implementation is not
   claimed here as shipped.
+- For an honest App column, see [`SPEC-STATUS.md`](SPEC-STATUS.md).
 
 ---
 
@@ -80,6 +96,7 @@ We are **building toward** open on-device memory and intelligence.
 **Builders** — Treat `SPEC.md` as the public contract surface for interoperability
 and design review. Implement against the seams and evidence rules; do not invent
 facts the evidence classes forbid. Pair with your own tests and device budgets.
+Use `examples/` only as illustrations.
 
 **Auditors** — Use this pack to check local-first boundaries, evidence honesty,
 and what is *not* claimed. For private-monorepo maintainers, [`CITATIONS.md`](CITATIONS.md)

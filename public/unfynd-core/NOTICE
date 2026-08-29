@@ -10,6 +10,7 @@ Apache License, Version 2.0.
 See the accompanying LICENSE file for the full license text.
 
 This pack is a curated public distillation of UNFYND Core contracts and
-specifications. It does not include the UNFYND App, private monorepo source,
-AI Pack weights or configs, evaluation corpora, proprietary tuning, secrets,
-or keystores.
+specifications, plus synthetic illustrative examples under `examples/`.
+It does not include the UNFYND App, private monorepo source, AI Pack weights
+or configs, evaluation corpora, proprietary tuning, secrets, or keystores.
+Examples are fake content for inspection only; they are not personal data.
