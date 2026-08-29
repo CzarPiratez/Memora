@@ -400,3 +400,173 @@ this gate. Step 3 remains **not started**.
 - Docs: this section; CONTINUE one-line checkpoint; CHANGELOG Unreleased note
 - Unchanged (intentional): Search production path, Room **14**, PdfPage live
   path, ROADMAP, `libs.versions.toml`, hashed specs
+
+---
+
+# Change control: MIG-05 step 3 — meaning search cutover to evidence embeddings
+
+**Date:** 2026-08-29  
+**Type:** Application search/readiness cutover + integrity cutover helper  
+**Decision guardrails:** Implement MIG-05 **step 3 only** (SEARCH cutover).
+Do not drop/retire `PdfPageEmbedding*` (step 4). Do not build a new non-PDF
+OCR evidence indexer beyond existing dual-write. Do not start MIG-06–MIG-11 or
+MIG-07B. Do not implement Grounded Answers, Links, Event/Knowledge, ranking
+algorithm changes, AVAILABLE claim, Act/agents, VisionEngine, or
+package/applicationId/db rename (ADR-040). Do not rewrite hashed Product
+Contract, Freeze, Migration Spec body, Local AI Spec, Grounding, Experience
+Memory Amendment, or ADR-043 substance. No Class A / public unfynd-core sync.
+Leave unrelated dirty files (`docs/ROADMAP.md`, `libs.versions.toml`)
+unstaged. No push. Do not claim full MIG-05 complete.
+
+## Lead decisions (LOCKED)
+
+1. Step 3 = cut Find-by-meaning **page/evidence-level** retrieval to
+   `MemoryEvidenceEmbeddingStore` + `MemoryEvidence`. Summary-level
+   `MemoryEmbeddingStore` stays.
+2. `SearchAssetMemoriesByMeaning` MUST NOT import or call
+   `SavedPdfPageTextSource` (Migration Spec MIG-05 acceptance).
+3. `SearchAssetMemoriesByMeaning` MUST NOT read `PdfPageEmbeddingStore` for
+   ranking. `IndexPdfPageEmbeddings` may CONTINUE dual-writing
+   `PdfPageEmbedding*` + evidence store.
+4. Page/evidence excerpt for scoring + hit text = `MemoryEvidence.excerpt`
+   (and locator→page via `PdfPageEvidenceLocator`). `rankedPdfPageNumber`
+   from locator page number when applicable.
+5. `LoadMeaningSearchReadiness` `indexedCount` = `MemoryEmbeddingStore` count
+   + `MemoryEvidenceEmbeddingStore` count for model (**NOT**
+   `PdfPageEmbeddingStore` — avoid double-count under dual-write).
+6. **CUTOVER STALE (LOCKED):** On readiness/search path (and after meaning-index
+   taps) — mark `MemoryIntegrityState.STALE_REINDEX_REQUIRED` for current
+   READY revisions that have `PdfPageEmbedding` rows for the active model but
+   **ZERO** `MemoryEvidenceEmbedding` rows for that revisionId+model. Do **NOT**
+   mass-STALE everything. Restore READY when evidence embeddings appear.
+   Meaning-index drain includes STALE so the next Build Index tap dual-write-
+   fills the evidence store. Purpose: search is not silently empty while the
+   old page table still has vectors.
+7. Do **NOT** drop/retire `PdfPageEmbedding*` in step 3 (that is step 4).
+8. Do **NOT** implement full non-PDF evidence indexing beyond dual-write; if
+   evidence embeddings exist for other kinds, search MAY rank them using
+   `MemoryEvidence`.
+9. `ResolveMeaningPdfOpenPage` / open-original: preserve correct page open using
+   ranked/cited page from hits + existing helpers.
+10. No AVAILABLE claim, no Act/GA/Links, no MIG-06/07, no package rename, no
+    public unfynd-core sync, no push.
+
+## Pre-work record
+
+- **Requirement IDs:** Migration Spec MIG-05 acceptance (Search stops using
+  `SavedPdfPageTextSource`; evidence-level retrieval; stale-reindex recoverable
+  path per Local AI Spec §8); Experience Memory evidence substrate; Architecture
+  Freeze change-control. Supporting: A-03. Steps 1–2 + pre-step-3 e2e are
+  prerequisites.
+- **Source documents read:** `AGENTS.md`, `PRODUCT_SOURCE_REGISTRY`,
+  `GOVERNANCE`, `CONTINUE`, this file (steps 1–2 + pre-step-3),
+  `ARCHITECTURAL_MIGRATION_SPEC_V1` MIG-05, `LOCAL_AI_TECHNICAL_SPEC` §8,
+  ADR-040 / ADR-043.
+- **Current-code evidence inspected:**
+  - `SearchAssetMemoriesByMeaning` (+Test) — previously
+    `PdfPageEmbeddingStore` + `SavedPdfPageTextSource`
+  - `LoadMeaningSearchReadiness` — previously counted page store
+  - `IndexPdfPageEmbeddings` dual-write (unchanged writer)
+  - `MemoryEvidenceEmbeddingStore` / Room store
+  - `MemoryRepository` meaning lookups / evidence locators
+  - `PdfPageEvidenceLocator`, `OpenMeaningSearchOriginal` /
+    `ResolveMeaningPdfOpenPage`
+  - DI `PersistenceModule`; no prior Memory integrity STALE writers (new)
+- **Open ADRs / platform limitations checked:** ADR-040 identity deferred;
+  ADR-043 Act remains out. User authorizes MIG-05 step 3 over leftover
+  “do not start search cutover” governance lines (updated in this delivery).
+  No Room bump required (schema stays 14).
+- **Privacy / retention:** No new network, permissions, or cloud AI.
+  Originals remain read-only. Cutover marks derived integrity only.
+- **Smallest safe change:** Rewire Search + Readiness; add evidence search-row
+  repository API; cutover STALE selection + apply helper; meaning-index drain
+  includes STALE; focused unit tests; docs. No PdfPage retirement.
+- **Acceptance criteria:** A–I from delivery instruction (zero
+  `SavedPdfPageTextSource` on Search; evidence-store ranking; readiness
+  counts; STALE selection tested; unit + assembleDebug; device dual-write
+  regression preferred; change-control; local commit; stop report).
+- **Test plan:** `SearchAssetMemoriesByMeaningTest`,
+  `LoadMeaningSearchReadinessTest`, `Mig05EvidenceSearchCutoverSelectionTest`,
+  `ApplyMig05EvidenceSearchCutoverTest`, `OpenMeaningSearchOriginalTest`,
+  `AssembleAssetMemoryFromExtractionFactsTest`,
+  `IndexPdfPageEmbeddingsTest`; `:app:assembleDebug`; prefer
+  `IndexPdfPageEmbeddingsDualWriteInstrumentedTest` on device.
+
+## Exact STALE trigger (documented)
+
+**Trigger:** `ApplyMig05EvidenceSearchCutover.ensureApplied(model)` invoked from:
+1. `LoadMeaningSearchReadiness` when the embedder is Available
+2. `SearchAssetMemoriesByMeaning` after model resolution
+3. `AiPackDisclosureViewModel` after a meaning-index tap completes
+
+**Selection rule (pure):**  
+`readyRevisionIds ∩ pdfPageEmbeddingRevisionIds − evidenceEmbeddingRevisionIds`  
+for the active model only. Unrelated READY revisions are never selected.
+
+**Restore rule (pure):**  
+`staleReindexRevisionIds ∩ evidenceEmbeddingRevisionIds` → mark READY.
+
+**Meaning-index drain:** `listMeaningIndexSummaries` /
+`countMeaningIndexCandidates` include READY + `STALE_REINDEX_REQUIRED` so the
+next Build Index tap can dual-write-fill the evidence store.
+
+## Delivery record
+
+- **Files/layers changed:**
+  - Application: `SearchAssetMemoriesByMeaning` (evidence store + evidence
+    excerpts); `LoadMeaningSearchReadiness` (counts); 
+    `Mig05EvidenceSearchCutoverSelection`; `ApplyMig05EvidenceSearchCutover`;
+    `AiPackDisclosureViewModel` (meaning-index drain + post-index cutover)
+  - Domain: `MemoryRepository` (+ meaning-index / integrity / evidence search
+    rows); `MemoryEvidenceSearchRow`; EmbeddingContracts comment
+  - Data: `MemoryDao` queries/update; `RoomMemoryRepository`
+  - Tests: search/readiness/cutover unit tests; Assemble fake repo; dual-write
+    androidTest constructor assert flipped to evidence store
+  - Docs: GOVERNANCE + registry authorize step 3 / block full MIG-05 +
+    MIG-06; CONTINUE; CHANGELOG Unreleased; this step 3 section
+  - Unchanged (intentional): Room **14**, `PdfPageEmbedding*` dual-write
+    writer, hashed blobs, ROADMAP, `libs.versions.toml`, no public pack sync
+- **Automated verification and result:**
+  - Unit (`JAVA_HOME=C:\Users\DELL\.jdks\jdk-21.0.11+10`):
+    ```
+    .\gradlew.bat :app:testDebugUnitTest
+      --tests ...SearchAssetMemoriesByMeaningTest
+      --tests ...LoadMeaningSearchReadinessTest
+      --tests ...Mig05EvidenceSearchCutoverSelectionTest
+      --tests ...ApplyMig05EvidenceSearchCutoverTest
+      --tests ...OpenMeaningSearchOriginalTest
+      --tests ...IndexPdfPageEmbeddingsTest
+      --tests ...AssembleAssetMemoryFromExtractionFactsTest
+      --tests ...PdfPageEvidenceLocatorTest
+    ```
+    **40/40 passed** (6+2+5+1+3+6+12+5), 0 failures, BUILD SUCCESSFUL.
+  - Compile: `:app:assembleDebug` **BUILD SUCCESSFUL**.
+  - Room `@Database` version remains **14** (no migration in step 3).
+  - `EXPECTED_SCHEMA_VERSION` unchanged at **5** (conversion journal).
+- **Emulator/manual verification and result:**
+  - `IndexPdfPageEmbeddingsDualWriteInstrumentedTest` **3/3 PASSED** on
+    Medium Phone (`emulator-5554`) via assemble + `adb install` +
+    `am instrument` (known-good path). Constructor assert now requires
+    evidence store / forbids page store on Search.
+- **Failure/recovery paths verified:** NothingIndexed when summary+evidence
+  empty even if page store has rows; gap-only STALE; restore after evidence
+  fill; open prefers `rankedPdfPageNumber` from locator.
+- **Known limitation or follow-up (residuals for step 4):**
+  - Retire/drop `PdfPageEmbedding*` entity/table/store/indexer writes
+  - Non-PDF evidence embedding production indexer (beyond dual-write)
+  - Full Migration Spec MIG-05 acceptance close
+  - MIG-06 / MIG-07 / MIG-07B / MIG-11
+- **Residual risks:** Upgraded devices with page embeddings but no evidence
+  embeddings briefly show STALE until the next meaning-index tap dual-write-
+  fills; summary-only hits remain for READY revisions that already have
+  summary vectors and evidence fill. Dual-write continues until step 4.
+- **Documentation/traceability/ADR updates:** GOVERNANCE,
+  PRODUCT_SOURCE_REGISTRY, CONTINUE, CHANGELOG Unreleased, this record.
+  Hashed specs unchanged. ADR-043 / ADR-040 substance unchanged.
+- **Git commit:** Local only after verification (no push).
+
+## Explicit “not done” — full MIG-05 acceptance
+
+Step 3 does **not** retire `PdfPageEmbedding*`, does **not** add a full
+non-PDF evidence indexer, and does **not** close Migration Spec MIG-05 until
+step 4 / remaining acceptance criteria are verified.

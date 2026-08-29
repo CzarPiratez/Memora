@@ -63,6 +63,19 @@ interface MemoryDao {
 
     @Query(
         """
+        SELECT COUNT(*) FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
+          AND m.assembly_schema_version = :assemblySchemaVersion
+        """,
+    )
+    suspend fun countMeaningIndexCandidates(assemblySchemaVersion: String): Int
+
+    @Query(
+        """
         SELECT
             m.revision_id AS revision_id,
             m.memory_id AS memory_id,
@@ -83,6 +96,77 @@ interface MemoryDao {
         assemblySchemaVersion: String,
         limit: Int,
     ): List<MemorySummaryRow>
+
+    @Query(
+        """
+        SELECT
+            m.revision_id AS revision_id,
+            m.memory_id AS memory_id,
+            m.summary_text AS summary_text
+        FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND m.summary_text != ''
+        ORDER BY m.updated_at_epoch_millis DESC
+        LIMIT :limit
+        """,
+    )
+    suspend fun listMeaningIndexSummaries(
+        assemblySchemaVersion: String,
+        limit: Int,
+    ): List<MemorySummaryRow>
+
+    @Query(
+        """
+        SELECT m.revision_id FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = :integrityState
+          AND m.assembly_schema_version = :assemblySchemaVersion
+        """,
+    )
+    suspend fun listCurrentRevisionIdsByIntegrity(
+        assemblySchemaVersion: String,
+        integrityState: String,
+    ): List<String>
+
+    @Query(
+        """
+        UPDATE memories
+        SET integrity_state = :toState,
+            updated_at_epoch_millis = :nowEpochMs
+        WHERE revision_id IN (:revisionIds)
+          AND integrity_state = :fromState
+        """,
+    )
+    suspend fun markIntegrityState(
+        revisionIds: List<String>,
+        fromState: String,
+        toState: String,
+        nowEpochMs: Long,
+    ): Int
+
+    @Query(
+        """
+        SELECT
+            revision_id AS revision_id,
+            evidence_id AS evidence_id,
+            locator AS locator,
+            excerpt AS excerpt
+        FROM memory_evidence
+        WHERE revision_id IN (:revisionIds)
+        ORDER BY revision_id, evidence_id
+        """,
+    )
+    suspend fun findEvidenceSearchRows(
+        revisionIds: List<String>,
+    ): List<MemoryEvidenceSearchRowEntity>
 
     @Query(
         """
@@ -226,4 +310,11 @@ data class MemoryEvidenceLocatorRow(
     @ColumnInfo(name = "revision_id") val revisionId: String,
     @ColumnInfo(name = "evidence_id") val evidenceId: String,
     @ColumnInfo(name = "locator") val locator: String,
+)
+
+data class MemoryEvidenceSearchRowEntity(
+    @ColumnInfo(name = "revision_id") val revisionId: String,
+    @ColumnInfo(name = "evidence_id") val evidenceId: String,
+    @ColumnInfo(name = "locator") val locator: String,
+    @ColumnInfo(name = "excerpt") val excerpt: String,
 )

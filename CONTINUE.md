@@ -9,13 +9,16 @@
 **Docs note:** Root `README.md` is site-aligned product/App vs Core voice
 ([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
 
-**Checkpoint (MIG-05 pre-step-3 gate):** Device/Room dual-write proof
-**PASS 3/3** (`IndexPdfPageEmbeddingsDualWriteInstrumentedTest` on Medium
-Phone). PDF page embedding dual-write into `MemoryEvidenceEmbeddingStore`
-persists real `e{n}` evidence ids while still writing `PdfPageEmbeddingStore`.
-**Search still live on** `PdfPageEmbedding*` + `SavedPdfPageTextSource`
-(`SearchAssetMemoriesByMeaning` unchanged; step 3 **not started**). Room
-remains **14**. Full MIG-05 acceptance remains **open**. **MIG-04**
+**Checkpoint (MIG-05 step 3 — search cutover):** Find-by-meaning page/evidence
+ranking reads `MemoryEvidenceEmbeddingStore` + `MemoryEvidence` excerpt /
+`PdfPageEvidenceLocator` page; `SearchAssetMemoriesByMeaning` no longer uses
+`SavedPdfPageTextSource` or `PdfPageEmbeddingStore` for ranking. Readiness
+`indexedCount` = summary + evidence stores (not page store). Cutover STALE
+marks only READY gap revisions (page embeddings present, evidence embeddings
+absent for active model); meaning-index drain includes STALE and restores
+READY after dual-write fill. **`IndexPdfPageEmbeddings` still dual-writes**
+`PdfPageEmbedding*`. Room remains **14**. Full MIG-05 acceptance remains
+**open** until step 4 retirement + remaining Spec acceptance. **MIG-04**
 MemoryBuilder seam remains live. Ranking, Find/Why UI redesign, Links,
 Event/Knowledge, Grounded Answers code, package rename, VisionEngine, and
 MIG-06+ are not started. Hashed freeze/spec/amendment files unchanged.
@@ -23,7 +26,7 @@ ADR-043 unchanged (Act still out). ADR-044 unchanged (interpretation only).
 `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
 journal, not Room). Identity playbook steps 0–5 remain complete.
 
-See CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE (pre-step-3 e2e dual-write).
+See CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE (step 3 search cutover).
 Room 13→14 migration residual remains closed from step 1.
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
@@ -57,6 +60,12 @@ Freeze reopen / Act from ADR-047 / ADR-048.
 the same Apache-2.0 license as the pack are authorized. Not a schema lock; no
 App/fixture dump; no App open / Class B / Act from this ADR alone.
 
+**Docs note (ADR-049):** Canonical Recall naming accepted — sole App
+product-facing retrieval boundary after MIG-07 cutover (not yet one API in
+code). MIG-06 `SearchMemoryEvidence` = keyword candidate generation into it;
+Grounding Retriever = Option C same pipeline (not a competing Find). Does not
+authorize MIG-06+ / MIG-05 step 4; does not change MIG-05 step 3 acceptance.
+
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
@@ -72,7 +81,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only |
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
-| Evidence embeddings (MIG-05 pre-step-3) | Dual-write device-proven (3/3 androidTest); PdfPageEmbedding* still live for Search; step 3 cutover not started; full MIG-05 open |
+| Evidence embeddings (MIG-05 step 3) | Search cut over to evidence store; PdfPageEmbedding* still dual-written; retirement = step 4; full MIG-05 open |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -97,11 +106,11 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-05 remaining** (index + search cutover onto evidence store; retire
-   PdfPageEmbedding* when verified) when authorized, or **M4** midrange
-   meaning measurement when a physical `midrange_arm64` device is available.
+1. **MIG-05 remaining** (step 4: retire `PdfPageEmbedding*` when verified;
+   remaining Spec acceptance) when authorized, or **M4** midrange meaning
+   measurement when a physical `midrange_arm64` device is available.
    Do not start MIG-06+ / MIG-07B from this checkpoint without explicit
-   authorization. Do not claim full MIG-05 complete from step 1 alone.
+   authorization. Do not claim full MIG-05 complete from step 3 alone.
 2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
    available; do not flip AVAILABLE from emulator alone.
 3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness

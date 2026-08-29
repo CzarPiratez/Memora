@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackContainer
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackResult
+import com.memora.app.application.intelligence.ApplyMig05EvidenceSearchCutover
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModel
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModelResult
 import com.memora.app.application.intelligence.IndexMemoryEmbeddings
@@ -58,6 +59,7 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val indexPdfPageEmbeddings: IndexPdfPageEmbeddings,
     private val savedPdfPages: SavedPdfPageTextSource,
     private val memoryRepository: MemoryRepository,
+    private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
     val uiState: StateFlow<AiPackDisclosureUiState> = mutableUiState.asStateFlow()
@@ -139,8 +141,8 @@ class AiPackDisclosureViewModel @Inject constructor(
             val now = System.currentTimeMillis()
             val limit = MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP
             val (readyTotal, summaries) = withContext(Dispatchers.IO) {
-                memoryRepository.countCurrentReady() to
-                    memoryRepository.listCurrentReadySummaries(limit = limit)
+                memoryRepository.countMeaningIndexCandidates() to
+                    memoryRepository.listMeaningIndexSummaries(limit = limit)
             }
             if (summaries.isEmpty()) {
                 mutableUiState.value = withContext(Dispatchers.IO) {
@@ -226,6 +228,16 @@ class AiPackDisclosureViewModel @Inject constructor(
                         )
                     }
                 }
+            }
+            when (val availability = embeddingEngine.availability()) {
+                is CapabilityAvailability.Available ->
+                    withContext(Dispatchers.IO) {
+                        applyMig05EvidenceSearchCutover.ensureApplied(
+                            model = availability.model,
+                            nowEpochMs = now,
+                        )
+                    }
+                is CapabilityAvailability.Unavailable -> Unit
             }
             val feedback = when (result) {
                 is IndexMemoryEmbeddingsResult.EngineUnavailable ->

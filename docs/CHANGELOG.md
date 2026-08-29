@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### ADR-049 Canonical Recall naming (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-049: App Find boundary name **Canonical Recall**;
+  MIG-06 `SearchMemoryEvidence` = candidate generation into it; Grounding
+  Retriever Option C (same pipeline); Spec `RecallRanker` / MIG-07B stages
+  inside Canonical Recall. No MIG-06+ authorization; no app search code.
+- **Change control:** `docs/CHANGE_CONTROL_ADR049_CANONICAL_RECALL_NAMING.md`.
+
+### MIG-05 step 3 — meaning search cutover to evidence embeddings
+
+- **Date:** 2026-08-29
+- **Delivered:** `SearchAssetMemoriesByMeaning` ranks page/evidence hits from
+  `MemoryEvidenceEmbeddingStore` + `MemoryEvidence` excerpt (page via
+  `PdfPageEvidenceLocator`); no `SavedPdfPageTextSource` / no
+  `PdfPageEmbeddingStore` on the search ranking path. Readiness
+  `indexedCount` = summary + evidence stores. Cutover STALE targets only
+  READY gap revisions (page embeddings without evidence embeddings for the
+  active model); meaning-index drain includes STALE and restores READY after
+  dual-write fill.
+- **Truthfulness:** `IndexPdfPageEmbeddings` still dual-writes
+  `PdfPageEmbedding*`. Full MIG-05 acceptance remains open (step 4 retirement
+  + remaining Spec criteria). Room stays 14. MIG-06+, ranking redesign,
+  AVAILABLE, Act, Grounded Answers code, Links, Event/Knowledge, VisionEngine,
+  and package/db rename are not started. Hashed freeze/spec/amendment files
+  unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`
+  (step 3 section).
+
 ### MIG-05 pre-step-3 — e2e dual-write device proof
 
 - **Date:** 2026-08-29

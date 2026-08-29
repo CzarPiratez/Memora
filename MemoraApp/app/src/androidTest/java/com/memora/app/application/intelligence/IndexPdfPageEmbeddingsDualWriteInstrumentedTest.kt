@@ -33,11 +33,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * MIG-05 pre-step-3 gate: device/Room proof that [IndexPdfPageEmbeddings]
- * dual-writes into [MemoryEvidenceEmbeddingStore] with a real evidence id
- * (`e{n}`), while still writing [PdfPageEmbeddingStore].
+ * MIG-05 dual-write device proof: [IndexPdfPageEmbeddings] dual-writes into
+ * [MemoryEvidenceEmbeddingStore] with a real evidence id (`e{n}`), while still
+ * writing [PdfPageEmbeddingStore]. Search cutover (step 3) ranks evidence store
+ * hits; this class still proves dual-write persistence.
  *
- * Does **not** cut over Search (still on PdfPageEmbedding path). No Room bump.
+ * No Room bump (schema remains 14).
  */
 @RunWith(AndroidJUnit4::class)
 class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
@@ -165,18 +166,25 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
     }
 
     @Test
-    fun search_by_meaning_constructor_still_depends_on_pdf_page_store_not_evidence_store() {
-        // Pre-step-3 gate: Search must remain on PdfPageEmbedding path (no cutover).
+    fun search_by_meaning_constructor_depends_on_evidence_store_not_pdf_page_store() {
+        // MIG-05 step 3: Search ranks MemoryEvidenceEmbeddingStore; page store
+        // remains for dual-write / retirement (step 4), not for Search ranking.
         val constructors = SearchAssetMemoriesByMeaning::class.java.declaredConstructors
         assertTrue(constructors.isNotEmpty())
         val parameterTypes = constructors.flatMap { it.parameterTypes.toList() }.toSet()
         assertTrue(
-            "SearchAssetMemoriesByMeaning must still take PdfPageEmbeddingStore",
+            "SearchAssetMemoriesByMeaning must take MemoryEvidenceEmbeddingStore",
+            parameterTypes.any { MemoryEvidenceEmbeddingStore::class.java.isAssignableFrom(it) },
+        )
+        assertFalse(
+            "SearchAssetMemoriesByMeaning must not take PdfPageEmbeddingStore",
             parameterTypes.any { PdfPageEmbeddingStore::class.java.isAssignableFrom(it) },
         )
         assertFalse(
-            "SearchAssetMemoriesByMeaning must not yet take MemoryEvidenceEmbeddingStore",
-            parameterTypes.any { MemoryEvidenceEmbeddingStore::class.java.isAssignableFrom(it) },
+            "SearchAssetMemoriesByMeaning must not take SavedPdfPageTextSource",
+            parameterTypes.any {
+                it.name.contains("SavedPdfPageTextSource")
+            },
         )
     }
 

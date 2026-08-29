@@ -43,15 +43,17 @@ When guidance conflicts, use this order (ADR-042; aligned with Freeze §2):
 
 Nothing lower in this list may silently override anything above it.
 
-MIG-05 step 2 (PDF page embedding dual-write into the evidence-level store;
-search remains on `PdfPageEmbedding*`) is authorized and in this delivery;
-do not start MIG-05 search cutover, MIG-06–MIG-11, or MIG-07B.
-`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not architectural authority and
-is not permission to implement later MIGs. ADR-043 confirms
-the freeze is suitable for the PKI north star through See/Remember, staged
-Connect, retrieve-by-meaning, and Understand / converse-as-Q&A; Act remains
-out of current architecture. That confirmation does not authorize later
-MIG-* beyond step 2 or reopen the Architecture Freeze.
+MIG-05 step 3 (Find-by-meaning SEARCH cutover onto
+`MemoryEvidenceEmbeddingStore` + `MemoryEvidence`; readiness counts exclude
+`PdfPageEmbeddingStore`; cutover STALE for gap revisions only) is authorized
+and in this delivery; do not claim full MIG-05 complete until step 4
+(`PdfPageEmbedding*` retirement) and remaining Migration Spec acceptance.
+Do not start MIG-06–MIG-11 or MIG-07B. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
+is not architectural authority and is not permission to implement later MIGs.
+ADR-043 confirms the freeze is suitable for the PKI north star through
+See/Remember, staged Connect, retrieve-by-meaning, and Understand /
+converse-as-Q&A; Act remains out of current architecture. That confirmation
+does not authorize later MIG-* beyond step 3 or reopen the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

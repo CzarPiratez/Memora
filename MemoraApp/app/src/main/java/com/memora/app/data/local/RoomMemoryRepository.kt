@@ -10,8 +10,10 @@ import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceId
+import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryInsertResult
+import com.memora.app.domain.memory.MemoryIntegrityState
 import com.memora.app.domain.memory.MemoryMeaningLookup
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.MemoryRevisionId
@@ -62,6 +64,11 @@ class RoomMemoryRepository(
             assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
         )
 
+    override suspend fun countMeaningIndexCandidates(): Int =
+        database().memoryDao().countMeaningIndexCandidates(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+        )
+
     override suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary> {
         require(limit > 0)
         return database().memoryDao().listCurrentReadySummaries(
@@ -74,6 +81,48 @@ class RoomMemoryRepository(
                 summaryText = row.summaryText,
             )
         }
+    }
+
+    override suspend fun listMeaningIndexSummaries(limit: Int): List<MemoryEmbeddingSummary> {
+        require(limit > 0)
+        return database().memoryDao().listMeaningIndexSummaries(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            limit = limit,
+        ).map { row ->
+            MemoryEmbeddingSummary(
+                revisionId = MemoryRevisionId(row.revisionId),
+                memoryId = MemoryId(row.memoryId),
+                summaryText = row.summaryText,
+            )
+        }
+    }
+
+    override suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId> =
+        database().memoryDao().listCurrentRevisionIdsByIntegrity(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            integrityState = MemoryIntegrityState.READY.name,
+        ).mapTo(linkedSetOf()) { MemoryRevisionId(it) }
+
+    override suspend fun listCurrentStaleReindexRevisionIds(): Set<MemoryRevisionId> =
+        database().memoryDao().listCurrentRevisionIdsByIntegrity(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            integrityState = MemoryIntegrityState.STALE_REINDEX_REQUIRED.name,
+        ).mapTo(linkedSetOf()) { MemoryRevisionId(it) }
+
+    override suspend fun markIntegrityState(
+        revisionIds: Collection<MemoryRevisionId>,
+        from: MemoryIntegrityState,
+        to: MemoryIntegrityState,
+        nowEpochMs: Long,
+    ): Int {
+        if (revisionIds.isEmpty()) return 0
+        require(nowEpochMs >= 0)
+        return database().memoryDao().markIntegrityState(
+            revisionIds = revisionIds.map { it.value }.distinct(),
+            fromState = from.name,
+            toState = to.name,
+            nowEpochMs = nowEpochMs,
+        )
     }
 
     override suspend fun findCurrentReadyMeaningLookups(
@@ -120,6 +169,31 @@ class RoomMemoryRepository(
             val pages = result.getOrPut(revisionId) { linkedMapOf() }
             // First matching evidence wins (stable ORDER BY evidence_id).
             pages.putIfAbsent(pageNumber, MemoryEvidenceId(row.evidenceId))
+        }
+        return result
+    }
+
+    override suspend fun findEvidenceSearchRows(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>> {
+        if (revisionIds.isEmpty()) return emptyMap()
+        val ids = revisionIds.map { it.value }.distinct()
+        val result =
+            linkedMapOf<MemoryRevisionId, MutableMap<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
+        for (row in database().memoryDao().findEvidenceSearchRows(ids)) {
+            if (row.locator.isBlank() || row.excerpt.isBlank()) continue
+            val revisionId = MemoryRevisionId(row.revisionId)
+            val evidenceId = MemoryEvidenceId(row.evidenceId)
+            val byEvidence = result.getOrPut(revisionId) { linkedMapOf() }
+            byEvidence.putIfAbsent(
+                evidenceId,
+                MemoryEvidenceSearchRow(
+                    revisionId = revisionId,
+                    evidenceId = evidenceId,
+                    locator = row.locator,
+                    excerpt = row.excerpt,
+                ),
+            )
         }
         return result
     }

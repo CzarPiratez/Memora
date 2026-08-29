@@ -9,30 +9,33 @@ import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingSimilarity
 import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
+import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
-import com.memora.app.domain.extraction.SavedPdfPageTextSource
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.MemoryRevisionId
+import com.memora.app.domain.memory.PdfPageEvidenceLocator
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Candidate Find-by-meaning over indexed Memory summaries and PDF page vectors
- * (E5b2 / E5c / evidence-token boost).
+ * Candidate Find-by-meaning over indexed Memory summaries and evidence-level
+ * vectors (MIG-05 step 3 cutover).
  *
- * Compact-model path historically needed a disclosed evidence-token boost; E4b
- * USE may still apply the assist until M3 re-measures. Does not claim Local
+ * Page/evidence ranking reads [MemoryEvidenceEmbeddingStore] + stored
+ * [com.memora.app.domain.memory.MemoryEvidence] excerpts. Does not use
+ * [com.memora.app.domain.extraction.SavedPdfPageTextSource] or
+ * [com.memora.app.domain.intelligence.PdfPageEmbeddingStore] for ranking.
+ * Compact-model evidence-token boost may still apply. Does not claim Local
  * Intelligence marketing AVAILABLE / SLA (ADR-024/025).
  */
 class SearchAssetMemoriesByMeaning @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
     private val embeddingStore: MemoryEmbeddingStore,
-    private val pdfPageEmbeddingStore: PdfPageEmbeddingStore,
-    private val savedPdfPages: SavedPdfPageTextSource,
+    private val evidenceEmbeddingStore: MemoryEvidenceEmbeddingStore,
     private val memoryRepository: MemoryRepository,
+    private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
 ) {
     suspend operator fun invoke(
         rawQuery: String,
@@ -48,9 +51,11 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             is CapabilityAvailability.Available -> availability.model
         }
 
+        applyMig05EvidenceSearchCutover.ensureApplied(model)
+
         val summaryIndexed = embeddingStore.listForModel(model)
-        val pageIndexed = pdfPageEmbeddingStore.listForModel(model)
-        if (summaryIndexed.isEmpty() && pageIndexed.isEmpty()) {
+        val evidenceIndexed = evidenceEmbeddingStore.listForModel(model)
+        if (summaryIndexed.isEmpty() && evidenceIndexed.isEmpty()) {
             return@withContext MeaningSearchOutcome.NothingIndexed(query = query)
         }
 
@@ -62,9 +67,12 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             is EmbeddingEncodeResult.Success -> encoded.vector
         }
 
-        val revisionIds = (summaryIndexed.map { it.revisionId } + pageIndexed.map { it.revisionId })
+        val revisionIds = (summaryIndexed.map { it.revisionId } + evidenceIndexed.map { it.revisionId })
             .distinct()
         val lookups = memoryRepository.findCurrentReadyMeaningLookups(revisionIds)
+        val evidenceRows = memoryRepository.findEvidenceSearchRows(
+            evidenceIndexed.map { it.revisionId }.distinct(),
+        )
 
         val summaryHits = summaryIndexed.mapNotNull { record ->
             val lookup = lookups[record.revisionId] ?: return@mapNotNull null
@@ -92,22 +100,20 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             )
         }
 
-        val pageHits = pageIndexed.mapNotNull { record ->
+        val evidenceHits = evidenceIndexed.mapNotNull { record ->
             val lookup = lookups[record.revisionId] ?: return@mapNotNull null
-            if (lookup.assetType != AssetType.PDF) return@mapNotNull null
             if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
-            val pageExcerpt = savedPdfPages.listCurrentVerifiedPages(
-                sourceId = lookup.sourceId.value,
-                sourceAssetKey = lookup.sourceAssetKey.value,
-            ).firstOrNull { it.pageNumber == record.pageNumber }
-                ?.let { ResolveMeaningPdfOpenPage.truncateForEmbed(it.text) }
-                ?.takeIf { it.isNotBlank() }
-                ?: lookup.summaryText
+            val evidence = evidenceRows[record.revisionId]?.get(record.evidenceId)
+                ?: return@mapNotNull null
+            val excerpt = ResolveMeaningPdfOpenPage.truncateForEmbed(evidence.excerpt)
+                .takeIf { it.isNotBlank() }
+                ?: return@mapNotNull null
+            val rankedPage = PdfPageEvidenceLocator.parsePageNumber(evidence.locator)
             val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
             val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
                 cosine = cosine,
                 query = query,
-                evidenceText = pageExcerpt,
+                evidenceText = excerpt,
             )
             if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
             MeaningSearchHit(
@@ -117,16 +123,16 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 sourceAssetKey = lookup.sourceAssetKey,
                 assetType = lookup.assetType,
                 label = lookup.displayLabel,
-                summaryText = pageExcerpt,
+                summaryText = excerpt,
                 citedPdfPageNumber = lookup.citedPdfPageNumber,
-                rankedPdfPageNumber = record.pageNumber,
+                rankedPdfPageNumber = rankedPage,
                 score = score,
                 model = model,
                 evidenceTokenBoosted = tokenBoosted,
             )
         }
 
-        val deduped = (summaryHits + pageHits)
+        val deduped = (summaryHits + evidenceHits)
             .groupBy { "${it.sourceId.value}|${it.sourceAssetKey.value}" }
             .values
             .map { group ->
@@ -167,8 +173,8 @@ data class MeaningSearchHit(
     /** 1-based PDF page cited by the Memory summary, when known. */
     val citedPdfPageNumber: Int? = null,
     /**
-     * 1-based PDF page that won meaning ranking via an indexed page vector
-     * (E5c). Null for summary-only hits.
+     * 1-based PDF page that won meaning ranking via an indexed evidence vector
+     * whose locator is `pdf:page:N`. Null for summary-only / non-page hits.
      */
     val rankedPdfPageNumber: Int? = null,
     /** True when a significant cue token was found in evidence and boosted score. */

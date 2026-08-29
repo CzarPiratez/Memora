@@ -22,6 +22,7 @@ import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryMeaningLookup
+import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.MemoryRevisionId
 import java.time.Clock
@@ -442,7 +443,23 @@ private class FakeMemoryRepository : MemoryRepository {
 
     override suspend fun countCurrentReady(): Int = history.size
 
+    override suspend fun countMeaningIndexCandidates(): Int = history.size
+
     override suspend fun listCurrentReadySummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
+
+    override suspend fun listMeaningIndexSummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
+
+    override suspend fun listCurrentReadyRevisionIds() =
+        history.mapTo(linkedSetOf()) { it.revisionId }
+
+    override suspend fun listCurrentStaleReindexRevisionIds() = emptySet<MemoryRevisionId>()
+
+    override suspend fun markIntegrityState(
+        revisionIds: Collection<MemoryRevisionId>,
+        from: com.memora.app.domain.memory.MemoryIntegrityState,
+        to: com.memora.app.domain.memory.MemoryIntegrityState,
+        nowEpochMs: Long,
+    ): Int = 0
 
     override suspend fun findCurrentReadyMeaningLookups(
         revisionIds: Collection<MemoryRevisionId>,
@@ -451,6 +468,10 @@ private class FakeMemoryRepository : MemoryRepository {
     override suspend fun findPdfPageEvidenceIds(
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()
+
+    override suspend fun findEvidenceSearchRows(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = emptyMap<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
 }
 
 private class FakeAssetRepository(asset: Asset) : AssetRepository {

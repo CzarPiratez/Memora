@@ -3,8 +3,8 @@ package com.memora.app.application.intelligence
 import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
+import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -14,16 +14,20 @@ import kotlinx.coroutines.withContext
 class LoadMeaningSearchReadiness @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
     private val embeddingStore: MemoryEmbeddingStore,
-    private val pdfPageEmbeddingStore: PdfPageEmbeddingStore,
+    private val evidenceEmbeddingStore: MemoryEvidenceEmbeddingStore,
     private val memoryRepository: MemoryRepository,
+    private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
 ) {
     suspend operator fun invoke(): MeaningSearchReadiness = withContext(Dispatchers.IO) {
         when (val availability = embeddingEngine.availability()) {
             is CapabilityAvailability.Unavailable ->
                 MeaningSearchReadiness.EngineUnavailable(availability.reason)
             is CapabilityAvailability.Available -> {
+                applyMig05EvidenceSearchCutover.ensureApplied(availability.model)
+                // Summary + evidence stores only (not PdfPageEmbeddingStore) so
+                // dual-write does not double-count the same page vectors.
                 val indexed = embeddingStore.countForModel(availability.model) +
-                    pdfPageEmbeddingStore.countForModel(availability.model)
+                    evidenceEmbeddingStore.countForModel(availability.model)
                 val memoriesReady = memoryRepository.countCurrentReady()
                 MeaningSearchReadiness.Ready(
                     model = availability.model,

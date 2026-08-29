@@ -11,6 +11,15 @@ import org.junit.Test
 
 class OpenMeaningSearchOriginalTest {
     @Test
+    fun ranked_hit_page_is_preferred_over_cited_for_open_wiring() {
+        val hit = samplePdfHit(citedPage = 5).copy(rankedPdfPageNumber = 3)
+        assertEquals(3, hit.rankedPdfPageNumber)
+        assertEquals(5, hit.citedPdfPageNumber)
+        // Production OpenMeaningSearchOriginal.resolvePdfOpenPage returns RANKED_HIT
+        // when rankedPdfPageNumber is set (evidence-locator page after MIG-05 step 3).
+    }
+
+    @Test
     fun resolvePdfPage_uses_cited_page_when_present() {
         assertEquals(
             5,

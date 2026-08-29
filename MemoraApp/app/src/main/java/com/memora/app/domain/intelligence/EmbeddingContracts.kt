@@ -145,8 +145,10 @@ interface PdfPageEmbeddingStore {
  *
  * MIG-05 dual-store interim: [IndexPdfPageEmbeddings] dual-writes PDF page
  * vectors here when [MemoryEvidenceId] resolves. Distinct from summary-level
- * [MemoryEmbeddingRecord] and from live PDF-page [PdfPageEmbeddingRecord].
- * Production Search still reads [PdfPageEmbeddingStore] until a later cutover.
+ * [MemoryEmbeddingRecord]. After MIG-05 step 3, production Search ranks
+ * page/evidence hits from this store + [com.memora.app.domain.memory.MemoryEvidence]
+ * (not [PdfPageEmbeddingStore]). [PdfPageEmbeddingRecord] remains written until
+ * a later retirement step.
  */
 data class MemoryEvidenceEmbeddingRecord(
     val revisionId: MemoryRevisionId,
