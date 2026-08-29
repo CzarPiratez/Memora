@@ -3,6 +3,17 @@
 All notable changes to this **Class A** Public Specification / Contract pack.
 The pack is documentation and synthetic examples only (Apache-2.0).
 
+## 2026-08-30 — Status alignment after Memory-evidence Find convergence + midrange measurement (contracts unchanged)
+
+- [`SPEC-STATUS.md`](SPEC-STATUS.md): App column refreshed — keyword Find on
+  unified Memory-evidence literal search; Find-by-meaning remains candidate /
+  evidence-level embeddings; midrange measured ≠ AVAILABLE; Canonical Recall
+  named as future App Find boundary (not a live single API).
+- [`SPEC.md`](SPEC.md): EmbeddingEngine wording clarifies Memory and evidence /
+  query vectors as retrieval signals (principles unchanged).
+- README pack revision stamp; AVAILABLE honesty aligned with SPEC-STATUS.
+- [`CITATIONS.md`](CITATIONS.md): SPEC-STATUS distillation pointer updated.
+
 ## 2026-08-29 — Enrichment (status, examples, open-foundation hygiene)
 
 - Added [`SPEC-STATUS.md`](SPEC-STATUS.md): honest contract vs UNFYND App status

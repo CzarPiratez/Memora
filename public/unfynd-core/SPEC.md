@@ -112,7 +112,7 @@ model vendor, HTTP client, or platform SDK.
 | **VisionEngine** | Structured, evidence-citable image observations (scene, objects, etc.) |
 | **OcrEngine** | Text plus location/provenance suitable for citations |
 | **DocumentEngine** | Permitted PDF/note understanding from deterministic extracted text; does not decide source access |
-| **EmbeddingEngine** | Versioned vectors for Memory and query (retrieval signals) |
+| **EmbeddingEngine** | Versioned vectors for Memory and evidence / query (retrieval signals) |
 | **MemoryBuilder** | Combines deterministic extraction and optional local observations into a schema-validated Memory; **must not invent unsupported source facts** |
 | **RecallRanker** | Ranks stored candidate Memories and returns the evidence used |
 

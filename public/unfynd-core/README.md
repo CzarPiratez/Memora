@@ -3,7 +3,7 @@
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/)  
 **Release class:** Class A — Public Specification / Contract (docs + synthetic examples)  
-**Pack revision:** 2026-08-29
+**Pack revision:** 2026-08-30
 
 This repository is the curated **open, inspectable** contracts pack for
 **UNFYND Core — on-device memory and intelligence infrastructure**.
@@ -80,7 +80,8 @@ whole stack is open.
 We are **building toward** open on-device memory and intelligence.
 
 - Do **not** read this pack as a claim that Converse, Act, agents, or marketing
-  **AVAILABLE** semantic recall are shipped.
+  **AVAILABLE** semantic recall are shipped. Physical midrange measurement may
+  exist in App work; **midrange measured ≠ marketing AVAILABLE**.
 - Product direction may be described as See → Remember → Connect → Understand →
   Converse → Act. **Act** (agentic action on the user’s behalf) remains **out of
   current architecture** until an explicit later product-contract change.

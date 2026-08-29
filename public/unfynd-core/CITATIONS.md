@@ -15,7 +15,7 @@ the public pack as hashed freeze blobs.
 | `SPEC.md` low-power | `docs/DECISIONS.md` ADR-044; Spec §7 / §9 |
 | `SPEC.md` Act out / honesty | `docs/DECISIONS.md` ADR-043, ADR-047 |
 | `SPEC.md` MemoryBuilder seam | `CONTINUE.md` MIG-04 summary; Spec §4 MemoryBuilder |
-| `SPEC-STATUS.md` App column | `CONTINUE.md` honest status table (MIG-01–04; Find/Why; non-claims); not a dump of App source |
+| `SPEC-STATUS.md` App column | `CONTINUE.md` honest status themes (Memory-evidence keyword Find; candidate Find-by-meaning / evidence embeddings; midrange measured ≠ AVAILABLE; Canonical Recall not a live single API; Vision / Links / Event / Knowledge / Act / GA / Class B non-claims); not a dump of App source |
 | `examples/` | Synthetic only; authorized by ADR-048; **not** copied from App fixtures |
 | `ROADMAP-OPEN.md` Class A vs B | Strategy §23–§24; ADR-047; ADR-048 for samples |
 | `CONTRIBUTING.md` / `GOVERNANCE.md` / `PUBLIC_CHANGELOG.md` | Pack hygiene; Class A scope |

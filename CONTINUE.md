@@ -60,6 +60,10 @@ from Apache contracts (no fake license limits). LICENSE remains Apache-2.0.
 **Pack enrichment (2026-08-29):** `SPEC-STATUS.md`, synthetic `examples/`
 (ADR-048), PUBLIC_CHANGELOG / CONTRIBUTING / GOVERNANCE, README revision stamp
 and inspect/build-on/run honesty. Synced pack-only to public unfynd-core.
+**Class A status refreshed (2026-08-30):** SPEC-STATUS aligned to
+Memory-evidence Find convergence + M4 midrange measurement (contracts
+unchanged; AVAILABLE / Canonical Recall as live API still not claimed);
+synced pack-only to public unfynd-core.
 UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
 Freeze reopen / Act from ADR-047 / ADR-048.
 

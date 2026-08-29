@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Class A pack — status alignment (Memory-evidence Find + midrange)
+
+- **Date:** 2026-08-30
+- **Delivered:** `public/unfynd-core/` SPEC-STATUS / README / PUBLIC_CHANGELOG /
+  CITATIONS refresh; SPEC EmbeddingEngine clarification only. Pack synced to
+  public unfynd-core. Contracts unchanged; marketing AVAILABLE and Canonical
+  Recall as a live single API still not claimed. Private Memora not pushed.
+- **Truthfulness:** Docs / Class A pack only; no App MIG code in this checkpoint.
+
 ### MIG-07 note — keyword Find cutover to SearchMemoryEvidence
 
 - **Date:** 2026-08-30
