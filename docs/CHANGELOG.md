@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### MIG-05 step 1 — evidence-level embedding store foundation
+
+- **Date:** 2026-08-29
+- **Delivered:** Additive `MemoryEvidenceEmbedding` domain + Room table/store
+  (`memory_evidence_embeddings`, Room 13→14) keyed by
+  `(revisionId, evidenceId, model)`. Hilt-bound; unused by Search/Index.
+  **Dual-store interim:** `PdfPageEmbedding*` remains the live PDF meaning
+  path. No `STALE_REINDEX_REQUIRED` marking in this step. No SQL remap of old
+  page vectors onto evidenceIds. No search/index cutover.
+- **Truthfulness:** Full MIG-05 acceptance remains open. MIG-06+, ranking,
+  AVAILABLE, Act, Grounded Answers code, Links/Event/Knowledge, VisionEngine,
+  and package/db rename are not started. Hashed freeze/spec/amendment files
+  unchanged. `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5
+  (conversion journal, not Room).
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`.
+
 ### Class A pack enrichment — status, examples, open-foundation docs (docs-only)
 
 - **Date:** 2026-08-29

@@ -135,6 +135,7 @@ class ConversionLowStorageDenialIntegrationTest {
                 MemoraDatabaseMigrations.MIGRATION_2_3,
                 MemoraDatabaseMigrations.MIGRATION_3_4,
                 MemoraDatabaseMigrations.MIGRATION_12_13,
+                MemoraDatabaseMigrations.MIGRATION_13_14,
             )
             .build()
         try {

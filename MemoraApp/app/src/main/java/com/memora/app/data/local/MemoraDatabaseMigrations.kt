@@ -513,4 +513,43 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    /**
+     * MIG-05 step 1: additive evidence-level embedding table only.
+     * Does not remap, drop, or clear [pdf_page_embeddings].
+     */
+    val MIGRATION_13_14: Migration = object : Migration(13, 14) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_evidence_embeddings` (
+                    `revision_id` TEXT NOT NULL,
+                    `memory_id` TEXT NOT NULL,
+                    `evidence_id` TEXT NOT NULL,
+                    `model_id` TEXT NOT NULL,
+                    `model_version` TEXT NOT NULL,
+                    `dimensions` INTEGER NOT NULL,
+                    `vector_blob` BLOB NOT NULL,
+                    `source_text_fingerprint` TEXT NOT NULL,
+                    `created_at_epoch_ms` INTEGER NOT NULL,
+                    PRIMARY KEY(`revision_id`, `evidence_id`, `model_id`, `model_version`),
+                    FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_memory_id` " +
+                    "ON `memory_evidence_embeddings` (`memory_id`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_model_id_model_version` " +
+                    "ON `memory_evidence_embeddings` (`model_id`, `model_version`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_revision_id_evidence_id` " +
+                    "ON `memory_evidence_embeddings` (`revision_id`, `evidence_id`)",
+            )
+        }
+    }
 }

@@ -10,6 +10,7 @@ import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
 import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomMemoryEmbeddingStore
+import com.memora.app.data.local.RoomMemoryEvidenceEmbeddingStore
 import com.memora.app.data.local.RoomMemoryRepository
 import com.memora.app.data.local.RoomPdfPageEmbeddingStore
 import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
@@ -29,6 +30,7 @@ import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackManager
 import com.memora.app.domain.intelligence.LedgerBackedAiPackManager
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
+import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.MemoryRepository
@@ -143,4 +145,11 @@ object PersistenceModule {
     @Singleton
     fun providePdfPageEmbeddingStore(handle: MemoraDatabaseHandle): PdfPageEmbeddingStore =
         RoomPdfPageEmbeddingStore(dao = { handle.database().pdfPageEmbeddingDao() })
+
+    @Provides
+    @Singleton
+    fun provideMemoryEvidenceEmbeddingStore(
+        handle: MemoraDatabaseHandle,
+    ): MemoryEvidenceEmbeddingStore =
+        RoomMemoryEvidenceEmbeddingStore(dao = { handle.database().memoryEvidenceEmbeddingDao() })
 }

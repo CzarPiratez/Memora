@@ -24,8 +24,9 @@ import androidx.room.RoomDatabase
         AiPackInstallLedgerEntity::class,
         MemoryEmbeddingEntity::class,
         PdfPageEmbeddingEntity::class,
+        MemoryEvidenceEmbeddingEntity::class,
     ],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -54,4 +55,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun memoryEmbeddingDao(): MemoryEmbeddingDao
 
     abstract fun pdfPageEmbeddingDao(): PdfPageEmbeddingDao
+
+    abstract fun memoryEvidenceEmbeddingDao(): MemoryEvidenceEmbeddingDao
 }

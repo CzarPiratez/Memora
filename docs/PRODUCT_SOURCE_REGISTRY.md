@@ -92,8 +92,10 @@ retired. Delivery governing order is aligned with Freeze §2 in
 errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
-authority only. MIG-04 is authorized and in this delivery; do not start
-MIG-05–MIG-11 or MIG-07B. Phase A plan is still not permission for later
+authority only. MIG-05 step 1 (evidence-level embedding store foundation;
+dual-store interim; no search/index cutover) is authorized and in this
+delivery; do not start remaining MIG-05 acceptance, MIG-06–MIG-11, or
+MIG-07B. Phase A plan is still not permission for later
 MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not hashed and is not
 permission to implement.
 

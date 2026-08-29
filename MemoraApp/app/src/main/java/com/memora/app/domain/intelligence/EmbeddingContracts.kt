@@ -1,5 +1,6 @@
 package com.memora.app.domain.intelligence
 
+import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
 
@@ -137,4 +138,43 @@ interface PdfPageEmbeddingStore {
     fun countForModel(model: ModelVersionIdentity): Int
 
     fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord>
+}
+
+/**
+ * One persisted evidence-level embedding, keyed by Memory revision + evidence + model.
+ *
+ * MIG-05 step 1 foundation: additive store only. Distinct from summary-level
+ * [MemoryEmbeddingRecord] and from live PDF-page [PdfPageEmbeddingRecord].
+ * Production Search/Index paths do not read or write this store until a later
+ * MIG-05 cutover step.
+ */
+data class MemoryEvidenceEmbeddingRecord(
+    val revisionId: MemoryRevisionId,
+    val memoryId: MemoryId,
+    val evidenceId: MemoryEvidenceId,
+    val model: ModelVersionIdentity,
+    val vector: EmbeddingVector,
+    val sourceTextFingerprint: String,
+    val createdAtEpochMs: Long,
+) {
+    init {
+        require(sourceTextFingerprint.isNotBlank()) {
+            "An evidence embedding needs a non-blank source-text fingerprint."
+        }
+        require(createdAtEpochMs >= 0)
+    }
+}
+
+interface MemoryEvidenceEmbeddingStore {
+    fun find(
+        revisionId: MemoryRevisionId,
+        evidenceId: MemoryEvidenceId,
+        model: ModelVersionIdentity,
+    ): MemoryEvidenceEmbeddingRecord?
+
+    fun upsert(record: MemoryEvidenceEmbeddingRecord)
+
+    fun countForModel(model: ModelVersionIdentity): Int
+
+    fun listForModel(model: ModelVersionIdentity): List<MemoryEvidenceEmbeddingRecord>
 }

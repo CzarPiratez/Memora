@@ -9,23 +9,28 @@
 **Docs note:** Root `README.md` is site-aligned product/App vs Core voice
 ([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
 
-**Checkpoint (MIG-04):** Spec §4 `MemoryBuilder` contract seam is live:
-`assemble` accepts deterministic facts + optional local observations and returns
-a schema-validated Memory (or pure build outcome). Production path is
-`RunPendingAssetMemoryAssembly` → `AssembleAssetMemoryFromExtractionFacts` →
-`DeterministicMemoryBuilder` (Available; no AI Pack). Observations default empty
-and are rejected if non-empty until VisionEngine. Assembly behavior unchanged
-(schema still `asset-memory-facts-v4`; TIME/TOPIC/DIRECT/uncap preserved).
-**MIG-01 residual closed** (Room 12→13 device-verified). Ranking, Find, Why UI
-redesign, Links, Event/Knowledge, Grounded Answers code, package rename,
-VisionEngine, and MIG-05+ are not started. Hashed freeze/spec/amendment files
-are unchanged. ADR-043 unchanged (Act still out). ADR-044 unchanged
-(interpretation only). `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION`
-remains 5 (conversion journal, not Room). Identity playbook steps 0–5 remain
-complete.
+**Checkpoint (MIG-05 step 1):** Evidence-level embedding store foundation
+landed: domain `MemoryEvidenceEmbeddingRecord` /
+`MemoryEvidenceEmbeddingStore`, Room entity/DAO/store, Hilt bind, Room
+schema **13→14** (`memory_evidence_embeddings` CREATE only).
+**Dual-store interim (mandatory):** `PdfPageEmbedding*` remains the live
+path for PDF page meaning search; the new store is bound and **unused** by
+Search/Index use cases. **No** `STALE_REINDEX_REQUIRED` marking in this step
+(old PDF page embeddings remain valid). **No** SQL remap of old page vectors
+onto evidenceIds. Full MIG-05 acceptance (index/search cutover, retire
+PdfPageEmbedding*, non-PDF meaning indexing) remains **open**.
+**MIG-04** MemoryBuilder seam remains live. Ranking, Find/Why UI redesign,
+Links, Event/Knowledge, Grounded Answers code, package rename, VisionEngine,
+and MIG-06+ are not started. Hashed freeze/spec/amendment files unchanged.
+ADR-043 unchanged (Act still out). ADR-044 unchanged (interpretation only).
+`ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
+journal, not Room). Identity playbook steps 0–5 remain complete.
 
-Focused unit tests for assembler + MemoryBuilder passed (see
-CHANGE_CONTROL_MIG04).
+Focused unit tests for evidence embedding store passed (see
+CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE). Room 13→14 migration
+instrumentation (`MemoraDatabaseMigrationTest`) compiled but was **not**
+device-verified here (emulator stuck `offline`); re-run on a healthy Medium
+Phone session before treating the migration as emulator-closed.
 
 **Docs note (ADR-044):** Low-power product behavior = event-driven Memory
 lifecycle (interpretation only; cites Spec §7 / §9). No code.
@@ -73,6 +78,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only |
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
+| Evidence embeddings (MIG-05 step 1) | Store foundation only (Room 13→14); dual-store interim; PdfPageEmbedding* still live for PDF meaning; new store unused by Search/Index; full MIG-05 open |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; PDF page embeddings (E5c); E5d token assist |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -97,10 +103,11 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-05** (evidence-level embedding store) when authorized, or **M4**
-   midrange meaning measurement when a physical `midrange_arm64` device is
-   available. Do not start MIG-05+ / MIG-07B from this checkpoint without
-   explicit authorization.
+1. **MIG-05 remaining** (index + search cutover onto evidence store; retire
+   PdfPageEmbedding* when verified) when authorized, or **M4** midrange
+   meaning measurement when a physical `midrange_arm64` device is available.
+   Do not start MIG-06+ / MIG-07B from this checkpoint without explicit
+   authorization. Do not claim full MIG-05 complete from step 1 alone.
 2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
    available; do not flip AVAILABLE from emulator alone.
 3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
