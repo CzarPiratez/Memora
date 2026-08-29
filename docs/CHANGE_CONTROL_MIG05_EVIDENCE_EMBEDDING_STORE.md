@@ -579,41 +579,164 @@ These are **not** claims that full MIG-05 is closed. They are regression
 anchors after the step 3 search cutover; keep them true until step 4 and
 beyond:
 
-- Product meaning ranking does **not** read `PdfPageEmbeddingStore`.
+- Product meaning ranking does **not** use a page embedding store
+  (`PdfPageEmbedding*` deleted in step 4).
 - Product meaning ranking does **not** use `SavedPdfPageTextSource`
   (`LEGACY_RECALL_SURFACE` L6 remains Retired).
 - Product meaning ranking reads `MemoryEvidenceEmbeddingStore` +
   `MemoryEvidence` (excerpt / locator→page).
 
-Do **not** check the full MIG-05 DONE boxes below from this subsection alone.
+Do **not** check the full MIG-05 DONE boxes from this subsection alone.
+
+> **Authoritative FULL DONE checklist after step 4:** see the checklist at the
+> end of the step 4 section below (supersedes the pre-step-4 unchecked list).
 
 ---
 
-## MIG-05 FULL DONE only when (retirement checklist)
+# Change control: MIG-05 step 4 — retire PdfPageEmbedding*
 
-**Status: OPEN** — do not claim full MIG-05 complete until every box below is
-verified. Step 3 alone ≠ full MIG-05. Step 4 retirement is mandatory for L5.
+**Date:** 2026-08-29  
+**Type:** Persistence retirement + evidence-only index writer + cutover selection  
+**Decision guardrails:** Implement MIG-05 **step 4 only**. Do not start MIG-06 /
+MIG-07 / MIG-07B / Vision / GA / Act / package rename. Do not implement a
+non-PDF evidence embedding drain this step (explicitly deferred below). Do not
+claim full Migration Spec MIG-05 closed while non-PDF indexer remains deferred.
+Leave unrelated dirty files (`docs/ROADMAP.md`, `libs.versions.toml`) unstaged.
+No push.
+
+## Architectural convergence
+
+```
+ARCHITECTURAL BOUNDARY: Evidence embedding index / MIG-05 retirement (not Canonical Recall API yet)
+CURRENT LEGACY PATH: L5 (PdfPageEmbedding* Dual)
+TARGET PATH: Evidence-only index writes + MemoryEvidenceEmbeddingStore; Search unchanged (step 3)
+WHY THIS CONVERGES: Eliminates parallel PDF page vector store; one embedding substrate for page/evidence granularity
+WHAT OLD PATH WILL EVENTUALLY BE RETIRED: L5 this step; L1–L4/L7/L8 later via MIG-06/07
+EXTENDS LEGACY? no — retires L5
+LEGACY SURFACE DELTA: L5 Dual → Retired; Live/Dual 7 → 6
+ESCAPE-HATCH AFTER CHANGE: YES (L1–L4, L7, L8 still); enabling L#s exclude L5
+```
+
+## Lead decisions (LOCKED)
+
+1. **Scope = MIG-05 step 4 ONLY.**
+2. **DROP / delete PdfPageEmbedding* completely** (entity, DAO, Room store,
+   domain interface/record, DI, database abstract DAO). Room **14 → 15** with
+   `MIGRATION_14_15`: `DROP TABLE pdf_page_embeddings` (+ indexes). Preserve
+   `memory_evidence_embeddings` and all other tables. Export schema `15.json`.
+3. **IndexPdfPageEmbeddings = evidence-only writer** (name kept). Fingerprint-
+   skip against `MemoryEvidenceEmbeddingStore.find`. Unresolved evidenceId =
+   unresolved/fail; never invent ids. PDF page candidates from meaning-index
+   drain remain ALLOWED at INDEX time (`SavedPdfPageTextSource` — not L6).
+4. **ApplyMig05EvidenceSearchCutover** must not use PdfPageEmbeddingStore.
+   STALE: READY ∩ has `pdf:page:N` evidence ∩ zero evidence embeddings for
+   model. Restore: STALE ∩ has ≥1 evidence embedding. Uses
+   `MemoryRepository.findPdfPageEvidenceIds`.
+5. Non-PDF evidence indexer: **DEFERRED** (see below). Do not silently claim
+   full Spec MIG-05 completeness.
+6. No push; leave unrelated dirty files unstaged.
+
+## False-positive guard
+
+- **ALLOWED:** extraction → AssetMemoryFactSource → MemoryBuilder
+- **ALLOWED:** SavedPdfPageTextSource at meaning-INDEX candidate build time
+- **FORBIDDEN:** resurrecting PdfPageEmbedding* or ranking via page store
+- **FORBIDDEN:** new asset-specific Find pipeline
+
+## Pre-work record
+
+- **Requirement IDs:** Migration Spec MIG-05 (retirement / one evidence
+  embedding substrate); Architecture Freeze §3; ADR-049; Local AI Spec §8
+  (derived embeddings recoverable). L5 Retire-by = this step.
+- **Source documents read:** AGENTS, GOVERNANCE, CONTINUE,
+  LEGACY_RECALL_SURFACE, ADR-049, this file (FULL DONE + step 3),
+  RECALL_CONVERGENCE_DONE, ESCAPE_HATCH_AUDIT, architecture invariants,
+  IndexPdfPageEmbeddings, ApplyMig05EvidenceSearchCutover,
+  AiPackDisclosureViewModel meaning-index path, MemoraDatabase + migrations,
+  PersistenceModule, EmbeddingContracts.
+- **Current-code evidence inspected:** dual-write Index path; cutover using
+  PdfPageEmbeddingStore.listForModel; Room 14 dual tables; Search already on
+  evidence store (step 3).
+- **Privacy / offline:** No new network or permissions. DROP removes derived
+  page vectors only; originals untouched.
+- **Acceptance criteria:** PdfPageEmbedding* gone from main source; Room 15;
+  L5 Retired N=6; unit + migration + rewritten instrumented index tests;
+  assembleDebug; non-PDF deferral recorded; CONTINUE honest (full MIG-05 open).
+
+## Delivery record
+
+- **Files/layers changed:**
+  - Deleted: PdfPageEmbeddingEntity/Dao/RoomPdfPageEmbeddingStore;
+    PdfPageEmbeddingRecord/Store from EmbeddingContracts
+  - Room 15 + MIGRATION_14_15 DROP; schema 15.json; opener + androidTest
+    migration lists
+  - IndexPdfPageEmbeddings evidence-only; cutover selection/apply without
+    page store; PersistenceModule unbound
+  - Tests: unit (Index, cutover, Search, Readiness); migration 14→15;
+    IndexPdfPageEmbeddingsEvidenceOnlyInstrumentedTest (replaces dual-write)
+  - Docs: this section; LEGACY L5 Retired N=6; ESCAPE_HATCH audit N=6;
+    CONTINUE; GOVERNANCE; PRODUCT_SOURCE_REGISTRY; CHANGELOG
+- **Verification:** Unit tests for Index/cutover/Search/Readiness; assembleDebug;
+  MemoraDatabaseMigrationTest 14→15; evidence-only instrumented index test;
+  grep: no PdfPageEmbeddingStore / pdf_page_embeddings in main source
+  (migrations history may mention DROP).
+- **Known limitation / follow-up:**
+  - **Non-PDF evidence embedding indexer: DEFERRED** (OCR/note evidence
+    embedding drain not implemented this step). Full Spec MIG-05 acceptance
+    remains open until that lands or a later ADR explicitly accepts PDF-only
+    evidence vectors as Spec-complete.
+  - MIG-06 / MIG-07 / MIG-07B / MIG-11 not started
+- **Git commit:** Local only after verification (no push).
+
+## Explicit deferral — non-PDF evidence indexer
+
+**Deferred this step (do not implement):** production drain that embeds
+non-PDF MemoryEvidence (OCR / note body evidence) into
+`MemoryEvidenceEmbeddingStore`. PDF page evidence indexing via
+`IndexPdfPageEmbeddings` + meaning-index candidates remains the only
+evidence-level writer.
+
+**Honesty gate:** FULL MIG-05 DONE checklist must not be claimed complete
+solely because L5 is Retired. Non-PDF box may be marked “deferred with note”
+but CONTINUE must keep full Spec acceptance **open** until the deferral is
+resolved or explicitly accepted by a later ADR.
+
+## Explicit “not done” — full MIG-05 acceptance
+
+Step 4 retires L5 / PdfPageEmbedding* and lands Room 15. It does **not**
+close Migration Spec MIG-05 while the non-PDF evidence indexer remains
+deferred (see above).
+
+---
+
+## MIG-05 FULL DONE only when (retirement checklist) — status after step 4
+
+**Status: OPEN** — L5 Retired and dual-write gone; full Spec close still
+blocked on non-PDF evidence indexer (deferred) or a later explicit acceptance
+ADR. Do **not** claim full MIG-05 complete in CONTINUE/CHANGELOG from step 4
+alone.
 
 Must **ALL** be true before claiming full MIG-05 complete:
 
-- [ ] Product meaning ranking does not use `PdfPageEmbeddingStore`
-      (step 3 — already true; keep as regression gate)
-- [ ] Product meaning ranking does not use `SavedPdfPageTextSource`
-      (step 3 — already true; L6 Retired; keep as regression gate)
-- [ ] Product meaning ranking reads `MemoryEvidenceEmbeddingStore` +
+- [x] Product meaning ranking does not use `PdfPageEmbeddingStore`
+      (type deleted step 4; was true after step 3)
+- [x] Product meaning ranking does not use `SavedPdfPageTextSource`
+      (L6 Retired; keep as regression gate)
+- [x] Product meaning ranking reads `MemoryEvidenceEmbeddingStore` +
       `MemoryEvidence`
-- [ ] `IndexPdfPageEmbeddings` dual-write of `PdfPageEmbedding*` stopped OR
-      PdfPage path is write-obsolete with documented no readers
-- [ ] `PdfPageEmbedding*` store/table/DAO retired or formally deleted per
-      step 4 plan (L5 → Retired on `LEGACY_RECALL_SURFACE`)
-- [ ] `LEGACY_RECALL_SURFACE` updated: L5 Retired; Live/Dual count decreased
-- [ ] Cutover STALE / backfill path verified empty or no longer needed for
-      page→evidence gap
-- [ ] Non-PDF evidence embedding: either implemented end-to-end OR
-      explicitly deferred with ADR/CHANGE_CONTROL note (do not silently
-      claim full Spec MIG-05 if only PDF evidence vectors exist)
+- [x] `IndexPdfPageEmbeddings` dual-write of `PdfPageEmbedding*` stopped
+      (evidence-only writer; page store deleted)
+- [x] `PdfPageEmbedding*` store/table/DAO retired (Room 15 DROP; L5 Retired;
+      Live/Dual **6**)
+- [x] `LEGACY_RECALL_SURFACE` updated: L5 Retired; Live/Dual count decreased
+- [x] Cutover STALE path no longer needs page-store gap (uses
+      `pdf:page:N` evidence ∩ zero evidence embeddings)
+- [ ] Non-PDF evidence embedding: **DEFERRED** with CHANGE_CONTROL note above
+      (do not silently claim full Spec MIG-05 if only PDF evidence vectors
+      exist)
 - [ ] CHANGELOG + CONTINUE record full MIG-05 closed only after above
+      (step 4 records L5 Retired + deferral; does **not** claim full close)
 
-**Explicit:** Step 3 alone ≠ full MIG-05. Step 4 retirement is mandatory for
-L5. “New path works” is insufficient; migration finished means old paths
-retired.
+**Explicit:** Step 4 retirement + non-PDF deferral ≠ automatic Spec close.
+“New path works” is insufficient; migration finished means old paths retired
+**and** remaining Spec acceptance (or deferred acceptance) is honest.

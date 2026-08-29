@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -26,6 +27,7 @@ class MemoraDatabaseMigrationTest {
         context.deleteDatabase(TEST_DATABASE_NAME)
         context.deleteDatabase(VERSION_TWELVE_EVIDENCE_DATABASE_NAME)
         context.deleteDatabase(VERSION_THIRTEEN_DUAL_STORE_DATABASE_NAME)
+        context.deleteDatabase(VERSION_FOURTEEN_RETIRE_PAGE_DATABASE_NAME)
     }
 
     @Test
@@ -50,6 +52,7 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_11_12,
             MemoraDatabaseMigrations.MIGRATION_12_13,
             MemoraDatabaseMigrations.MIGRATION_13_14,
+            MemoraDatabaseMigrations.MIGRATION_14_15,
         ).build()
 
         try {
@@ -61,16 +64,13 @@ class MemoraDatabaseMigrationTest {
             assertEquals("lake.jpg", preservedAsset?.displayName)
             assertEquals(null, migratedDatabase.discoveryCheckpointDao().find("android-media-store-images"))
             assertTrue(migratedDatabase.documentTreeApprovalDao().findAll().isEmpty())
-            assertEquals(14, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(15, migratedDatabase.openHelper.readableDatabase.version)
             assertEquals(0, migratedDatabase.aiPackInstallLedgerDao().count())
             assertEquals(
                 0,
                 migratedDatabase.memoryEmbeddingDao().countForModel("none", "none"),
             )
-            assertEquals(
-                0,
-                migratedDatabase.pdfPageEmbeddingDao().countForModel("none", "none"),
-            )
+            assertFalse(tableExists(migratedDatabase, "pdf_page_embeddings"))
             assertEquals(
                 0,
                 migratedDatabase.memoryEvidenceEmbeddingDao().countForModel("none", "none"),
@@ -107,10 +107,11 @@ class MemoraDatabaseMigrationTest {
         ).addMigrations(
             MemoraDatabaseMigrations.MIGRATION_12_13,
             MemoraDatabaseMigrations.MIGRATION_13_14,
+            MemoraDatabaseMigrations.MIGRATION_14_15,
         ).build()
 
         try {
-            assertEquals(14, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(15, migratedDatabase.openHelper.readableDatabase.version)
             val evidence = migratedDatabase.memoryDao().findEvidence(LEGACY_REVISION_ID)
             assertEquals(1, evidence.size)
             assertEquals("DIRECT", evidence.single().evidenceClass)
@@ -124,43 +125,76 @@ class MemoraDatabaseMigrationTest {
     }
 
     @Test
-    fun migratesVersionThirteenCreatesEvidenceEmbeddingTableKeepsPdfPageEmbeddings() = runBlocking {
-        createVersionThirteenDatabaseWithPdfPageEmbeddingRow()
+    fun migratesVersionThirteenCreatesEvidenceEmbeddingTableThenDropsPdfPageOnFifteen() =
+        runBlocking {
+            createVersionThirteenDatabaseWithPdfPageEmbeddingRow()
+
+            val migratedDatabase = Room.databaseBuilder(
+                context,
+                MemoraDatabase::class.java,
+                VERSION_THIRTEEN_DUAL_STORE_DATABASE_NAME,
+            ).addMigrations(
+                MemoraDatabaseMigrations.MIGRATION_13_14,
+                MemoraDatabaseMigrations.MIGRATION_14_15,
+            ).build()
+
+            try {
+                assertEquals(15, migratedDatabase.openHelper.readableDatabase.version)
+                assertFalse(tableExists(migratedDatabase, "pdf_page_embeddings"))
+                assertEquals(
+                    0,
+                    migratedDatabase.memoryEvidenceEmbeddingDao().countForModel("none", "none"),
+                )
+                // Prove the evidence table is queryable after CREATE (13→14) + DROP (14→15).
+                assertTrue(
+                    migratedDatabase.memoryEvidenceEmbeddingDao()
+                        .listForModel("none", "none")
+                        .isEmpty(),
+                )
+            } finally {
+                migratedDatabase.close()
+            }
+        }
+
+    @Test
+    fun migratesVersionFourteenDropsPdfPageEmbeddingsPreservesEvidenceEmbeddings() = runBlocking {
+        createVersionFourteenDatabaseWithPageAndEvidenceEmbeddings()
 
         val migratedDatabase = Room.databaseBuilder(
             context,
             MemoraDatabase::class.java,
-            VERSION_THIRTEEN_DUAL_STORE_DATABASE_NAME,
+            VERSION_FOURTEEN_RETIRE_PAGE_DATABASE_NAME,
         ).addMigrations(
-            MemoraDatabaseMigrations.MIGRATION_13_14,
+            MemoraDatabaseMigrations.MIGRATION_14_15,
         ).build()
 
         try {
-            assertEquals(14, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(15, migratedDatabase.openHelper.readableDatabase.version)
+            assertFalse(tableExists(migratedDatabase, "pdf_page_embeddings"))
             assertEquals(
                 1,
-                migratedDatabase.pdfPageEmbeddingDao().countForModel("use-test", "1.0"),
+                migratedDatabase.memoryEvidenceEmbeddingDao().countForModel("use-test", "1.0"),
             )
-            val preservedPage = migratedDatabase.pdfPageEmbeddingDao().find(
-                revisionId = LEGACY_REVISION_ID_V13,
-                pageNumber = 2,
+            val preserved = migratedDatabase.memoryEvidenceEmbeddingDao().find(
+                revisionId = LEGACY_REVISION_ID_V14,
+                evidenceId = "e3",
                 modelId = "use-test",
                 modelVersion = "1.0",
             )
-            assertEquals(LEGACY_REVISION_ID_V13, preservedPage?.revisionId)
-            assertEquals(2, preservedPage?.pageNumber)
-            assertEquals(
-                0,
-                migratedDatabase.memoryEvidenceEmbeddingDao().countForModel("none", "none"),
-            )
-            // Prove the new table is queryable (empty after additive CREATE).
-            assertTrue(
-                migratedDatabase.memoryEvidenceEmbeddingDao()
-                    .listForModel("none", "none")
-                    .isEmpty(),
-            )
+            assertEquals(LEGACY_REVISION_ID_V14, preserved?.revisionId)
+            assertEquals("e3", preserved?.evidenceId)
+            assertEquals("fp-evidence-e3", preserved?.sourceTextFingerprint)
         } finally {
             migratedDatabase.close()
+        }
+    }
+
+    private fun tableExists(database: MemoraDatabase, tableName: String): Boolean {
+        database.openHelper.readableDatabase.query(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            arrayOf(tableName),
+        ).use { cursor ->
+            return cursor.moveToFirst()
         }
     }
 
@@ -335,15 +369,96 @@ class MemoraDatabaseMigrationTest {
         }
     }
 
+    /**
+     * Schema 14.json: v13 + memory_evidence_embeddings. Seeds both a page
+     * embedding row (to be DROPped) and an evidence embedding row (preserved).
+     */
+    private fun createVersionFourteenDatabaseWithPageAndEvidenceEmbeddings() {
+        val databaseFile = context.getDatabasePath(VERSION_FOURTEEN_RETIRE_PAGE_DATABASE_NAME)
+        databaseFile.parentFile?.mkdirs()
+
+        SQLiteDatabase.openOrCreateDatabase(databaseFile, null).use { database ->
+            VERSION_FOURTEEN_SCHEMA_SQL.forEach(database::execSQL)
+            database.execSQL("CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
+            database.execSQL(
+                "INSERT OR REPLACE INTO room_master_table (id, identity_hash) VALUES(42, ?)",
+                arrayOf(VERSION_FOURTEEN_IDENTITY_HASH),
+            )
+            database.execSQL(
+                """
+                INSERT INTO `memories` (
+                    `revision_id`, `memory_id`, `source_id`, `source_asset_key`, `fingerprint`,
+                    `assembly_schema_version`, `integrity_state`, `summary_text`,
+                    `created_at_epoch_millis`, `updated_at_epoch_millis`
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    LEGACY_REVISION_ID_V14,
+                    "mem-mig05-retire",
+                    "source",
+                    "asset-pdf",
+                    "fp-pdf-14",
+                    "asset-memory-facts-v4",
+                    "READY",
+                    "PDF summary",
+                    1_720_000_000_000L,
+                    1_720_000_000_000L,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO `pdf_page_embeddings` (
+                    `revision_id`, `memory_id`, `page_number`, `model_id`, `model_version`,
+                    `dimensions`, `vector_blob`, `source_text_fingerprint`, `created_at_epoch_ms`
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    LEGACY_REVISION_ID_V14,
+                    "mem-mig05-retire",
+                    2,
+                    "use-test",
+                    "1.0",
+                    1,
+                    byteArrayOf(0, 0, 0x80.toByte(), 0x3F),
+                    "fp-page-2",
+                    1_720_000_000_000L,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO `memory_evidence_embeddings` (
+                    `revision_id`, `memory_id`, `evidence_id`, `model_id`, `model_version`,
+                    `dimensions`, `vector_blob`, `source_text_fingerprint`, `created_at_epoch_ms`
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    LEGACY_REVISION_ID_V14,
+                    "mem-mig05-retire",
+                    "e3",
+                    "use-test",
+                    "1.0",
+                    1,
+                    byteArrayOf(0, 0, 0x80.toByte(), 0x3F),
+                    "fp-evidence-e3",
+                    1_720_000_000_000L,
+                ),
+            )
+            database.version = 14
+        }
+    }
+
     private companion object {
         const val TEST_DATABASE_NAME = "memora-migration-test"
         const val VERSION_TWELVE_EVIDENCE_DATABASE_NAME = "memora-migration-v12-evidence"
         const val VERSION_THIRTEEN_DUAL_STORE_DATABASE_NAME = "memora-migration-v13-dual-store"
+        const val VERSION_FOURTEEN_RETIRE_PAGE_DATABASE_NAME = "memora-migration-v14-retire-page"
         const val LEGACY_REVISION_ID = "rev-mig01"
         const val LEGACY_REVISION_ID_V13 = "rev-mig05"
+        const val LEGACY_REVISION_ID_V14 = "rev-mig05-retire"
         const val VERSION_ONE_IDENTITY_HASH = "0c50310c2cead329a76dfbe22c8241c6"
         const val VERSION_TWELVE_IDENTITY_HASH = "982059560c315dcbca422ad3cdc12b6d"
         const val VERSION_THIRTEEN_IDENTITY_HASH = "d6343d5397ea12646194c479ab6255fc"
+        const val VERSION_FOURTEEN_IDENTITY_HASH = "9637e604f34fc817e9c6a0ce655c3a4d"
 
         /**
          * Exact v12 CREATE TABLE / INDEX SQL from
@@ -411,5 +526,15 @@ class MemoraDatabaseMigrationTest {
                 sql
             }
         }
+
+        /**
+         * v14 = v13 + memory_evidence_embeddings (identity from 14.json).
+         */
+        val VERSION_FOURTEEN_SCHEMA_SQL = VERSION_THIRTEEN_SCHEMA_SQL + listOf(
+            "CREATE TABLE IF NOT EXISTS `memory_evidence_embeddings` (`revision_id` TEXT NOT NULL, `memory_id` TEXT NOT NULL, `evidence_id` TEXT NOT NULL, `model_id` TEXT NOT NULL, `model_version` TEXT NOT NULL, `dimensions` INTEGER NOT NULL, `vector_blob` BLOB NOT NULL, `source_text_fingerprint` TEXT NOT NULL, `created_at_epoch_ms` INTEGER NOT NULL, PRIMARY KEY(`revision_id`, `evidence_id`, `model_id`, `model_version`), FOREIGN KEY(`revision_id`) REFERENCES `memories`(`revision_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_memory_id` ON `memory_evidence_embeddings` (`memory_id`)",
+            "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_model_id_model_version` ON `memory_evidence_embeddings` (`model_id`, `model_version`)",
+            "CREATE INDEX IF NOT EXISTS `index_memory_evidence_embeddings_revision_id_evidence_id` ON `memory_evidence_embeddings` (`revision_id`, `evidence_id`)",
+        )
     }
 }

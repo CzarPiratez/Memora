@@ -7,7 +7,7 @@ cadence.
 **Authority:** `docs/LEGACY_RECALL_SURFACE.md`; ADR-049; Cursor rule
 `unfynd-architecture-invariants.mdc`; `docs/RECALL_CONVERGENCE_DONE.md`.
 
-**Does not:** Authorize MIG-05 step 4 / MIG-06+; run CI grep gates (future after
+**Does not:** Authorize MIG-06+; run CI grep gates (future after
 MIG-07 cutover); treat Memory construction as Find.
 
 ---
@@ -51,7 +51,7 @@ Non-CI until after MIG-07 cutover. Prefer current-code inspection over memory.
 | L1–L4 | `ui/search` ViewModels calling `SearchPersisted*` (PDF / screenshot / photo / note keyword) |
 | L8 | `SearchAssetMemoriesByMeaning` called from `MeaningSearchViewModel` (product meaning Find) |
 | L7 | Ranking/boost still local inside `SearchAssetMemoriesByMeaning` (counts Live until shared Canonical Recall ranking) |
-| L5 | `PdfPageEmbeddingStore` readers in `application/` or `ui/` for **ranking** must be **none**; L5 remains Dual **writer** until MIG-05 step 4 |
+| L5 | `PdfPageEmbeddingStore` / `pdf_page_embeddings` must be **absent** from main source after MIG-05 step 4 (L5 Retired); migrations may mention DROP |
 
 ### False-positive guard
 
@@ -89,6 +89,19 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 | Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049) |
 | Delta | Initial enforcement-program baseline |
 | Auditor | docs Step 7 (procedure landed; re-verify on next code checkpoint) |
+
+---
+
+## Checkpoint — MIG-05 step 4 (PdfPageEmbedding* retired)
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-29 |
+| Live/Dual N | **6** |
+| Enabling L#s | L1, L2, L3, L4, L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049) |
+| Delta | L5 Dual → Retired; N 7 → 6; page embedding substrate deleted (Room 15) |
+| Auditor | MIG-05 step 4 delivery |
 
 ---
 

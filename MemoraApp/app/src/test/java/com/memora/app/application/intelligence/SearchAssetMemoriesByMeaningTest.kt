@@ -15,8 +15,6 @@ import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingRecord
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
@@ -47,30 +45,17 @@ class SearchAssetMemoriesByMeaningTest {
     }
 
     @Test
-    fun empty_summary_and_evidence_index_is_nothing_indexed_even_if_pdf_page_store_has_rows() =
+    fun empty_summary_and_evidence_index_is_nothing_indexed() =
         runBlocking {
             val engine = FixedEmbeddingEngine(model, dimensions = 4)
-            val orphanPageStore = InMemoryPdfPageEmbeddingStore()
-            orphanPageStore.upsert(
-                PdfPageEmbeddingRecord(
-                    revisionId = MemoryRevisionId("rev-orphan"),
-                    memoryId = MemoryId("mem-orphan"),
-                    pageNumber = 1,
-                    model = model,
-                    vector = EmbeddingVector(floatArrayOf(1f, 0f, 0f, 0f)),
-                    sourceTextFingerprint = "fp-orphan",
-                    createdAtEpochMs = 1L,
-                ),
-            )
-            // Search no longer reads PdfPageEmbeddingStore; orphan page rows must not
-            // prevent NothingIndexed when summary + evidence stores are empty.
+            // PdfPageEmbedding* retired (MIG-05 step 4); empty evidence + summary
+            // stores must still yield NothingIndexed.
             val outcome = searchUseCase(
                 embeddingEngine = engine,
                 embeddingStore = InMemoryMemoryEmbeddingStore(),
                 evidenceStore = InMemoryMemoryEvidenceEmbeddingStore(),
                 cutover = ApplyMig05EvidenceSearchCutover(
                     memoryRepository = FakeMemoryRepository(),
-                    pdfPageEmbeddingStore = orphanPageStore,
                     evidenceEmbeddingStore = InMemoryMemoryEvidenceEmbeddingStore(),
                 ),
             )("cafe receipt")
@@ -261,7 +246,8 @@ class SearchAssetMemoriesByMeaningTest {
             .flatMap { it.parameterTypes.toList() }
             .map { it.name }
         assertTrue(imports.none { it.contains("SavedPdfPageTextSource") })
-        assertTrue(imports.none { it.contains("PdfPageEmbeddingStore") })
+        // PdfPageEmbeddingStore type retired in MIG-05 step 4 — compile-level absence.
+        assertTrue(imports.none { it.contains("PdfPageEmbedding") })
         assertTrue(imports.any { it.contains("MemoryEvidenceEmbeddingStore") })
     }
 
@@ -272,7 +258,6 @@ class SearchAssetMemoriesByMeaningTest {
         memoryRepository: MemoryRepository = FakeMemoryRepository(),
         cutover: ApplyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
             memoryRepository = memoryRepository,
-            pdfPageEmbeddingStore = InMemoryPdfPageEmbeddingStore(),
             evidenceEmbeddingStore = evidenceStore,
         ),
     ) = SearchAssetMemoriesByMeaning(
@@ -367,36 +352,6 @@ class SearchAssetMemoriesByMeaningTest {
             }
 
         override fun listForModel(model: ModelVersionIdentity): List<MemoryEvidenceEmbeddingRecord> =
-            records.values.filter {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
-    }
-
-    private class InMemoryPdfPageEmbeddingStore : PdfPageEmbeddingStore {
-        private val records = linkedMapOf<String, PdfPageEmbeddingRecord>()
-
-        private fun key(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ) = "${revisionId.value}|$pageNumber|${model.modelId}|${model.version}"
-
-        override fun find(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ): PdfPageEmbeddingRecord? = records[key(revisionId, pageNumber, model)]
-
-        override fun upsert(record: PdfPageEmbeddingRecord) {
-            records[key(record.revisionId, record.pageNumber, record.model)] = record
-        }
-
-        override fun countForModel(model: ModelVersionIdentity): Int =
-            records.values.count {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
-
-        override fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord> =
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }

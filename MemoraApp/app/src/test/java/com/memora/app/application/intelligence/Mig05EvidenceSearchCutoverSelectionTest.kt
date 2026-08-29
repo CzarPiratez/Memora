@@ -12,20 +12,20 @@ class Mig05EvidenceSearchCutoverSelectionTest {
     private val readyD = MemoryRevisionId("rev-d")
 
     @Test
-    fun selects_only_ready_with_pdf_embeddings_and_zero_evidence_embeddings() {
+    fun selects_only_ready_with_pdf_page_evidence_and_zero_evidence_embeddings() {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB, readyC, readyD),
-            revisionIdsWithPdfPageEmbeddings = setOf(readyA, readyB, readyC),
+            revisionIdsWithPdfPageEvidence = setOf(readyA, readyB, readyC),
             revisionIdsWithEvidenceEmbeddings = setOf(readyB),
         )
         assertEquals(setOf(readyA, readyC), gaps)
     }
 
     @Test
-    fun does_not_select_ready_without_pdf_page_embeddings() {
+    fun does_not_select_ready_without_pdf_page_evidence() {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB),
-            revisionIdsWithPdfPageEmbeddings = setOf(readyA),
+            revisionIdsWithPdfPageEvidence = setOf(readyA),
             revisionIdsWithEvidenceEmbeddings = emptySet(),
         )
         assertEquals(setOf(readyA), gaps)
@@ -36,7 +36,7 @@ class Mig05EvidenceSearchCutoverSelectionTest {
     fun does_not_select_when_evidence_embeddings_already_present() {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA),
-            revisionIdsWithPdfPageEmbeddings = setOf(readyA),
+            revisionIdsWithPdfPageEvidence = setOf(readyA),
             revisionIdsWithEvidenceEmbeddings = setOf(readyA),
         )
         assertTrue(gaps.isEmpty())
@@ -46,7 +46,7 @@ class Mig05EvidenceSearchCutoverSelectionTest {
     fun does_not_mass_stale_unrelated_ready_revisions() {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB, readyC, readyD),
-            revisionIdsWithPdfPageEmbeddings = setOf(readyA),
+            revisionIdsWithPdfPageEvidence = setOf(readyA),
             revisionIdsWithEvidenceEmbeddings = emptySet(),
         )
         assertEquals(setOf(readyA), gaps)

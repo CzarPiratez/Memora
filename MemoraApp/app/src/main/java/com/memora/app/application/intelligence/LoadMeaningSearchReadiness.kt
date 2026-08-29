@@ -24,7 +24,7 @@ class LoadMeaningSearchReadiness @Inject constructor(
                 MeaningSearchReadiness.EngineUnavailable(availability.reason)
             is CapabilityAvailability.Available -> {
                 applyMig05EvidenceSearchCutover.ensureApplied(availability.model)
-                // Summary + evidence stores only (not PdfPageEmbeddingStore) so
+                // Summary + evidence stores only (PdfPageEmbedding* retired MIG-05 step 4).
                 // dual-write does not double-count the same page vectors.
                 val indexed = embeddingStore.countForModel(availability.model) +
                     evidenceEmbeddingStore.countForModel(availability.model)

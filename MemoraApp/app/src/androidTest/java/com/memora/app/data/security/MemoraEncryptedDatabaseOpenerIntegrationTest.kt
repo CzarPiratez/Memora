@@ -105,6 +105,7 @@ class MemoraEncryptedDatabaseOpenerIntegrationTest {
                 MemoraDatabaseMigrations.MIGRATION_3_4,
                 MemoraDatabaseMigrations.MIGRATION_12_13,
                 MemoraDatabaseMigrations.MIGRATION_13_14,
+                MemoraDatabaseMigrations.MIGRATION_14_15,
             )
             .build()
         try {

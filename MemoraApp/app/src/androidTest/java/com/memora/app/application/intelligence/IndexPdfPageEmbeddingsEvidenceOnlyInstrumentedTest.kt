@@ -8,7 +8,6 @@ import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.local.MemoryEntity
 import com.memora.app.data.local.MemoryEvidenceEntity
 import com.memora.app.data.local.RoomMemoryEvidenceEmbeddingStore
-import com.memora.app.data.local.RoomPdfPageEmbeddingStore
 import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.CapabilityLimits
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
@@ -16,7 +15,6 @@ import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingVector
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
@@ -33,38 +31,34 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * MIG-05 dual-write device proof: [IndexPdfPageEmbeddings] dual-writes into
- * [MemoryEvidenceEmbeddingStore] with a real evidence id (`e{n}`), while still
- * writing [PdfPageEmbeddingStore]. Search cutover (step 3) ranks evidence store
- * hits; this class still proves dual-write persistence.
- *
- * No Room bump (schema remains 14).
+ * MIG-05 step 4 evidence-only index proof: [IndexPdfPageEmbeddings] writes
+ * [MemoryEvidenceEmbeddingStore] with a real evidence id (`e{n}`). No page
+ * embedding DAO / store remains after PdfPageEmbedding* retirement.
  */
 @RunWith(AndroidJUnit4::class)
-class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
+class IndexPdfPageEmbeddingsEvidenceOnlyInstrumentedTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var database: MemoraDatabase
-    private lateinit var pageStore: PdfPageEmbeddingStore
     private lateinit var evidenceStore: MemoryEvidenceEmbeddingStore
 
-    private val revisionId = MemoryRevisionId("rev-dual-write-e2e")
-    private val memoryId = MemoryId("mem-dual-write-e2e")
+    private val revisionId = MemoryRevisionId("rev-evidence-only-e2e")
+    private val memoryId = MemoryId("mem-evidence-only-e2e")
     private val evidenceId = MemoryEvidenceId("e3")
     private val pageNumber = 2
     private val pageText = "invoice total due on page two"
     private val fixedVector = EmbeddingVector(floatArrayOf(0.1f, 0.2f, 0.3f, 0.4f))
-    private val model = ModelVersionIdentity(modelId = "dual-write-test-embed", version = "0.0.1")
+    private val model = ModelVersionIdentity(modelId = "evidence-only-test-embed", version = "0.0.1")
 
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(context, MemoraDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        assertEquals(14, database.openHelper.readableDatabase.version)
-        pageStore = RoomPdfPageEmbeddingStore(dao = { database.pdfPageEmbeddingDao() })
+        assertEquals(15, database.openHelper.readableDatabase.version)
         evidenceStore = RoomMemoryEvidenceEmbeddingStore(
             dao = { database.memoryEvidenceEmbeddingDao() },
         )
+        assertFalse(tableExists("pdf_page_embeddings"))
     }
 
     @After
@@ -73,11 +67,11 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
     }
 
     @Test
-    fun dual_write_persists_page_and_evidence_rows_with_real_evidence_id() = runBlocking {
+    fun evidence_only_write_persists_evidence_row_with_real_evidence_id() = runBlocking {
         seedMemoryWithPdfPageEvidence(evidenceId = evidenceId.value, locatorPage = pageNumber)
 
         val engine = FixedAvailableEmbeddingEngine(model = model, vector = fixedVector)
-        val useCase = IndexPdfPageEmbeddings(engine, pageStore, evidenceStore)
+        val useCase = IndexPdfPageEmbeddings(engine, evidenceStore)
 
         val result = useCase(
             candidates = listOf(
@@ -96,24 +90,16 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
         val completed = result as IndexPdfPageEmbeddingsResult.Completed
         assertEquals(1, completed.indexed)
         assertEquals(0, completed.unresolvedEvidence)
-        assertEquals(1, completed.evidenceDualWrites)
-
-        val page = pageStore.find(revisionId, pageNumber, model)
-        assertNotNull(page)
-        assertEquals(memoryId, page!!.memoryId)
-        assertEquals(fixedVector.values.toList(), page.vector.values.toList())
+        assertEquals(0, completed.failed)
 
         val evidence = evidenceStore.find(revisionId, evidenceId, model)
         assertNotNull(evidence)
         assertEquals(evidenceId, evidence!!.evidenceId)
         assertEquals("e3", evidence.evidenceId.value)
         assertNull(PdfPageEvidenceLocator.parsePageNumber(evidence.evidenceId.value))
-        assertEquals(page.vector.values.toList(), evidence.vector.values.toList())
-        assertEquals(page.sourceTextFingerprint, evidence.sourceTextFingerprint)
-        assertEquals(page.model, evidence.model)
+        assertEquals(fixedVector.values.toList(), evidence.vector.values.toList())
+        assertEquals(model, evidence.model)
 
-        // Direct Room DAO proof (same schema tables Search does not yet read).
-        assertEquals(1, database.pdfPageEmbeddingDao().countForModel(model.modelId, model.version))
         assertEquals(
             1,
             database.memoryEvidenceEmbeddingDao().countForModel(model.modelId, model.version),
@@ -127,14 +113,15 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
         assertNotNull(evidenceEntity)
         assertEquals("e3", evidenceEntity!!.evidenceId)
         assertFalse(evidenceEntity.evidenceId.startsWith("pdf:page:"))
+        assertFalse(tableExists("pdf_page_embeddings"))
     }
 
     @Test
-    fun unresolved_evidence_id_writes_page_store_only() = runBlocking {
+    fun unresolved_evidence_id_writes_nothing() = runBlocking {
         seedMemoryWithPdfPageEvidence(evidenceId = "e9", locatorPage = 9)
 
         val engine = FixedAvailableEmbeddingEngine(model = model, vector = fixedVector)
-        val useCase = IndexPdfPageEmbeddings(engine, pageStore, evidenceStore)
+        val useCase = IndexPdfPageEmbeddings(engine, evidenceStore)
 
         val result = useCase(
             candidates = listOf(
@@ -151,12 +138,9 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
 
         assertTrue(result is IndexPdfPageEmbeddingsResult.Completed)
         val completed = result as IndexPdfPageEmbeddingsResult.Completed
-        assertEquals(1, completed.indexed)
+        assertEquals(0, completed.indexed)
         assertEquals(1, completed.unresolvedEvidence)
-        assertEquals(0, completed.evidenceDualWrites)
-
-        assertNotNull(pageStore.find(revisionId, pageNumber = 9, model = model))
-        assertEquals(1, pageStore.countForModel(model))
+        assertEquals(1, completed.failed)
         assertEquals(0, evidenceStore.countForModel(model))
         assertNull(evidenceStore.find(revisionId, MemoryEvidenceId("e9"), model))
         assertEquals(
@@ -166,9 +150,7 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
     }
 
     @Test
-    fun search_by_meaning_constructor_depends_on_evidence_store_not_pdf_page_store() {
-        // MIG-05 step 3: Search ranks MemoryEvidenceEmbeddingStore; page store
-        // remains for dual-write / retirement (step 4), not for Search ranking.
+    fun search_by_meaning_constructor_depends_on_evidence_store_not_page_store_type() {
         val constructors = SearchAssetMemoriesByMeaning::class.java.declaredConstructors
         assertTrue(constructors.isNotEmpty())
         val parameterTypes = constructors.flatMap { it.parameterTypes.toList() }.toSet()
@@ -177,8 +159,8 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
             parameterTypes.any { MemoryEvidenceEmbeddingStore::class.java.isAssignableFrom(it) },
         )
         assertFalse(
-            "SearchAssetMemoriesByMeaning must not take PdfPageEmbeddingStore",
-            parameterTypes.any { PdfPageEmbeddingStore::class.java.isAssignableFrom(it) },
+            "PdfPageEmbeddingStore type must not exist on Search constructors",
+            parameterTypes.any { it.simpleName.contains("PdfPageEmbedding") },
         )
         assertFalse(
             "SearchAssetMemoriesByMeaning must not take SavedPdfPageTextSource",
@@ -186,6 +168,15 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
                 it.name.contains("SavedPdfPageTextSource")
             },
         )
+    }
+
+    private fun tableExists(tableName: String): Boolean {
+        database.openHelper.readableDatabase.query(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            arrayOf(tableName),
+        ).use { cursor ->
+            return cursor.moveToFirst()
+        }
     }
 
     private suspend fun seedMemoryWithPdfPageEvidence(
@@ -197,11 +188,11 @@ class IndexPdfPageEmbeddingsDualWriteInstrumentedTest {
                 revisionId = revisionId.value,
                 memoryId = memoryId.value,
                 sourceId = "saf-pdf-test",
-                sourceAssetKey = "tree:dual-write.pdf",
-                fingerprint = "fp-dual-write-1",
+                sourceAssetKey = "tree:evidence-only.pdf",
+                fingerprint = "fp-evidence-only-1",
                 assemblySchemaVersion = "asset-memory-facts-v4",
                 integrityState = "READY",
-                summaryText = "Dual-write device fixture",
+                summaryText = "Evidence-only device fixture",
                 createdAtEpochMillis = 1_720_000_000_000L,
                 updatedAtEpochMillis = 1_720_000_000_000L,
             ),

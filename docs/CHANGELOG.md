@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### MIG-05 step 4 — retire PdfPageEmbedding*
+
+- **Date:** 2026-08-29
+- **Delivered:** Deleted `PdfPageEmbedding*` (entity/DAO/Room store/domain
+  interface). Room **14→15** `DROP TABLE pdf_page_embeddings`.
+  `IndexPdfPageEmbeddings` is evidence-only (fingerprint-skip against
+  `MemoryEvidenceEmbeddingStore`). Cutover STALE uses READY ∩ `pdf:page:N`
+  evidence ∩ zero evidence embeddings. L5 Retired; Live/Dual **6**.
+- **Truthfulness:** Full MIG-05 Spec acceptance remains **open** — non-PDF
+  evidence indexer **deferred** (CHANGE_CONTROL step 4). Search cutover from
+  step 3 unchanged. MIG-06+, ranking redesign, AVAILABLE, Act, Grounded
+  Answers code, Links, Event/Knowledge, VisionEngine, and package/db rename
+  are not started. Hashed freeze/spec/amendment files unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`
+  (step 4 section).
+
 ### CONTINUE status table honesty (docs-only)
 
 - **Date:** 2026-08-29

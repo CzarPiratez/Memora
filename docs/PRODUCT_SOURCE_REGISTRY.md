@@ -101,10 +101,10 @@ retired. Delivery governing order is aligned with Freeze §2 in
 errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
-authority only. MIG-05 step 3 (Find-by-meaning search cutover onto
-`MemoryEvidenceEmbeddingStore` + `MemoryEvidence`; `PdfPageEmbedding*` still
-dual-written, not retired) is authorized and in this delivery; do not claim
-full MIG-05 complete; do not start MIG-06–MIG-11, or
+authority only. MIG-05 step 4 (`PdfPageEmbedding*` retired; Room 15;
+evidence-only index writer; L5 Retired; Live/Dual **6**) is authorized and in
+this delivery; do not claim full MIG-05 complete while non-PDF evidence
+indexer remains deferred; do not start MIG-06–MIG-11, or
 MIG-07B. Phase A plan is still not permission for later
 MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not hashed and is not
 permission to implement.

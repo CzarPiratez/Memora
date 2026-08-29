@@ -7,14 +7,14 @@ architecture; it is operational enforcement so temporary product Find paths
 cannot quietly become permanent.
 
 **Updated:** 2026-08-29  
-**Live/Dual count:** **7** (rows with Status Live or Dual; Retired excluded)
+**Live/Dual count:** **6** (rows with Status Live or Dual; Retired excluded)
 
 | Metric | Value |
 |--------|-------|
 | Live | 6 (L1–L4, L7, L8) |
-| Dual | 1 (L5) |
-| Retired | 1 (L6) |
-| **Live/Dual count (N)** | **7** |
+| Dual | 0 |
+| Retired | 2 (L5, L6) |
+| **Live/Dual count (N)** | **6** |
 
 **Enforcement program index:** `docs/RECALL_ENFORCEMENT_INDEX.md` (Steps 1–7).  
 **Escape-hatch audit:** `docs/ESCAPE_HATCH_AUDIT.md` (cadence + record template).
@@ -65,11 +65,11 @@ Ask at every search / MIG checkpoint:
 > Can a user-visible search result be produced **without** Canonical Recall?
 > If yes, which **L#** rows still enable that?
 
-Today the answer is **yes**. Enabling rows (Live/Dual): **L1, L2, L3, L4, L5,
+Today the answer is **yes**. Enabling rows (Live/Dual): **L1, L2, L3, L4,
 L7, L8**. Canonical Recall does not yet exist as a single application API
 (ADR-049). Keyword Finds (L1–L4) and product-facing meaning Find (L8, with
-local ranking L7) remain live paths. L5 is writer/compatibility dual-write
-only after MIG-05 step 3 — it must not feed product ranking (confirmed).
+local ranking L7) remain live paths. **L5 is Retired** (MIG-05 step 4) —
+`PdfPageEmbedding*` types/table deleted; do not resurrect.
 
 Full procedure, grep hints, and copy-paste record template:
 `docs/ESCAPE_HATCH_AUDIT.md`.
@@ -100,7 +100,7 @@ CI grep enforcement is **out of scope** until after MIG-07 cutover.
 | L2 | Screenshot OCR keyword Find | same | Live | MIG-07 |
 | L3 | Photo OCR keyword Find | same | Live | MIG-07 |
 | L4 | Note keyword Find | same | Live | MIG-07 |
-| L5 | `PdfPageEmbedding*` still dual-written / not yet retired (`IndexPdfPageEmbeddings`) | Evidence-only index path; table retirement | Dual | MIG-05 step 4 |
+| L5 | `PdfPageEmbedding*` dual-write / page vector table | Evidence-only index path (`MemoryEvidenceEmbeddingStore`); table DROP Room 15 | Retired | MIG-05 step 4 (done) |
 | L6 | `SavedPdfPageTextSource` used for product meaning ranking | `MemoryEvidence` excerpts | Retired | MIG-05 step 3 (done) |
 | L7 | Meaning-local ranking/boost inside `SearchAssetMemoriesByMeaning` | Shared ranking stage inside Canonical Recall | Live | MIG-07 / RecallRanker stage (not a separate Find) |
 | L8 | `SearchAssetMemoriesByMeaning` as product-facing meaning Find (not yet behind Canonical Recall facade) | Canonical Recall (MIG-07 wiring; meaning remains a candidate generator) | Live | MIG-07 |
@@ -110,14 +110,14 @@ CI grep enforcement is **out of scope** until after MIG-07 cutover.
 - **L6 Retired** means out of **product recall ranking**. Verified 2026-08-29
   against `SearchAssetMemoriesByMeaning`: constructor injects
   `MemoryEvidenceEmbeddingStore`; KDoc and constructor params exclude
-  `SavedPdfPageTextSource` and `PdfPageEmbeddingStore` for ranking. If those
-  types reappear on the ranking path, **STOP** — do not keep L6 Retired.
-  (`SavedPdfPageTextSource` may still exist for open-original / non-ranking
-  paths; that is not L6.)
-- **L5 Dual** = writer/compatibility only after MIG-05 step 3. Product
-  ranking must not read `PdfPageEmbeddingStore` (already true after step 3).
-  Retirement of the dual-write / page table is MIG-05 step 4 — not authorized
-  by this document.
+  `SavedPdfPageTextSource` for ranking. If SavedPdfPageTextSource reappears
+  on the ranking path, **STOP** — do not keep L6 Retired.
+  (`SavedPdfPageTextSource` may still exist for open-original / meaning-
+  **index** candidate build; that is not L6.)
+- **L5 Retired** (MIG-05 step 4): `PdfPageEmbedding*` entity/DAO/store/
+  domain types deleted; Room 15 drops `pdf_page_embeddings`.
+  `IndexPdfPageEmbeddings` is evidence-only. If those types or the page
+  table reappear, **STOP** — do not keep L5 Retired.
 - **L8** tracks meaning Find as an **interim product path**. Do not mistake
   `SearchAssetMemoriesByMeaning` for Canonical Recall already existing
   (ADR-049: naming only; no single API in code yet).
@@ -132,7 +132,7 @@ CI grep enforcement is **out of scope** until after MIG-07 cutover.
 At every search or MIG checkpoint (and when accepting a related ADR):
 
 1. Re-run the escape-hatch audit (`ESCAPE_HATCH_AUDIT.md`); list enabling L#
-   rows.
+   rows (after step 4: **without L5**).
 2. Confirm statuses against **current code** (do not invent).
 3. Advance status only forward when the replacement is verified.
 4. Recompute **Live/Dual count N** in the header (mandatory on every status
@@ -144,7 +144,7 @@ At every search or MIG checkpoint (and when accepting a related ADR):
 7. Do **not** add rows without an ADR; do **not** extend non-Retired rows
    with new Find features.
 
-**Out of scope for this file:** Authorizing MIG-05 step 4, MIG-06+, deleting
-keyword Find or `PdfPageEmbedding*` tables, or claiming Canonical Recall
-exists in code. CI grep enforcement waits until after MIG-07 cutover (see
-`ESCAPE_HATCH_AUDIT.md`).
+**Out of scope for this file:** Authorizing MIG-06+, claiming Canonical Recall
+exists in code, or claiming full MIG-05 Spec close while non-PDF evidence
+indexer remains deferred. CI grep enforcement waits until after MIG-07
+cutover (see `ESCAPE_HATCH_AUDIT.md`).

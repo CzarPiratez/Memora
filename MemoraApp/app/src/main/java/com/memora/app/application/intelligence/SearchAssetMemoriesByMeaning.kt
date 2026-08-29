@@ -21,12 +21,11 @@ import kotlinx.coroutines.withContext
 
 /**
  * Candidate Find-by-meaning over indexed Memory summaries and evidence-level
- * vectors (MIG-05 step 3 cutover).
+ * vectors (MIG-05 step 3+; PdfPageEmbedding* retired in step 4).
  *
  * Page/evidence ranking reads [MemoryEvidenceEmbeddingStore] + stored
  * [com.memora.app.domain.memory.MemoryEvidence] excerpts. Does not use
- * [com.memora.app.domain.extraction.SavedPdfPageTextSource] or
- * [com.memora.app.domain.intelligence.PdfPageEmbeddingStore] for ranking.
+ * [com.memora.app.domain.extraction.SavedPdfPageTextSource] for ranking.
  * Compact-model evidence-token boost may still apply. Does not claim Local
  * Intelligence marketing AVAILABLE / SLA (ADR-024/025).
  */

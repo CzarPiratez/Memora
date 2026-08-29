@@ -552,4 +552,19 @@ object MemoraDatabaseMigrations {
             )
         }
     }
+
+    /**
+     * MIG-05 step 4: retire PdfPageEmbedding* — DROP pdf_page_embeddings
+     * (and its indexes). Preserves memory_evidence_embeddings and all other
+     * tables.
+     */
+    val MIGRATION_14_15: Migration = object : Migration(14, 15) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP INDEX IF EXISTS `index_pdf_page_embeddings_memory_id`")
+            db.execSQL(
+                "DROP INDEX IF EXISTS `index_pdf_page_embeddings_model_id_model_version`",
+            )
+            db.execSQL("DROP TABLE IF EXISTS `pdf_page_embeddings`")
+        }
+    }
 }

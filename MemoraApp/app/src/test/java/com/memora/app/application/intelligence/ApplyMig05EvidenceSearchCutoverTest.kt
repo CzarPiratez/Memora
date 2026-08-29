@@ -6,8 +6,6 @@ import com.memora.app.domain.intelligence.EmbeddingVector
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingRecord
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
@@ -35,14 +33,16 @@ class ApplyMig05EvidenceSearchCutoverTest {
         val repo = RecordingMemoryRepository(
             ready = mutableSetOf(gap, filled, unrelated),
             stale = mutableSetOf(),
+            pdfPageEvidenceByRevision = mapOf(
+                gap to mapOf(1 to MemoryEvidenceId("e1")),
+                filled to mapOf(2 to MemoryEvidenceId("e2")),
+                // unrelated has no pdf:page evidence
+            ),
         )
-        val pageStore = InMemoryPdfPageEmbeddingStore()
         val evidenceStore = InMemoryMemoryEvidenceEmbeddingStore()
-        pageStore.upsert(pageRecord(gap, pageNumber = 1))
-        pageStore.upsert(pageRecord(filled, pageNumber = 2))
         evidenceStore.upsert(evidenceRecord(filled, MemoryEvidenceId("e2")))
 
-        val cutover = ApplyMig05EvidenceSearchCutover(repo, pageStore, evidenceStore)
+        val cutover = ApplyMig05EvidenceSearchCutover(repo, evidenceStore)
         val first = cutover.ensureApplied(model, nowEpochMs = 10L)
         assertEquals(setOf(gap), first.gapRevisionIds)
         assertEquals(1, first.markedStale)
@@ -51,7 +51,7 @@ class ApplyMig05EvidenceSearchCutoverTest {
         assertTrue(filled in repo.ready)
         assertTrue(unrelated in repo.ready)
 
-        // Dual-write fills the gap; next ensureApplied restores READY.
+        // Evidence index fills the gap; next ensureApplied restores READY.
         evidenceStore.upsert(evidenceRecord(gap, MemoryEvidenceId("e1")))
         val second = cutover.ensureApplied(model, nowEpochMs = 20L)
         assertTrue(second.gapRevisionIds.isEmpty())
@@ -60,17 +60,6 @@ class ApplyMig05EvidenceSearchCutoverTest {
         assertTrue(gap in repo.ready)
         assertTrue(gap !in repo.stale)
     }
-
-    private fun pageRecord(revisionId: MemoryRevisionId, pageNumber: Int) =
-        PdfPageEmbeddingRecord(
-            revisionId = revisionId,
-            memoryId = MemoryId("mem-${revisionId.value}"),
-            pageNumber = pageNumber,
-            model = model,
-            vector = EmbeddingVector(floatArrayOf(1f, 0f)),
-            sourceTextFingerprint = "fp-$pageNumber",
-            createdAtEpochMs = 1L,
-        )
 
     private fun evidenceRecord(revisionId: MemoryRevisionId, evidenceId: MemoryEvidenceId) =
         MemoryEvidenceEmbeddingRecord(
@@ -86,6 +75,8 @@ class ApplyMig05EvidenceSearchCutoverTest {
     private class RecordingMemoryRepository(
         val ready: MutableSet<MemoryRevisionId>,
         val stale: MutableSet<MemoryRevisionId>,
+        private val pdfPageEvidenceByRevision:
+            Map<MemoryRevisionId, Map<Int, MemoryEvidenceId>> = emptyMap(),
     ) : MemoryRepository {
         override suspend fun find(
             assetIdentity: AssetIdentity,
@@ -144,41 +135,12 @@ class ApplyMig05EvidenceSearchCutoverTest {
 
         override suspend fun findPdfPageEvidenceIds(
             revisionIds: Collection<MemoryRevisionId>,
-        ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()
+        ): Map<MemoryRevisionId, Map<Int, MemoryEvidenceId>> =
+            pdfPageEvidenceByRevision.filterKeys { it in revisionIds.toSet() }
 
         override suspend fun findEvidenceSearchRows(
             revisionIds: Collection<MemoryRevisionId>,
         ) = emptyMap<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
-    }
-
-    private class InMemoryPdfPageEmbeddingStore : PdfPageEmbeddingStore {
-        private val records = linkedMapOf<String, PdfPageEmbeddingRecord>()
-
-        private fun key(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ) = "${revisionId.value}|$pageNumber|${model.modelId}|${model.version}"
-
-        override fun find(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ): PdfPageEmbeddingRecord? = records[key(revisionId, pageNumber, model)]
-
-        override fun upsert(record: PdfPageEmbeddingRecord) {
-            records[key(record.revisionId, record.pageNumber, record.model)] = record
-        }
-
-        override fun countForModel(model: ModelVersionIdentity): Int =
-            records.values.count {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
-
-        override fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord> =
-            records.values.filter {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
     }
 
     private class InMemoryMemoryEvidenceEmbeddingStore : MemoryEvidenceEmbeddingStore {

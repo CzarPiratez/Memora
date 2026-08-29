@@ -105,50 +105,12 @@ interface MemoryEmbeddingStore {
 }
 
 /**
- * One persisted PDF page embedding, keyed by Memory revision + page + model.
- *
- * Used for E5c Find-by-meaning page ranking. Distinct from summary-only
- * [MemoryEmbeddingRecord].
- */
-data class PdfPageEmbeddingRecord(
-    val revisionId: MemoryRevisionId,
-    val memoryId: MemoryId,
-    val pageNumber: Int,
-    val model: ModelVersionIdentity,
-    val vector: EmbeddingVector,
-    val sourceTextFingerprint: String,
-    val createdAtEpochMs: Long,
-) {
-    init {
-        require(pageNumber > 0)
-        require(sourceTextFingerprint.isNotBlank())
-        require(createdAtEpochMs >= 0)
-    }
-}
-
-interface PdfPageEmbeddingStore {
-    fun find(
-        revisionId: MemoryRevisionId,
-        pageNumber: Int,
-        model: ModelVersionIdentity,
-    ): PdfPageEmbeddingRecord?
-
-    fun upsert(record: PdfPageEmbeddingRecord)
-
-    fun countForModel(model: ModelVersionIdentity): Int
-
-    fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord>
-}
-
-/**
  * One persisted evidence-level embedding, keyed by Memory revision + evidence + model.
  *
- * MIG-05 dual-store interim: [IndexPdfPageEmbeddings] dual-writes PDF page
- * vectors here when [MemoryEvidenceId] resolves. Distinct from summary-level
- * [MemoryEmbeddingRecord]. After MIG-05 step 3, production Search ranks
- * page/evidence hits from this store + [com.memora.app.domain.memory.MemoryEvidence]
- * (not [PdfPageEmbeddingStore]). [PdfPageEmbeddingRecord] remains written until
- * a later retirement step.
+ * Sole page/evidence embedding substrate after MIG-05 step 4 (PdfPageEmbedding*
+ * retired). Distinct from summary-level [MemoryEmbeddingRecord]. Production
+ * Search ranks page/evidence hits from this store +
+ * [com.memora.app.domain.memory.MemoryEvidence] (MIG-05 step 3+).
  */
 data class MemoryEvidenceEmbeddingRecord(
     val revisionId: MemoryRevisionId,

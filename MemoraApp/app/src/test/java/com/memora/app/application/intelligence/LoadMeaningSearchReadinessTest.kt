@@ -12,8 +12,6 @@ import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.intelligence.PdfPageEmbeddingRecord
-import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
@@ -43,7 +41,6 @@ class LoadMeaningSearchReadinessTest {
             memoryRepository = FakeMemoryRepository(),
             applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
                 memoryRepository = FakeMemoryRepository(),
-                pdfPageEmbeddingStore = InMemoryPdfPageEmbeddingStore(),
                 evidenceEmbeddingStore = InMemoryMemoryEvidenceEmbeddingStore(),
             ),
         )()
@@ -51,10 +48,9 @@ class LoadMeaningSearchReadinessTest {
     }
 
     @Test
-    fun indexed_count_is_summary_plus_evidence_not_pdf_page_store() = runBlocking {
+    fun indexed_count_is_summary_plus_evidence_store() = runBlocking {
         val summaryStore = InMemoryMemoryEmbeddingStore()
         val evidenceStore = InMemoryMemoryEvidenceEmbeddingStore()
-        val pageStore = InMemoryPdfPageEmbeddingStore()
         val revision = MemoryRevisionId("rev-1")
         summaryStore.upsert(
             MemoryEmbeddingRecord(
@@ -77,18 +73,6 @@ class LoadMeaningSearchReadinessTest {
                 createdAtEpochMs = 2L,
             ),
         )
-        // Dual-write still present in page store — must not inflate readiness count.
-        pageStore.upsert(
-            PdfPageEmbeddingRecord(
-                revisionId = revision,
-                memoryId = MemoryId("mem-1"),
-                pageNumber = 1,
-                model = model,
-                vector = EmbeddingVector(floatArrayOf(0f, 1f)),
-                sourceTextFingerprint = "fp-e",
-                createdAtEpochMs = 2L,
-            ),
-        )
         val repo = FakeMemoryRepository(readyCount = 3)
         val readiness = LoadMeaningSearchReadiness(
             embeddingEngine = FixedAvailableEngine(model),
@@ -97,7 +81,6 @@ class LoadMeaningSearchReadinessTest {
             memoryRepository = repo,
             applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
                 memoryRepository = repo,
-                pdfPageEmbeddingStore = pageStore,
                 evidenceEmbeddingStore = evidenceStore,
             ),
         )()
@@ -117,6 +100,53 @@ class LoadMeaningSearchReadinessTest {
 
         override fun embedText(text: String): EmbeddingEncodeResult =
             EmbeddingEncodeResult.Success(EmbeddingVector(floatArrayOf(1f)), model)
+    }
+
+    private class FakeMemoryRepository(
+        private val readyCount: Int = 0,
+    ) : MemoryRepository {
+        override suspend fun find(
+            assetIdentity: AssetIdentity,
+            assetFingerprint: AssetFingerprint,
+            assemblySchemaVersion: MemoryAssemblySchemaVersion,
+        ): Memory? = null
+
+        override suspend fun insert(memory: Memory): MemoryInsertResult =
+            MemoryInsertResult.FailedSafely
+
+        override suspend fun countCurrentReady(): Int = readyCount
+
+        override suspend fun countMeaningIndexCandidates(): Int = readyCount
+
+        override suspend fun listCurrentReadySummaries(limit: Int) =
+            emptyList<MemoryEmbeddingSummary>()
+
+        override suspend fun listMeaningIndexSummaries(limit: Int) =
+            emptyList<MemoryEmbeddingSummary>()
+
+        override suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId> = emptySet()
+
+        override suspend fun listCurrentStaleReindexRevisionIds(): Set<MemoryRevisionId> =
+            emptySet()
+
+        override suspend fun markIntegrityState(
+            revisionIds: Collection<MemoryRevisionId>,
+            from: MemoryIntegrityState,
+            to: MemoryIntegrityState,
+            nowEpochMs: Long,
+        ): Int = 0
+
+        override suspend fun findCurrentReadyMeaningLookups(
+            revisionIds: Collection<MemoryRevisionId>,
+        ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
+
+        override suspend fun findPdfPageEvidenceIds(
+            revisionIds: Collection<MemoryRevisionId>,
+        ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()
+
+        override suspend fun findEvidenceSearchRows(
+            revisionIds: Collection<MemoryRevisionId>,
+        ) = emptyMap<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
     }
 
     private class InMemoryMemoryEmbeddingStore : MemoryEmbeddingStore {
@@ -173,82 +203,5 @@ class LoadMeaningSearchReadinessTest {
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
-    }
-
-    private class InMemoryPdfPageEmbeddingStore : PdfPageEmbeddingStore {
-        private val records = linkedMapOf<String, PdfPageEmbeddingRecord>()
-
-        private fun key(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ) = "${revisionId.value}|$pageNumber|${model.modelId}|${model.version}"
-
-        override fun find(
-            revisionId: MemoryRevisionId,
-            pageNumber: Int,
-            model: ModelVersionIdentity,
-        ): PdfPageEmbeddingRecord? = records[key(revisionId, pageNumber, model)]
-
-        override fun upsert(record: PdfPageEmbeddingRecord) {
-            records[key(record.revisionId, record.pageNumber, record.model)] = record
-        }
-
-        override fun countForModel(model: ModelVersionIdentity): Int =
-            records.values.count {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
-
-        override fun listForModel(model: ModelVersionIdentity): List<PdfPageEmbeddingRecord> =
-            records.values.filter {
-                it.model.modelId == model.modelId && it.model.version == model.version
-            }
-    }
-
-    private class FakeMemoryRepository(
-        private val readyCount: Int = 0,
-    ) : MemoryRepository {
-        override suspend fun find(
-            assetIdentity: AssetIdentity,
-            assetFingerprint: AssetFingerprint,
-            assemblySchemaVersion: MemoryAssemblySchemaVersion,
-        ): Memory? = null
-
-        override suspend fun insert(memory: Memory): MemoryInsertResult =
-            MemoryInsertResult.FailedSafely
-
-        override suspend fun countCurrentReady(): Int = readyCount
-
-        override suspend fun countMeaningIndexCandidates(): Int = readyCount
-
-        override suspend fun listCurrentReadySummaries(limit: Int) =
-            emptyList<MemoryEmbeddingSummary>()
-
-        override suspend fun listMeaningIndexSummaries(limit: Int) =
-            emptyList<MemoryEmbeddingSummary>()
-
-        override suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId> = emptySet()
-
-        override suspend fun listCurrentStaleReindexRevisionIds(): Set<MemoryRevisionId> =
-            emptySet()
-
-        override suspend fun markIntegrityState(
-            revisionIds: Collection<MemoryRevisionId>,
-            from: MemoryIntegrityState,
-            to: MemoryIntegrityState,
-            nowEpochMs: Long,
-        ): Int = 0
-
-        override suspend fun findCurrentReadyMeaningLookups(
-            revisionIds: Collection<MemoryRevisionId>,
-        ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
-
-        override suspend fun findPdfPageEvidenceIds(
-            revisionIds: Collection<MemoryRevisionId>,
-        ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()
-
-        override suspend fun findEvidenceSearchRows(
-            revisionIds: Collection<MemoryRevisionId>,
-        ) = emptyMap<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
     }
 }
