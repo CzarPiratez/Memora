@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Legacy recall surface allowlist (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Introduced `docs/LEGACY_RECALL_SURFACE.md` — living
+  shrink-only allowlist (L1–L8) for interim product Find paths; Live/Dual
+  count = 7. Does not authorize MIG-05 step 4 / MIG-06+ or Cursor rules.
+- **Change control:** `docs/CHANGE_CONTROL_LEGACY_RECALL_SURFACE.md`.
+
 ### ADR-049 Canonical Recall naming (docs-only)
 
 - **Date:** 2026-08-29
