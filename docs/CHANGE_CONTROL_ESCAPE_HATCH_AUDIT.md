@@ -67,3 +67,18 @@ Auditor: docs Step 7
 - **Residual risks / follow-ups:** CI grep enforcement deferred until after
   MIG-07 cutover. MIG-05 step 4 / MIG-06+ still unauthorized.
 - **User confirmation:** Pending (docs Step 7 acceptance).
+
+---
+
+## Follow-up — 60s operator entry (2026-08-29)
+
+**Type:** Documentation only. No MIG code. No push. No Canonical Recall fiction.
+
+- **Change:** Rewrote `docs/RECALL_ENFORCEMENT_INDEX.md` as the single operator
+  entry (heartbeat Live/Dual **N=6**, shrink-only rule, 60s checklist, deep
+  links only). Short pointers in `CONTINUE.md`, `AGENTS.md`, and LEGACY header
+  label. CHANGELOG Unreleased.
+- **Non-claims:** Does not authorize MIG-06+; does not claim Canonical Recall
+  exists in code; does not delete DONE checklists or escape-audit procedure.
+- **Verification:** N=6 still matches `LEGACY_RECALL_SURFACE` header; no files
+  deleted; prior Step links remain reachable from the index map.

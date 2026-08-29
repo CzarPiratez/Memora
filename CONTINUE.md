@@ -72,10 +72,9 @@ audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-05 step 4 checkpoint).
 `SearchAssetMemoriesByMeaning` on `MemoryEvidenceEmbeddingStore`; ADR-049
 Canonical Recall not yet one API; MIG-06+ not started).
 
-**Docs note (Recall enforcement program Steps 1–7):** Landed (docs only) —
-index `docs/RECALL_ENFORCEMENT_INDEX.md` (ADR-049 → allowlist → Cursor rule →
-change-control / exception → DONE checklists → result contract → escape-hatch
-audit). Cursor rule:
+**Docs note (Recall enforcement program Steps 1–7):** Landed (docs only).
+**Operator entry:** `docs/RECALL_ENFORCEMENT_INDEX.md` (60s checklist) +
+LEGACY Live/Dual **N=6**. Cursor rule:
 `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 **MIG code still requires separate authorization** (MIG-06+ not started from

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Recall enforcement 60s operator entry (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Tightened `docs/RECALL_ENFORCEMENT_INDEX.md` into the single
+  operator entry (heartbeat N=6, 60s checklist, deep links only). CONTINUE +
+  AGENTS short pointers. No MIG code; no Canonical Recall fiction.
+- **Change control:** append on `docs/CHANGE_CONTROL_ESCAPE_HATCH_AUDIT.md`.
+
 ### Canonical Recall fiction scan (docs-only)
 
 - **Date:** 2026-08-29

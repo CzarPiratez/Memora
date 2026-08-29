@@ -16,7 +16,7 @@ cannot quietly become permanent.
 | Retired | 2 (L5, L6) |
 | **Live/Dual count (N)** | **6** |
 
-**Enforcement program index:** `docs/RECALL_ENFORCEMENT_INDEX.md` (Steps 1–7).  
+**Operator entry (60s):** `docs/RECALL_ENFORCEMENT_INDEX.md`.  
 **Escape-hatch audit:** `docs/ESCAPE_HATCH_AUDIT.md` (cadence + record template).
 
 **Metric habit:** Whenever any row’s Status changes, recompute **Live/Dual

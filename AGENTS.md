@@ -93,3 +93,7 @@ and wait for feedback before moving on. After each verified checkpoint, create a
 local git commit so work is not lost; do not push unless asked. See
 `.cursor/rules/git-checkpoint-commits.mdc`. Do not make product decisions that
 materially change the PRD without flagging them in `docs/DECISIONS.md`.
+
+Before Find / Recall / embedding-search work: open
+`docs/RECALL_ENFORCEMENT_INDEX.md` (60s) + `docs/LEGACY_RECALL_SURFACE.md` Live/Dual
+**N** (may only shrink, or ADR to grow).
