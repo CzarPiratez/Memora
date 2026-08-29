@@ -14,15 +14,16 @@
 `MemoryEvidenceEmbeddingStore`. Room **15** drops `pdf_page_embeddings`.
 Product meaning search remains on evidence store (step 3). Cutover STALE
 targets READY revisions with `pdf:page:N` evidence and zero evidence
-embeddings. **L5 Retired**; Live/Dual **N = 6**. Full MIG-05 Spec acceptance
-remains **open** — non-PDF evidence indexer **deferred** (CHANGE_CONTROL
-step 4). **MIG-04** MemoryBuilder seam remains live. Ranking, Find/Why UI
-redesign, Links, Event/Knowledge, Grounded Answers code, package rename,
-VisionEngine, and MIG-06+ are not started. Hashed freeze/spec/amendment
-files unchanged. ADR-043 unchanged (Act still out). ADR-044 unchanged
-(interpretation only). `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION`
-remains 5 (conversion journal, not Room). Identity playbook steps 0–5
-remain complete.
+embeddings. **L5 Retired**; Live/Dual **N = 6**. Per **ADR-050:** claim **A**
+(PDF evidence-embedding delivery slice steps 1–4) **COMPLETE** for eng
+checkpoints; claim **B** (Migration Spec MIG-05 full) remains **open** —
+non-PDF evidence indexer **deferred**. **MIG-04** MemoryBuilder seam remains
+live. Ranking, Find/Why UI redesign, Links, Event/Knowledge, Grounded Answers
+code, package rename, VisionEngine, and MIG-06+ are not started. Hashed
+freeze/spec/amendment files unchanged. ADR-043 unchanged (Act still out).
+ADR-044 unchanged (interpretation only).
+`ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
+journal, not Room). Identity playbook steps 0–5 remain complete.
 
 See CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE (step 4 retirement).
 Room 14→15 migration is this delivery.
@@ -64,6 +65,12 @@ code). MIG-06 `SearchMemoryEvidence` = keyword candidate generation into it;
 Grounding Retriever = Option C same pipeline (not a competing Find). Does not
 authorize MIG-06+; does not change MIG-05 step 4 acceptance.
 
+**Docs note (ADR-050):** MIG-05 claim levels — **A** PDF delivery slice
+(steps 1–4) COMPLETE for eng checkpoints; **B** Spec MIG-05 full STILL OPEN
+(non-PDF evidence indexing deferred). Grants/public must not say “MIG-05
+complete” without stating B open. Does not authorize non-PDF indexer or
+MIG-06+. Does not rewrite hashed Spec/Freeze.
+
 **Legacy recall surface:** Live/Dual = **6** (see `docs/LEGACY_RECALL_SURFACE.md`;
 audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-05 step 4 checkpoint).
 
@@ -82,11 +89,10 @@ this program).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only.
 Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open). MIG-05
-full close: retirement checklist in
-`docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` (MIG-05 FULL DONE) —
-L5 Retired / dual-write gone; **full Spec still open** pending non-PDF
-evidence indexer (deferred) or later acceptance ADR. Does not authorize
-MIG-06+.
+FULL DONE checklist in
+`docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` — per **ADR-050**,
+claim **A** (PDF slice) may be treated complete; claim **B** / Spec full and
+the non-PDF box remain **open**. Does not authorize MIG-06+.
 
 **Docs note (Canonical Recall result + Why contract):** DRAFT logical shared
 hit/Why shape for MIG-06/07 — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`.
@@ -107,7 +113,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Evidence completeness (MIG-02) | No fixed 8-item cap; per-item 8192-char pathological guard; summary ≤240 display-only |
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
-| Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **full MIG-05 open** (non-PDF indexer deferred) |
+| Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **ADR-050 A** PDF slice complete; **B** Spec full open (non-PDF deferred) |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; evidence-level embeddings (MIG-05 step 3+); summary embeddings remain; E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -132,12 +138,13 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-05 remaining / deferral** — non-PDF evidence indexer when authorized,
-   or accept PDF-only vectors via ADR; **or M4** midrange meaning measurement
-   when a physical `midrange_arm64` device is available. Do not start MIG-06+
-   / MIG-07B from this checkpoint without explicit authorization. Do not claim
-   full MIG-05 complete while non-PDF remains deferred.
-   Full MIG-05 close gate:
+1. **MIG-05 remaining / deferral (ADR-050 claim B)** — non-PDF evidence
+   indexer when authorized, or accept PDF-only vectors via a future ADR; **or
+   M4** midrange meaning measurement when a physical `midrange_arm64` device
+   is available. Do not start MIG-06+ / MIG-07B from this checkpoint without
+   explicit authorization. Do not claim Spec MIG-05 / claim **B** complete
+   while non-PDF remains deferred (claim **A** PDF slice is already complete).
+   Full MIG-05 Spec close gate:
    `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` retirement checklist
    (open — non-PDF deferred). Recall program exit gate:
    `docs/RECALL_CONVERGENCE_DONE.md` (still open; MIG-06 additive alone ≠

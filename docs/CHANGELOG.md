@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### ADR-050 MIG-05 claim levels (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Accepted ADR-050 — claim **A** (PDF evidence-embedding
+  delivery slice steps 1–4) COMPLETE for eng checkpoints; claim **B**
+  (Migration Spec MIG-05 full) STILL OPEN until non-PDF evidence indexing.
+  Grants/public must not say “MIG-05 complete” without stating B open.
+  CONTINUE + FULL DONE checklist + registry + enforcement index updated.
+  No app code; hashed Spec/Freeze untouched; non-PDF indexer not authorized.
+- **Change control:** `docs/CHANGE_CONTROL_ADR050_MIG05_CLAIM_LEVELS.md`.
+
 ### Recall enforcement 60s operator entry (docs-only)
 
 - **Date:** 2026-08-29

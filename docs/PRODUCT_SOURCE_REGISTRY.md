@@ -68,6 +68,14 @@ conversational memory or an untracked desktop file.
     `RecallRanker` and MIG-07B structured/anchor filter are stages inside
     Canonical Recall. ADR-049 does not authorize MIG-06+, MIG-05 step 4, or
     rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
+11. **MIG-05 claim levels (ADR-050):** **A** = PDF evidence-embedding delivery
+    slice (steps 1–4) COMPLETE for engineering checkpoint language.
+    **B** = Migration Spec MIG-05 full acceptance STILL OPEN until non-PDF
+    MemoryEvidence can be embedded at evidence granularity (or a future ADR
+    reinterprets MVP scope — not a hashed Spec rewrite). Grants / public /
+    marketing must not say “MIG-05 complete” or “Spec MIG-05 done” without
+    stating non-PDF evidence indexing remains open (or wait until B closes).
+    ADR-050 does not authorize the non-PDF indexer or MIG-06+.
 
 ## Governed internal amendments
 
@@ -102,10 +110,10 @@ errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
 authority only. MIG-05 step 4 (`PdfPageEmbedding*` retired; Room 15;
-evidence-only index writer; L5 Retired; Live/Dual **6**) is authorized and in
-this delivery; do not claim full MIG-05 complete while non-PDF evidence
-indexer remains deferred; do not start MIG-06–MIG-11, or
-MIG-07B. Phase A plan is still not permission for later
+evidence-only index writer; L5 Retired; Live/Dual **6**) delivered claim **A**
+(ADR-050 PDF slice complete). Do **not** claim Spec MIG-05 / claim **B**
+complete while non-PDF evidence indexer remains deferred; do not start
+MIG-06–MIG-11, or MIG-07B. Phase A plan is still not permission for later
 MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not hashed and is not
 permission to implement.
 

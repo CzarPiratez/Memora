@@ -1695,3 +1695,62 @@ the Grounding-facing name for shared retrieval responsibilities.
 this naming decision. Implementation remains gated on future authorized
 MIG steps. No application or schema change.
 
+## ADR-050: MIG-05 claim levels (PDF delivery slice vs Spec full)
+
+**Status:** Accepted
+
+**Decision:** Living docs, grants, and marketing must distinguish two MIG-05
+claim levels. This ADR does **not** rewrite hashed
+`ARCHITECTURAL_MIGRATION_SPEC_V1`, Architecture Freeze, or Local AI Spec
+blobs, and does **not** authorize a non-PDF evidence indexer or MIG-06+.
+
+**Claim levels (binding):**
+
+**A. MIG-05 PDF evidence-embedding delivery slice (steps 1–4) — COMPLETE**
+for engineering checkpoint language when all of the following are true (as of
+step 4): evidence-level `MemoryEvidenceEmbeddingStore`; product meaning search
+ranks evidence embeddings (not `PdfPageEmbedding*`); `PdfPageEmbedding*`
+entity/DAO/store/table retired; PDF page path indexes into the evidence store
+(`IndexPdfPageEmbeddings` evidence-only). Engineering may say “MIG-05 PDF
+slice complete” or “MIG-05 steps 1–4 delivered.”
+
+**B. Migration Spec MIG-05 full acceptance — STILL OPEN** until non-PDF
+`MemoryEvidence` kinds can be embedded/indexed at evidence granularity per
+Spec, **or** a future ADR explicitly reinterprets MVP scope against Spec
+(not this ADR rewriting the hashed Spec). Until B closes, do **not** say
+“MIG-05 complete,” “MIG-05 done,” or “Spec MIG-05 done” in grants, public
+pack, marketing, or unqualified CONTINUE/CHANGELOG headlines.
+
+**Binding interpretation:**
+
+1. Claim **A** is the honest label for the shipped PDF evidence-embedding
+   delivery (steps 1–4). It does not equal Spec full acceptance.
+2. Claim **B** remains open while the non-PDF evidence indexer is deferred
+   (see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` FULL DONE checklist).
+3. Grants / public / marketing **MUST NOT** claim MIG-05 or Spec MIG-05
+   complete without stating that non-PDF evidence indexing remains open, or
+   wait until B closes.
+4. A later ADR may reinterpret MVP scope against Spec for B; this ADR does
+   not do that and does not amend hashed Spec / Freeze / Local AI Spec.
+5. Canonical Recall remains target-only (ADR-049). Live/Dual **N** is
+   unchanged by this ADR (N=6 after MIG-05 step 4).
+
+**Out of scope / non-claims:**
+
+- Does not authorize implementing the non-PDF evidence indexer now
+- Does not authorize MIG-06, MIG-07, MIG-07B, or other MIG code
+- Does not claim Canonical Recall exists in code
+- Does not change Room schema, search implementation, or Live/Dual N
+- Does not rewrite hashed Freeze / Migration Spec / Local AI Spec /
+  Grounding / Experience Memory / Product Contract blobs
+- Does not close the MIG-05 FULL DONE checklist’s non-PDF box
+
+**Reason:** Step 4 retired `PdfPageEmbedding*` and completed the PDF
+evidence-embedding delivery slice, while Spec MIG-05 still expects evidence
+granularity beyond PDF. Without two claim levels, CONTINUE / grants risk
+saying “MIG-05 complete” when only A is true.
+
+**Consequences:** Registry, CONTINUE, MIG-05 FULL DONE checklist, enforcement
+index pointer, changelog, and this change-control record A vs B. Engineering
+checkpoints may celebrate A; Spec/full claims wait for B.
+

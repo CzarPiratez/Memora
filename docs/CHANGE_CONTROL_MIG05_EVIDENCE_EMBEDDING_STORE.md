@@ -696,10 +696,12 @@ non-PDF MemoryEvidence (OCR / note body evidence) into
 `IndexPdfPageEmbeddings` + meaning-index candidates remains the only
 evidence-level writer.
 
-**Honesty gate:** FULL MIG-05 DONE checklist must not be claimed complete
-solely because L5 is Retired. Non-PDF box may be marked “deferred with note”
-but CONTINUE must keep full Spec acceptance **open** until the deferral is
-resolved or explicitly accepted by a later ADR.
+**Honesty gate (ADR-050):** Claim **A** (PDF slice steps 1–4) may be treated
+complete. Claim **B** / Spec MIG-05 full must **not** be claimed solely because
+L5 is Retired. Non-PDF box may be marked “deferred with note”; CONTINUE must
+keep claim **B** **open** until the deferral is resolved or explicitly accepted
+by a later ADR (not a hashed Spec rewrite).
+
 
 ## Explicit “not done” — full MIG-05 acceptance
 
@@ -711,12 +713,20 @@ deferred (see above).
 
 ## MIG-05 FULL DONE only when (retirement checklist) — status after step 4
 
-**Status: OPEN** — L5 Retired and dual-write gone; full Spec close still
-blocked on non-PDF evidence indexer (deferred) or a later explicit acceptance
-ADR. Do **not** claim full MIG-05 complete in CONTINUE/CHANGELOG from step 4
-alone.
+**ADR-050 claim levels (do not conflate):**
 
-Must **ALL** be true before claiming full MIG-05 complete:
+| Level | Meaning | Status |
+|-------|---------|--------|
+| **A** | PDF evidence-embedding delivery slice (steps 1–4) | **COMPLETE** for eng checkpoint language |
+| **B** | Migration Spec MIG-05 full acceptance | **OPEN** until non-PDF evidence indexing (or future scope ADR — not hashed Spec rewrite) |
+
+**Status: OPEN for claim B / Spec full** — L5 Retired and dual-write gone
+(claim **A** satisfied). Spec close (claim **B**) still blocked on non-PDF
+evidence indexer (deferred) or a later explicit acceptance ADR. Do **not**
+claim “MIG-05 complete” / “Spec MIG-05 done” in grants, public, or marketing
+without stating non-PDF remains open (ADR-050).
+
+Must **ALL** be true before claiming full MIG-05 / claim **B** complete:
 
 - [x] Product meaning ranking does not use `PdfPageEmbeddingStore`
       (type deleted step 4; was true after step 3)
@@ -732,11 +742,13 @@ Must **ALL** be true before claiming full MIG-05 complete:
 - [x] Cutover STALE path no longer needs page-store gap (uses
       `pdf:page:N` evidence ∩ zero evidence embeddings)
 - [ ] Non-PDF evidence embedding: **DEFERRED** with CHANGE_CONTROL note above
-      (do not silently claim full Spec MIG-05 if only PDF evidence vectors
-      exist)
-- [ ] CHANGELOG + CONTINUE record full MIG-05 closed only after above
-      (step 4 records L5 Retired + deferral; does **not** claim full close)
+      (claim **B** / Spec full remains open while only PDF evidence vectors
+      exist — ADR-050)
+- [ ] CHANGELOG + CONTINUE record claim **B** / Spec MIG-05 closed only after
+      above (step 4 + ADR-050 record claim **A** complete + **B** open; do
+      **not** claim full Spec close)
 
-**Explicit:** Step 4 retirement + non-PDF deferral ≠ automatic Spec close.
-“New path works” is insufficient; migration finished means old paths retired
-**and** remaining Spec acceptance (or deferred acceptance) is honest.
+**Explicit:** Step 4 retirement + non-PDF deferral ≠ automatic Spec close
+(claim **B**). “New path works” / claim **A** is insufficient for Spec full;
+migration Spec finished means old paths retired **and** remaining Spec
+acceptance (or deferred acceptance) is honest per ADR-050.
