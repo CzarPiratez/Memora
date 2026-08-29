@@ -2,7 +2,7 @@
 
 **Status:** Open backlog — search/page path largely built; **AVAILABLE** still gated  
 **Date opened:** 2026-08-04  
-**Last status refresh:** 2026-08-04 (meaning-index progress/cap closed; M4 execute pending)  
+**Last status refresh:** 2026-08-29 (M4 midrange execute measured; AVAILABLE still open)  
 **Owner path:** Local-AI embedding-first track after E5b2e  
 **Authority:** `AGENTS.md`, `docs/GOVERNANCE.md`, ADR-024/025/031,
 `docs/LOCAL_AI_TECHNICAL_SPEC.md`, `docs/LOCAL_AI_BENCHMARK_PLAN.md`
@@ -75,8 +75,12 @@ Change-control this as its own approved slice before coding.
       `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
 - [x] **M4 midrange plan** (2026-08-04): Runbook + honesty matrix —
       `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
-- [ ] **M4 midrange execute:** Run page-recall on physical `midrange_arm64`;
-      then product decision for measured AVAILABLE (still never invent SLAs).
+- [x] **M4 midrange execute** (2026-08-29): Galaxy A15 `SM-A156E` /
+      `RZCX12KZ6EN` / `midrange_arm64` + USE — cosine-only **2/3**, boosted
+      **3/3**; keep E5d. Log `MemoraMeaningPdfM4`. Change control:
+      `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
+- [ ] **Product AVAILABLE decision:** Founder/UI review after M4 (never invent
+      SLAs). Marketing AVAILABLE remains **NO** until that tip.
 
 ### C. Product / pack quality (related, not PDF-only)
 

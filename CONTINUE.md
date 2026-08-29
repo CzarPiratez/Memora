@@ -119,8 +119,8 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Find by meaning | Candidate recall; evidence-level embeddings (MIG-05 step 3+); summary embeddings remain; E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
 | PDF local reading UX | Aggregate N of M progress during WorkManager drain |
-| Measured quality | M1–M3 closed (emulator); **M4 midrange execute** still pending |
-| Marketing AVAILABLE / SLA | **Not claimed** until midrange measured + product decision |
+| Measured quality | M1–M3 closed (emulator); **M4 midrange execute** closed (Galaxy A15 `midrange_arm64`: USE cosine **2/3** / boosted **3/3**) |
+| Marketing AVAILABLE / SLA | **Not claimed** — M4 measured; product AVAILABLE decision still open |
 | Notes (OneNote etc.) | OneNote connector N0–N7 accepted (keyword Find; not all phone notes) |
 | **Grounded Answers architecture** | **Docs accepted** (ADR-033–039); **no generative code** |
 | CI (`main`) | Green after E5d boost fixture fix (`970fcf9`) |
@@ -140,21 +140,22 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 **Next eng default (parallel workstreams):**
 
 1. **MIG-05 remaining / deferral (ADR-050 claim B)** — non-PDF evidence
-   indexer when authorized, or accept PDF-only vectors via a future ADR; **or
-   M4** midrange meaning measurement when a physical `midrange_arm64` device
-   is available. Do not start MIG-06+ / MIG-07B from this checkpoint without
-   explicit authorization. Do not claim Spec MIG-05 / claim **B** complete
-   while non-PDF remains deferred (claim **A** PDF slice is already complete).
+   indexer when authorized, or accept PDF-only vectors via a future ADR.
+   Do not start MIG-06+ / MIG-07B from this checkpoint without explicit
+   authorization. Do not claim Spec MIG-05 / claim **B** complete while
+   non-PDF remains deferred (claim **A** PDF slice is already complete).
    Full MIG-05 Spec close gate:
    `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` retirement checklist
    (open — non-PDF deferred). Recall program exit gate:
    `docs/RECALL_CONVERGENCE_DONE.md` (still open; MIG-06 additive alone ≠
    program complete).
-2. **Retrieval:** execute **M4** on a physical `midrange_arm64` device when
-   available; do not flip AVAILABLE from emulator alone.
+2. **Retrieval:** **M4 execute landed** (2026-08-29). Product AVAILABLE
+   decision + UI copy review remain open — do **not** flip AVAILABLE from
+   measurement alone. Keep E5d disclosed assist.
 3. **Grounded Answers:** **no ReasoningEngine / Ask UI code** until readiness
    gates in `GROUNDING_ARCHITECTURE.md` §14 pass (model lifecycle for chosen
-   reasoner, eval corpus, M4 or explicit device policy, adversarial pass).
+   reasoner, eval corpus, M4 measured or explicit device policy, adversarial
+   pass).
 
 Experience Memory Amendment §10 is hashed and was not edited; evidence-class
 and completeness status for this checkpoint are recorded here and in
@@ -1160,8 +1161,17 @@ Change control: `docs/CHANGE_CONTROL_MEANING_PDF_PAGE_RECALL_USE.md`.
 
 **Midrange meaning measurement gate (M4 plan) accepted** 2026-08-04:
 Runbook + compatibility honesty rows for `midrange_arm64` (pending physical
-device). Emulator embedding/recall = DEGRADED_EXPLICIT candidate — not AVAILABLE.
+device at plan tip). Emulator embedding/recall = DEGRADED_EXPLICIT candidate —
+not AVAILABLE.
 Change control: `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
+
+**M4 midrange USE page-recall execute accepted** 2026-08-29:
+Galaxy A15 `SM-A156E` serial `RZCX12KZ6EN` (`midrange_arm64`) + USE: cosine-only
+**2/3**, boosted **3/3**, embeds 14, wallMs 448 (not an SLA). Keep E5d
+disclosed assist. Compatibility EMBEDDING/RECALL_RANKER midrange =
+DEGRADED_EXPLICIT. Marketing AVAILABLE still **NO**. Live/Dual **N=6**
+unchanged. Log `MemoraMeaningPdfM4`. Change control:
+`docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`.
 
 **Meaning index progress + per-tap cap UI accepted** 2026-08-04:
 Build meaning index batches ≤25 READY memories/tap with live progress copy and
@@ -1172,13 +1182,13 @@ Change control: `docs/CHANGE_CONTROL_MEANING_INDEX_PROGRESS_CAP.md`.
 Local PDF reading drain shows aggregate “N of M” progress and completed drained
 count (WorkManager unit successes). Change control:
 `docs/CHANGE_CONTROL_PDF_LOCAL_READING_PROGRESS.md`.
-**Next eng default:** execute M4 when a `midrange_arm64` device is available, or
-optional EmbeddingGemma.
+**Next eng default:** product AVAILABLE decision after M4 (UI copy + founder
+accept), or optional EmbeddingGemma / MIG-05 claim B when authorized.
 
 **Enterprise completion (durable):**
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M3 +
-E4b USE smoke + M4 plan + meaning-index progress/cap + PDF reading progress;
-midrange execute / AVAILABLE decision remain.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md` — E5c/E5d + M1–M4 +
+E4b USE smoke + meaning-index progress/cap + PDF reading progress; AVAILABLE
+decision remains open.
 
 ## Screenshot OCR open-original (closed 2026-07-31)
 

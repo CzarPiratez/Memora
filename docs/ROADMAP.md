@@ -9,12 +9,12 @@ embedding, vector, or WorkManager AI dependency is introduced.
 interfaces, AI Pack delivery/security plan, compatibility/fallback policy, benchmark
 plan, and Local-AI traceability IDs.
 
-**Status (2026-08-04):** Local-AI architecture gate **planning** deliverables are
+**Status (2026-08-29):** Local-AI architecture gate **planning** deliverables are
 complete (ADR-023/024/025). Measured pack baselines L0–L2 closed. **Embedding-first
-track** E0–E5d + **E4b USE** + **M3** USE page-recall + **M4 plan** +
-**meaning-index progress/cap UI** shipped. Emulator embedding/recall is
-DEGRADED_EXPLICIT candidate (not AVAILABLE). CI on `main` is green.
-**Enterprise completion** awaits M4 midrange execute + AVAILABLE decision:
+track** E0–E5d + **E4b USE** + **M3** USE page-recall + **M4 plan + execute** +
+**meaning-index progress/cap UI** shipped. Emulator and `midrange_arm64`
+embedding/recall are DEGRADED_EXPLICIT candidate (not AVAILABLE). CI on `main`
+is green. **Enterprise completion** awaits product AVAILABLE decision after M4:
 `docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`. A-01 offline
 end-to-end proof and marketing AVAILABLE remain open.
 

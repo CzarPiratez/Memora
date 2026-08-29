@@ -354,14 +354,16 @@ Before production ReasoningEngine / Ask UI code:
    pack **before** that pack is wired — may remain “TBD vendor” until selection.
 10. Evaluation corpus plan for PDF slice opened.
 11. Interactive cancellation / process-death design accepted (this §11).
-12. M4 midrange execute **or** explicit unsupported/degraded policy for the answer
-    capability on target tiers.
+12. M4 midrange retrieve measure landed (2026-08-29, Galaxy A15 USE); answer
+    capability still needs explicit SUPPORTED / DEGRADED / UNSUPPORTED policy
+    on target tiers before Ask AVAILABLE.
 13. `GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md` accepted.
 14. Adversarial pass on: wrong retrieval, incomplete package, conflict, revocation,
     model swap, native crash.
 
-**Docs in this change close gates 1–8, 11, 13 (design). Gates 9–10, 12, 14 remain
-open until a model is chosen and M4 / eval work proceeds.**
+**Docs in this change close gates 1–8, 11, 13 (design). Gates 9–10, 12 (answer
+tier policy), 14 remain open until a model is chosen and Ask-tier policy + eval
+work proceeds. Retrieval M4 measure does not authorize Ask AVAILABLE.**
 
 ---
 

@@ -10,6 +10,8 @@ object MeaningPdfPageRecallCorpus {
     const val CORPUS_ID = "meaning-pdf-page-recall-v1"
     const val DEVICE_TIER_JVM_UNIT = "jvm_unit_test"
     const val DEVICE_TIER_EMULATOR_MEDIUM_PHONE = "emulator_medium_phone"
+    /** Physical midrange host class (LOCAL_AI_BENCHMARK_PLAN / M4). */
+    const val DEVICE_TIER_MIDRANGE_ARM64 = "midrange_arm64"
 
     /** Text-only labeled cases for live embedding (M2). */
     fun labeledCases(): List<MeaningPdfPageRecallLabeledCase> = listOf(

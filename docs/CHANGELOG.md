@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### M4 midrange USE page-recall execute
+
+- **Date:** 2026-08-29
+- **Delivered:** Ran
+  `MeaningPdfPageRecallUseMidrangeBaselineIntegrationTest` on physical Galaxy
+  A15 (`SM-A156E` / `RZCX12KZ6EN` / `midrange_arm64`) only — **PASS**. Log
+  `MemoraMeaningPdfM4`: USE cosine-only **2/3**, E5d-boosted **3/3**, embeds
+  14, wallMs 448 (not an SLA). Compatibility midrange EMBEDDING/RECALL_RANKER
+  → `DEGRADED_EXPLICIT`. Enterprise M4 execute checked; AVAILABLE decision
+  checklist still open.
+- **Truthfulness:** Marketing AVAILABLE remains **NO**. Live/Dual **N=6**
+  unchanged. No push. Keep E5d disclosed assist.
+- **Change control:** `docs/CHANGE_CONTROL_MIDRANGE_MEANING_MEASUREMENT_GATE.md`
+  (execute delivery). Artifact:
+  `docs/artifacts/MemoraMeaningPdfM4-RZCX12KZ6EN.logcat.txt`.
+
 ### Legacy recall surface CI grep guard
 
 - **Date:** 2026-08-29

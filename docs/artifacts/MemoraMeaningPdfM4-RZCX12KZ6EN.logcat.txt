@@ -1,0 +1,7 @@
+﻿# MemoraMeaningPdfM4 logcat — M4 midrange execute
+# Device: RZCX12KZ6EN SM-A156E (Galaxy A15) Android 16 arm64-v8a
+# Test: MeaningPdfPageRecallUseMidrangeBaselineIntegrationTest
+# Captured: 2026-08-29
+
+--------- beginning of main
+08-29 21:49:17.718 I/MemoraMeaningPdfM4(18236): tier=midrange_arm64 corpus=meaning-pdf-page-recall-v1 model=mediapipe-universal-sentence-encoder@float32-1 cosineHits=2/3 boostedHits=3/3 recommendsE4b=true embeds=14 wallMs=448

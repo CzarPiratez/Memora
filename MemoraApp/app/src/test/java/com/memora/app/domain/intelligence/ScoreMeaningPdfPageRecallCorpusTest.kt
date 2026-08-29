@@ -40,6 +40,26 @@ class ScoreMeaningPdfPageRecallCorpusTest {
         assertEquals(42L, report.embedWallMs)
         assertEquals(12, report.embedCount)
     }
+
+    @Test
+    fun midrange_arm64_tier_id_is_stable_for_m4_measurement() {
+        assertEquals("midrange_arm64", MeaningPdfPageRecallCorpus.DEVICE_TIER_MIDRANGE_ARM64)
+        val scoreResult = ScoreMeaningPdfPageRecallResult(
+            scoredCases = MeaningPdfPageRecallCorpus.cases(),
+            model = ConstantEmbeddingEngine.MODEL,
+            embedCount = 12,
+            embedWallMs = 7L,
+        )
+        val report = MeasureOnDeviceMeaningPdfPageRecallBaseline.measure(
+            scoreResult = scoreResult,
+            deviceTierId = MeaningPdfPageRecallCorpus.DEVICE_TIER_MIDRANGE_ARM64,
+        )
+        assertEquals(
+            MeaningPdfPageRecallCorpus.DEVICE_TIER_MIDRANGE_ARM64,
+            report.baseline.deviceTierId,
+        )
+        assertTrue(report.baseline.notes.contains("Does not authorize product AVAILABLE"))
+    }
 }
 
 private class ConstantEmbeddingEngine : EmbeddingEngine {
