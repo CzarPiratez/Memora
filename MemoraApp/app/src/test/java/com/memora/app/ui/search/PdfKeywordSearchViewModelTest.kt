@@ -522,7 +522,7 @@ class PdfKeywordSearchViewModelTest {
         monotonicMs: () -> Long = { 0L },
         search: suspend (String) -> PdfKeywordSearchOutcome,
     ) = PdfKeywordSearchViewModel(
-        searchPersistedPdfPageText = search,
+        searchPdfKeyword = search,
         loadReadiness = readiness,
         openPersistedPdfForViewing = open,
         minSearchingVisibleMs = minSearchingVisibleMs,

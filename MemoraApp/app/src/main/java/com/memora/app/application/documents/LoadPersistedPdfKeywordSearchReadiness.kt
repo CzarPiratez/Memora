@@ -1,35 +1,29 @@
 package com.memora.app.application.documents
 
-import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.application.memory.MemoryEvidenceExcerptSearch
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Loads how much current-fingerprint PDF page text is ready for keyword search.
+ * Loads how much READY PDF Memory evidence is available for keyword Find.
  *
- * Honest inventory only. Does not reopen PDFs, invoke AI, or claim Memory recall.
+ * MIG-07 readiness source: Memory evidence substrate (not raw PdfExtractionDao
+ * searchable corpus). Honest inventory only — does not claim meaning recall.
  */
-class LoadPersistedPdfKeywordSearchReadiness(
-    private val database: () -> MemoraDatabase,
+class LoadPersistedPdfKeywordSearchReadiness @Inject constructor(
+    private val excerptSearch: MemoryEvidenceExcerptSearch,
 ) {
-    @Inject
-    constructor(
-        databaseHandle: MemoraDatabaseHandle,
-    ) : this(
-        database = { databaseHandle.database() },
-    )
-
-    /** Test helper bound to one in-memory / fixture database. */
-    constructor(database: MemoraDatabase) : this(database = { database })
-
     suspend operator fun invoke(): PdfKeywordSearchReadiness =
         withContext(Dispatchers.IO) {
-            val counts = database().pdfExtractionDao()
-                .countCurrentSearchableCorpus(PdfKeywordSearchSupport.SCHEMA_VERSION)
+            val counts = excerptSearch.countCurrentReadyEvidenceCorpus(
+                assemblySchemaVersion = SearchMemoryEvidence.DEFAULT_ASSEMBLY_SCHEMA,
+                assetType = AssetType.PDF,
+            )
             PdfKeywordSearchReadiness(
-                pageCount = counts.pageCount,
+                pageCount = counts.evidenceCount,
                 documentCount = counts.documentCount,
             )
         }

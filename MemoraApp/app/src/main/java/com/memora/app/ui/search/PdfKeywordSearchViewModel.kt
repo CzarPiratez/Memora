@@ -7,8 +7,10 @@ import com.memora.app.application.documents.OpenPersistedPdfForViewing
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
+import com.memora.app.application.documents.PdfMemoryEvidenceKeywordAdapter
 import com.memora.app.application.documents.PdfPagePreviewRenderResult
-import com.memora.app.application.documents.SearchPersistedPdfPageText
+import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -82,7 +84,7 @@ sealed interface PdfKeywordSearchPhase {
         }
     }
 
-    /** Search ran, but no current saved PDF page text exists to search. */
+    /** Search ran, but no READY PDF Memory evidence exists to search. */
     data class NothingSavedToSearch(
         val query: String,
     ) : PdfKeywordSearchPhase {
@@ -144,9 +146,14 @@ data class PdfOriginalPreviewUi(
     }
 }
 
+/**
+ * PDF keyword Find — MIG-07 cutover to [SearchMemoryEvidence] (AssetType.PDF).
+ *
+ * L1 `SearchPersistedPdfPageText` retired; UI models preserved via adapter.
+ */
 @HiltViewModel
 class PdfKeywordSearchViewModel(
-    private val searchPersistedPdfPageText: suspend (String) -> PdfKeywordSearchOutcome,
+    private val searchPdfKeyword: suspend (String) -> PdfKeywordSearchOutcome,
     private val loadReadiness: suspend () -> PdfKeywordSearchReadiness,
     private val openPersistedPdfForViewing: suspend (PdfKeywordSearchHit) -> PdfPagePreviewRenderResult,
     /**
@@ -158,11 +165,18 @@ class PdfKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchPersistedPdfPageText: SearchPersistedPdfPageText,
+        searchMemoryEvidence: SearchMemoryEvidence,
         loadPersistedPdfKeywordSearchReadiness: LoadPersistedPdfKeywordSearchReadiness,
         openPersistedPdfForViewing: OpenPersistedPdfForViewing,
     ) : this(
-        searchPersistedPdfPageText = { rawQuery -> searchPersistedPdfPageText(rawQuery) },
+        searchPdfKeyword = { rawQuery ->
+            PdfMemoryEvidenceKeywordAdapter.toPdfOutcome(
+                searchMemoryEvidence(
+                    rawQuery = rawQuery,
+                    assetType = AssetType.PDF,
+                ),
+            )
+        },
         loadReadiness = { loadPersistedPdfKeywordSearchReadiness() },
         openPersistedPdfForViewing = { hit ->
             openPersistedPdfForViewing(
@@ -226,7 +240,7 @@ class PdfKeywordSearchViewModel(
             )
             val startedAtMs = monotonicMs()
             val outcome = try {
-                searchPersistedPdfPageText(query)
+                searchPdfKeyword(query)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

@@ -15,18 +15,59 @@ import com.memora.app.domain.memory.MemoryRevisionId
  * Implementations query the Memory evidence substrate (not extraction tables).
  */
 interface MemoryEvidenceExcerptSearch {
-    /** Evidence rows on current-fingerprint READY Memories with non-blank excerpts. */
-    suspend fun countCurrentReadyEvidence(assemblySchemaVersion: String): Int
+    /**
+     * Evidence rows on current-fingerprint READY Memories with non-blank excerpts.
+     *
+     * When [assetType] is non-null, only that asset type is counted (MIG-07
+     * per-asset Find cutover). Null keeps the MIG-06 “all types” default.
+     */
+    suspend fun countCurrentReadyEvidence(
+        assemblySchemaVersion: String,
+        assetType: AssetType? = null,
+    ): Int
+
+    /**
+     * Evidence + distinct-document counts for readiness inventory.
+     *
+     * [assetType] null = all types; non-null scopes to that asset type.
+     */
+    suspend fun countCurrentReadyEvidenceCorpus(
+        assemblySchemaVersion: String,
+        assetType: AssetType? = null,
+    ): MemoryEvidenceCorpusCounts
 
     /**
      * Literal LIKE matches against evidence excerpts for current-fingerprint READY
      * Memories. [escapedNeedle] must already be escaped for SQL LIKE ESCAPE '\'.
+     *
+     * When [assetType] is non-null, only that asset type is searched.
      */
     suspend fun searchByExcerpt(
         escapedNeedle: String,
         assemblySchemaVersion: String,
         limit: Int,
+        assetType: AssetType? = null,
     ): List<MemoryEvidenceExcerptMatch>
+}
+
+/** READY Memory-evidence inventory for honest Find readiness. */
+data class MemoryEvidenceCorpusCounts(
+    val evidenceCount: Int,
+    val documentCount: Int,
+) {
+    init {
+        require(evidenceCount >= 0) { "Evidence count cannot be negative." }
+        require(documentCount >= 0) { "Document count cannot be negative." }
+        if (evidenceCount == 0) {
+            require(documentCount == 0) {
+                "Empty evidence corpus cannot report documents."
+            }
+        } else {
+            require(documentCount > 0) {
+                "Non-empty evidence corpus needs at least one document."
+            }
+        }
+    }
 }
 
 /**

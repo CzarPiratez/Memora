@@ -136,8 +136,8 @@ class PdfKeywordSearchCopyTest {
     @Test
     fun no_matches_body_names_submitted_query() {
         assertEquals(
-            "No saved PDF page text on this phone matched \"zzz\". " +
-                "Try different words, or finish Local PDF reading for a document first.",
+            "No PDF memory evidence on this phone matched \"zzz\". " +
+                "Try different words, or finish Local PDF reading and Memory assembly first.",
             PdfKeywordSearchCopy.noMatchesBody("zzz"),
         )
     }
@@ -145,8 +145,9 @@ class PdfKeywordSearchCopyTest {
     @Test
     fun nothing_saved_copy_does_not_claim_a_keyword_miss() {
         val body = PdfKeywordSearchCopy.NOTHING_SAVED_BODY.lowercase()
-        assertTrue(body.contains("nothing is saved"))
+        assertTrue(body.contains("nothing is ready"))
         assertTrue(body.contains("local pdf reading"))
+        assertTrue(body.contains("memory assembly"))
         assertTrue(body.contains("keyword matching"))
         assertFalse(body.contains("matched \""))
         assertFalse(body.contains("try different words"))
@@ -157,17 +158,17 @@ class PdfKeywordSearchCopyTest {
     @Test
     fun readiness_body_reports_empty_and_non_empty_honestly() {
         assertEquals(
-            "Nothing is saved for keyword search yet. " +
-                "Finish Local PDF reading for a connected folder first.",
+            "Nothing is ready for PDF keyword search yet. " +
+                "Finish Local PDF reading and Memory assembly for a connected folder first.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 0, documentCount = 0),
         )
         assertEquals(
-            "1 saved page from 1 PDF is ready for keyword search on this phone. " +
+            "1 searchable PDF memory excerpt from 1 PDF is ready for keyword search on this phone. " +
                 "This is keyword matching, not meaning-based recall.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 1, documentCount = 1),
         )
         assertEquals(
-            "3 saved pages from 2 PDFs are ready for keyword search on this phone. " +
+            "3 searchable PDF memory excerpts from 2 PDFs are ready for keyword search on this phone. " +
                 "This is keyword matching, not meaning-based recall.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
         )
@@ -197,7 +198,7 @@ class PdfKeywordSearchCopyTest {
     @Test
     fun searching_copy_is_calm_and_local_only() {
         val body = PdfKeywordSearchCopy.SEARCHING_BODY.lowercase()
-        assertTrue(body.contains("searching saved pdf text"))
+        assertTrue(body.contains("searching saved pdf memory evidence"))
         assertTrue(body.contains("on this phone"))
         assertFalse(body.contains("ai "))
         assertFalse(body.contains("cloud"))

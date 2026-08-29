@@ -14,26 +14,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * MIG-06 additive literal search over stored [com.memora.app.domain.memory.MemoryEvidence]
- * excerpts.
+ * Literal search over stored [com.memora.app.domain.memory.MemoryEvidence] excerpts.
  *
  * Keyword / substring candidate generation into future Canonical Recall (ADR-049).
- * Not a product Find API: no ViewModel/screen is wired to this use case yet
- * (MIG-07 cutover). Does not replace Live L1–L4 `SearchPersisted*` paths.
+ * MIG-07 PDF keyword Find is cut over to this use case (AssetType.PDF filter).
+ * Screenshot / photo / note keyword Finds remain on Live L2–L4 until authorized.
  */
 class SearchMemoryEvidence @Inject constructor(
     private val excerptSearch: MemoryEvidenceExcerptSearch,
 ) {
+    /**
+     * @param assetType optional scope for per-asset Find screens; null searches all
+     *   asset types (MIG-06 default).
+     */
     suspend operator fun invoke(
         rawQuery: String,
         limit: Int = MemoryEvidenceLiteralSearchSupport.MAX_RESULTS,
         assemblySchemaVersion: String = DEFAULT_ASSEMBLY_SCHEMA,
+        assetType: AssetType? = null,
     ): MemoryEvidenceSearchOutcome = withContext(Dispatchers.IO) {
         require(limit > 0)
         val query = MemoryEvidenceLiteralSearchSupport.normalizeQuery(rawQuery)
             ?: return@withContext MemoryEvidenceSearchOutcome.BlankQuery
 
-        if (excerptSearch.countCurrentReadyEvidence(assemblySchemaVersion) == 0) {
+        if (excerptSearch.countCurrentReadyEvidence(assemblySchemaVersion, assetType) == 0) {
             return@withContext MemoryEvidenceSearchOutcome.NothingSavedToSearch(query = query)
         }
 
@@ -41,6 +45,7 @@ class SearchMemoryEvidence @Inject constructor(
             escapedNeedle = MemoryEvidenceLiteralSearchSupport.escapeForLike(query),
             assemblySchemaVersion = assemblySchemaVersion,
             limit = limit,
+            assetType = assetType,
         )
 
         val hits = rows.map { row ->

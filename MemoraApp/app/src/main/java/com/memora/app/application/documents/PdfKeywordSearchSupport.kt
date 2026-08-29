@@ -1,9 +1,10 @@
 package com.memora.app.application.documents
 
 /**
- * Pure helpers for interim on-device keyword search over saved PDF page text.
+ * Pure helpers shared by interim on-device keyword search (highlight + L2–L4).
  *
- * This is not semantic recall. It only prepares and formats substring matches.
+ * PDF product Find no longer searches via these helpers (MIG-07 → MemoryEvidence),
+ * but L2–L4 and PDF excerpt highlight still reuse normalize/escape/span helpers.
  */
 internal object PdfKeywordSearchSupport {
     const val MAX_QUERY_LENGTH = 120

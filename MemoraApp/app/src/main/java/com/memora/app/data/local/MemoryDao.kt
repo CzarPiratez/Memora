@@ -169,8 +169,9 @@ interface MemoryDao {
     ): List<MemoryEvidenceSearchRowEntity>
 
     /**
-     * Count of evidence rows on current-fingerprint READY Memories (MIG-06).
+     * Count of evidence rows on current-fingerprint READY Memories (MIG-06/07).
      * Zero means nothing is available for literal evidence search yet.
+     * Pass null [assetType] for all types; otherwise filter to that AssetType name.
      */
     @Query(
         """
@@ -184,13 +185,45 @@ interface MemoryDao {
         WHERE m.integrity_state = 'READY'
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND e.excerpt != ''
+          AND (:assetType IS NULL OR a.asset_type = :assetType)
         """,
     )
-    suspend fun countCurrentReadyEvidence(assemblySchemaVersion: String): Int
+    suspend fun countCurrentReadyEvidence(
+        assemblySchemaVersion: String,
+        assetType: String?,
+    ): Int
+
+    /**
+     * Evidence + distinct-document counts for Find readiness (MIG-07).
+     * Pass null [assetType] for all types; otherwise filter to that AssetType name.
+     */
+    @Query(
+        """
+        SELECT
+            COUNT(*) AS evidence_count,
+            COUNT(DISTINCT a.source_id || char(31) || a.source_asset_key) AS document_count
+        FROM memory_evidence AS e
+        INNER JOIN memories AS m
+          ON m.revision_id = e.revision_id
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state = 'READY'
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND e.excerpt != ''
+          AND (:assetType IS NULL OR a.asset_type = :assetType)
+        """,
+    )
+    suspend fun countCurrentReadyEvidenceCorpus(
+        assemblySchemaVersion: String,
+        assetType: String?,
+    ): MemoryEvidenceCorpusCountRow
 
     /**
      * Literal substring search over [memory_evidence.excerpt] for current-fingerprint
-     * READY Memories (MIG-06 additive candidate generator). No FTS; no schema bump.
+     * READY Memories (MIG-06/07). No FTS; no schema bump.
+     * Pass null [assetType] for all types; otherwise filter to that AssetType name.
      */
     @Query(
         """
@@ -215,6 +248,7 @@ interface MemoryDao {
         WHERE m.integrity_state = 'READY'
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND e.excerpt != ''
+          AND (:assetType IS NULL OR a.asset_type = :assetType)
           AND e.excerpt LIKE '%' || :escapedNeedle || '%' ESCAPE '\'
         ORDER BY
             m.updated_at_epoch_millis DESC,
@@ -226,6 +260,7 @@ interface MemoryDao {
         escapedNeedle: String,
         assemblySchemaVersion: String,
         limit: Int,
+        assetType: String?,
     ): List<MemoryEvidenceLiteralSearchRowEntity>
 
     @Query(

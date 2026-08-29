@@ -114,6 +114,33 @@ class SearchMemoryEvidenceTest {
     }
 
     @Test
+    fun asset_type_filter_scopes_to_pdf_only() = runBlocking {
+        val rows = listOf(
+            metadataRow(excerpt = "photo invoice"),
+            documentRow(excerpt = "PDF page text about the invoice clause"),
+            noteRow(excerpt = "note invoice"),
+        )
+        val search = SearchMemoryEvidence(FakeExcerptSearch(rows = rows))
+        val outcome = search("invoice", assetType = AssetType.PDF)
+            as MemoryEvidenceSearchOutcome.Matches
+        assertEquals(1, outcome.hits.size)
+        assertEquals(AssetType.PDF, outcome.hits.single().assetType)
+        assertEquals(3, outcome.hits.single().openPageNumber)
+    }
+
+    @Test
+    fun nothing_saved_when_filtered_asset_type_corpus_empty() = runBlocking {
+        val search = SearchMemoryEvidence(
+            FakeExcerptSearch(rows = listOf(noteRow(excerpt = "note only"))),
+        )
+        val outcome = search("note", assetType = AssetType.PDF)
+        assertEquals(
+            MemoryEvidenceSearchOutcome.NothingSavedToSearch(query = "note"),
+            outcome,
+        )
+    }
+
+    @Test
     fun normalize_collapses_whitespace_and_caps_length() {
         assertEquals("a b", MemoryEvidenceLiteralSearchSupport.normalizeQuery("  a   b  "))
         assertNull(MemoryEvidenceLiteralSearchSupport.normalizeQuery(" \t "))
@@ -192,16 +219,32 @@ class SearchMemoryEvidenceTest {
     private class FakeExcerptSearch(
         private val rows: List<MemoryEvidenceExcerptMatch>,
     ) : MemoryEvidenceExcerptSearch {
-        override suspend fun countCurrentReadyEvidence(assemblySchemaVersion: String): Int =
-            rows.size
+        override suspend fun countCurrentReadyEvidence(
+            assemblySchemaVersion: String,
+            assetType: AssetType?,
+        ): Int = rows.count { assetType == null || it.assetType == assetType }
+
+        override suspend fun countCurrentReadyEvidenceCorpus(
+            assemblySchemaVersion: String,
+            assetType: AssetType?,
+        ): MemoryEvidenceCorpusCounts {
+            val filtered = rows.filter { assetType == null || it.assetType == assetType }
+            val documents = filtered.map { it.sourceId.value to it.sourceAssetKey.value }.toSet()
+            return MemoryEvidenceCorpusCounts(
+                evidenceCount = filtered.size,
+                documentCount = documents.size,
+            )
+        }
 
         override suspend fun searchByExcerpt(
             escapedNeedle: String,
             assemblySchemaVersion: String,
             limit: Int,
+            assetType: AssetType?,
         ): List<MemoryEvidenceExcerptMatch> {
             val literal = unescapeLike(escapedNeedle)
             return rows
+                .filter { assetType == null || it.assetType == assetType }
                 .filter { it.excerpt.contains(literal, ignoreCase = true) }
                 .take(limit)
         }

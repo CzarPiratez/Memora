@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### MIG-07 PDF — keyword Find cutover to SearchMemoryEvidence
+
+- **Date:** 2026-08-29
+- **Delivered:** PDF keyword Find ViewModel binds `SearchMemoryEvidence`
+  (`AssetType.PDF`); adapter maps hits to existing UI models; readiness counts
+  READY PDF Memory evidence; `SearchPersistedPdfPageText` deleted. L1 Retired;
+  Live/Dual **N=5**. Guard updated (no L1 SearchPersisted allowlist; PDF UI
+  allowlisted for SearchMemoryEvidence). L2–L4 unchanged. Canonical Recall not
+  a live API; full MIG-07 / Recall DONE not claimed.
+- **Truthfulness:** Escape-hatch still YES via L2–L4, L7, L8. Marketing
+  AVAILABLE not claimed. ADR-050 claim A done / B open.
+- **Change control:** `docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`.
+
 ### MIG-06 step 1 — additive SearchMemoryEvidence
 
 - **Date:** 2026-08-29
@@ -9,10 +22,11 @@
   `MemoryEvidence` excerpts (Room LIKE; no schema bump), Hilt-bound excerpt
   search port, unit tests for all current evidence kinds + empty-query honesty.
   CI guard allowlists MIG-06 application files; still forbids UI Find clones
-  and `CanonicalRecall`. **No** ViewModel/screen/`SearchPersisted*` cutover.
-- **Truthfulness:** L1–L4 still Live; Live/Dual **N=6**; Canonical Recall not
-  a live API (ADR-049); MIG-07 not started; ADR-050 claim A done / B open;
-  marketing AVAILABLE not claimed.
+  and `CanonicalRecall`. **No** ViewModel/screen/`SearchPersisted*` cutover
+  (superseded for PDF by MIG-07 PDF cutover above; L2–L4 still Live).
+- **Truthfulness:** At landing: L1–L4 still Live; Live/Dual **N=6**; Canonical
+  Recall not a live API (ADR-049); MIG-07 not started; ADR-050 claim A done /
+  B open; marketing AVAILABLE not claimed.
 - **Change control:** `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`.
 
 ### M4 midrange USE page-recall execute

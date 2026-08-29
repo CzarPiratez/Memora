@@ -66,10 +66,10 @@ conversational memory or an untracked desktop file.
     Grounding’s Retriever is the same converged pipeline under Option C (App
     Find near term; Ask later) — not a competing search architecture. Spec
     `RecallRanker` and MIG-07B structured/anchor filter are stages inside
-    Canonical Recall. ADR-049 naming alone does not authorize MIG-07 cutover
+    Canonical Recall. ADR-049 naming alone does not authorize L2–L4 / MIG-07B
     or rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
-    MIG-06 step 1 (additive use case) is authorized separately in GOVERNANCE /
-    `CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`.
+    MIG-07 PDF cutover is authorized separately in GOVERNANCE /
+    `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER` (L1 Retired; N=5).
 11. **MIG-05 claim levels (ADR-050):** **A** = PDF evidence-embedding delivery
     slice (steps 1–4) COMPLETE for engineering checkpoint language.
     **B** = Migration Spec MIG-05 full acceptance STILL OPEN until non-PDF
@@ -111,14 +111,14 @@ errata relative to the current hashed Spec and Amendment; that correction is
 deferred and those hashes are unchanged. The freeze is the change-control
 declaration for the architecture it names. The migration spec is sequencing
 authority only. MIG-05 step 4 (`PdfPageEmbedding*` retired; Room 15;
-evidence-only index writer; L5 Retired; Live/Dual **6**) delivered claim **A**
-(ADR-050 PDF slice complete). Do **not** claim Spec MIG-05 / claim **B**
-complete while non-PDF evidence indexer remains deferred.
-**MIG-06 step 1 only** is authorized (additive `SearchMemoryEvidence`; no
-UI cutover — see `CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE`). Do **not**
-start MIG-07, MIG-07B, or MIG-08–MIG-11 from this registry alone. Phase A plan
-is still not permission for later MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md`
-is not hashed and is not permission to implement.
+evidence-only index writer; L5 Retired). Do **not** claim Spec MIG-05 / claim
+**B** complete while non-PDF evidence indexer remains deferred.
+**MIG-07 PDF only** is authorized (PDF keyword Find → `SearchMemoryEvidence`;
+L1 Retired; Live/Dual **N=5** — see `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER`).
+Do **not** start L2–L4 cutovers, MIG-07B, or MIG-08–MIG-11 from this registry
+alone. Do **not** claim full MIG-07 / Recall DONE. Phase A plan is still not
+permission for later MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not
+hashed and is not permission to implement.
 
 ## Governed architecture artifacts
 

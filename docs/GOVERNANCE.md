@@ -44,22 +44,24 @@ When guidance conflicts, use this order (ADR-042; aligned with Freeze §2):
 Nothing lower in this list may silently override anything above it.
 
 MIG-05 step 4 (`PdfPageEmbedding*` retirement: evidence-only
-`IndexPdfPageEmbeddings`, Room 14→15 DROP `pdf_page_embeddings`, L5 Retired,
-Live/Dual **6**) is authorized and delivered (ADR-050 claim **A**). Do **not**
-claim full MIG-05 / claim **B** complete while the non-PDF evidence indexer
-remains explicitly deferred
+`IndexPdfPageEmbeddings`, Room 14→15 DROP `pdf_page_embeddings`, L5 Retired)
+is authorized and delivered (ADR-050 claim **A**). Do **not** claim full
+MIG-05 / claim **B** complete while the non-PDF evidence indexer remains
+explicitly deferred
 (see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` step 4).
 
-**MIG-06 step 1 only** is authorized in this delivery: additive
-`SearchMemoryEvidence` (application use case + tests + DI; no UI/VM cutover).
-See `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`. Do **not** start
-MIG-07, MIG-07B, or MIG-08–MIG-11. Do **not** claim Canonical Recall exists as
-a live App API (ADR-049). `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not
-architectural authority and is not permission to implement unauthorized MIGs.
-ADR-043 confirms the freeze is suitable for the PKI north star through
-See/Remember, staged Connect, retrieve-by-meaning, and Understand /
-converse-as-Q&A; Act remains out of current architecture. That confirmation
-does not authorize MIG-07+ or reopen the Architecture Freeze.
+**MIG-07 PDF only** is authorized in this delivery: cut PDF keyword Find over
+to `SearchMemoryEvidence` (L1 Retired; Live/Dual **N=5**). See
+`docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`. Do **not** start
+screenshot / photo / note cutovers (L2–L4), MIG-07B, or MIG-08–MIG-11 from
+this authorization alone. Do **not** claim full MIG-07 / Recall DONE or that
+Canonical Recall exists as a live App API (ADR-049).
+`docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not architectural authority and is
+not permission to implement unauthorized MIGs. ADR-043 confirms the freeze is
+suitable for the PKI north star through See/Remember, staged Connect,
+retrieve-by-meaning, and Understand / converse-as-Q&A; Act remains out of
+current architecture. That confirmation does not authorize L2–L4 / MIG-07B or
+reopen the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

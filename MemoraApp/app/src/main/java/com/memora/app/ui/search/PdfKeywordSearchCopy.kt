@@ -9,7 +9,7 @@ object PdfKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved PDF text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in PDF text already saved on this phone. " +
+        "Search looks for exact words in PDF Memory evidence already saved on this phone. " +
             "This is keyword matching, not meaning-based recall yet. " +
             "UNFYND does not reopen your original files for this search."
 
@@ -24,33 +24,34 @@ object PdfKeywordSearchCopy {
     const val EMPTY_QUERY_BODY = "Type a word or short phrase, then search."
 
     const val SEARCHING_BODY =
-        "Searching saved PDF text on this phone…"
+        "Searching saved PDF memory evidence on this phone…"
 
     const val NO_MATCHES_BODY =
-        "No saved PDF page text on this phone matched those words. " +
-            "Try different words, or finish Local PDF reading for a document first."
+        "No PDF memory evidence on this phone matched those words. " +
+            "Try different words, or finish Local PDF reading and Memory assembly first."
 
     fun noMatchesBody(query: String): String {
         require(query.isNotBlank()) { "No-matches copy needs the submitted query." }
-        return "No saved PDF page text on this phone matched \"$query\". " +
-            "Try different words, or finish Local PDF reading for a document first."
+        return "No PDF memory evidence on this phone matched \"$query\". " +
+            "Try different words, or finish Local PDF reading and Memory assembly first."
     }
 
     const val NOTHING_SAVED_BODY =
-        "Nothing is saved for search yet. Finish Local PDF reading for a connected " +
-            "folder first. UNFYND only searches PDF text already saved on this phone — " +
-            "this is keyword matching, not meaning-based recall."
+        "Nothing is ready for PDF keyword search yet. Finish Local PDF reading and " +
+            "Memory assembly for a connected folder first. UNFYND only searches READY " +
+            "PDF Memory evidence on this phone — this is keyword matching, not " +
+            "meaning-based recall."
 
-    const val READINESS_LOADING_BODY = "Checking saved PDF text on this phone…"
+    const val READINESS_LOADING_BODY = "Checking PDF memory evidence on this phone…"
 
     const val READINESS_COULD_NOT_LOAD_BODY =
-        "Could not check how much PDF text is saved for search on this phone. " +
+        "Could not check how much PDF memory evidence is ready for search on this phone. " +
             "Try opening this screen again in a moment."
 
     /**
-     * Honest inventory of current-fingerprint pages ready for keyword search.
+     * Honest inventory of READY PDF Memory evidence excerpts for keyword search.
      *
-     * Does not claim Memory, meaning, or that discovery alone is searchable.
+     * Counts Memory evidence rows (not raw PdfExtractionDao pages) after MIG-07.
      */
     fun readinessBody(pageCount: Int, documentCount: Int): String {
         require(pageCount >= 0) { "Readiness page count cannot be negative." }
@@ -59,21 +60,25 @@ object PdfKeywordSearchCopy {
             require(documentCount == 0) {
                 "Empty readiness cannot report documents."
             }
-            return "Nothing is saved for keyword search yet. " +
-                "Finish Local PDF reading for a connected folder first."
+            return "Nothing is ready for PDF keyword search yet. " +
+                "Finish Local PDF reading and Memory assembly for a connected folder first."
         }
         require(documentCount > 0) {
             "Non-empty readiness needs at least one document."
         }
 
-        val pages = if (pageCount == 1) "1 saved page" else "$pageCount saved pages"
+        val excerpts = if (pageCount == 1) {
+            "1 searchable PDF memory excerpt"
+        } else {
+            "$pageCount searchable PDF memory excerpts"
+        }
         val documents = if (documentCount == 1) {
             "1 PDF"
         } else {
             "$documentCount PDFs"
         }
         val verb = if (pageCount == 1) "is" else "are"
-        return "$pages from $documents $verb ready for keyword search on this phone. " +
+        return "$excerpts from $documents $verb ready for keyword search on this phone. " +
             "This is keyword matching, not meaning-based recall."
     }
 

@@ -135,6 +135,19 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 
 ---
 
+## Checkpoint — MIG-07 PDF keyword cutover
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-29 |
+| Live/Dual N | **5** |
+| Enabling L#s | L2, L3, L4, L7, L8 |
+| Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049; L1 no longer enables) |
+| Delta | L1 Live → Retired; N 6 → 5; PDF Find → `SearchMemoryEvidence` (PDF filter); `SearchPersistedPdfPageText` deleted |
+| Auditor | MIG-07 PDF cutover delivery |
+
+---
+
 ## Related
 
 - Allowlist + metric: `docs/LEGACY_RECALL_SURFACE.md`
@@ -142,3 +155,4 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 - Enforcement index: `docs/RECALL_ENFORCEMENT_INDEX.md`
 - Extension if N grows: `docs/LEGACY_EXTENSION_EXCEPTION.md`
 - MIG-06 step 1: `docs/CHANGE_CONTROL_MIG06_SEARCH_MEMORY_EVIDENCE.md`
+- MIG-07 PDF: `docs/CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER.md`
