@@ -19,6 +19,31 @@ code, not from conversational memory.
 - **Test and emulator verification plan:**
 - **User-visible quality/accessibility review plan:**
 
+## Architectural convergence (required if touching Find / Recall / embeddings used for search / ranking / Why)
+
+Fill when changing: `ui/search/**`, `application/**/Search*`, meaning
+index/search, ranking, or product Why/evidence presentation for Find.
+
+If the change does **not** touch Find / Recall / search embeddings / ranking /
+Why, write `N/A — not a Find/Recall change` and skip the block.
+
+```
+ARCHITECTURAL BOUNDARY:
+CURRENT LEGACY PATH (L# from LEGACY_RECALL_SURFACE, or none):
+TARGET PATH:
+WHY THIS CHANGE CONVERGES:
+WHAT OLD PATH WILL EVENTUALLY BE RETIRED:
+EXTENDS LEGACY? yes / no
+IF YES — exception ID / ADR + sunset (MIG/step/date):
+LEGACY SURFACE DELTA: unchanged | L# → Dual/Cutover/Retired | new row (ADR-…)
+ESCAPE-HATCH AFTER CHANGE: can UI still produce a search hit without Canonical Recall? which L#?
+```
+
+Authority: `docs/LEGACY_RECALL_SURFACE.md`, ADR-049, Cursor rule
+`unfynd-architecture-invariants.mdc`. Extending a Live/Dual row requires
+`docs/LEGACY_EXTENSION_EXCEPTION.md` with a mandatory sunset. Defect fixes that
+preserve the existing contract do not need that form.
+
 ## Delivery record
 
 - **Files/layers changed:**

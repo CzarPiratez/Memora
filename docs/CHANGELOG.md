@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Change-control architectural convergence (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Wired Find/Recall enforcement into change-control —
+  architectural convergence block on `CHANGE_CONTROL_TEMPLATE`; new
+  `LEGACY_EXTENSION_EXCEPTION.md` (mandatory sunset); GOVERNANCE pre-work
+  pointers. No app code; does not authorize MIG-06+ or reopen Freeze.
+- **Change control:** `docs/CHANGE_CONTROL_ARCHITECTURAL_CONVERGENCE_TEMPLATE.md`.
+
 ### Cursor architecture invariants rule (docs-only)
 
 - **Date:** 2026-08-29

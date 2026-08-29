@@ -70,6 +70,13 @@ Before every implementation, product, UX, dependency, data-access, or release st
 5. Define the smallest testable change and its explicit acceptance criteria.
 6. If a requirement conflicts with the platform or another requirement, stop and
    record the conflict. Do not conceal it with a shortcut or unapproved assumption.
+7. Find / Recall / search-embedding / ranking / Why changes must fill the
+   **Architectural convergence** block in `docs/CHANGE_CONTROL_TEMPLATE.md`.
+8. Consult `docs/LEGACY_RECALL_SURFACE.md` before any product Find change; do
+   not extend a Live/Dual row without `docs/LEGACY_EXTENSION_EXCEPTION.md` and a
+   mandatory sunset (defect fixes that preserve the contract are OK).
+9. Cursor rule `.cursor/rules/unfynd-architecture-invariants.mdc` applies to
+   agents and reviewers for Canonical Recall / Memory substrate boundaries.
 
 ## Enterprise-quality bar
 

@@ -67,7 +67,8 @@ Grounding Retriever = Option C same pipeline (not a competing Find). Does not
 authorize MIG-06+ / MIG-05 step 4; does not change MIG-05 step 3 acceptance.
 
 **Legacy recall surface:** `docs/LEGACY_RECALL_SURFACE.md` — Live/Dual count = 7  
-Cursor rule: `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
+Cursor rule: `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).  
+Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 
 ### Where we are (honest)
 
