@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Canonical Recall shared result + Why contract (docs-only)
+
+- **Date:** 2026-08-29
+- **Delivered:** Added `docs/CANONICAL_RECALL_RESULT_CONTRACT.md` — DRAFT
+  logical shared Find hit + Why fields (path labels KEYWORD|MEANING; no
+  Kotlin). CONTINUE + `RECALL_CONVERGENCE_DONE` pointers. No app code; does
+  not authorize MIG-06+.
+- **Change control:** `docs/CHANGE_CONTROL_CANONICAL_RECALL_RESULT_CONTRACT.md`.
+
 ### MIG-05 + Recall convergence DONE checklists (docs-only)
 
 - **Date:** 2026-08-29

@@ -32,8 +32,10 @@ definition only.
       unread)
 - [ ] Shared ranking stage exists inside Canonical Recall (L7 retired)
 - [ ] Shared result model exists
+      Contract sketch: `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`
 - [ ] Shared Why / evidence presentation exists (path-labeled: keyword vs
       meaning per ADR-024 honesty — no silent relabel)
+      Contract sketch: `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`
 
 ### Retirement (mandatory)
 

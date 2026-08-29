@@ -77,6 +77,10 @@ full close: retirement checklist in
 Neither checklist is complete; does not authorize MIG-06+ / MIG-05 step 4
 implementation from this note alone.
 
+**Docs note (Canonical Recall result + Why contract):** DRAFT logical shared
+hit/Why shape for MIG-06/07 — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`.
+Not implemented in App; does not authorize MIG-06+.
+
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
