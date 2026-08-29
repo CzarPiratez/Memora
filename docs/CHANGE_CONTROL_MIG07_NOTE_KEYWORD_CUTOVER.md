@@ -139,7 +139,7 @@ Auditor: MIG-07 note cutover delivery
 - **Documentation/traceability/ADR updates:** living status docs only; no new
   ADR (MIG-07 already sequenced; per-asset delivery)
 - **Git commit:** `feat: MIG-07 cut note keyword Find over to SearchMemoryEvidence`
-  (local; no push — `70d2e5de1dd2a40800e943d3c998fddfef360d5c`)
+  (local; no push — hash in STOP REPORT / `git log -1`)
 
 ## Done vs remains (honesty)
 
