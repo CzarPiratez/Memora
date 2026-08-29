@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### MIG-05 step 2 — PDF page embedding dual-write to evidence store
+
+- **Date:** 2026-08-29
+- **Delivered:** `IndexPdfPageEmbeddings` dual-writes successful PDF page
+  vectors into `MemoryEvidenceEmbeddingStore` keyed by
+  `(revisionId, evidenceId, model)` when `MemoryEvidence.id` resolves via
+  locator `pdf:page:N` (never the locator as id). Fingerprint-skip backfills
+  the evidence store without mass `STALE_REINDEX`. Callers thread resolved
+  evidence ids through `PdfPageEmbeddingCandidate`.
+- **Truthfulness:** Search still reads `PdfPageEmbedding*` +
+  `SavedPdfPageTextSource`. Full MIG-05 acceptance remains open. Room stays
+  14. MIG-06+, ranking, AVAILABLE, Act, Grounded Answers code, Links,
+  Event/Knowledge, VisionEngine, and package/db rename are not started.
+  Hashed freeze/spec/amendment files unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`
+  (step 2 section).
+
 ### MIG-05 step 1 residual closed (Room 13→14 device-verified)
 
 - **Date:** 2026-08-29

@@ -17,6 +17,7 @@ import com.memora.app.domain.intelligence.PdfPageEmbeddingRecord
 import com.memora.app.domain.intelligence.PdfPageEmbeddingStore
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
+import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryMeaningLookup
 import com.memora.app.domain.memory.MemoryRepository
@@ -351,5 +352,9 @@ class SearchAssetMemoriesByMeaningTest {
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, MemoryMeaningLookup> =
             lookups.filterKeys { it in revisionIds }
+
+        override suspend fun findPdfPageEvidenceIds(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, Map<Int, MemoryEvidenceId>> = emptyMap()
     }
 }

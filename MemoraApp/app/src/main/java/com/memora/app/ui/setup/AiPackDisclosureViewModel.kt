@@ -179,12 +179,15 @@ class AiPackDisclosureViewModel @Inject constructor(
             val pageResult = when (result) {
                 is IndexMemoryEmbeddingsResult.EngineUnavailable -> null
                 is IndexMemoryEmbeddingsResult.Completed -> withContext(Dispatchers.IO) {
-                    val lookups = memoryRepository.findCurrentReadyMeaningLookups(
-                        candidates.map { it.revisionId },
-                    )
+                    val revisionIds = candidates.map { it.revisionId }
+                    val lookups = memoryRepository.findCurrentReadyMeaningLookups(revisionIds)
+                    val evidenceIdsByRevision =
+                        memoryRepository.findPdfPageEvidenceIds(revisionIds)
                     val pageCandidates = candidates.flatMap { summary ->
                         val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
                         if (lookup.assetType != AssetType.PDF) return@flatMap emptyList()
+                        val pageEvidenceIds =
+                            evidenceIdsByRevision[summary.revisionId].orEmpty()
                         savedPdfPages.listCurrentVerifiedPages(
                             sourceId = lookup.sourceId.value,
                             sourceAssetKey = lookup.sourceAssetKey.value,
@@ -196,6 +199,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                                     memoryId = summary.memoryId,
                                     pageNumber = page.pageNumber,
                                     pageText = page.text,
+                                    evidenceId = pageEvidenceIds[page.pageNumber],
                                 )
                             }
                     }

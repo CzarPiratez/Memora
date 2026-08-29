@@ -143,10 +143,10 @@ interface PdfPageEmbeddingStore {
 /**
  * One persisted evidence-level embedding, keyed by Memory revision + evidence + model.
  *
- * MIG-05 step 1 foundation: additive store only. Distinct from summary-level
+ * MIG-05 dual-store interim: [IndexPdfPageEmbeddings] dual-writes PDF page
+ * vectors here when [MemoryEvidenceId] resolves. Distinct from summary-level
  * [MemoryEmbeddingRecord] and from live PDF-page [PdfPageEmbeddingRecord].
- * Production Search/Index paths do not read or write this store until a later
- * MIG-05 cutover step.
+ * Production Search still reads [PdfPageEmbeddingStore] until a later cutover.
  */
 data class MemoryEvidenceEmbeddingRecord(
     val revisionId: MemoryRevisionId,

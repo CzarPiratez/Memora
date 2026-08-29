@@ -35,4 +35,43 @@ class PdfPageEvidenceLocatorTest {
             PdfPageEvidenceLocator.firstPageNumber(listOf("pdf:title", "image:whole")),
         )
     }
+
+    @Test
+    fun format_locator_is_parseable() {
+        assertEquals("pdf:page:7", PdfPageEvidenceLocator.formatLocator(7))
+        assertEquals(7, PdfPageEvidenceLocator.parsePageNumber(PdfPageEvidenceLocator.formatLocator(7)))
+    }
+
+    @Test
+    fun evidence_id_for_page_matches_locator_not_invented() {
+        val evidence = listOf(
+            MemoryEvidence(
+                id = MemoryEvidenceId("e1"),
+                kind = MemoryEvidenceKind.SOURCE_METADATA,
+                evidenceClass = MemoryEvidenceClass.DIRECT,
+                locator = EvidenceLocator("pdf:title"),
+                excerpt = MemoryText("Title"),
+            ),
+            MemoryEvidence(
+                id = MemoryEvidenceId("e2"),
+                kind = MemoryEvidenceKind.DOCUMENT_TEXT,
+                evidenceClass = MemoryEvidenceClass.DIRECT,
+                locator = EvidenceLocator("pdf:page:1"),
+                excerpt = MemoryText("Page one body"),
+            ),
+            MemoryEvidence(
+                id = MemoryEvidenceId("e3"),
+                kind = MemoryEvidenceKind.DOCUMENT_TEXT,
+                evidenceClass = MemoryEvidenceClass.DIRECT,
+                locator = EvidenceLocator("pdf:page:2"),
+                excerpt = MemoryText("Page two body"),
+            ),
+        )
+
+        assertEquals(MemoryEvidenceId("e2"), PdfPageEvidenceLocator.evidenceIdForPage(evidence, 1))
+        assertEquals(MemoryEvidenceId("e3"), PdfPageEvidenceLocator.evidenceIdForPage(evidence, 2))
+        assertNull(PdfPageEvidenceLocator.evidenceIdForPage(evidence, 3))
+        assertEquals("e2", PdfPageEvidenceLocator.evidenceIdForPage(evidence, 1)!!.value)
+        assertNull(PdfPageEvidenceLocator.parsePageNumber("e2"))
+    }
 }

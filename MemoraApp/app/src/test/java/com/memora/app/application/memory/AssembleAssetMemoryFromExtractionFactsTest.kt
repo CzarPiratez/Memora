@@ -18,6 +18,7 @@ import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceClass
+import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryMeaningLookup
@@ -446,6 +447,10 @@ private class FakeMemoryRepository : MemoryRepository {
     override suspend fun findCurrentReadyMeaningLookups(
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
+
+    override suspend fun findPdfPageEvidenceIds(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()
 }
 
 private class FakeAssetRepository(asset: Asset) : AssetRepository {

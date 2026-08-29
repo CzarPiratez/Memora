@@ -9,6 +9,7 @@ import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
+import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryInsertResult
 import com.memora.app.domain.memory.MemoryMeaningLookup
@@ -103,5 +104,23 @@ class RoomMemoryRepository(
                 citedPdfPageNumber = citedPagesByRevision[row.revisionId],
             )
         }
+    }
+
+    override suspend fun findPdfPageEvidenceIds(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, Map<Int, MemoryEvidenceId>> {
+        if (revisionIds.isEmpty()) return emptyMap()
+        val ids = revisionIds.map { it.value }.distinct()
+        val result = linkedMapOf<MemoryRevisionId, MutableMap<Int, MemoryEvidenceId>>()
+        for (row in database().memoryDao().findEvidenceLocators(ids)) {
+            val pageNumber = PdfPageEvidenceLocator.parsePageNumber(row.locator) ?: continue
+            // Never treat a locator-shaped string as an evidence id.
+            if (PdfPageEvidenceLocator.parsePageNumber(row.evidenceId) != null) continue
+            val revisionId = MemoryRevisionId(row.revisionId)
+            val pages = result.getOrPut(revisionId) { linkedMapOf() }
+            // First matching evidence wins (stable ORDER BY evidence_id).
+            pages.putIfAbsent(pageNumber, MemoryEvidenceId(row.evidenceId))
+        }
+        return result
     }
 }

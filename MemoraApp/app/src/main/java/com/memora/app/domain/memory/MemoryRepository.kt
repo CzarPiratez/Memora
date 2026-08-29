@@ -34,6 +34,17 @@ interface MemoryRepository {
     suspend fun findCurrentReadyMeaningLookups(
         revisionIds: Collection<MemoryRevisionId>,
     ): Map<MemoryRevisionId, MemoryMeaningLookup>
+
+    /**
+     * Maps revision → (1-based pageNumber → [MemoryEvidenceId]) for evidence
+     * whose locator is `pdf:page:N`. Used by MIG-05 step 2 PDF page embedding
+     * dual-write so the evidence store is keyed by real evidence ids (`e{n}`),
+     * never by the locator string. Missing revisions/pages are omitted; ids
+     * are never invented.
+     */
+    suspend fun findPdfPageEvidenceIds(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, Map<Int, MemoryEvidenceId>>
 }
 
 data class MemoryEmbeddingSummary(
