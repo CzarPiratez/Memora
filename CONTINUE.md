@@ -6,7 +6,8 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-08-30
 
-**Docs note:** Root `README.md` and Class A pack lead with Core vision
+**Docs note:** Root `README.md`, Class A pack, and living engineering headers
+(`AGENTS.md`, GOVERNANCE / Grounding identity lines) lead with Core vision
 ([unfynd.com/core](https://www.unfynd.com/core)): infrastructure; builder model;
 industries as applications on Core; Core is not a personal AI/assistant.
 Engineering / App MVP status stays here only — not in the public pack.
@@ -67,7 +68,8 @@ aligned to https://www.unfynd.com/core (vision first; industries; Core
 underneath / you build; not personal AI). App MVP status table
 (`SPEC-STATUS.md`) **removed** from public pack — App honesty stays in
 `CONTINUE.md`. Root README updated same pass. Pack source under
-`public/unfynd-core/`; sync pack-only to public unfynd-core when publishing.
+`public/unfynd-core/`; **synced pack-only** to public unfynd-core
+(`da457b9`). Private Memora not pushed.
 UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
 Freeze reopen / Act from ADR-047 / ADR-048.
 

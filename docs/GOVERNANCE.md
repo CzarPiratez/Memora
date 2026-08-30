@@ -1,6 +1,11 @@
 # Delivery Governance
 
-**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+**Product identity:** UNFYND (formerly Memora). Living direction: **UNFYND Core**
+— on-device memory and intelligence infrastructure (ADR-046); UNFYND App is the
+multiplatform product surface. Public vision: https://www.unfynd.com/core.
+Hashed docs may still say Personal Knowledge Infrastructure / PKI as a prior
+internal noun (ADR-043). This document’s freeze is the technical invariants
+below. Naming is not an architectural invariant (ADR-040).
 
 ## Purpose
 

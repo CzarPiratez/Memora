@@ -1,6 +1,10 @@
 # Grounding Architecture
 
-**Product identity:** UNFYND (formerly Memora). Direction: Personal Knowledge Infrastructure. This document’s freeze is the technical invariants below. Naming is not an architectural invariant (ADR-040).
+**Product identity:** UNFYND (formerly Memora). Living direction: **UNFYND Core**
+— on-device memory and intelligence infrastructure (ADR-046); App is a product
+surface on Core. Hashed / historical PKI wording may remain in older lines.
+This document’s freeze is the technical invariants below. Naming is not an
+architectural invariant (ADR-040).
 
 **Status:** Canonical engineering reference for Grounded Answers  
 **Authority:** `docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`, ADR-033–ADR-039  

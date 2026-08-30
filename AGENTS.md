@@ -6,14 +6,22 @@ project folder path `MemoraApp/` is a deferred technical ID (ADR-040), not the
 product name. This document’s freeze is the technical invariants below. Naming is
 not an architectural invariant (ADR-040 / ADR-045 / ADR-046).
 
+**Public vision:** [https://www.unfynd.com/](https://www.unfynd.com/) ·
+[Core](https://www.unfynd.com/core). Core is infrastructure you build on (ship,
+audit, extend) where data must stay put — not a personal AI/assistant product.
+The App is one product surface on Core. Industry applications and capability
+map: `public/unfynd-core/APPLICATIONS.md`.
+
 ## Product authority
 
 The immutable product baseline and accepted amendments are registered in
 `docs/PRODUCT_SOURCE_REGISTRY.md`. `Memora.docx` defines the product vision;
 `LOCAL_AI_TECHNICAL_SPEC.md` defines the binding local-first implementation rules
-where an AI architecture detail would otherwise conflict. UNFYND is a **memory
-retrieval engine**, not a file browser, upload tool, or generic chatbot. It must help
-a person recall content by meaning and explain why a result matched.
+where an AI architecture detail would otherwise conflict. UNFYND Core is
+**memory and intelligence infrastructure**; UNFYND App helps people use
+intelligence grounded in what is already on their devices — including recall by
+meaning with evidence-backed explanation. It is not a file browser, upload tool,
+or generic chatbot.
 
 Before every step, read `docs/PRODUCT_SOURCE_REGISTRY.md`,
 `docs/LOCAL_AI_TECHNICAL_SPEC.md`, `docs/GOVERNANCE.md`, `CONTINUE.md`, and the

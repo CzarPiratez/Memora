@@ -10,10 +10,14 @@
   examples / GOVERNANCE / CONTRIBUTING phased openness; removed public
   `SPEC-STATUS.md` (App MVP audit stays private). Root `README.md` aligned
   (Core vision; public GitHub link; not personal AI). PUBLIC_CHANGELOG /
-  CITATIONS / CONTINUE updated. Sync pack-only to public unfynd-core when
-  publishing. Private Memora push not implied.
+  CITATIONS / CONTINUE updated. **Synced pack-only** to public unfynd-core
+  (`da457b9`). Private living-canon light-align: `AGENTS.md`,
+  `docs/GOVERNANCE.md` / `GROUNDING_ARCHITECTURE.md` headers,
+  `OPEN_SOURCE_COMMERCIAL_STRATEGY.md` Class A publish status. Private Memora
+  not pushed.
 - **Truthfulness:** Docs only; no App MIG code. Does not claim vertical
-  products shipped or full stack open.
+  products shipped or full stack open. Site Open “AGI / run / fork” marketing
+  wording is a website follow-up — Class A pack stays selected foundations.
 
 ### Class A pack — status alignment (Memory-evidence Find + midrange)
 
