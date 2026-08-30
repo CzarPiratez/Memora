@@ -1,5 +1,5 @@
 {
-  "_comment": "Synthetic illustrative REJECT case — not production schema lock, not personal data.",
+  "_comment": "Synthetic illustrative REJECT case - not production schema lock, not personal data.",
   "sketchKind": "invalid_asset_memory",
   "memory": {
     "memoryId": "mem_synth_reject_empty_001",

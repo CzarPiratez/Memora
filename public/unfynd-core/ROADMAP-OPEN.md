@@ -62,7 +62,7 @@ later ADR where required.
 
 ## Release Class B (later)
 
-**Release Class B** — Commercial / Enterprise Technology Release — is a
+**Release Class B** - Commercial / Enterprise Technology Release - is a
 **different** class: full readiness gates (architecture, IP, licensing, security,
 quality, commercial) for redistributable technology packages, enterprise SDKs,
 OEM licensing, and similar.
@@ -82,4 +82,4 @@ artifact boundaries.
 Landing files under `public/unfynd-core/` in the private monorepo is **not** the
 same as publishing this public repository. Publishing **only** this pack to a
 separate public remote means: copy or subtree this folder, verify no secrets,
-then push that public repo alone — never the private monorepo.
+then push that public repo alone - never the private monorepo.

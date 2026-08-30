@@ -9,7 +9,7 @@ the public pack as hashed freeze blobs.
 |---|---|
 | `README.md` / Core noun / vision | `docs/DECISIONS.md` (ADR-046, ADR-047); https://www.unfynd.com/core; `docs/OPEN_SOURCE_COMMERCIAL_STRATEGY.md` §23 |
 | `APPLICATIONS.md` | https://www.unfynd.com/core (capability primitives + industry application classes); builder model |
-| `SPEC.md` §1 definition, builder model | Core site vision; `docs/PRODUCT_CONTRACT.md` (privacy / integrity — high level); ADR-046 |
+| `SPEC.md` §1 definition, builder model | Core site vision; `docs/PRODUCT_CONTRACT.md` (privacy / integrity - high level); ADR-046 |
 | `SPEC.md` local-first, seams, Find principles | `docs/LOCAL_AI_TECHNICAL_SPEC.md` §4 capability list; §9 ordinary Find / no reopen; local-first / §12 prohibitions |
 | `SPEC.md` staged model + evidence classes | `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` §2 staged model; §5 evidence classes |
 | `SPEC.md` principles | `docs/ARCHITECTURE_FREEZE_v1.0.md` §3 (plain language) |

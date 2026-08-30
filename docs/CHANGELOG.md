@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Public framing: App intelligence README + Class A cleanup
+
+- **Date:** 2026-08-30
+- **Delivered:** Root `README.md` rewritten as UNFYND App intelligence vision
+  (pillars, multimodal map, information→action evolution, progress without MVP
+  gap lists). Class A pack: drop Search/Find definition lines; remove em dashes
+  from public pack; strategy §1 no “personal memory.” Sync pack-only to public
+  unfynd-core after commit. Website unchanged.
+- **Truthfulness:** Docs only; vision + progress framing.
+
 ### Class A pack — vision alignment with unfynd.com/core (+ root README)
 
 - **Date:** 2026-08-30

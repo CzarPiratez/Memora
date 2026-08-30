@@ -23,21 +23,25 @@ capability map / examples); App and full stack remain private until a later ADR.
 
 # 1. Strategic Purpose
 
-Memora is being developed as **on-device personal memory infrastructure**, not as a cloud AI service.
+UNFYND is being developed as **on-device memory and intelligence infrastructure**
+(UNFYND Core), not as a cloud AI service. The same substrate supports many trust
+boundaries (device, site, air gap) and many products on Core, including UNFYND App.
 
-The long-term objective is to build a technically strong, privacy-preserving, evidence-backed memory engine that can:
+The long-term objective is to build a technically strong, privacy-preserving,
+evidence-backed intelligence platform that can:
 
-1. power the Memora consumer application;
+1. power UNFYND App (the multiplatform product surface);
 2. be used by developers and communities where the applicable license permits;
 3. provide a reusable technology platform/SDK;
 4. support commercial integration by companies under clearly defined commercial rights; and
-5. potentially support enterprise and OEM deployments.
+5. support enterprise, OEM, and regulated-boundary deployments where data must stay put.
 
 The commercial strategy must preserve the central technical proposition:
 
-> **Memora brings intelligence to the user's device rather than requiring the user's personal digital life to be sent to a Memora-operated cloud.**
+> **UNFYND brings intelligence to where the information already lives, rather than requiring that corpus to be sent to an UNFYND-operated cloud as the core path.**
 
-Memora's commercial strategy must therefore monetize genuine technology and product value without making cloud infrastructure a dependency of Memora Core.
+Commercial strategy must therefore monetize genuine technology and product value
+without making cloud infrastructure a dependency of UNFYND Core.
 
 ---
 

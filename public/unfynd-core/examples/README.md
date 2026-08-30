@@ -5,7 +5,7 @@
 reference samples)
 
 These files help humans **inspect** Core Memory / evidence contracts. They are
-illustrative sketches aligned with [`SPEC.md`](../SPEC.md) — not production
+illustrative sketches aligned with [`SPEC.md`](../SPEC.md) - not production
 schema locks, not personal data, and not App fixtures.
 
 Treat field names and nesting as **sketch** shape. Implementers should validate

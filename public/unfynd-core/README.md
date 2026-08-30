@@ -1,11 +1,11 @@
-# UNFYND Core — Public Specification / Contract pack
+# UNFYND Core: Public Specification / Contract pack
 
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/) · [Core](https://www.unfynd.com/core)  
-**Release class:** Class A — Public Specification / Contract (docs + synthetic examples)  
+**Release class:** Class A: Public Specification / Contract (docs + synthetic examples)  
 **Pack revision:** 2026-08-30 (vision alignment)
 
-**UNFYND Core®** is on-device **memory and intelligence infrastructure** — how
+**UNFYND Core®** is on-device **memory and intelligence infrastructure**: how
 memory and intelligence become something you can ship, audit, and extend in
 places where the data has to stay put.
 
@@ -40,9 +40,6 @@ UNFYND Core is **not** a personal AI or assistant product. Assistants,
 companions, and vertical tools are applications that can be built **on** Core.
 **UNFYND App** is one multiplatform product surface that uses this substrate.
 
-Search and Find are capabilities of products on Core. They are not the whole
-definition of UNFYND Core.
-
 ---
 
 ## What Core enables (capability and industries)
@@ -53,9 +50,9 @@ new category for each vertical.
 
 **How (primitives):** ingest and retain multimodal material as a durable local
 record → recall what is relevant → rank competing candidates → produce outputs
-tied to evidence you can open — at the boundary you set.
+tied to evidence you can open, at the boundary you set.
 
-**Applications Core is designed to unlock** (direction we are building toward —
+**Applications Core is designed to unlock** (direction we are building toward;
 not a claim that every vertical product ships in this pack):
 
 See [`APPLICATIONS.md`](APPLICATIONS.md) for the full industry map (Health,
@@ -105,16 +102,16 @@ Under Apache-2.0, this Class A pack publishes:
 
 ## How to use these docs
 
-**Builders** — Treat `SPEC.md` as the public contract surface. Implement against
+**Builders:** Treat `SPEC.md` as the public contract surface. Implement against
 the seams and evidence rules; do not invent facts the evidence classes forbid.
 Use `APPLICATIONS.md` for the capability picture and `examples/` as illustrations.
 
-**Auditors** — Use this pack to check local-first boundaries, evidence honesty,
+**Auditors:** Use this pack to check local-first boundaries, evidence honesty,
 and pack scope (contracts vs full stack). For private-monorepo maintainers,
 [`CITATIONS.md`](CITATIONS.md) points at internal distillation sources (not
 required for external readers).
 
-**Security reporters** — See [`SECURITY.md`](SECURITY.md). Do not send secrets
+**Security reporters:** See [`SECURITY.md`](SECURITY.md). Do not send secrets
 into public issues.
 
 ---

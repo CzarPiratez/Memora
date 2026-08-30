@@ -1,14 +1,14 @@
-# UNFYND Core — Public Specification (Class A)
+# UNFYND Core - Public Specification (Class A)
 
 **Status:** Public distillation for Release Class A (contracts / specs)  
 **License:** Apache License 2.0  
-**Noun:** UNFYND Core — on-device memory and intelligence infrastructure  
+**Noun:** UNFYND Core - on-device memory and intelligence infrastructure  
 **Site:** [https://www.unfynd.com/core](https://www.unfynd.com/core)
 
 This document is a plain-language public contract pack. It describes the
-substrate we are building toward. Capability and industry applications —
-[`APPLICATIONS.md`](APPLICATIONS.md). Synthetic sketches —
-[`examples/`](examples/). Pack map — [`README.md`](README.md).
+substrate we are building toward. Capability and industry applications -
+[`APPLICATIONS.md`](APPLICATIONS.md). Synthetic sketches -
+[`examples/`](examples/). Pack map - [`README.md`](README.md).
 
 ---
 
@@ -16,14 +16,14 @@ substrate we are building toward. Capability and industry applications —
 
 UNFYND Core is **on-device memory and intelligence infrastructure**: how
 multimodal data becomes lasting, inspectable intelligence that can run where the
-data already lives — phones, laptops, workstations, and controlled networks. It
+data already lives - phones, laptops, workstations, and controlled networks. It
 is infrastructure you **ship, audit, and extend** when the corpus cannot be
 treated as someone else’s training set.
 
 **Core is the system underneath. You build the product.** Core provides ingest
 and retention, recall and ranking, and answers tied to evidence you can open, at
 the boundary you set (device, site, or air gap). Builders wire sources,
-workflows, domain rules, and permissions — for clinics, field teams, enterprises,
+workflows, domain rules, and permissions - for clinics, field teams, enterprises,
 research enclaves, consumer devices, and products we have not named yet.
 
 UNFYND Core is **not** a personal AI or assistant. Assistants, companions, and
@@ -31,8 +31,7 @@ vertical tools are applications that can sit **on** Core. **UNFYND App** is one
 multiplatform product surface that uses this substrate. This pack describes Core
 contracts, not the private App implementation.
 
-Search and Find are capabilities of products on Core. They are not the whole
-definition of Core. For the industry map and “how” primitives, see
+For the industry map and “how” primitives, see
 [`APPLICATIONS.md`](APPLICATIONS.md).
 
 ### 1.1 Local-first / no cloud on the core path
@@ -40,7 +39,7 @@ definition of Core. For the industry map and “how” primitives, see
 After the required on-device capability is installed:
 
 - Core memory creation, retrieval, ranking, and explanation run **locally**.
-- The core path does **not** send source content, extractions facts, embeddings,
+- The core path does **not** send source content, extracted facts, embeddings,
   prompts, queries, or Memories to a remote AI service.
 - Optional cloud features (if ever added) need their own explicit product
   decision, consent, and data-handling contract. They are not the Core path.
@@ -74,7 +73,7 @@ presented as a fully ready Memory.
 
 Memory is a first-class runtime concern: ingest into a durable local record,
 retain for continuity, and reason over a working store that stays inside the
-boundary you set — not a profile uploaded to improve a remote model.
+boundary you set - not a profile uploaded to improve a remote model.
 
 ---
 
@@ -86,8 +85,8 @@ Evidence classes describe **support and provenance**, not automatic truth.
 |---|---|---|
 | **DIRECT** | Bounded source-derived fact (metadata, OCR, PDF/note text, EXIF, etc.) | Yes, subject to provenance and validation |
 | **VALIDATED_OBSERVATION** | Bounded, provenance-cited local model observation that a validator accepted | Only after validation |
-| **RETRIEVAL_SIGNAL** | Similarity, embedding, or ranking information | **No** — candidate generation only |
-| **HYPOTHESIS** | Tentative possible relationship | **No** — needs more evidence or user confirmation |
+| **RETRIEVAL_SIGNAL** | Similarity, embedding, or ranking information | **No** - candidate generation only |
+| **HYPOTHESIS** | Tentative possible relationship | **No** - needs more evidence or user confirmation |
 
 **Truth before intelligence:** no evidence means no assertion; uncalibrated
 confidence means no precise confidence claim.
@@ -98,19 +97,19 @@ confidence means no precise confidence claim.
 
 These are binding product rules for Core:
 
-1. **Truth before intelligence** — do not fabricate certainty to appear smart.
-2. **Evidence-first** — summaries, anchors, relationships, and shown confidence
+1. **Truth before intelligence** - do not fabricate certainty to appear smart.
+2. **Evidence-first** - summaries, anchors, relationships, and shown confidence
    must be traceable to stored evidence.
-3. **Retrieval-first** — ordinary recall surfaces stored, evidence-backed
+3. **Retrieval-first** - ordinary recall surfaces stored, evidence-backed
    material; it does not invent unsupported answers.
-4. **One memory / evidence substrate** — what Core “knows” about an Asset lives
+4. **One memory / evidence substrate** - what Core “knows” about an Asset lives
    in Memory + evidence; explanations cite that store.
-5. **Retrieval signals never independently justify truth** — embeddings may help
+5. **Retrieval signals never independently justify truth** - embeddings may help
    find candidates; they do not, alone, make a durable claim true.
-6. **Explain from stored evidence** — “Why this result?” uses stored Memory and
+6. **Explain from stored evidence** - “Why this result?” uses stored Memory and
    evidence. Ordinary Find / recall does **not** reopen originals and does **not**
    run per-result generative reasoning.
-7. **Local-first, user-controlled** — revoke access, remove sources, clear derived
+7. **Local-first, user-controlled** - revoke access, remove sources, clear derived
    data; no future Core capability overrides that control.
 
 ---
@@ -150,12 +149,12 @@ Original read-only Asset
         → Knowledge Memory
 ```
 
-- **Asset Memory** — foundation: one permitted Asset version → evidence, anchors,
+- **Asset Memory** - foundation: one permitted Asset version → evidence, anchors,
   evidence-cited summary, provenance.
-- **Link** — “these memories appear related,” with inspectable evidence; not a
+- **Link** - “these memories appear related,” with inspectable evidence; not a
   silent merge; not embedding-only.
-- **Event Memory** — cautious occurrence context referencing members.
-- **Knowledge Memory** — evolving, evidence-backed subject object.
+- **Event Memory** - cautious occurrence context referencing members.
+- **Knowledge Memory** - evolving, evidence-backed subject object.
 
 Links, Events, and Knowledge are **direction**. They arrive as Core and products
 on Core mature.
@@ -174,7 +173,7 @@ hardware and not always-on sensing:
   cue.
 - **Recall cheaply** from stored rows.
 - Run expensive reasoning when explicitly asked (e.g. future Grounded Answers over
-  a frozen evidence package) — not on every ordinary recall result.
+  a frozen evidence package) - not on every ordinary recall result.
 
 Paused indexing under device pressure is honest product behavior, not a silent
 failure.
@@ -200,7 +199,7 @@ Packs, evaluation corpora, secrets, or Release Class B commercial packages.
 
 Treat staged direction (Links, Events, Knowledge), Grounded Answers, and Act /
 agentic action as **phases of the vision** described on the Core site and in
-[`APPLICATIONS.md`](APPLICATIONS.md) — not as items bundled in this documentation
+[`APPLICATIONS.md`](APPLICATIONS.md) - not as items bundled in this documentation
 release. Marketing performance SLAs are product decisions outside this pack.
 
 ---
@@ -210,5 +209,5 @@ release. Marketing performance SLAs are product decisions outside this pack.
 Private monorepo hashed constitutions (Product Contract, Local AI Spec,
 Experience Memory Amendment, Architecture Freeze, Grounding docs) remain
 internal authority for implementers. This `SPEC.md` is a **curated public
-distillation** for Class A transparency — not a verbatim dump of those files and
+distillation** for Class A transparency - not a verbatim dump of those files and
 not a license to those private paths.

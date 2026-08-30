@@ -6,11 +6,11 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-08-30
 
-**Docs note:** Root `README.md`, Class A pack, and living engineering headers
-(`AGENTS.md`, GOVERNANCE / Grounding identity lines) lead with Core vision
-([unfynd.com/core](https://www.unfynd.com/core)): infrastructure; builder model;
-industries as applications on Core; Core is not a personal AI/assistant.
-Engineering / App MVP status stays here only — not in the public pack.
+**Docs note:** Root `README.md` frames UNFYND App as privacy-first on-device
+**intelligence** (pillars; multimodal digital world; Sees→…→Acts; Core
+underneath). Class A pack at `public/unfynd-core/` matches
+[unfynd.com/core](https://www.unfynd.com/core). Public-facing docs use no em
+dashes. Engineering / App delivery status stays here only.
 
 **Checkpoint (MIG-07 note keyword cutover):** Note Find ViewModel
 binds `SearchMemoryEvidence` with `AssetType.NOTE`;

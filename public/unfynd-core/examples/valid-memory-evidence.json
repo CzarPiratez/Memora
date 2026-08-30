@@ -1,5 +1,5 @@
 {
-  "_comment": "Synthetic illustrative sketch only — not production schema lock, not personal data.",
+  "_comment": "Synthetic illustrative sketch only - not production schema lock, not personal data.",
   "sketchKind": "valid_asset_memory",
   "memory": {
     "memoryId": "mem_synth_demo_001",
@@ -15,7 +15,7 @@
         "evidenceId": "ev_ocr_01",
         "evidenceClass": "DIRECT",
         "kind": "ocr_text",
-        "excerpt": "Cafe Demo — Latte 4.50",
+        "excerpt": "Cafe Demo - Latte 4.50",
         "provenance": "ocr:region:0"
       },
       {
