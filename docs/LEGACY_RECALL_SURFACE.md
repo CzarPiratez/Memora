@@ -66,19 +66,21 @@ Ask at every search / MIG checkpoint:
 > If yes, which **L#** rows still enable that?
 
 Today the answer is **yes**. Enabling rows (Live/Dual): **L7, L8**.
-Canonical Recall does not yet exist as a single application API
-(ADR-049). Product-facing meaning Find (L8, with local ranking L7) remain
-live paths. **L1 is Retired** (MIG-07 PDF cutover) — PDF keyword Find uses
-`SearchMemoryEvidence` (PDF-filtered); do not resurrect
+Keyword PDF / screenshot / photo / note Finds enter through the thin
+**CanonicalRecall** App API (KEYWORD candidate gen via `SearchMemoryEvidence`).
+Those keyword paths are **not** escape hatches. Product-facing meaning Find
+(L8, with local ranking L7) remain live paths **outside** CanonicalRecall until
+MIG-07B. **L1 is Retired** (MIG-07 PDF cutover) — PDF keyword Find uses
+CanonicalRecall → `SearchMemoryEvidence` (PDF-filtered); do not resurrect
 `SearchPersistedPdfPageText`. **L2 is Retired** (MIG-07 screenshot cutover)
-— screenshot keyword Find uses `SearchMemoryEvidence` (SCREENSHOT-filtered);
-do not resurrect `SearchPersistedScreenshotOcrText`. **L3 is Retired**
-(MIG-07 photo cutover) — photo keyword Find uses `SearchMemoryEvidence`
-(PHOTO-filtered); do not resurrect `SearchPersistedPhotoOcrText`. **L4 is
-Retired** (MIG-07 note cutover) — note keyword Find uses
-`SearchMemoryEvidence` (NOTE-filtered); do not resurrect
-`SearchPersistedNotePageText`. **L5 is Retired** (MIG-05 step 4) —
-`PdfPageEmbedding*` types/table deleted; do not resurrect.
+— screenshot keyword Find uses CanonicalRecall → `SearchMemoryEvidence`
+(SCREENSHOT-filtered); do not resurrect `SearchPersistedScreenshotOcrText`.
+**L3 is Retired** (MIG-07 photo cutover) — photo keyword Find uses
+CanonicalRecall → `SearchMemoryEvidence` (PHOTO-filtered); do not resurrect
+`SearchPersistedPhotoOcrText`. **L4 is Retired** (MIG-07 note cutover) — note
+keyword Find uses CanonicalRecall → `SearchMemoryEvidence` (NOTE-filtered); do
+not resurrect `SearchPersistedNotePageText`. **L5 is Retired** (MIG-05 step 4)
+— `PdfPageEmbedding*` types/table deleted; do not resurrect.
 
 Full procedure, grep hints, and copy-paste record template:
 `docs/ESCAPE_HATCH_AUDIT.md`.

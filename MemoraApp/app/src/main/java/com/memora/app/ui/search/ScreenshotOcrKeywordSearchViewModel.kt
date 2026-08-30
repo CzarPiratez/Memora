@@ -9,7 +9,7 @@ import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchOutcome
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.ScreenshotPreviewRenderResult
-import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -135,8 +135,7 @@ data class ScreenshotOriginalPreviewUi(
 }
 
 /**
- * Screenshot keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
- * (AssetType.SCREENSHOT).
+ * Screenshot keyword Find via [CanonicalRecall] (KEYWORD path; AssetType.SCREENSHOT).
  *
  * L2 `SearchPersistedScreenshotOcrText` retired; UI models preserved via adapter.
  * Open-original remains source-identity based (no PDF page).
@@ -152,14 +151,14 @@ class ScreenshotOcrKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchMemoryEvidence: SearchMemoryEvidence,
+        canonicalRecall: CanonicalRecall,
         loadPersistedScreenshotOcrKeywordSearchReadiness:
             LoadPersistedScreenshotOcrKeywordSearchReadiness,
         openPersistedScreenshotForViewing: OpenPersistedScreenshotForViewing,
     ) : this(
         searchScreenshotKeyword = { rawQuery ->
             ScreenshotMemoryEvidenceKeywordAdapter.toScreenshotOutcome(
-                searchMemoryEvidence(
+                canonicalRecall(
                     rawQuery = rawQuery,
                     assetType = AssetType.SCREENSHOT,
                 ),

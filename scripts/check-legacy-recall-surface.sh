@@ -7,7 +7,9 @@
 # MIG-07 PDF + screenshot + photo + note keyword Find cutovers (L1–L4 Retired;
 # L7 + L8 still Live).
 #
-# Does NOT authorize MIG-07B or Canonical Recall as a live product API.
+# Does NOT authorize MIG-07B. Canonical Recall thin KEYWORD façade is allowed
+# (application CanonicalRecall + four keyword ViewModels). SearchMemoryEvidence
+# remains candidate generation (not UI-bound).
 # Run from repo root (Git Bash / WSL / GitHub Actions ubuntu):
 #   bash scripts/check-legacy-recall-surface.sh
 # Windows helper (forwards to this script):
@@ -16,9 +18,9 @@
 # Allowlisted keyword Find UI/helper files for L1–L4 Retired MemoryEvidence-backed
 # paths (ui/** + application/** only). Any NEW *KeywordSearch* or SearchPersisted*
 # file under those trees fails.
-# SearchMemoryEvidence is ALLOWED as the MIG-06 application use case (+ support)
-# and in Pdf/Screenshot/Photo/Note keyword ViewModels (MIG-07 cutovers);
-# still FORBIDDEN under other ui/** paths or as a Find clone.
+# SearchMemoryEvidence is ALLOWED as MIG-06 candidate gen (+ support + adapters +
+# readiness) and inside CanonicalRecall; FORBIDDEN under ui/**.
+# CanonicalRecall is ALLOWED as application façade + four keyword ViewModels.
 # ---------------------------------------------------------------------------
 
 set -euo pipefail
@@ -34,6 +36,7 @@ MIGRATIONS_REL="MemoraApp/app/src/main/java/com/memora/app/data/local/MemoraData
 # MIG-06 application use case + port + Room adapter; MIG-07 PDF + screenshot + photo + note adapters.
 ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/SearchMemoryEvidence.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/CanonicalRecall.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/MemoryEvidenceExcerptSearch.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/MemoryEvidenceLiteralSearchSupport.kt"
   "MemoraApp/app/src/main/java/com/memora/app/data/local/RoomMemoryEvidenceExcerptSearch.kt"
@@ -51,8 +54,13 @@ ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/LoadPersistedNotePageKeywordSearchReadiness.kt"
 )
 
-# MIG-07 PDF + screenshot + photo + note cutover: UI files allowed to bind SearchMemoryEvidence.
-ALLOW_SEARCH_MEMORY_EVIDENCE_UI_FILES=(
+# Keyword ViewModels bind CanonicalRecall (not SearchMemoryEvidence).
+ALLOW_CANONICAL_RECALL_FILES=(
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/CanonicalRecall.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/SearchMemoryEvidence.kt"
+)
+
+ALLOW_CANONICAL_RECALL_UI_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PdfKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/ScreenshotOcrKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchViewModel.kt"
@@ -189,17 +197,52 @@ if [[ "${b_failed}" -eq 0 ]]; then
   ok "all KeywordSearch/SearchPersisted files are allowlisted (L1–L4 helpers + PDF highlight)"
 fi
 
-# --- C: CanonicalRecall type name must not exist in main yet ------------------
-echo "== C: CanonicalRecall not in main (ADR-049 target-only) =="
-if grep -RIn --include='*.kt' --include='*.java' -E '\bCanonicalRecall\b' "${MAIN}" >/dev/null 2>&1; then
-  fail "CanonicalRecall appears in main (target name only until MIG-07 complete)"
-  grep -RIn --include='*.kt' --include='*.java' -E '\bCanonicalRecall\b' "${MAIN}" >&2 || true
-else
-  ok "no CanonicalRecall in main"
+# --- C: CanonicalRecall confined to façade + keyword ViewModels ---------------
+echo "== C: CanonicalRecall allowlist (thin KEYWORD façade) =="
+c_failed=0
+c_tmp="$(mktemp)"
+grep -RIn --include='*.kt' --include='*.java' -E '\bCanonicalRecall\b' "${MAIN}" \
+  >"${c_tmp}" 2>/dev/null || true
+while IFS= read -r line || [[ -n "${line}" ]]; do
+  [[ -z "${line}" ]] && continue
+  file="${line%%:*}"
+  rel="${file#./}"
+  rel="${rel//\\//}"
+  if [[ "${rel}" == *"/ui/"* ]]; then
+    local_ok=0
+    for a in "${ALLOW_CANONICAL_RECALL_UI_FILES[@]}"; do
+      if [[ "${rel}" == "${a}" ]]; then
+        local_ok=1
+        break
+      fi
+    done
+    if [[ "${local_ok}" -eq 0 ]]; then
+      fail "CanonicalRecall under unauthorized ui/ path: ${rel}"
+      echo "  ${line}" >&2
+      c_failed=1
+    fi
+    continue
+  fi
+  app_ok=0
+  for a in "${ALLOW_CANONICAL_RECALL_FILES[@]}"; do
+    if [[ "${rel}" == "${a}" ]]; then
+      app_ok=1
+      break
+    fi
+  done
+  if [[ "${app_ok}" -eq 0 ]]; then
+    fail "CanonicalRecall outside thin-façade allowlist: ${rel}"
+    echo "  ${line}" >&2
+    c_failed=1
+  fi
+done < "${c_tmp}"
+rm -f "${c_tmp}"
+if [[ "${c_failed}" -eq 0 ]]; then
+  ok "CanonicalRecall confined to application façade + keyword ViewModels"
 fi
 
-# --- D: SearchMemoryEvidence — MIG-06/07 allowlist; forbid other UI Find ------
-echo "== D: SearchMemoryEvidence allowlist (MIG-07 PDF + screenshot + photo + note UI) =="
+# --- D: SearchMemoryEvidence — candidate gen; forbid UI binding --------------
+echo "== D: SearchMemoryEvidence allowlist (no ui/**; CanonicalRecall owns Find) =="
 d_failed=0
 d_tmp="$(mktemp)"
 grep -RIn --include='*.kt' --include='*.java' -E '\bSearchMemoryEvidence\b' "${MAIN}" \
@@ -215,20 +258,10 @@ while IFS= read -r line || [[ -n "${line}" ]]; do
      [[ "${rel}" == "MemoraApp/app/src/main/java/com/memora/app/data/local/RoomMemoryEvidenceExcerptSearch.kt" ]]; then
     continue
   fi
-  # Forbidden: UI Find clones other than authorized PDF + screenshot + photo + note ViewModels.
   if [[ "${rel}" == *"/ui/"* ]]; then
-    local_ok=0
-    for a in "${ALLOW_SEARCH_MEMORY_EVIDENCE_UI_FILES[@]}"; do
-      if [[ "${rel}" == "${a}" ]]; then
-        local_ok=1
-        break
-      fi
-    done
-    if [[ "${local_ok}" -eq 0 ]]; then
-      fail "SearchMemoryEvidence under unauthorized ui/ path: ${rel}"
-      echo "  ${line}" >&2
-      d_failed=1
-    fi
+    fail "SearchMemoryEvidence under ui/ (use CanonicalRecall): ${rel}"
+    echo "  ${line}" >&2
+    d_failed=1
     continue
   fi
   if ! is_allowed_search_memory_evidence_file "${rel}"; then
@@ -276,7 +309,7 @@ if [[ -f "${MAIN_JAVA}/com/memora/app/application/notes/SearchPersistedNotePageT
 fi
 
 if [[ "${d_failed}" -eq 0 ]]; then
-  ok "SearchMemoryEvidence confined to MIG-06/07 allowlist (PDF + screenshot + photo + note UI)"
+  ok "SearchMemoryEvidence confined to candidate-gen allowlist (no ui/**)"
 fi
 
 echo

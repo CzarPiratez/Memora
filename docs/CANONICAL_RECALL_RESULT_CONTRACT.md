@@ -1,8 +1,9 @@
 # Canonical Recall — shared result + Why contract
 
-**Status:** DRAFT CONTRACT for MIG-06 / MIG-07 implementation — **not
-implemented in App.** Naming and required logical fields only. No Kotlin types
-in this document.
+**Status:** Logical contract for Canonical Recall results. **Thin KEYWORD
+façade landed** (`CanonicalRecall` → `SearchMemoryEvidence`; four asset keyword
+ViewModels). Shared Kotlin result types beyond Memory-evidence hits, MEANING
+path merge (L8), and ranking (L7) remain open (MIG-07B / convergence).
 
 **Authority:** Architecture Freeze §3 (one evidence substrate; one canonical
 recall pipeline; explainability); ADR-049 (Canonical Recall naming); ADR-024
@@ -10,7 +11,7 @@ recall pipeline; explainability); ADR-049 (Canonical Recall naming); ADR-024
 result + Why exit boxes); Grounding Architecture §6–7 (labeled candidates;
 Evidence Package hints — **do not implement Grounded Answers here**).
 
-**Updated:** 2026-08-29
+**Updated:** 2026-08-30
 
 This file does **not** authorize MIG-06+. It freezes a minimal shared hit/Why
 shape so MIG-06/07 do not invent four Explain dialects.

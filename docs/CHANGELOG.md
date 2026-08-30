@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Canonical Recall thin façade (KEYWORD path)
+
+- **Date:** 2026-08-30
+- **Delivered:** `CanonicalRecall` application API; PDF/screenshot/photo/note
+  ViewModels inject it; `SearchMemoryEvidence` is candidate gen only (no
+  `ui/**` binding). CI legacy guard updated. LEGACY N=2 unchanged (L7, L8).
+  Not MIG-07B / Recall DONE / AVAILABLE.
+- **Truthfulness:** Thin KEYWORD façade only; meaning/ranking still Live
+  outside CanonicalRecall.
+- **Change control:** `docs/CHANGE_CONTROL_CANONICAL_RECALL_THIN_FACADE.md`.
+
 ### Vision alignment — MVP vs Act / multimodal surface (docs-only)
 
 - **Date:** 2026-08-30

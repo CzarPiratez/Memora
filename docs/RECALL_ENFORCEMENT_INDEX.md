@@ -23,9 +23,10 @@ note cutovers are separately authorized (see GOVERNANCE /
 [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) when required).
 Mirror N in `CONTINUE.md` whenever status changes.
 
-Canonical Recall is **not** a live single App API yet (ADR-049). Escape-hatch
-today: **YES** (enabling Live: L7, L8). L1–L4 Retired (MIG-07 keyword
-cutovers complete). Honest: keyword L1–L4 cutovers ≠ Recall program DONE.
+Canonical Recall thin KEYWORD façade is **landed** (`CanonicalRecall` →
+`SearchMemoryEvidence`; four keyword ViewModels). Escape-hatch today: **YES**
+(enabling Live: L7, L8). L1–L4 Retired. Honest: thin façade ≠
+`RECALL_CONVERGENCE_DONE` / MIG-07B.
 
 ## 60-second checklist (any Find / Recall / embedding-search change)
 
@@ -33,8 +34,9 @@ cutovers complete). Honest: keyword L1–L4 cutovers ≠ Recall program DONE.
 2. Do **not** extend a non-Retired Live/Dual row (new ranking, hit types, asset Finds, or Why pipelines) unless ADR + exception with sunset.
 3. On any cutover / status change: recompute **N** in the LEGACY header and mirror it in `CONTINUE.md`.
 4. If opening Find/Recall change-control: fill the architectural convergence block ([`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md)).
-5. Do **not** claim Canonical Recall exists in code, or authorize MIG-07B
-   from this index alone.
+5. Do **not** claim `RECALL_CONVERGENCE_DONE` or authorize MIG-07B from this
+   index alone. Thin KEYWORD `CanonicalRecall` façade may exist; L7/L8 fold-in
+   still needs separate authorization.
 
 ## Machine check
 
@@ -49,11 +51,11 @@ cutovers complete). Honest: keyword L1–L4 cutovers ≠ Recall program DONE.
 `*KeywordSearch*` / `SearchPersisted*` under `ui/**` or `application/**` beyond
 the allowlist in the script (L1–L4 Retired MemoryEvidence-backed helpers;
 `SearchPersistedPdfPageText`, `SearchPersistedScreenshotOcrText`,
-`SearchPersistedPhotoOcrText`, and `SearchPersistedNotePageText` deleted); no
-`CanonicalRecall` type in main; `SearchMemoryEvidence` **ALLOWED** as MIG-06
-application use case files + MIG-07 PDF + screenshot + photo + note
-ViewModel/adapter only (still **FORBIDDEN** under other `ui/**` / as a new
-Find clone). Does **not** ban MemoryBuilder / AssetMemoryFactSource.
+`SearchPersistedPhotoOcrText`, and `SearchPersistedNotePageText` deleted);
+`CanonicalRecall` **ALLOWED** as thin KEYWORD façade
+(`application/memory/CanonicalRecall.kt`) + four keyword ViewModels;
+`SearchMemoryEvidence` **ALLOWED** as candidate gen (not under `ui/**`).
+Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 
 ## Deeper docs (links only)
 

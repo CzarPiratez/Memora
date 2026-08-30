@@ -2,7 +2,7 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.application.notes.ExternalUrlLauncher
 import com.memora.app.application.notes.LoadPersistedNotePageKeywordSearchReadiness
 import com.memora.app.application.notes.NoteMemoryEvidenceKeywordAdapter
@@ -104,8 +104,7 @@ sealed interface NotePageKeywordSearchPhase {
 }
 
 /**
- * Note keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
- * (AssetType.NOTE).
+ * Note keyword Find via [CanonicalRecall] (KEYWORD path; AssetType.NOTE).
  *
  * L4 `SearchPersistedNotePageText` retired; UI models preserved via adapter.
  * Open-original remains source-identity based (OneNote web/client URLs).
@@ -121,14 +120,14 @@ class NotePageKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchMemoryEvidence: SearchMemoryEvidence,
+        canonicalRecall: CanonicalRecall,
         loadPersistedNotePageKeywordSearchReadiness: LoadPersistedNotePageKeywordSearchReadiness,
         openPersistedNotePageInOneNote: OpenPersistedNotePageInOneNote,
         externalUrlLauncher: ExternalUrlLauncher,
     ) : this(
         searchPersistedNotePageText = { rawQuery ->
             NoteMemoryEvidenceKeywordAdapter.toNoteOutcome(
-                searchMemoryEvidence(
+                canonicalRecall(
                     rawQuery = rawQuery,
                     assetType = AssetType.NOTE,
                 ),

@@ -23,7 +23,9 @@ paste Freeze.
    provenance, and structured cues for an Asset.
 2. **MemoryBuilder** = sole canonical construction boundary into that substrate.
 3. **Canonical Recall** = sole product-facing Find boundary **after MIG-07**
-   (named now; not yet one application API — ADR-049).
+   (named in ADR-049; thin App API landed for KEYWORD Memory-evidence path —
+   see `CHANGE_CONTROL_CANONICAL_RECALL_THIN_FACADE`; L7/L8 and full
+   convergence still open).
 4. Keyword / semantic / evidence / anchor retrieval = **candidate generation**,
    not independent product search systems.
 5. Ranking belongs **inside** Canonical Recall (future); do not add new

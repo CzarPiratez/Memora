@@ -9,7 +9,7 @@ import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 import com.memora.app.application.images.PhotoOcrKeywordSearchOutcome
 import com.memora.app.application.images.PhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.PhotoPreviewRenderResult
-import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -65,8 +65,7 @@ data class PhotoOriginalPreviewUi(
 )
 
 /**
- * Photo keyword Find — MIG-07 cutover to [SearchMemoryEvidence]
- * (AssetType.PHOTO).
+ * Photo keyword Find via [CanonicalRecall] (KEYWORD path; AssetType.PHOTO).
  *
  * L3 `SearchPersistedPhotoOcrText` retired; UI models preserved via adapter.
  * Open-original remains source-identity based (no PDF page).
@@ -79,13 +78,13 @@ class PhotoOcrKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchMemoryEvidence: SearchMemoryEvidence,
+        canonicalRecall: CanonicalRecall,
         readiness: LoadPersistedPhotoOcrKeywordSearchReadiness,
         opener: OpenPersistedPhotoForViewing,
     ) : this(
         search = { rawQuery ->
             PhotoMemoryEvidenceKeywordAdapter.toPhotoOutcome(
-                searchMemoryEvidence(
+                canonicalRecall(
                     rawQuery = rawQuery,
                     assetType = AssetType.PHOTO,
                 ),

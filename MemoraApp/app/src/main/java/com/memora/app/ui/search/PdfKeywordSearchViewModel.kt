@@ -9,7 +9,7 @@ import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
 import com.memora.app.application.documents.PdfMemoryEvidenceKeywordAdapter
 import com.memora.app.application.documents.PdfPagePreviewRenderResult
-import com.memora.app.application.memory.SearchMemoryEvidence
+import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.domain.asset.AssetType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -147,7 +147,7 @@ data class PdfOriginalPreviewUi(
 }
 
 /**
- * PDF keyword Find — MIG-07 cutover to [SearchMemoryEvidence] (AssetType.PDF).
+ * PDF keyword Find via [CanonicalRecall] (KEYWORD path; AssetType.PDF).
  *
  * L1 `SearchPersistedPdfPageText` retired; UI models preserved via adapter.
  */
@@ -165,13 +165,13 @@ class PdfKeywordSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchMemoryEvidence: SearchMemoryEvidence,
+        canonicalRecall: CanonicalRecall,
         loadPersistedPdfKeywordSearchReadiness: LoadPersistedPdfKeywordSearchReadiness,
         openPersistedPdfForViewing: OpenPersistedPdfForViewing,
     ) : this(
         searchPdfKeyword = { rawQuery ->
             PdfMemoryEvidenceKeywordAdapter.toPdfOutcome(
-                searchMemoryEvidence(
+                canonicalRecall(
                     rawQuery = rawQuery,
                     assetType = AssetType.PDF,
                 ),
