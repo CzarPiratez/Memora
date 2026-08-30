@@ -69,7 +69,7 @@ underneath / you build; not personal AI). App MVP status table
 (`SPEC-STATUS.md`) **removed** from public pack — App honesty stays in
 `CONTINUE.md`. Root README updated same pass. Pack source under
 `public/unfynd-core/`; **synced pack-only** to public unfynd-core
-(`da457b9`). Private Memora not pushed.
+(`da457b9`, then `b3e0332` App/Core framing cleanup). Private Memora not pushed.
 UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
 Freeze reopen / Act from ADR-047 / ADR-048.
 
