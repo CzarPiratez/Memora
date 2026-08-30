@@ -6,14 +6,16 @@
 
 > **UNFYND turns your digital world into intelligence you can act on.**
 
-**UNFYND App** is privacy-first, on-device AI that transforms the information in
-your digital world into intelligence. It works across multimodal information
-(files, photos, documents, conversations, audio, video, and connected sources),
-bringing context and relationships together to produce decisions, outcomes, and
-action.
+**UNFYND App** is privacy-first, on-device AI for **Android, iOS, Windows, and
+Mac** that transforms the information in your digital world into intelligence.
+It works across multimodal information (files, photos, documents, conversations,
+audio, video, and connected sources), bringing context and relationships
+together to produce decisions, outcomes, and action.
 
-This private monorepo holds UNFYND App engineering and the curated Class A
-source for **UNFYND Core®** (on-device memory and intelligence infrastructure).
+This private monorepo holds **Android engineering today** and the curated Class
+A source for **UNFYND Core®** (on-device memory and intelligence
+infrastructure). Windows, iOS, and Mac are product direction on the same Core
+substrate.
 
 ---
 
@@ -32,12 +34,9 @@ source for **UNFYND Core®** (on-device memory and intelligence infrastructure).
 
 ## Vision
 
-UNFYND App is an **intelligence** product for your digital world. It is not a
-file browser, upload tool, generic chatbot, or search-only app.
-
-What matters is not only where information lives or what format it takes, but
-what intelligence can be derived from it: context, knowledge, reasoning,
-decisions, outcomes, and action.
+UNFYND App is an **intelligence** product for your digital world: it turns what
+is already on your devices and in storage you use into context, knowledge,
+reasoning, decisions, outcomes, and action.
 
 ### The evolution
 
@@ -60,10 +59,20 @@ Information can come from the device or, where supported and explicitly
 permitted, from connected and cloud sources. Privacy-first and consent remain
 binding.
 
-Compelling everyday and high-stakes use cases (from “what’s on my phone?” to
-work, care, and field settings) are part of how the product creates wow: not
-by listing features, but by turning scattered information into intelligence
-that hits a real pain point.
+---
+
+## Use cases
+
+Examples of the intelligence UNFYND is built to deliver (direction we are
+building toward; aligned with [unfynd.com](https://www.unfynd.com/)):
+
+| Scenario | What UNFYND does |
+|---|---|
+| **Everyday on your phone** | You ask whether someone is coming Friday morning for the boiler and whether they need the side gate. UNFYND connects calendar, messages, notes, and photos already on the device and answers in plain language, grounded in what is there. |
+| **Work and documents** | A budget lives in a PDF and a related draft sits elsewhere. Intelligence ties document content to what you already have, with evidence you can open. |
+| **Your digital life** | Photos, voice notes, PDFs, notes, and messages follow the same privacy-first rule: intelligence from what is on your phone and storage you already use. |
+| **Care and field** | Protocols, routines, and what matters at home or in the field, with memory and recall that stay on the device or inside the boundary you set. |
+| **Regulated and high-stakes** | Facility-local records, case material, SOPs, and operational docs where data must stay put. Core supports many trust boundaries; see [Core](https://www.unfynd.com/core). |
 
 ---
 
@@ -127,8 +136,8 @@ government, enterprise, research, industrial, accessibility, emergency, aging /
 companion care, and more). See [Core](https://www.unfynd.com/core) and
 [`public/unfynd-core/APPLICATIONS.md`](public/unfynd-core/APPLICATIONS.md).
 
-Assistants and companions are applications that can sit **on** Core. Core itself
-is infrastructure, not a personal AI or assistant product definition.
+**UNFYND Core** is the intelligence infrastructure. Products, assistants, and
+vertical tools are built on top of it.
 
 ---
 
