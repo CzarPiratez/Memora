@@ -2,6 +2,119 @@
 
 ## Unreleased
 
+### MIG-07B Slice 4 — L7 retirement (shared meaning ranker)
+
+- **Date:** 2026-08-31
+- **Delivered:** `MeaningEvidenceTokenBoost` moved from
+  `SearchAssetMemoriesByMeaning` to `AnchorAwareMeaningRecallRanking` inside
+  `CanonicalRecall`. Candidate gen returns cosine scores only; over-fetch pool
+  before final limit. Legacy guard section F. L7 → Retired; Live/Dual N=0.
+- **Truthfulness:** Not `RECALL_CONVERGENCE_DONE` (shared result/Why + MIG-05
+  claim B remain open).
+
+### MIG-07B Slice 3 — L8 retirement (meaning Find via CanonicalRecall)
+
+- **Date:** 2026-08-31
+- **Delivered:** `MeaningSearchViewModel` injects `CanonicalRecall` only;
+  calls `searchByMeaning`. Legacy guard section E (`SearchAssetMemoriesByMeaning`
+  allowlist; no `ui/**` binding). L8 → Retired; Live/Dual N=1 (L7 only).
+- **Truthfulness:** L7 local ranking still Live inside
+  `SearchAssetMemoriesByMeaning`. Not Recall DONE.
+
+### MIG-07B Slice 2 — CanonicalRecall meaning + hybrid RRF
+
+- **Date:** 2026-08-31
+- **Delivered:** `CanonicalRecall.searchByMeaning` (anchor filter on meaning
+  path), `searchHybrid` (keyword + meaning RRF), `findSignatureAnchors` port,
+  `ReciprocalRankFusion`, `AnchorAwareMeaningRecallRanking`.
+- **Truthfulness:** Slice 2 only; L8 cutover landed in Slice 3.
+
+### Dual-track Checkpoint 1 — MIG-05 B slice 1 + MIG-07B Slice 1
+
+- **Date:** 2026-08-31
+- **Delivered:** Photo/screenshot OCR evidence embedding index drain
+  (`IndexOcrEvidenceEmbeddings`); meaning-index Build tap wires OCR candidates.
+  MIG-07B domain contracts: `RecallQueryConstraintClassifier`,
+  `AnchorStructuredRecallFilter`. Change controls authorized.
+- **Truthfulness:** Checkpoint 1 only. ADR-050 claim **B** OPEN (notes deferred).
+  L7/L8 unchanged. Not Recall DONE, not AVAILABLE, not Gradle Phase 2.
+
+### Core / App Phase 1 — exit complete
+
+- **Date:** 2026-08-30
+- **Delivered:** Phase 1 boundary hygiene closed. Application→data allowlist
+  3/3 (OneNote App bucket). Domain purity guard
+  `scripts/check-domain-layer-purity.sh` + CI job `Core / App layer boundary
+  guards`. Change control marked complete.
+- **Truthfulness:** Phase 1 only; not Gradle modules or MIG-07B implementation.
+
+### MIG-07B change control (docs-only)
+
+- **Date:** 2026-08-30
+- **Delivered:** `docs/CHANGE_CONTROL_MIG07B_ANCHOR_AWARE_RECALL.md` — sliced
+  plan to fold L7/L8 into Canonical Recall with anchor-aware structured filter.
+- **Truthfulness:** Awaiting authorization; no code.
+
+### Core / App Phase 1 — boundary hygiene slice 4 (Core exit)
+
+- **Date:** 2026-08-30
+- **Delivered:** `UserConfirmedDerivedDataClearer`, `OnDeviceEmbeddingModelDownloader`
+  domain ports; `ClearMemoraDerivedData` and `DownloadOnDeviceEmbeddingModel` clean.
+  Allowlist 5→3 (OneNote App bucket only). Phase 1 Core exit met.
+- **Truthfulness:** Phase 1 hygiene only; not Gradle modules or MIG-07B.
+
+### Core / App Phase 1 — boundary hygiene slice 3 (PDF ports)
+
+- **Date:** 2026-08-30
+- **Delivered:** `PdfReadOnlyDescriptorAccess`, `PdfIsolatedLocalReadingSession`,
+  `ValidatedPdfLocalReadingPersister`; refactored PDF open/view/extract use cases;
+  `PersistValidatedPdfLocalReading` moved to data layer. Hilt `PdfExtractionBindingsModule`.
+  Boundary allowlist 10→5.
+- **Truthfulness:** Phase 1 hygiene only; not MIG-07B or Gradle modules.
+
+### Core / App Phase 1 — boundary hygiene slice 2
+
+- **Date:** 2026-08-30
+- **Delivered:** `PhotoOcrReader`, `ScreenshotOcrReader`, `ImageExifReader` moved
+  to `domain/extraction/ImageExtractionReaders.kt`. `RunPendingPhotoOcrExtract`,
+  `RunPendingScreenshotOcrExtract`, `RunPendingImageExifExtract` inject domain
+  persistence ports only (no `data` imports). Boundary allowlist 13→10.
+- **Truthfulness:** Phase 1 hygiene only; not Gradle modules or MIG-07B.
+
+### Future capability backlog (docs-only)
+
+- **Date:** 2026-08-30
+- **Delivered:** `docs/FUTURE_CAPABILITY_BACKLOG.md` — Tier A candidates (RRF,
+  cross-encoder rerank, chunking, corpus honesty, zero-egress pack, evidence
+  lineage), Tier B deferred options (embedding/SLM/runtime/ANN/CRAG/ColBERT/graph
+  UI), Tier C explicit out-of-scope (routing, GraphRAG, multi-agent, neuromorphic,
+  etc.). Adjacent landscape pointers (StratoSort, enterprise hybrid search).
+  `CONTINUE.md` pointer.
+- **Truthfulness:** Planning backlog only; does not authorize MIG-*, Grounded
+  Answers code, Freeze reopen, or new Find paths. Items already in MIG/Grounding
+  docs are cross-referenced, not duplicated.
+
+### Core / App Phase 1 — boundary hygiene slice 1
+
+- **Date:** 2026-08-30
+- **Delivered:** Image-library access in five application use cases routed through
+  `ImageLibraryDiscoverySource` (domain port). CI guard
+  `scripts/check-application-layer-boundaries.sh` with shrink-only allowlist (13
+  remaining `application`→`data` files). Inventory table in separation plan §6.1.
+  Change control: `CHANGE_CONTROL_CORE_APP_PHASE1_BOUNDARY_HYGIENE.md`.
+- **Truthfulness:** Phase 1 hygiene only; not Gradle modules, Class B, or public
+  Core source.
+
+### Core / App separation — execution plan (docs-only)
+
+- **Date:** 2026-08-30
+- **Delivered:** `docs/CORE_APP_SEPARATION_PLAN.md` — phased path from monorepo
+  hygiene → Gradle modules → private Maven → optional public Core source
+  (Class B ADR). Package allowlists, coupling hotspots, recall/MIG alignment,
+  verification gates. `CONTINUE.md` pointer.
+- **Truthfulness:** Planning only; does not authorize implementation, Class B,
+  repository split, or “fully open Core” claims.
+
 ### Canonical Recall thin façade (KEYWORD path)
 
 - **Date:** 2026-08-30

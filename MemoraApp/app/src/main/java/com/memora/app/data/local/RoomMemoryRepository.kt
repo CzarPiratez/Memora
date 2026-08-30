@@ -9,6 +9,10 @@ import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
+import com.memora.app.domain.memory.MemoryAnchor
+import com.memora.app.domain.memory.MemoryAnchorId
+import com.memora.app.domain.memory.MemoryAnchorKind
+import com.memora.app.domain.memory.MemoryText
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryId
@@ -193,6 +197,45 @@ class RoomMemoryRepository(
                     locator = row.locator,
                     excerpt = row.excerpt,
                 ),
+            )
+        }
+        return result
+    }
+
+    override suspend fun findOcrTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>> {
+        if (revisionIds.isEmpty()) return emptyMap()
+        val ids = revisionIds.map { it.value }.distinct()
+        val result = linkedMapOf<MemoryRevisionId, MutableList<MemoryEvidenceSearchRow>>()
+        for (row in database().memoryDao().findOcrTextEvidenceForEmbedding(ids)) {
+            if (row.locator.isBlank() || row.excerpt.isBlank()) continue
+            val revisionId = MemoryRevisionId(row.revisionId)
+            val rows = result.getOrPut(revisionId) { mutableListOf() }
+            rows += MemoryEvidenceSearchRow(
+                revisionId = revisionId,
+                evidenceId = MemoryEvidenceId(row.evidenceId),
+                locator = row.locator,
+                excerpt = row.excerpt,
+            )
+        }
+        return result
+    }
+
+    override suspend fun findSignatureAnchors(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryAnchor>> {
+        if (revisionIds.isEmpty()) return emptyMap()
+        val ids = revisionIds.map { it.value }.distinct()
+        val result = linkedMapOf<MemoryRevisionId, MutableList<MemoryAnchor>>()
+        for (entity in database().memoryDao().findAnchorsForRevisions(ids)) {
+            val revisionId = MemoryRevisionId(entity.revisionId)
+            val anchors = result.getOrPut(revisionId) { mutableListOf() }
+            anchors += MemoryAnchor(
+                id = MemoryAnchorId(entity.anchorId),
+                kind = MemoryAnchorKind.valueOf(entity.anchorKind),
+                text = MemoryText(entity.anchorText),
+                evidenceIds = emptySet(),
             )
         }
         return result

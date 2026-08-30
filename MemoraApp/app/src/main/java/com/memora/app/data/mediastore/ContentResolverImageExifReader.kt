@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.extraction.ImageExifReadResult
+import com.memora.app.domain.extraction.ImageExifReader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -15,10 +16,6 @@ import javax.inject.Singleton
  *
  * Discovery must not call this (ADR-009). Extract path only. No OCR / network.
  */
-fun interface ImageExifReader {
-    fun read(asset: Asset): ImageExifReadResult
-}
-
 @Singleton
 class ContentResolverImageExifReader @Inject constructor(
     @param:ApplicationContext private val context: Context,

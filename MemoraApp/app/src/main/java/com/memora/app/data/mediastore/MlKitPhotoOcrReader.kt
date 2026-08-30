@@ -10,6 +10,7 @@ import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.extraction.PhotoOcrExtractionRecord
 import com.memora.app.domain.extraction.PhotoOcrReadResult
+import com.memora.app.domain.extraction.PhotoOcrReader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import java.util.concurrent.ExecutionException
@@ -17,10 +18,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
-
-fun interface PhotoOcrReader {
-    fun read(asset: Asset): PhotoOcrReadResult
-}
 
 @Singleton
 class MlKitPhotoOcrReader @Inject constructor(

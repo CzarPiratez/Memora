@@ -5,11 +5,11 @@
 # ADR-049 (Canonical Recall target-only); MIG-05 step 4 (page store retired);
 # MIG-06 SearchMemoryEvidence application use case;
 # MIG-07 PDF + screenshot + photo + note keyword Find cutovers (L1–L4 Retired;
-# L7 + L8 still Live).
+# L8 Retired MIG-07B Slice 3; L7 Retired Slice 4).
 #
-# Does NOT authorize MIG-07B. Canonical Recall thin KEYWORD façade is allowed
-# (application CanonicalRecall + four keyword ViewModels). SearchMemoryEvidence
-# remains candidate generation (not UI-bound).
+# Does NOT authorize MIG-07B Slice 4+. Canonical Recall thin façade is allowed
+# (application CanonicalRecall + keyword/meaning ViewModels + ranking helpers).
+# SearchMemoryEvidence / SearchAssetMemoriesByMeaning remain candidate generation.
 # Run from repo root (Git Bash / WSL / GitHub Actions ubuntu):
 #   bash scripts/check-legacy-recall-surface.sh
 # Windows helper (forwards to this script):
@@ -54,10 +54,13 @@ ALLOW_SEARCH_MEMORY_EVIDENCE_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/LoadPersistedNotePageKeywordSearchReadiness.kt"
 )
 
-# Keyword ViewModels bind CanonicalRecall (not SearchMemoryEvidence).
+# Keyword + meaning ViewModels bind CanonicalRecall (not candidate-gen use cases).
+# CanonicalRecall façade + MIG-07B ranking helpers (not UI-bound).
 ALLOW_CANONICAL_RECALL_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/CanonicalRecall.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/memory/SearchMemoryEvidence.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/AnchorAwareMeaningRecallRanking.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/ReciprocalRankFusion.kt"
 )
 
 ALLOW_CANONICAL_RECALL_UI_FILES=(
@@ -65,6 +68,20 @@ ALLOW_CANONICAL_RECALL_UI_FILES=(
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/ScreenshotOcrKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/PhotoOcrKeywordSearchViewModel.kt"
   "MemoraApp/app/src/main/java/com/memora/app/ui/search/NotePageKeywordSearchViewModel.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/ui/search/MeaningSearchViewModel.kt"
+)
+
+# MIG-07B meaning candidate gen — only CanonicalRecall may bind product Find.
+ALLOW_SEARCH_ASSET_MEMORIES_BY_MEANING_FILES=(
+  "MemoraApp/app/src/main/java/com/memora/app/application/intelligence/SearchAssetMemoriesByMeaning.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/CanonicalRecall.kt"
+)
+
+# L7 retired — token boost only in shared meaning ranker (+ domain + baseline).
+ALLOW_MEANING_EVIDENCE_TOKEN_BOOST_FILES=(
+  "MemoraApp/app/src/main/java/com/memora/app/application/memory/AnchorAwareMeaningRecallRanking.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/domain/intelligence/MeaningEvidenceTokenBoost.kt"
+  "MemoraApp/app/src/main/java/com/memora/app/domain/intelligence/MeasureMeaningPdfPageRecallBaseline.kt"
 )
 
 failures=0
@@ -127,6 +144,31 @@ is_allowlisted() {
   local rel="$1"
   local a
   for a in "${ALLOWLIST_KEYWORD_FIND[@]}"; do
+    if [[ "${rel}" == "${a}" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+is_allowed_search_asset_memories_by_meaning_file() {
+  local rel="$1"
+  local a
+  for a in "${ALLOW_SEARCH_ASSET_MEMORIES_BY_MEANING_FILES[@]}"; do
+    if [[ "${rel}" == "${a}" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+is_allowed_meaning_evidence_token_boost_file() {
+  local rel="$1"
+  if [[ "${rel}" == *"/test/"* ]] || [[ "${rel}" == *"/androidTest/"* ]]; then
+    return 0
+  fi
+  local a
+  for a in "${ALLOW_MEANING_EVIDENCE_TOKEN_BOOST_FILES[@]}"; do
     if [[ "${rel}" == "${a}" ]]; then
       return 0
     fi
@@ -238,7 +280,7 @@ while IFS= read -r line || [[ -n "${line}" ]]; do
 done < "${c_tmp}"
 rm -f "${c_tmp}"
 if [[ "${c_failed}" -eq 0 ]]; then
-  ok "CanonicalRecall confined to application façade + keyword ViewModels"
+  ok "CanonicalRecall confined to application façade + Find ViewModels"
 fi
 
 # --- D: SearchMemoryEvidence — candidate gen; forbid UI binding --------------
@@ -310,6 +352,62 @@ fi
 
 if [[ "${d_failed}" -eq 0 ]]; then
   ok "SearchMemoryEvidence confined to candidate-gen allowlist (no ui/**)"
+fi
+
+# --- E: SearchAssetMemoriesByMeaning — candidate gen; forbid UI binding --------
+echo "== E: SearchAssetMemoriesByMeaning allowlist (no ui/**; CanonicalRecall owns meaning Find) =="
+e_failed=0
+e_tmp="$(mktemp)"
+grep -RIn --include='*.kt' --include='*.java' -E '\bSearchAssetMemoriesByMeaning\b' "${MAIN}" \
+  >"${e_tmp}" 2>/dev/null || true
+while IFS= read -r line || [[ -n "${line}" ]]; do
+  [[ -z "${line}" ]] && continue
+  file="${line%%:*}"
+  rel="${file#./}"
+  rel="${rel//\\//}"
+  if [[ "${rel}" == *"/ui/"* ]]; then
+    fail "SearchAssetMemoriesByMeaning under ui/ (use CanonicalRecall.searchByMeaning): ${rel}"
+    echo "  ${line}" >&2
+    e_failed=1
+    continue
+  fi
+  if ! is_allowed_search_asset_memories_by_meaning_file "${rel}"; then
+    fail "SearchAssetMemoriesByMeaning outside MIG-07B allowlist: ${rel}"
+    echo "  ${line}" >&2
+    e_failed=1
+  fi
+done < "${e_tmp}"
+rm -f "${e_tmp}"
+if [[ "${e_failed}" -eq 0 ]]; then
+  ok "SearchAssetMemoriesByMeaning confined to candidate-gen allowlist (no ui/**)"
+fi
+
+# --- F: MeaningEvidenceTokenBoost — shared ranker only (L7 retired) ----------
+echo "== F: MeaningEvidenceTokenBoost allowlist (shared ranker; not candidate gen) =="
+f_failed=0
+f_tmp="$(mktemp)"
+grep -RIn --include='*.kt' --include='*.java' -E '\bMeaningEvidenceTokenBoost\b' "${MAIN}" \
+  >"${f_tmp}" 2>/dev/null || true
+while IFS= read -r line || [[ -n "${line}" ]]; do
+  [[ -z "${line}" ]] && continue
+  file="${line%%:*}"
+  rel="${file#./}"
+  rel="${rel//\\//}"
+  if [[ "${rel}" == *"/ui/"* ]]; then
+    fail "MeaningEvidenceTokenBoost under ui/: ${rel}"
+    echo "  ${line}" >&2
+    f_failed=1
+    continue
+  fi
+  if ! is_allowed_meaning_evidence_token_boost_file "${rel}"; then
+    fail "MeaningEvidenceTokenBoost outside L7-retired allowlist: ${rel}"
+    echo "  ${line}" >&2
+    f_failed=1
+  fi
+done < "${f_tmp}"
+rm -f "${f_tmp}"
+if [[ "${f_failed}" -eq 0 ]]; then
+  ok "MeaningEvidenceTokenBoost confined to shared ranker allowlist"
 fi
 
 echo

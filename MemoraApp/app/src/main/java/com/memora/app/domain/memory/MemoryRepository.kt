@@ -86,6 +86,21 @@ interface MemoryRepository {
     suspend fun findEvidenceSearchRows(
         revisionIds: Collection<MemoryRevisionId>,
     ): Map<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>
+
+    /**
+     * OCR_TEXT evidence rows for meaning-index embedding drains (MIG-05 claim B
+     * slice 1). Missing revisions are omitted; ids are never invented.
+     */
+    suspend fun findOcrTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>>
+
+    /**
+     * Signature anchors for structured recall (MIG-07B). Missing revisions omitted.
+     */
+    suspend fun findSignatureAnchors(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryAnchor>>
 }
 
 data class MemoryEmbeddingSummary(

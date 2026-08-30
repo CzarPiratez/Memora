@@ -4,7 +4,7 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-08-30
+**Updated:** 2026-08-31
 
 **Docs note:** Root `README.md` frames UNFYND App as privacy-first on-device
 **intelligence** (pillars; multimodal digital world; Sees→…→Acts; Core
@@ -19,15 +19,54 @@ Grounded Answers into the MVP exit for Act prep. MVP keeps permission/
 disclosure, evidence + Explain, read-only Assets. ADR-043 Act-out unchanged.
 No Freeze reopen / MIG-* / GA / Connect / Act from this note alone.
 
+**Docs note (Core / App separation plan, 2026-08-30):** Phase 1 **complete**
+(Core exit: 3/3 OneNote App-only allowlist). Domain + application boundary
+guards in CI. Phase 2 Gradle modules not started. See
+`docs/CORE_APP_SEPARATION_PLAN.md`. Does not authorize Class B, repo split,
+or full Core open source.
+
+**Docs note (MIG-07B Slice 4, 2026-08-31):** L7 token boost moved from
+`SearchAssetMemoriesByMeaning` to `AnchorAwareMeaningRecallRanking` inside
+`CanonicalRecall`. L7 → Retired. Live/Dual **N = 0**. Not Recall DONE.
+
+**Docs note (MIG-07B Slice 3, 2026-08-31):** `MeaningSearchViewModel` injects
+`CanonicalRecall` only (`searchByMeaning`). L8 → Retired.
+
+**Docs note (MIG-07B Slice 2, 2026-08-31):** `CanonicalRecall.searchByMeaning`
++ `searchHybrid` (RRF) + anchor filter on meaning path.
+
+**Docs note (Dual-track Checkpoint 1, 2026-08-31):** Delivered — see
+`CHANGE_CONTROL_DUAL_TRACK_CHECKPOINT_1.md`.
+
+**Docs note (MIG-07B change control):** Slices 1–4 delivered. MIG-07B ranking
+convergence complete; `RECALL_CONVERGENCE_DONE` program exit still open.
+
+**Phase 1 slice 4 (2026-08-30):** `UserConfirmedDerivedDataClearer` +
+`OnDeviceEmbeddingModelDownloader` ports; Core boundary allowlist 5→3 (OneNote
+App bucket only).
+
+**Phase 1 slice 3 (2026-08-30):** PDF descriptor access + isolated reading session
+ports; five PDF application use cases free of `data` imports (allowlist 10→5).
+
+**Phase 1 slice 2 (2026-08-30):** Image OCR/EXIF reader ports in
+`domain/extraction/ImageExtractionReaders.kt`; three `RunPending*` extract use
+cases inject domain persistence only (allowlist 13→10). See change control.
+
+**Docs note (future capability backlog, 2026-08-30):** Deferred retrieval,
+grounding, scale, and enterprise-trust options plus explicit out-of-scope items
+(StratoSort-adjacent review). Planning only — does not authorize implementation.
+See `docs/FUTURE_CAPABILITY_BACKLOG.md`.
+
 **Checkpoint (Canonical Recall thin façade):** `CanonicalRecall` is the App
 product-facing retrieval entry for PDF / screenshot / photo / note keyword
 Finds; KEYWORD candidate generation remains `SearchMemoryEvidence` inside that
-boundary. Four keyword ViewModels inject `CanonicalRecall` only. Live/Dual
-**N = 2** (L7, L8) unchanged. **Not** full MIG-07 / `RECALL_CONVERGENCE_DONE`
-/ MIG-07B. Per **ADR-050:** claim **A** COMPLETE; claim **B** OPEN.
+boundary. Meaning Find routes through `CanonicalRecall.searchByMeaning`. Four
+keyword ViewModels + `MeaningSearchViewModel` inject `CanonicalRecall` only.
+Live/Dual **N = 0**. **Not** `RECALL_CONVERGENCE_DONE` (shared result/Why +
+program-exit boxes remain). Per **ADR-050:** claim **A** COMPLETE; claim **B** OPEN.
 **MIG-04** MemoryBuilder seam remains live. Ranking, Find/Why UI redesign,
 Links, Event/Knowledge, Grounded Answers code, package rename, VisionEngine,
-and MIG-07B are not started. Hashed freeze/spec/amendment files unchanged.
+and remaining `RECALL_CONVERGENCE_DONE` program-exit items are not started. Hashed freeze/spec/amendment files unchanged.
 ADR-043 unchanged (Act still out). ADR-044 unchanged (interpretation only).
 `ProductionDatabaseIdentity.EXPECTED_SCHEMA_VERSION` remains 5 (conversion
 journal, not Room). Identity playbook steps 0–5 remain complete.
@@ -100,33 +139,33 @@ authorized in GOVERNANCE /
 audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-07 note checkpoint; L4 Retired).
 
 **Status truth check 2026-08-30:** CONTINUE + LEGACY + code agree; N=2
-(L7, L8 Live; L1–L6 Retired; Room 15; evidence-only index;
+(L1–L8 Retired; Room 15; evidence-only index;
 `SearchAssetMemoriesByMeaning` on `MemoryEvidenceEmbeddingStore`; PDF +
 screenshot + photo + note keyword Finds via `CanonicalRecall` →
 `SearchMemoryEvidence`; thin KEYWORD façade landed; full MIG-07 /
-`RECALL_CONVERGENCE_DONE` **open** — L7/L8 + MIG-07B remain).
+`RECALL_CONVERGENCE_DONE` **open** — shared result/Why + program-exit boxes remain).
 
 **Docs note (Recall enforcement program Steps 1–7):** Landed (docs only).
 **Operator entry:** `docs/RECALL_ENFORCEMENT_INDEX.md` (60s checklist) +
-LEGACY Live/Dual **N=2**. Cursor rule:
+LEGACY Live/Dual **N=0**. Cursor rule:
 `.cursor/rules/unfynd-architecture-invariants.mdc` (alwaysApply).
 Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
-**MIG-07B still requires separate authorization.** **Machine check:**
+**MIG-07B delivered (Slices 1–4).** **Machine check:**
 `scripts/check-legacy-recall-surface.sh` + CI job `Legacy recall surface guard`
 (see RECALL_ENFORCEMENT_INDEX; MIG-07 PDF + screenshot + photo + note allowlist).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only.
-Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open — L7/L8,
-MIG-07B, shared ranking; thin KEYWORD `CanonicalRecall` façade landed). MIG-05 FULL DONE checklist
+Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open — shared
+result/Why contract; MIG-05 claim B; program-exit boxes). MIG-05 FULL DONE checklist
 in `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` — per **ADR-050**,
 claim **A** (PDF slice) may be treated complete; claim **B** / Spec full and
 the non-PDF box remain **open**. MIG-07 keyword L1–L4 cutovers alone do
 **not** satisfy Recall convergence DONE.
 
 **Docs note (Canonical Recall result + Why contract):** Logical shared hit/Why
-shape — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`. Thin KEYWORD
-`CanonicalRecall` façade landed; Memory-evidence hits carry provenance fields.
-MEANING merge / shared ranking still open (MIG-07B).
+shape — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`. `CanonicalRecall` façade
+landed for keyword + meaning Find; shared meaning ranking (token boost + anchor
+filter) landed (MIG-07B Slice 4). Shared result/Why UI contract still open.
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
@@ -143,7 +182,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Typed anchors (MIG-03) | TIME from EXIF date-taken; TOPIC from `pdf:title` / `note:title`; TEXT always; no fabricated PERSON/PLACE/OBJECT/ACTIVITY/PURPOSE; schema `asset-memory-facts-v4` |
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
 | Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **ADR-050 A** PDF slice complete; **B** Spec full open (non-PDF deferred) |
-| Unified evidence keyword search (MIG-06/07 L1–L4) | `SearchMemoryEvidence` live for PDF + screenshot + photo + note Finds; L1–L4 Retired; L7/L8 still Live |
+| Unified evidence keyword search (MIG-06/07 L1–L4) | `SearchMemoryEvidence` live for PDF + screenshot + photo + note Finds; L1–L8 Retired; all Find via `CanonicalRecall` |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
 | Find by meaning | Candidate recall; evidence-level embeddings (MIG-05 step 3+); summary embeddings remain; E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
@@ -168,9 +207,9 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **MIG-07B (when authorized)** — fold L8 meaning Find + L7 local ranking
-   into Canonical Recall; shared result/Why. Thin KEYWORD façade **landed**.
-   Recall program exit gate: `docs/RECALL_CONVERGENCE_DONE.md` (still open).
+1. **`RECALL_CONVERGENCE_DONE` program exit** — shared result/Why contract,
+   MIG-05 claim B, remaining program-exit boxes. MIG-07B Slices 1–4 **landed**
+   (Live/Dual N=0). Gate: `docs/RECALL_CONVERGENCE_DONE.md` (still open).
 2. **MIG-05 remaining / deferral (ADR-050 claim B)** — non-PDF evidence
    indexer when authorized, or accept PDF-only vectors via a future ADR.
    Do not claim Spec MIG-05 / claim **B** complete while non-PDF remains

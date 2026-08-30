@@ -7,7 +7,9 @@ import android.provider.DocumentsContract
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.memora.app.data.local.MemoraDatabase
+import com.memora.app.data.local.RoomPdfExtractionPersistencePort
 import com.memora.app.data.pdfbox.SyntheticPdfFixtures
+import com.memora.app.data.pdfbox.isolation.PersistValidatedPdfLocalReading
 import com.memora.app.data.pdfbox.isolation.AndroidIsolatedPdfParserConnection
 import com.memora.app.data.pdfbox.isolation.ContextIsolatedPdfParserServiceBinder
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
@@ -129,8 +131,9 @@ class PersistValidatedPdfLocalReadingIntegrationTest {
         assertEquals(IsolatedPdfParserClientOutcome.EXTRACTED, clientResult.outcome)
         assertNotNull(clientResult.validatedResult)
 
-        val status = PersistValidatedPdfLocalReading(applicationDatabase)
-            .execute(request, clientResult)
+        val status = PersistValidatedPdfLocalReading(
+            RoomPdfExtractionPersistencePort { applicationDatabase },
+        ).execute(request, clientResult)
         assertEquals(PdfLocalReadingStatusCheckResult.Completed, status)
 
         val sourceId = request.asset.identity.sourceId.value

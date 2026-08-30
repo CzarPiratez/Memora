@@ -8,7 +8,7 @@ import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.application.intelligence.MeaningSearchReadiness
 import com.memora.app.application.intelligence.OpenMeaningSearchOriginal
-import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
+import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.application.notes.ExternalUrlLauncher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -138,12 +138,12 @@ class MeaningSearchViewModel(
 ) : ViewModel() {
     @Inject
     constructor(
-        searchAssetMemoriesByMeaning: SearchAssetMemoriesByMeaning,
+        canonicalRecall: CanonicalRecall,
         loadMeaningSearchReadiness: LoadMeaningSearchReadiness,
         openMeaningSearchOriginal: OpenMeaningSearchOriginal,
         externalUrlLauncher: ExternalUrlLauncher,
     ) : this(
-        searchByMeaning = { query -> searchAssetMemoriesByMeaning(query) },
+        searchByMeaning = { query -> canonicalRecall.searchByMeaning(query) },
         loadReadiness = { loadMeaningSearchReadiness() },
         openOriginal = { hit, query -> openMeaningSearchOriginal(hit, query) },
         launchOneNoteOriginal = { web, client ->

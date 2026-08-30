@@ -168,6 +168,35 @@ interface MemoryDao {
         revisionIds: List<String>,
     ): List<MemoryEvidenceSearchRowEntity>
 
+    @Query(
+        """
+        SELECT
+            revision_id AS revision_id,
+            evidence_id AS evidence_id,
+            locator AS locator,
+            excerpt AS excerpt
+        FROM memory_evidence
+        WHERE revision_id IN (:revisionIds)
+          AND evidence_kind = 'OCR_TEXT'
+          AND excerpt != ''
+        ORDER BY revision_id, evidence_id
+        """,
+    )
+    suspend fun findOcrTextEvidenceForEmbedding(
+        revisionIds: List<String>,
+    ): List<MemoryEvidenceSearchRowEntity>
+
+    @Query(
+        """
+        SELECT * FROM memory_anchors
+        WHERE revision_id IN (:revisionIds)
+        ORDER BY revision_id, anchor_id
+        """,
+    )
+    suspend fun findAnchorsForRevisions(
+        revisionIds: List<String>,
+    ): List<MemoryAnchorEntity>
+
     /**
      * Count of evidence rows on current-fingerprint READY Memories (MIG-06/07).
      * Zero means nothing is available for literal evidence search yet.

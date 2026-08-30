@@ -1,19 +1,28 @@
 package com.memora.app.application.memory
 
+import com.memora.app.application.intelligence.MeaningSearchOutcome
+import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAssetKey
+import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
 
 /**
  * App product-facing retrieval boundary (ADR-049).
  *
- * Thin façade: KEYWORD candidate generation delegates to [SearchMemoryEvidence].
- * PDF / screenshot / photo / note keyword Finds enter here. Meaning Find (L8)
- * and local ranking (L7) remain outside until MIG-07B.
+ * KEYWORD path delegates to [SearchMemoryEvidence]. MEANING path (MIG-07B
+ * Slice 2) delegates to [SearchAssetMemoriesByMeaning] with anchor-aware
+ * structured filter. [searchHybrid] fuses keyword + meaning via RRF (FC-01).
  *
- * Does not implement RecallRanker, Grounded Answers, or shared multi-path ranking.
+ * Meaning Find ViewModels call [searchByMeaning] (MIG-07B Slice 3). Candidate
+ * generation remains [SearchAssetMemoriesByMeaning]; shared ranking (token boost
+ * + anchor filter) lives in [AnchorAwareMeaningRecallRanking] (Slice 4).
  */
 class CanonicalRecall @Inject constructor(
     private val searchMemoryEvidence: SearchMemoryEvidence,
+    private val searchAssetMemoriesByMeaning: SearchAssetMemoriesByMeaning,
+    private val memoryRepository: MemoryRepository,
 ) {
     /**
      * Keyword / literal recall over stored Memory evidence.
@@ -33,4 +42,153 @@ class CanonicalRecall @Inject constructor(
             assemblySchemaVersion = assemblySchemaVersion,
             assetType = assetType,
         )
+
+    /**
+     * Meaning recall with MIG-07B anchor structured-filter stage applied when
+     * the query carries TIME/TOPIC cues.
+     */
+    suspend fun searchByMeaning(
+        rawQuery: String,
+        limit: Int = SearchAssetMemoriesByMeaning.DEFAULT_LIMIT,
+    ): MeaningSearchOutcome {
+        val poolLimit = (limit * CANDIDATE_POOL_MULTIPLIER).coerceAtMost(MAX_CANDIDATE_POOL)
+        val outcome = searchAssetMemoriesByMeaning(rawQuery = rawQuery, limit = poolLimit)
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = rawQuery,
+            memoryRepository = memoryRepository,
+        )
+        return trimMeaningMatches(ranked, limit)
+    }
+
+    private fun trimMeaningMatches(
+        outcome: MeaningSearchOutcome,
+        limit: Int,
+    ): MeaningSearchOutcome {
+        if (outcome !is MeaningSearchOutcome.Matches) return outcome
+        if (outcome.hits.size <= limit) return outcome
+        return outcome.copy(
+            hits = outcome.hits.take(limit),
+            limitReached = true,
+        )
+    }
+
+    companion object {
+        /**
+         * Over-fetch cosine candidates so token boost can promote lower-cosine hits
+         * before the final limit is applied.
+         */
+        private const val CANDIDATE_POOL_MULTIPLIER = 3
+
+        private const val MAX_CANDIDATE_POOL = 30
+    }
+
+    /**
+     * Hybrid keyword + meaning recall with reciprocal rank fusion. Not yet
+     * wired to product Find UI — infrastructure for converged recall.
+     */
+    suspend fun searchHybrid(
+        rawQuery: String,
+        limit: Int = MemoryEvidenceLiteralSearchSupport.MAX_RESULTS,
+        assemblySchemaVersion: String = SearchMemoryEvidence.DEFAULT_ASSEMBLY_SCHEMA,
+        assetType: AssetType? = null,
+    ): CanonicalRecallHybridOutcome {
+        val keywordOutcome = searchMemoryEvidence(
+            rawQuery = rawQuery,
+            limit = limit,
+            assemblySchemaVersion = assemblySchemaVersion,
+            assetType = assetType,
+        )
+        val meaningOutcome = searchByMeaning(rawQuery = rawQuery, limit = limit)
+
+        val query = when {
+            keywordOutcome is MemoryEvidenceSearchOutcome.BlankQuery -> return CanonicalRecallHybridOutcome.BlankQuery
+            meaningOutcome is MeaningSearchOutcome.BlankQuery -> return CanonicalRecallHybridOutcome.BlankQuery
+            keywordOutcome is MemoryEvidenceSearchOutcome.Matches -> keywordOutcome.query
+            meaningOutcome is MeaningSearchOutcome.Matches -> meaningOutcome.query
+            meaningOutcome is MeaningSearchOutcome.NothingIndexed -> meaningOutcome.query
+            keywordOutcome is MemoryEvidenceSearchOutcome.NothingSavedToSearch -> keywordOutcome.query
+            else -> rawQuery.trim().takeIf { it.isNotEmpty() }
+                ?: return CanonicalRecallHybridOutcome.BlankQuery
+        }
+
+        val keywordKeys = when (keywordOutcome) {
+            is MemoryEvidenceSearchOutcome.Matches ->
+                keywordOutcome.hits.map {
+                    ReciprocalRankFusion.fusionKey(it.sourceId, it.sourceAssetKey)
+                }
+            else -> emptyList()
+        }
+        val meaningKeys = when (meaningOutcome) {
+            is MeaningSearchOutcome.Matches ->
+                meaningOutcome.hits.map {
+                    ReciprocalRankFusion.fusionKey(it.sourceId, it.sourceAssetKey)
+                }
+            else -> emptyList()
+        }
+
+        if (keywordKeys.isEmpty() && meaningKeys.isEmpty()) {
+            return CanonicalRecallHybridOutcome.NoMatches(query = query)
+        }
+
+        val fused = ReciprocalRankFusion.fuse(
+            keywordKeys = keywordKeys,
+            meaningKeys = meaningKeys,
+        ).take(limit)
+
+        return CanonicalRecallHybridOutcome.Matches(
+            query = query,
+            entries = fused.map { entry ->
+                val (sourceId, sourceAssetKey) = parseFusionKey(entry.fusionKey)
+                CanonicalRecallFusionEntry(
+                    sourceId = sourceId,
+                    sourceAssetKey = sourceAssetKey,
+                    fusionScore = entry.score,
+                    keywordRank = entry.keywordRank,
+                    meaningRank = entry.meaningRank,
+                )
+            },
+            limitReached = fused.size >= limit,
+        )
+    }
+
+    private fun parseFusionKey(key: String): Pair<SourceId, SourceAssetKey> {
+        val parts = key.split('\u001f', limit = 2)
+        require(parts.size == 2) { "Invalid fusion key: $key" }
+        return SourceId(parts[0]) to SourceAssetKey(parts[1])
+    }
+}
+
+sealed interface CanonicalRecallHybridOutcome {
+    data object BlankQuery : CanonicalRecallHybridOutcome
+
+    data class NoMatches(val query: String) : CanonicalRecallHybridOutcome {
+        init {
+            require(query.isNotBlank())
+        }
+    }
+
+    data class Matches(
+        val query: String,
+        val entries: List<CanonicalRecallFusionEntry>,
+        val limitReached: Boolean,
+    ) : CanonicalRecallHybridOutcome {
+        init {
+            require(query.isNotBlank())
+        }
+    }
+}
+
+data class CanonicalRecallFusionEntry(
+    val sourceId: SourceId,
+    val sourceAssetKey: SourceAssetKey,
+    val fusionScore: Float,
+    val keywordRank: Int?,
+    val meaningRank: Int?,
+) {
+    init {
+        require(fusionScore.isFinite())
+        require(keywordRank == null || keywordRank > 0)
+        require(meaningRank == null || meaningRank > 0)
+    }
 }

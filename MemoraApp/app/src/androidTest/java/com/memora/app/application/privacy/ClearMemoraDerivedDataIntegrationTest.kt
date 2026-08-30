@@ -10,6 +10,7 @@ import com.memora.app.data.local.DocumentTreeApprovalEntity
 import com.memora.app.data.security.DatabaseEncryptionConversionJournal
 import com.memora.app.data.security.DatabaseEncryptionConversionPhase
 import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.data.security.MemoraUserConfirmedDerivedDataClearer
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.data.security.ProductionDatabaseTestCleanup
 import com.memora.app.data.security.StandardSqliteDatabaseProbe
@@ -38,7 +39,7 @@ class ClearMemoraDerivedDataIntegrationTest {
         ProductionDatabaseTestCleanup.clearAll(context)
         handle = MemoraDatabaseHandle(context)
         clearDerivedData = ClearMemoraDerivedData(
-            handle,
+            MemoraUserConfirmedDerivedDataClearer(handle),
             WorkManager.getInstance(context),
             com.memora.app.data.notes.KeystoreNotesProviderTokenVault(context),
             com.memora.app.application.notes.NoOpOneNoteInteractiveAuth(),

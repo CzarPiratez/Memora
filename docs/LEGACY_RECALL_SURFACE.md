@@ -6,15 +6,15 @@ sequencing (MIG-05 / MIG-06 / MIG-07 / MIG-07B). This file does **not** redefine
 architecture; it is operational enforcement so temporary product Find paths
 cannot quietly become permanent.
 
-**Updated:** 2026-08-30  
-**Live/Dual count:** **2** (rows with Status Live or Dual; Retired excluded)
+**Updated:** 2026-08-31  
+**Live/Dual count:** **0** (rows with Status Live or Dual; Retired excluded)
 
 | Metric | Value |
 |--------|-------|
-| Live | 2 (L7, L8) |
+| Live | 0 |
 | Dual | 0 |
-| Retired | 6 (L1, L2, L3, L4, L5, L6) |
-| **Live/Dual count (N)** | **2** |
+| Retired | 8 (L1, L2, L3, L4, L5, L6, L7, L8) |
+| **Live/Dual count (N)** | **0** |
 
 **Operator entry (60s):** `docs/RECALL_ENFORCEMENT_INDEX.md`.  
 **Escape-hatch audit:** `docs/ESCAPE_HATCH_AUDIT.md` (cadence + record template).
@@ -65,12 +65,11 @@ Ask at every search / MIG checkpoint:
 > Can a user-visible search result be produced **without** Canonical Recall?
 > If yes, which **L#** rows still enable that?
 
-Today the answer is **yes**. Enabling rows (Live/Dual): **L7, L8**.
-Keyword PDF / screenshot / photo / note Finds enter through the thin
-**CanonicalRecall** App API (KEYWORD candidate gen via `SearchMemoryEvidence`).
-Those keyword paths are **not** escape hatches. Product-facing meaning Find
-(L8, with local ranking L7) remain live paths **outside** CanonicalRecall until
-MIG-07B. **L1 is Retired** (MIG-07 PDF cutover) — PDF keyword Find uses
+Today the answer is **no**. All product Find paths (keyword + meaning) enter
+through **CanonicalRecall**. Keyword candidate gen uses `SearchMemoryEvidence`;
+meaning candidate gen uses `SearchAssetMemoriesByMeaning`; shared meaning ranking
+(token boost + anchor filter) lives in `AnchorAwareMeaningRecallRanking`.
+**L7 and L8 are Retired** (MIG-07B Slices 3–4). **L1 is Retired** (MIG-07 PDF cutover) — PDF keyword Find uses
 CanonicalRecall → `SearchMemoryEvidence` (PDF-filtered); do not resurrect
 `SearchPersistedPdfPageText`. **L2 is Retired** (MIG-07 screenshot cutover)
 — screenshot keyword Find uses CanonicalRecall → `SearchMemoryEvidence`
@@ -115,8 +114,8 @@ Broader post–MIG-07 cutover gates remain future work.
 | L4 | Note keyword Find (`SearchPersistedNotePageText` → ViewModel) | Canonical Recall via `SearchMemoryEvidence` (MIG-06/07) | Retired | MIG-07 note (done) |
 | L5 | `PdfPageEmbedding*` dual-write / page vector table | Evidence-only index path (`MemoryEvidenceEmbeddingStore`); table DROP Room 15 | Retired | MIG-05 step 4 (done) |
 | L6 | `SavedPdfPageTextSource` used for product meaning ranking | `MemoryEvidence` excerpts | Retired | MIG-05 step 3 (done) |
-| L7 | Meaning-local ranking/boost inside `SearchAssetMemoriesByMeaning` | Shared ranking stage inside Canonical Recall | Live | MIG-07 / RecallRanker stage (not a separate Find) |
-| L8 | `SearchAssetMemoriesByMeaning` as product-facing meaning Find (not yet behind Canonical Recall facade) | Canonical Recall (MIG-07 wiring; meaning remains a candidate generator) | Live | MIG-07 |
+| L7 | Meaning-local ranking/boost inside `SearchAssetMemoriesByMeaning` | Shared ranking stage inside Canonical Recall | Retired | MIG-07B Slice 4 (done) |
+| L8 | `SearchAssetMemoriesByMeaning` as product-facing meaning Find (not yet behind Canonical Recall facade) | Canonical Recall (MIG-07 wiring; meaning remains a candidate generator) | Retired | MIG-07B Slice 3 (done) |
 
 ### Row notes
 
@@ -158,15 +157,18 @@ Broader post–MIG-07 cutover gates remain future work.
   domain types deleted; Room 15 drops `pdf_page_embeddings`.
   `IndexPdfPageEmbeddings` is evidence-only. If those types or the page
   table reappear, **STOP** — do not keep L5 Retired.
-- **L8** tracks meaning Find as an **interim product path**. Do not mistake
-  `SearchAssetMemoriesByMeaning` for Canonical Recall already existing
-  (ADR-049: naming only; no single API in code yet).
-- **L7** is ranking/boost local to the meaning use case, not a separate Find
-  surface; it still counts toward Live/Dual until shared ranking lives inside
-  Canonical Recall.
-- **MIG-07 note note (N=2):** L1–L4 Retired (keyword cutovers complete).
-  Canonical Recall still **not** a live App API. Do **not** claim full
-  MIG-07 / Recall DONE (L7/L8 + MIG-07B remain).
+- **L8 Retired** (MIG-07B Slice 3): `MeaningSearchViewModel` injects
+  `CanonicalRecall` only; calls `searchByMeaning`. Candidate generation stays
+  in `SearchAssetMemoriesByMeaning` inside `CanonicalRecall`. If meaning Find
+  binds `SearchAssetMemoriesByMeaning` from `ui/**` again, **STOP** — do not
+  keep L8 Retired.
+- **L7 Retired** (MIG-07B Slice 4): `MeaningEvidenceTokenBoost` applied only in
+  `AnchorAwareMeaningRecallRanking` inside `CanonicalRecall`. Candidate gen
+  (`SearchAssetMemoriesByMeaning`) returns cosine scores only. If token boost
+  reappears in candidate gen, **STOP** — do not keep L7 Retired.
+- **MIG-07B note (N=0):** L1–L8 Retired. Keyword + meaning Finds enter through
+  `CanonicalRecall`. Do **not** claim full `RECALL_CONVERGENCE_DONE` until shared
+  result/Why contract and remaining program-exit boxes are verified.
 
 ---
 

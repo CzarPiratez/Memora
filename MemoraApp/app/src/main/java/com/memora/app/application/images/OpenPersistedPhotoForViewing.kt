@@ -4,9 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import com.memora.app.data.mediastore.MediaStoreAccess
-import com.memora.app.data.mediastore.mediaStoreImageAccess
 import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
@@ -22,6 +21,7 @@ import kotlinx.coroutines.withContext
 class OpenPersistedPhotoForViewing @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
+    private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
 ) {
     suspend operator fun invoke(
         sourceId: String,
@@ -29,7 +29,7 @@ class OpenPersistedPhotoForViewing @Inject constructor(
         photoLabel: String,
     ): PhotoPreviewRenderResult = withContext(Dispatchers.IO) {
         require(sourceId.isNotBlank() && sourceAssetKey.isNotBlank() && photoLabel.isNotBlank())
-        if (mediaStoreImageAccess(context) == MediaStoreAccess.REQUIRED) {
+        if (imageLibraryDiscoverySource.accessScope() == null) {
             return@withContext PhotoPreviewRenderResult.SourceUnavailable
         }
         val asset = assetRepository.find(

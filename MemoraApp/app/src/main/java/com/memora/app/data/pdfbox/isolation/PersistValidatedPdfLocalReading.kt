@@ -1,31 +1,26 @@
-package com.memora.app.application.documents
+package com.memora.app.data.pdfbox.isolation
 
-import com.memora.app.data.local.MemoraDatabase
-import com.memora.app.data.local.RoomPdfExtractionPersistencePort
-import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientOutcome
-import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientResult
-import com.memora.app.data.pdfbox.isolation.ValidatedIsolatedPdfResultToExtractionMapper
+import com.memora.app.application.documents.ApprovedPdfExtractionAssemblyOutcome
+import com.memora.app.application.documents.PdfLocalReadingStatusCheckResult
+import com.memora.app.application.documents.PersistApprovedPdfExtraction
+import com.memora.app.application.documents.PersistApprovedPdfExtractionOutcome
+import com.memora.app.application.documents.PrepareApprovedPdfExtractionPersistence
 import com.memora.app.domain.extraction.PdfExtractionOutcome
+import com.memora.app.domain.extraction.PdfExtractionPersistencePort
 import com.memora.app.domain.extraction.PdfExtractionRequest
 
 /**
  * Maps one validated ordinary-process parser result into an atomic Room extraction write.
  *
  * Returns only content-free UI status. Partial sessions never reach this type because the
- * client omits [IsolatedPdfParserClientResult.validatedResult] unless assembly completed.
- *
- * Resolves the live database on each write so clear/reopen cannot leave a closed Room instance.
+ * client omits validated payload unless assembly completed.
  */
 internal class PersistValidatedPdfLocalReading(
-    private val database: () -> MemoraDatabase,
+    private val persistencePort: PdfExtractionPersistencePort,
 ) {
-    constructor(database: MemoraDatabase) : this(database = { database })
-
     private val mapper = ValidatedIsolatedPdfResultToExtractionMapper()
     private val preparePersistence = PrepareApprovedPdfExtractionPersistence()
-    private val persistExtraction = PersistApprovedPdfExtraction(
-        RoomPdfExtractionPersistencePort(database),
-    )
+    private val persistExtraction = PersistApprovedPdfExtraction(persistencePort)
 
     suspend fun execute(
         request: PdfExtractionRequest,

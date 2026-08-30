@@ -1,18 +1,14 @@
 package com.memora.app.application.images
 
 import android.os.CancellationSignal
-import com.memora.app.data.local.RoomImageExifExtractionPersistencePort
-import com.memora.app.data.mediastore.ImageExifReader
-import com.memora.app.data.mediastore.MediaStoreAccess
-import com.memora.app.data.mediastore.mediaStoreImageAccess
-import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
+import com.memora.app.domain.extraction.ImageExifExtractionPersistence
 import com.memora.app.domain.extraction.ImageExifExtractionRecord
 import com.memora.app.domain.extraction.ImageExifReadResult
+import com.memora.app.domain.extraction.ImageExifReader
 import com.memora.app.domain.extraction.ImageExifSchemaVersion
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -48,12 +44,11 @@ sealed interface PendingImageExifExtractOutcome {
 
 @Singleton
 class RunPendingImageExifExtract @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
     private val imageExifReader: ImageExifReader,
-    databaseHandle: MemoraDatabaseHandle,
+    private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
+    private val persistence: ImageExifExtractionPersistence,
 ) : PendingImageExifExtractor {
-    private val persistence = RoomImageExifExtractionPersistencePort { databaseHandle.database() }
 
     override suspend operator fun invoke(
         sourceId: SourceId,
@@ -63,7 +58,7 @@ class RunPendingImageExifExtract @Inject constructor(
         if (cancellationSignal.isCanceled) {
             return@withContext PendingImageExifExtractOutcome.Cancelled
         }
-        if (mediaStoreImageAccess(context) == MediaStoreAccess.REQUIRED) {
+        if (imageLibraryDiscoverySource.accessScope() == null) {
             return@withContext PendingImageExifExtractOutcome.AccessStopped
         }
 

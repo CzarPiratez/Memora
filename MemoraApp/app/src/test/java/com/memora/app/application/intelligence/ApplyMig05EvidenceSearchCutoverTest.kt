@@ -141,6 +141,14 @@ class ApplyMig05EvidenceSearchCutoverTest {
         override suspend fun findEvidenceSearchRows(
             revisionIds: Collection<MemoryRevisionId>,
         ) = emptyMap<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>()
+
+        override suspend fun findOcrTextEvidenceForEmbedding(
+            revisionIds: Collection<MemoryRevisionId>,
+        ) = emptyMap<MemoryRevisionId, List<MemoryEvidenceSearchRow>>()
+
+        override suspend fun findSignatureAnchors(
+            revisionIds: Collection<MemoryRevisionId>,
+        ) = emptyMap<MemoryRevisionId, List<com.memora.app.domain.memory.MemoryAnchor>>()
     }
 
     private class InMemoryMemoryEvidenceEmbeddingStore : MemoryEvidenceEmbeddingStore {

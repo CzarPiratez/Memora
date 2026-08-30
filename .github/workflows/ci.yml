@@ -11,6 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  core-app-boundaries:
+    name: Core / App layer boundary guards
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run application layer boundary checks
+        run: bash scripts/check-application-layer-boundaries.sh
+
+      - name: Run domain layer purity checks
+        run: bash scripts/check-domain-layer-purity.sh
+
   legacy-recall-surface:
     name: Legacy recall surface guard
     runs-on: ubuntu-latest

@@ -1,18 +1,14 @@
 package com.memora.app.application.images
 
-import android.content.Context
 import android.os.CancellationSignal
-import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
-import com.memora.app.data.mediastore.MediaStoreAccess
-import com.memora.app.data.mediastore.ScreenshotOcrReader
-import com.memora.app.data.mediastore.mediaStoreImageAccess
-import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
+import com.memora.app.domain.extraction.ScreenshotOcrExtractionPersistence
 import com.memora.app.domain.extraction.ScreenshotOcrExtractionRecord
 import com.memora.app.domain.extraction.ScreenshotOcrReadResult
+import com.memora.app.domain.extraction.ScreenshotOcrReader
 import com.memora.app.domain.extraction.ScreenshotOcrSchemaVersion
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -48,12 +44,11 @@ sealed interface PendingScreenshotOcrExtractOutcome {
 
 @Singleton
 class RunPendingScreenshotOcrExtract @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
     private val screenshotOcrReader: ScreenshotOcrReader,
-    databaseHandle: MemoraDatabaseHandle,
+    private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
+    private val persistence: ScreenshotOcrExtractionPersistence,
 ) : PendingScreenshotOcrExtractor {
-    private val persistence = RoomScreenshotOcrExtractionPersistencePort { databaseHandle.database() }
 
     override suspend operator fun invoke(
         sourceId: SourceId,
@@ -63,7 +58,7 @@ class RunPendingScreenshotOcrExtract @Inject constructor(
         if (cancellationSignal.isCanceled) {
             return@withContext PendingScreenshotOcrExtractOutcome.Cancelled
         }
-        if (mediaStoreImageAccess(context) == MediaStoreAccess.REQUIRED) {
+        if (imageLibraryDiscoverySource.accessScope() == null) {
             return@withContext PendingScreenshotOcrExtractOutcome.AccessStopped
         }
 

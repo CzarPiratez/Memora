@@ -1,71 +1,56 @@
 package com.memora.app.application.documents
 
 import android.os.CancellationSignal
-import com.memora.app.data.pdfbox.isolation.BorrowedPdfDescriptorParser
-import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientOutcome
-import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientResult
-import com.memora.app.data.saf.SafPdfDescriptorBroker
-import com.memora.app.data.saf.SafPdfDescriptorBrokerResult
+import android.os.ParcelFileDescriptor
 import com.memora.app.domain.extraction.PdfExtractionRequest
+
+/**
+ * Parses one broker-handed read-only PDF descriptor through the isolated parser service.
+ */
+internal fun interface ApprovedPdfBorrowedParser {
+    fun parseBorrowed(
+        descriptor: ParcelFileDescriptor,
+        cancellationSignal: CancellationSignal?,
+    ): ApprovedPdfParsingOutcome
+}
 
 /**
  * Connects one approved descriptor to the isolated parser without making it searchable.
  *
- * This unbound application coordinator is intentionally not injected, scheduled, or called by
- * the UI. It returns only content-free parser status. It does not persist an extraction, create
+ * Returns only content-free parser status. It does not persist an extraction, create
  * a Memory, invoke understanding/AI, or expose source locations above this boundary.
  */
 internal class ParseApprovedPdfWithIsolatedParser(
-    private val descriptorBroker: SafPdfDescriptorBroker,
-    private val parser: BorrowedPdfDescriptorParser,
+    private val descriptorAccess: PdfReadOnlyDescriptorAccess,
+    private val parser: ApprovedPdfBorrowedParser,
 ) : ApprovedPdfParsingPort {
     override suspend fun execute(
         request: PdfExtractionRequest,
         cancellationSignal: CancellationSignal?,
     ): ApprovedPdfParsingOutcome = when (
-        val brokerResult = descriptorBroker.withReadOnlyDescriptor(request, cancellationSignal) {
-            parser.parseBorrowed(it, cancellationSignal)
+        val brokerResult = descriptorAccess.withReadOnlyDescriptor(
+            request = request,
+            cancellationSignal = cancellationSignal,
+        ) { descriptor ->
+            parser.parseBorrowed(descriptor, cancellationSignal)
         }
     ) {
-        is SafPdfDescriptorBrokerResult.Consumed -> brokerResult.value.toOutcome()
-        SafPdfDescriptorBrokerResult.AccessRequired -> ApprovedPdfParsingOutcome.AccessRequired
-        SafPdfDescriptorBrokerResult.AccessRevoked -> ApprovedPdfParsingOutcome.AccessRevoked
-        SafPdfDescriptorBrokerResult.SourceUnavailable -> ApprovedPdfParsingOutcome.SourceUnavailable
-        SafPdfDescriptorBrokerResult.SourceMismatch -> ApprovedPdfParsingOutcome.SourceMismatch
-        SafPdfDescriptorBrokerResult.StaleSource -> ApprovedPdfParsingOutcome.StaleSource
-        SafPdfDescriptorBrokerResult.InvalidTarget,
-        SafPdfDescriptorBrokerResult.TreeMembershipDenied,
-        SafPdfDescriptorBrokerResult.UnsupportedPlatform,
+        is PdfReadOnlyDescriptorOutcome.Consumed -> brokerResult.value
+        PdfReadOnlyDescriptorOutcome.AccessRequired -> ApprovedPdfParsingOutcome.AccessRequired
+        PdfReadOnlyDescriptorOutcome.AccessRevoked -> ApprovedPdfParsingOutcome.AccessRevoked
+        PdfReadOnlyDescriptorOutcome.SourceUnavailable -> ApprovedPdfParsingOutcome.SourceUnavailable
+        PdfReadOnlyDescriptorOutcome.SourceMismatch -> ApprovedPdfParsingOutcome.SourceMismatch
+        PdfReadOnlyDescriptorOutcome.StaleSource -> ApprovedPdfParsingOutcome.StaleSource
+        PdfReadOnlyDescriptorOutcome.InvalidTarget,
+        PdfReadOnlyDescriptorOutcome.TreeMembershipDenied,
+        PdfReadOnlyDescriptorOutcome.UnsupportedPlatform,
         -> ApprovedPdfParsingOutcome.SourceUnavailable
-        SafPdfDescriptorBrokerResult.Cancelled -> ApprovedPdfParsingOutcome.Cancelled
-        SafPdfDescriptorBrokerResult.RetryableFailure -> ApprovedPdfParsingOutcome.RetryableFailure
+        PdfReadOnlyDescriptorOutcome.Cancelled -> ApprovedPdfParsingOutcome.Cancelled
+        PdfReadOnlyDescriptorOutcome.RetryableFailure -> ApprovedPdfParsingOutcome.RetryableFailure
     }
 
     suspend fun execute(request: PdfExtractionRequest): ApprovedPdfParsingOutcome =
         execute(request, cancellationSignal = null)
-
-    private fun IsolatedPdfParserClientResult.toOutcome(): ApprovedPdfParsingOutcome = when (outcome) {
-        IsolatedPdfParserClientOutcome.EXTRACTED -> pageOutcome { pageCount ->
-            ApprovedPdfParsingOutcome.Extracted(pageCount)
-        }
-        IsolatedPdfParserClientOutcome.NO_EXTRACTABLE_TEXT -> pageOutcome { pageCount ->
-            ApprovedPdfParsingOutcome.NoExtractableText(pageCount)
-        }
-        IsolatedPdfParserClientOutcome.PASSWORD_PROTECTED -> ApprovedPdfParsingOutcome.PasswordProtected
-        IsolatedPdfParserClientOutcome.FAILURE -> if (retryable) {
-            ApprovedPdfParsingOutcome.RetryableFailure
-        } else {
-            ApprovedPdfParsingOutcome.ParserFailure
-        }
-    }
-
-    private inline fun IsolatedPdfParserClientResult.pageOutcome(
-        create: (Int) -> ApprovedPdfParsingOutcome,
-    ): ApprovedPdfParsingOutcome = if (!retryable && pageCount != null && pageCount > 0) {
-        create(pageCount)
-    } else {
-        ApprovedPdfParsingOutcome.RetryableFailure
-    }
 }
 
 /**

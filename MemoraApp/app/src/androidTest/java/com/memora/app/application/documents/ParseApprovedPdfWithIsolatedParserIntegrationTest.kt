@@ -13,8 +13,9 @@ import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientOutcome
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientResult
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserDescriptorHandoff
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
+import com.memora.app.data.pdfbox.isolation.toApprovedPdfParsingOutcome
 import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
-import com.memora.app.data.saf.SafPdfDescriptorBroker
+import com.memora.app.data.saf.SafPdfReadOnlyDescriptorAccess
 import com.memora.app.data.saf.SyntheticPdfDocumentsProvider
 import com.memora.app.data.saf.SafPdfDocumentFingerprint
 import com.memora.app.domain.asset.Asset
@@ -125,14 +126,16 @@ class ParseApprovedPdfWithIsolatedParserIntegrationTest {
         accessStates: List<SourceAccessState>,
         parser: BorrowedPdfDescriptorParser,
     ): ParseApprovedPdfWithIsolatedParser = ParseApprovedPdfWithIsolatedParser(
-        descriptorBroker = SafPdfDescriptorBroker(
+        descriptorAccess = SafPdfReadOnlyDescriptorAccess(
             approvalRepository = FakeApprovalRepository(approval),
             accessValidator = SequencedAccessValidator(accessStates),
             platform = ContentResolverSafPdfDescriptorPlatform(
                 ApplicationProvider.getApplicationContext(),
             ),
         ),
-        parser = parser,
+        parser = ApprovedPdfBorrowedParser { descriptor, signal ->
+            parser.parseBorrowed(descriptor, signal).toApprovedPdfParsingOutcome()
+        },
     )
 
     private fun request(): PdfExtractionRequest = PdfExtractionRequest(

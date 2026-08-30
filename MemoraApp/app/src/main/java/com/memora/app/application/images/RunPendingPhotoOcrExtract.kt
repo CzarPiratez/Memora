@@ -1,18 +1,14 @@
 package com.memora.app.application.images
 
-import android.content.Context
 import android.os.CancellationSignal
-import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
-import com.memora.app.data.mediastore.MediaStoreAccess
-import com.memora.app.data.mediastore.PhotoOcrReader
-import com.memora.app.data.mediastore.mediaStoreImageAccess
-import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
+import com.memora.app.domain.extraction.PhotoOcrExtractionPersistence
 import com.memora.app.domain.extraction.PhotoOcrExtractionRecord
 import com.memora.app.domain.extraction.PhotoOcrReadResult
+import com.memora.app.domain.extraction.PhotoOcrReader
 import com.memora.app.domain.extraction.PhotoOcrSchemaVersion
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -43,12 +39,11 @@ sealed interface PendingPhotoOcrExtractOutcome {
 
 @Singleton
 class RunPendingPhotoOcrExtract @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
     private val photoOcrReader: PhotoOcrReader,
-    databaseHandle: MemoraDatabaseHandle,
+    private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
+    private val persistence: PhotoOcrExtractionPersistence,
 ) : PendingPhotoOcrExtractor {
-    private val persistence = RoomPhotoOcrExtractionPersistencePort { databaseHandle.database() }
 
     override suspend fun invoke(
         sourceId: SourceId,
@@ -56,7 +51,7 @@ class RunPendingPhotoOcrExtract @Inject constructor(
         cancellationSignal: CancellationSignal,
     ): PendingPhotoOcrExtractOutcome = withContext(Dispatchers.IO) {
         if (cancellationSignal.isCanceled) return@withContext PendingPhotoOcrExtractOutcome.Cancelled
-        if (mediaStoreImageAccess(context) == MediaStoreAccess.REQUIRED) {
+        if (imageLibraryDiscoverySource.accessScope() == null) {
             return@withContext PendingPhotoOcrExtractOutcome.AccessStopped
         }
         val asset = assetRepository.findNextPhotoPendingOcrExtract(

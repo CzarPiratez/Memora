@@ -79,9 +79,9 @@ object AiPackDisclosureCopy {
 
     val INDEX_BATCH_BODY: String =
         "Each Build indexes up to ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} " +
-            "READY memories this tap, plus PDF pages for those PDFs (capped per PDF). " +
-            "If more READY memories remain, tap Build again. This is not a permanent " +
-            "library ceiling."
+            "READY memories this tap, plus PDF pages for those PDFs and OCR evidence " +
+            "for photos/screenshots (capped per asset). If more READY memories remain, " +
+            "tap Build again. This is not a permanent library ceiling."
 
     const val ACKNOWLEDGE_LABEL = "I understand these details"
 
@@ -126,6 +126,9 @@ object AiPackDisclosureCopy {
 
     fun progressPages(processed: Int, total: Int): String =
         "Indexing PDF pages $processed of $total…"
+
+    fun progressOcrEvidence(processed: Int, total: Int): String =
+        "Indexing photo/screenshot OCR evidence $processed of $total…"
 
     fun remainingBatchHint(remaining: Int): String =
         "$remaining READY left — tap Build again for the next batch."

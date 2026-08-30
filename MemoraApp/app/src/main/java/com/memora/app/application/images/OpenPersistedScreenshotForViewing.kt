@@ -9,9 +9,8 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
-import com.memora.app.data.mediastore.MediaStoreAccess
-import com.memora.app.data.mediastore.mediaStoreImageAccess
 import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
@@ -36,6 +35,7 @@ import kotlinx.coroutines.withContext
 class OpenPersistedScreenshotForViewing @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
+    private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
 ) {
     suspend operator fun invoke(
         sourceId: String,
@@ -46,7 +46,7 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
         require(sourceAssetKey.isNotBlank()) { "Open original needs a source asset key." }
         require(screenshotLabel.isNotBlank()) { "Open original needs a screenshot label." }
 
-        if (mediaStoreImageAccess(context) == MediaStoreAccess.REQUIRED) {
+        if (imageLibraryDiscoverySource.accessScope() == null) {
             Log.w(TAG, "Open blocked: photo access required.")
             return@withContext ScreenshotPreviewRenderResult.SourceUnavailable
         }

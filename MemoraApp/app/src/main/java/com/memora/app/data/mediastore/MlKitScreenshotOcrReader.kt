@@ -10,6 +10,7 @@ import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.extraction.ScreenshotOcrExtractionRecord
 import com.memora.app.domain.extraction.ScreenshotOcrReadResult
+import com.memora.app.domain.extraction.ScreenshotOcrReader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import java.util.concurrent.ExecutionException
@@ -24,10 +25,6 @@ import javax.inject.Singleton
  * Discovery must not call this (ADR-009). Extract path only. No network upload.
  * [ScreenshotOcrReadResult.AccessStopped] is reserved for true grant loss / SecurityException.
  */
-fun interface ScreenshotOcrReader {
-    fun read(asset: Asset): ScreenshotOcrReadResult
-}
-
 @Singleton
 class MlKitScreenshotOcrReader @Inject constructor(
     @param:ApplicationContext private val context: Context,

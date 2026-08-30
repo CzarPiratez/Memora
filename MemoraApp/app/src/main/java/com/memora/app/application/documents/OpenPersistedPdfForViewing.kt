@@ -1,20 +1,13 @@
 package com.memora.app.application.documents
 
-import android.content.Context
 import android.os.CancellationSignal
-import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
-import com.memora.app.data.saf.SafPdfDescriptorBroker
-import com.memora.app.data.saf.SafPdfDescriptorBrokerResult
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
-import com.memora.app.domain.discovery.DocumentTreeAccessValidator
-import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
 import com.memora.app.domain.extraction.ExtractionSchemaVersion
 import com.memora.app.domain.extraction.PdfExtractionRequest
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +21,8 @@ import kotlinx.coroutines.withContext
  */
 @Singleton
 class OpenPersistedPdfForViewing @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
-    private val approvalRepository: DocumentTreeApprovalRepository,
-    private val accessValidator: DocumentTreeAccessValidator,
+    private val descriptorAccess: PdfReadOnlyDescriptorAccess,
     private val pagePreviewRenderer: PdfPagePreviewRenderer,
 ) {
     suspend operator fun invoke(
@@ -59,14 +50,12 @@ class OpenPersistedPdfForViewing @Inject constructor(
             asset = asset,
             schemaVersion = EXTRACTION_SCHEMA,
         )
-        val broker = SafPdfDescriptorBroker(
-            approvalRepository = approvalRepository,
-            accessValidator = accessValidator,
-            platform = ContentResolverSafPdfDescriptorPlatform(context),
-        )
 
         when (
-            val brokerResult = broker.withReadOnlyDescriptor(request, cancellationSignal) { pfd ->
+            val brokerResult = descriptorAccess.withReadOnlyDescriptor(
+                request = request,
+                cancellationSignal = cancellationSignal,
+            ) { pfd ->
                 pagePreviewRenderer.renderPage(
                     descriptor = pfd,
                     pageNumber = pageNumber,
@@ -74,18 +63,18 @@ class OpenPersistedPdfForViewing @Inject constructor(
                 )
             }
         ) {
-            is SafPdfDescriptorBrokerResult.Consumed -> brokerResult.value
-            SafPdfDescriptorBrokerResult.AccessRequired,
-            SafPdfDescriptorBrokerResult.AccessRevoked,
-            SafPdfDescriptorBrokerResult.SourceUnavailable,
-            SafPdfDescriptorBrokerResult.SourceMismatch,
-            SafPdfDescriptorBrokerResult.StaleSource,
-            SafPdfDescriptorBrokerResult.InvalidTarget,
-            SafPdfDescriptorBrokerResult.TreeMembershipDenied,
-            SafPdfDescriptorBrokerResult.UnsupportedPlatform,
-            SafPdfDescriptorBrokerResult.Cancelled,
+            is PdfReadOnlyDescriptorOutcome.Consumed -> brokerResult.value
+            PdfReadOnlyDescriptorOutcome.AccessRequired,
+            PdfReadOnlyDescriptorOutcome.AccessRevoked,
+            PdfReadOnlyDescriptorOutcome.SourceUnavailable,
+            PdfReadOnlyDescriptorOutcome.SourceMismatch,
+            PdfReadOnlyDescriptorOutcome.StaleSource,
+            PdfReadOnlyDescriptorOutcome.InvalidTarget,
+            PdfReadOnlyDescriptorOutcome.TreeMembershipDenied,
+            PdfReadOnlyDescriptorOutcome.UnsupportedPlatform,
+            PdfReadOnlyDescriptorOutcome.Cancelled,
             -> PdfPagePreviewRenderResult.SourceUnavailable
-            SafPdfDescriptorBrokerResult.RetryableFailure ->
+            PdfReadOnlyDescriptorOutcome.RetryableFailure ->
                 PdfPagePreviewRenderResult.CouldNotOpen
         }
     }

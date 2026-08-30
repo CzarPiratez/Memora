@@ -109,6 +109,39 @@ introduced.
 does not make WhatsApp, audio, automatic timelines, or other P-18 exclusions current
 features.
 
+## Grounded Answers architecture gate — contracts before generative code
+
+**Goal:** Freeze the Personal Information Engine answer path so Find stays the
+source of truth while a replaceable on-device ReasoningEngine may answer from stored
+evidence only — or abstain.
+
+**Deliverables:** `docs/GROUNDING_ARCHITECTURE.md`,
+`docs/GROUNDED_ANSWERS_AMENDMENT_V1.md`, ADR-033–ADR-039, G-01–G-08 traceability,
+`docs/GROUNDED_ANSWER_PDF_SLICE_ACCEPTANCE.md`, Local-AI Spec §9 carve-out, Experience
+Memory status refresh.
+
+**Status (2026-08-05):** Architecture gate **documentation complete**. No
+ReasoningEngine adapter, generative pack, or Ask UI authorized. Remaining open gates:
+reasoning model selection + pack lifecycle plan, PDF eval corpus, M4 measured
+(or explicit unsupported policy for answer capability), adversarial pass, then first
+PDF vertical slice per acceptance spec.
+
+**Exit gate:** An engineering review can implement the PDF slice without ambiguity on
+trust, completeness, abstention, cancellation, or Find coexistence. Measured device
+proof and eval fixtures remain required before user-facing AVAILABLE for grounded
+answers.
+
+**Parallel workstream:** M4 midrange measure landed; enterprise AVAILABLE decision
+and remaining retrieval quality work continue; do not pause for this gate.
+
+## Deferred capabilities (planning backlog)
+
+Named future options (RRF, cross-encoder rerank, ANN backends, SLM/runtime choices,
+enterprise trust packaging) and explicit out-of-scope items are recorded in
+`docs/FUTURE_CAPABILITY_BACKLOG.md`. That file does **not** authorize work; MIG-* and
+Grounding gates remain authoritative.
+
+
 ## Mandatory quality gates for every phase
 
 - The mandatory pre-work gate in `docs/GOVERNANCE.md` is completed before work starts.

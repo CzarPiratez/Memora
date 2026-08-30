@@ -51,8 +51,8 @@ Non-CI until after MIG-07 cutover. Prefer current-code inspection over memory.
 | Hint | What to look for |
 |------|------------------|
 | L1–L4 | `ui/search` ViewModels formerly calling `SearchPersisted*` (PDF / screenshot / photo / note keyword) — **Retired**; now MemoryEvidence-backed |
-| L8 | `SearchAssetMemoriesByMeaning` called from `MeaningSearchViewModel` (product meaning Find) |
-| L7 | Ranking/boost still local inside `SearchAssetMemoriesByMeaning` (counts Live until shared Canonical Recall ranking) |
+| L8 | **Retired** — `MeaningSearchViewModel` → `CanonicalRecall.searchByMeaning` (MIG-07B Slice 3) |
+| L7 | **Retired** — `MeaningEvidenceTokenBoost` in `AnchorAwareMeaningRecallRanking` only (MIG-07B Slice 4) |
 | L5 | `PdfPageEmbeddingStore` / `pdf_page_embeddings` must be **absent** from main source after MIG-05 step 4 (L5 Retired); migrations may mention DROP |
 
 ### False-positive guard
@@ -184,6 +184,32 @@ If N increased: exception / ADR link: (see `LEGACY_EXTENSION_EXCEPTION.md`)
 | Escape-hatch | YES (Canonical Recall not yet one App API — ADR-049; L1–L4 no longer enable) |
 | Delta | L4 Live → Retired; N 3 → 2; note Find → `SearchMemoryEvidence` (NOTE filter); `SearchPersistedNotePageText` + `NotePageKeywordSearchSupport` deleted |
 | Auditor | MIG-07 note cutover delivery |
+
+---
+
+## Checkpoint — MIG-07B Slice 3 (L8 retired)
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-31 |
+| Live/Dual N | **1** |
+| Enabling L#s | L7 |
+| Escape-hatch | YES (L7 local ranking still outside shared Canonical Recall ranker) |
+| Delta | L8 Live → Retired; N 2 → 1; meaning Find → `CanonicalRecall.searchByMeaning`; `MeaningSearchViewModel` no longer binds `SearchAssetMemoriesByMeaning` |
+| Auditor | MIG-07B Slice 3 delivery |
+
+---
+
+## Checkpoint — MIG-07B Slice 4 (L7 retired; N=0)
+
+| Field | Value |
+|-------|-------|
+| Date | 2026-08-31 |
+| Live/Dual N | **0** |
+| Enabling L#s | (none) |
+| Escape-hatch | **NO** — product Find paths route through `CanonicalRecall` |
+| Delta | L7 Live → Retired; N 1 → 0; token boost moved from `SearchAssetMemoriesByMeaning` to `AnchorAwareMeaningRecallRanking` |
+| Auditor | MIG-07B Slice 4 delivery |
 
 ---
 

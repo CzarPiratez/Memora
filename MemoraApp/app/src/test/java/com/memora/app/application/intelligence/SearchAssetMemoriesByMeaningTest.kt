@@ -18,6 +18,7 @@ import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
+import com.memora.app.domain.memory.MemoryAnchor
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceSearchRow
@@ -30,6 +31,7 @@ import com.memora.app.domain.memory.MemoryRevisionId
 import com.memora.app.domain.memory.PdfPageEvidenceLocator
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -169,11 +171,11 @@ class SearchAssetMemoriesByMeaningTest {
         val hit = (outcome as MeaningSearchOutcome.Matches).hits.single()
         assertEquals(3, hit.rankedPdfPageNumber)
         assertTrue(hit.summaryText.contains("mira"))
-        assertTrue(hit.evidenceTokenBoosted)
+        assertFalse(hit.evidenceTokenBoosted)
     }
 
     @Test
-    fun evidence_token_boost_outranks_foxtrot_without_token() = runBlocking {
+    fun candidate_gen_ranks_by_cosine_without_token_boost() = runBlocking {
         val engine = FixedEmbeddingEngine(model, dimensions = 3)
         val evidenceStore = InMemoryMemoryEvidenceEmbeddingStore()
         val foxtrot = MemoryRevisionId("rev-5")
@@ -233,10 +235,9 @@ class SearchAssetMemoriesByMeaningTest {
         )("mira")
         val hits = (outcome as MeaningSearchOutcome.Matches).hits
         val hit = hits.first()
-        assertEquals("memora-open-3page.pdf", hit.label)
-        assertEquals(3, hit.rankedPdfPageNumber)
-        assertTrue(hit.evidenceTokenBoosted)
-        assertEquals("memora-open-5page.pdf", hits[1].label)
+        assertEquals("memora-open-5page.pdf", hit.label)
+        assertEquals("memora-open-3page.pdf", hits[1].label)
+        assertFalse(hit.evidenceTokenBoosted)
         assertTrue(hit.score > hits[1].score)
     }
 
@@ -408,5 +409,13 @@ class SearchAssetMemoriesByMeaningTest {
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>> =
             evidenceRows.filterKeys { it in revisionIds }
+
+        override suspend fun findOcrTextEvidenceForEmbedding(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>> = emptyMap()
+
+        override suspend fun findSignatureAnchors(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, List<MemoryAnchor>> = emptyMap()
     }
 }

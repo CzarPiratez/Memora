@@ -18,6 +18,7 @@ import com.memora.app.data.local.RoomPhotoOcrExtractionPersistencePort
 import com.memora.app.data.local.RoomSavedPdfPageTextSource
 import com.memora.app.data.local.RoomScreenshotOcrExtractionPersistencePort
 import com.memora.app.data.security.MemoraDatabaseHandle
+import com.memora.app.data.security.MemoraUserConfirmedDerivedDataClearer
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository

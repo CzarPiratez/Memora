@@ -2,8 +2,8 @@ package com.memora.app.application.privacy
 
 import androidx.work.WorkManager
 import com.memora.app.application.notes.OneNoteInteractiveAuth
-import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.domain.notes.NotesProviderTokenVault
+import com.memora.app.domain.privacy.UserConfirmedDerivedDataClearer
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
@@ -22,7 +22,7 @@ import kotlinx.coroutines.runBlocking
  * unique work as a fresh indexing/reading result.
  */
 class ClearMemoraDerivedData @Inject constructor(
-    private val databaseHandle: MemoraDatabaseHandle,
+    private val derivedDataClearer: UserConfirmedDerivedDataClearer,
     private val workManager: WorkManager,
     private val notesProviderTokenVault: NotesProviderTokenVault,
     private val oneNoteAuth: OneNoteInteractiveAuth,
@@ -47,7 +47,7 @@ class ClearMemoraDerivedData @Inject constructor(
             oneNoteAuth.disconnect()
         }
         notesProviderTokenVault.clearSession()
-        databaseHandle.clearUserConfirmedDerivedData()
+        derivedDataClearer.clear()
         ClearMemoraDerivedDataResult.Cleared(APPROVED_REBUILD_MESSAGE)
     } catch (_: Exception) {
         ClearMemoraDerivedDataResult.Failed

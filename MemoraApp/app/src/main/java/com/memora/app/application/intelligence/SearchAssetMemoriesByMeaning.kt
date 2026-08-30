@@ -7,7 +7,6 @@ import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingSimilarity
-import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
@@ -24,10 +23,12 @@ import kotlinx.coroutines.withContext
  * vectors (MIG-05 step 3+; PdfPageEmbedding* retired in step 4).
  *
  * Page/evidence ranking reads [MemoryEvidenceEmbeddingStore] + stored
- * [com.memora.app.domain.memory.MemoryEvidence] excerpts. Does not use
+ * [com.memora.app.domain.memory.MemoryEvidence] excerpts. Returns cosine
+ * similarity candidates only; token boost and anchor ranking live in the
+ * shared meaning ranker inside the Canonical Recall application boundary
+ * (MIG-07B Slice 4). Does not use
  * [com.memora.app.domain.extraction.SavedPdfPageTextSource] for ranking.
- * Compact-model evidence-token boost may still apply. Does not claim Local
- * Intelligence marketing AVAILABLE / SLA (ADR-024/025).
+ * Does not claim Local Intelligence marketing AVAILABLE / SLA (ADR-024/025).
  */
 class SearchAssetMemoriesByMeaning @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
@@ -77,12 +78,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             val lookup = lookups[record.revisionId] ?: return@mapNotNull null
             if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
             val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
-            val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
-                cosine = cosine,
-                query = query,
-                evidenceText = lookup.summaryText,
-            )
-            if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
+            if (cosine < MIN_CANDIDATE_SCORE) return@mapNotNull null
             MeaningSearchHit(
                 revisionId = record.revisionId,
                 memoryId = record.memoryId,
@@ -93,9 +89,9 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 summaryText = lookup.summaryText,
                 citedPdfPageNumber = lookup.citedPdfPageNumber,
                 rankedPdfPageNumber = null,
-                score = score,
+                score = cosine,
                 model = model,
-                evidenceTokenBoosted = tokenBoosted,
+                evidenceTokenBoosted = false,
             )
         }
 
@@ -109,12 +105,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 ?: return@mapNotNull null
             val rankedPage = PdfPageEvidenceLocator.parsePageNumber(evidence.locator)
             val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
-            val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
-                cosine = cosine,
-                query = query,
-                evidenceText = excerpt,
-            )
-            if (score < MIN_CANDIDATE_SCORE) return@mapNotNull null
+            if (cosine < MIN_CANDIDATE_SCORE) return@mapNotNull null
             MeaningSearchHit(
                 revisionId = record.revisionId,
                 memoryId = record.memoryId,
@@ -125,9 +116,9 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 summaryText = excerpt,
                 citedPdfPageNumber = lookup.citedPdfPageNumber,
                 rankedPdfPageNumber = rankedPage,
-                score = score,
+                score = cosine,
                 model = model,
-                evidenceTokenBoosted = tokenBoosted,
+                evidenceTokenBoosted = false,
             )
         }
 

@@ -12,9 +12,10 @@ import com.memora.app.data.pdfbox.isolation.ContextIsolatedPdfParserServiceBinde
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClient
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserDescriptorHandoff
+import com.memora.app.data.pdfbox.isolation.toApprovedPdfParsingOutcome
 import com.memora.app.data.saf.ContentResolverDocumentTreeAccessValidator
 import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
-import com.memora.app.data.saf.SafPdfDescriptorBroker
+import com.memora.app.data.saf.SafPdfReadOnlyDescriptorAccess
 import com.memora.app.data.saf.SafPdfDocumentFingerprint
 import com.memora.app.data.security.MemoraEncryptedDatabaseOpener
 import com.memora.app.domain.asset.Asset
@@ -86,12 +87,15 @@ class ParseApprovedPdfWithIsolatedParserRealSourceIntegrationTest {
         createdDocumentUri = fixture.documentUri
 
         val coordinator = ParseApprovedPdfWithIsolatedParser(
-            descriptorBroker = SafPdfDescriptorBroker(
+            descriptorAccess = SafPdfReadOnlyDescriptorAccess(
                 approvalRepository = approvalRepository,
                 accessValidator = ContentResolverDocumentTreeAccessValidator(context),
                 platform = ContentResolverSafPdfDescriptorPlatform(context),
             ),
-            parser = IsolatedPdfParserDescriptorHandoff(client),
+            parser = ApprovedPdfBorrowedParser { descriptor, signal ->
+                IsolatedPdfParserDescriptorHandoff(client).parseBorrowed(descriptor, signal)
+                    .toApprovedPdfParsingOutcome()
+            },
         )
 
         val outcome = coordinator.execute(
