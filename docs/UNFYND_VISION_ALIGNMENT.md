@@ -26,3 +26,28 @@ only (ADR-042). This map does not reopen the freeze or start MIG-*.
 
 Do not skip Asset-Memory quality to jump to Links, Events, Grounded Answers,
 or conversation UI. Do not treat PRD MVP exclusions as silently in-scope.
+
+## MVP plan vs long-term vision (recorded 2026-08-30)
+
+Planning guidance only. Does **not** reopen Architecture Freeze, rewrite
+hashed Product Contract / Spec / Amendment, authorize MIG-*, Grounded Answers
+code, Connect implementation, or Act. **ADR-043 still governs Act-out.**
+
+Public / README multimodal maps (documents, audio, video, email, calendar,
+conversations, connected sources, and similar) describe the **long-term
+surface**. They are **not** silent MVP scope. MVP sources remain photos,
+screenshots, PDFs, and notes until an explicit contract/ADR adds a type.
+
+| Concern | In MVP plan? | Note |
+|---|---|---|
+| Permission / disclosure patterns (sources, AI pack, optional network) | Yes | Already MVP; reuse the same shape later for action consent — do not build an Act consent subsystem now |
+| Inspectable evidence + Explain ("Why this result?") | Yes | Core MVP (Find + evidence-backed explain) |
+| Asset originals remain read-only | Yes (invariant) | Enforce; do not add mutation scaffolding "for later Act" |
+| Connect (Links / Event / Knowledge Memory) | No | Post-MVP per Roadmap / Experience Memory; not an MVP exit gate |
+| Grounded Answers | No | Contracts exist; not required to exit PRD MVP Find/Explain |
+| Freeze Act / mutation / agent mechanics now | No | Defer until a later ADR + Product Contract change can define action classes, consent, and audit |
+| Act implementation | No | Out of current architecture (ADR-043) |
+
+**Rule:** MVP = trustworthy Asset Memory + recall + explain on approved sources.
+Post-MVP = Connect → Grounded Answers → (much later) Act. Do not pull Connect
+or Grounded Answers into the MVP exit to prepare for Act.

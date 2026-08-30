@@ -12,6 +12,13 @@ underneath). Class A pack at `public/unfynd-core/` matches
 [unfynd.com/core](https://www.unfynd.com/core). Public-facing docs use no em
 dashes. Engineering / App delivery status stays here only.
 
+**Docs note (MVP vs Act / multimodal vision, 2026-08-30):** Recorded in
+`docs/UNFYND_VISION_ALIGNMENT.md` — multimodal type maps are long-term vision,
+not MVP scope; do **not** freeze Act/mutation now; do **not** pull Connect or
+Grounded Answers into the MVP exit for Act prep. MVP keeps permission/
+disclosure, evidence + Explain, read-only Assets. ADR-043 Act-out unchanged.
+No Freeze reopen / MIG-* / GA / Connect / Act from this note alone.
+
 **Checkpoint (MIG-07 note keyword cutover):** Note Find ViewModel
 binds `SearchMemoryEvidence` with `AssetType.NOTE`;
 `SearchPersistedNotePageText` + `NotePageKeywordSearchSupport` deleted;

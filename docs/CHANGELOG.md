@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Vision alignment — MVP vs Act / multimodal surface (docs-only)
+
+- **Date:** 2026-08-30
+- **Delivered:** `docs/UNFYND_VISION_ALIGNMENT.md` records planning rule:
+  README multimodal maps are long-term vision (not silent MVP scope); do not
+  freeze Act/mutation now; Connect and Grounded Answers stay out of MVP exit;
+  MVP keeps permission/disclosure, evidence + Explain, read-only Assets.
+  `CONTINUE.md` pointer. ADR-043 Act-out unchanged; no Freeze reopen.
+- **Truthfulness:** Docs only; not architectural authority (ADR-043 still
+  governs). Does not authorize MIG-*, Connect, Grounded Answers code, or Act.
+
 ### Public framing: App intelligence README + Class A cleanup
 
 - **Date:** 2026-08-30
