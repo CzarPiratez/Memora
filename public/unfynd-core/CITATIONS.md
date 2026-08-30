@@ -7,19 +7,23 @@ the public pack as hashed freeze blobs.
 
 | Public pack file | Distilled from (private paths) |
 |---|---|
-| `README.md` / Core noun | `docs/DECISIONS.md` (ADR-046, ADR-047); `docs/OPEN_SOURCE_COMMERCIAL_STRATEGY.md` §23 |
-| `SPEC.md` §1–2 definition, privacy, integrity | `docs/PRODUCT_CONTRACT.md` (definition, privacy, memory integrity — high level) |
-| `SPEC.md` local-first, seams, Find | `docs/LOCAL_AI_TECHNICAL_SPEC.md` §4 capability list; §9 ordinary Find / no reopen; local-first / §12 prohibitions |
+| `README.md` / Core noun / vision | `docs/DECISIONS.md` (ADR-046, ADR-047); https://www.unfynd.com/core; `docs/OPEN_SOURCE_COMMERCIAL_STRATEGY.md` §23 |
+| `APPLICATIONS.md` | https://www.unfynd.com/core (capability primitives + industry application classes); builder model |
+| `SPEC.md` §1 definition, builder model | Core site vision; `docs/PRODUCT_CONTRACT.md` (privacy / integrity — high level); ADR-046 |
+| `SPEC.md` local-first, seams, Find principles | `docs/LOCAL_AI_TECHNICAL_SPEC.md` §4 capability list; §9 ordinary Find / no reopen; local-first / §12 prohibitions |
 | `SPEC.md` staged model + evidence classes | `docs/EXPERIENCE_MEMORY_AMENDMENT_V1.md` §2 staged model; §5 evidence classes |
 | `SPEC.md` principles | `docs/ARCHITECTURE_FREEZE_v1.0.md` §3 (plain language) |
 | `SPEC.md` low-power | `docs/DECISIONS.md` ADR-044; Spec §7 / §9 |
-| `SPEC.md` Act out / honesty | `docs/DECISIONS.md` ADR-043, ADR-047 |
-| `SPEC.md` MemoryBuilder seam | `CONTINUE.md` MIG-04 summary; Spec §4 MemoryBuilder |
-| `SPEC-STATUS.md` App column | `CONTINUE.md` honest status themes (Memory-evidence keyword Find; candidate Find-by-meaning / evidence embeddings; midrange measured ≠ AVAILABLE; Canonical Recall not a live single API; Vision / Links / Event / Knowledge / Act / GA / Class B non-claims); not a dump of App source |
+| `SPEC.md` pack scope / Act as phase | `docs/DECISIONS.md` ADR-043, ADR-047; Core site direction |
+| `SPEC.md` MemoryBuilder seam | Spec §4 MemoryBuilder; private MIG-04 delivery (App progress stays private) |
 | `examples/` | Synthetic only; authorized by ADR-048; **not** copied from App fixtures |
 | `ROADMAP-OPEN.md` Class A vs B | Strategy §23–§24; ADR-047; ADR-048 for samples |
-| `CONTRIBUTING.md` / `GOVERNANCE.md` / `PUBLIC_CHANGELOG.md` | Pack hygiene; Class A scope |
+| `CONTRIBUTING.md` / `GOVERNANCE.md` / `PUBLIC_CHANGELOG.md` | Pack hygiene; Class A scope; Core site vision bar |
 | License choice | ADR-047; Apache-2.0 text in `LICENSE` |
+
+**App progress / MVP status** is not published in the Class A pack. Maintainers
+use `CONTINUE.md` and private change-control docs for App honesty. Do not
+reintroduce an App shipped/partial matrix into the public pack.
 
 Hashed Product Contract, Local AI Spec, Experience Memory Amendment, Architecture
 Freeze, and Grounding blobs remain private authority and are **not** republished

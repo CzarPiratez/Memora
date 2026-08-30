@@ -6,7 +6,10 @@ Short rules for this public repository.
 
 **Release Class A** — curated Public Specification / Contract materials for
 **UNFYND Core** (on-device memory and intelligence infrastructure), plus
-synthetic illustrative examples. Licensed under **Apache License 2.0**.
+synthetic illustrative examples and the capability / industry map. Licensed under
+**Apache License 2.0**.
+
+Vision authority for public wording: [https://www.unfynd.com/core](https://www.unfynd.com/core).
 
 ## What this repo is not
 
@@ -24,11 +27,14 @@ private trees until a later explicit decision.
 - **UNFYND®** and **UNFYND Core®** are product marks; see `NOTICE`. Apache-2.0
   does not grant trademark rights beyond reasonable attribution.
 
-## Honesty bar
+## Public copy bar
 
-Public materials must keep App vs Core clear, and must not claim unfinished
-Converse, Act/agents, Links/Event/Knowledge as shipped, or marketing AVAILABLE
-semantic-recall SLAs without a measured product decision.
+Public materials lead with Core vision and capability (including industries in
+[`APPLICATIONS.md`](APPLICATIONS.md)). Pack scope stays clear: contracts and
+foundations open under Class A; App and full stack remain separate. Do not imply
+UNFYND Core is a personal AI or assistant product — those are applications that
+can be built on Core. Do not present staged direction as items bundled in this
+documentation release alone. Marketing performance SLAs are outside this pack.
 
 ## Changes
 

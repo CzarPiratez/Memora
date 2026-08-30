@@ -2,14 +2,26 @@
 
 ## Unreleased
 
+### Class A pack — vision alignment with unfynd.com/core (+ root README)
+
+- **Date:** 2026-08-30
+- **Delivered:** `public/unfynd-core/` rewrite: vision-first README/SPEC;
+  `APPLICATIONS.md` (primitives + industries from Core site); ROADMAP-OPEN /
+  examples / GOVERNANCE / CONTRIBUTING phased openness; removed public
+  `SPEC-STATUS.md` (App MVP audit stays private). Root `README.md` aligned
+  (Core vision; public GitHub link; not personal AI). PUBLIC_CHANGELOG /
+  CITATIONS / CONTINUE updated. Sync pack-only to public unfynd-core when
+  publishing. Private Memora push not implied.
+- **Truthfulness:** Docs only; no App MIG code. Does not claim vertical
+  products shipped or full stack open.
+
 ### Class A pack — status alignment (Memory-evidence Find + midrange)
 
 - **Date:** 2026-08-30
-- **Delivered:** `public/unfynd-core/` SPEC-STATUS / README / PUBLIC_CHANGELOG /
-  CITATIONS refresh; SPEC EmbeddingEngine clarification only. Pack synced to
-  public unfynd-core. Contracts unchanged; marketing AVAILABLE and Canonical
-  Recall as a live single API still not claimed. Private Memora not pushed.
-- **Truthfulness:** Docs / Class A pack only; no App MIG code in this checkpoint.
+- **Delivered:** Prior pack refresh (App status column + EmbeddingEngine
+  wording). Superseded for public pack structure by vision-alignment entry
+  above (`SPEC-STATUS` removed from public pack).
+- **Truthfulness:** Docs / Class A pack only; no App MIG code in that checkpoint.
 
 ### MIG-07 note — keyword Find cutover to SearchMemoryEvidence
 

@@ -55,10 +55,14 @@ conversational memory or an untracked desktop file.
 9. **Class A Core contracts (ADR-047 / ADR-048):** Release Class A authorizes a
    curated UNFYND Core Public Specification / Contract pack under Apache-2.0.
    Pack files live under `public/unfynd-core/` and are published at
-   https://github.com/CzarPiratez/unfynd-core. ADR-048 authorizes synthetic
-   non-personal reference samples under the same Apache-2.0 license. UNFYND App
-   and proprietary assets stay private until a later ADR. Openness is product
-   strategy; do not frame the product by external grant programs.
+   https://github.com/CzarPiratez/unfynd-core. Public pack leads with Core
+   vision and capability/industry map (`APPLICATIONS.md`) aligned to
+   https://www.unfynd.com/core; App MVP status is not published in Class A.
+   ADR-048 authorizes synthetic non-personal reference samples under the same
+   Apache-2.0 license. UNFYND App and proprietary assets stay private until a
+   later ADR. Openness is product strategy; do not frame the product by
+   external grant programs. Core is infrastructure — not a personal AI /
+   assistant product.
 10. **Canonical Recall naming (ADR-049):** the sole App product-facing
     retrieval boundary after MIG-07 cutover is **Canonical Recall** (not yet a
     single application API). MIG-06 `SearchMemoryEvidence` is keyword/literal

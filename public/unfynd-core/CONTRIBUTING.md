@@ -4,13 +4,16 @@ Thanks for interest in the **UNFYND Core** Class A contracts pack.
 
 ## What this repository is
 
-Docs, contracts, and **synthetic** illustrative examples under Apache-2.0.
-It is **not** the UNFYND App source tree.
+Docs, contracts, capability / industry applications, and **synthetic**
+illustrative examples under Apache-2.0. It is **not** the UNFYND App source tree.
+
+Public vision: [https://www.unfynd.com/core](https://www.unfynd.com/core).
 
 ## In scope
 
-- Clarifying public contracts (`SPEC.md`, status, roadmap, security notes)
-- Fixing documentation accuracy (over-claims, missing non-claims)
+- Clarifying public contracts (`SPEC.md`, applications, roadmap, security notes)
+- Improving alignment with the Core site vision (infrastructure; builder model;
+  industries as applications on Core)
 - Improving synthetic examples without personal or private fixtures
 - Small doc hygiene PRs
 
@@ -39,4 +42,5 @@ repository. By opening a PR, you agree your contribution is offered under the
 same Apache License 2.0 as the pack. There is no separate CLA process for these
 documentation contributions.
 
-Maintainers may edit for honesty (App vs Core, non-claims) and Class A scope.
+Maintainers may edit for Class A scope, App vs Core boundary, and vision
+alignment with the Core site.

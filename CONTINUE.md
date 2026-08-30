@@ -6,8 +6,10 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-08-30
 
-**Docs note:** Root `README.md` is site-aligned product/App vs Core voice
-([unfynd.com](https://www.unfynd.com/)); engineering status stays here only.
+**Docs note:** Root `README.md` and Class A pack lead with Core vision
+([unfynd.com/core](https://www.unfynd.com/core)): infrastructure; builder model;
+industries as applications on Core; Core is not a personal AI/assistant.
+Engineering / App MVP status stays here only — not in the public pack.
 
 **Checkpoint (MIG-07 note keyword cutover):** Note Find ViewModel
 binds `SearchMemoryEvidence` with `AssetType.NOTE`;
@@ -57,13 +59,15 @@ LICENSE/NOTICE/README/SPEC/ROADMAP-OPEN/SECURITY/CITATIONS only). **Pack copy
 fix:** App vs Core softened; Android-as-product / “reference application”
 framing removed from public pack; commercial licensing called out as separate
 from Apache contracts (no fake license limits). LICENSE remains Apache-2.0.
-**Pack enrichment (2026-08-29):** `SPEC-STATUS.md`, synthetic `examples/`
-(ADR-048), PUBLIC_CHANGELOG / CONTRIBUTING / GOVERNANCE, README revision stamp
-and inspect/build-on/run honesty. Synced pack-only to public unfynd-core.
-**Class A status refreshed (2026-08-30):** SPEC-STATUS aligned to
-Memory-evidence Find convergence + M4 midrange measurement (contracts
-unchanged; AVAILABLE / Canonical Recall as live API still not claimed);
-synced pack-only to public unfynd-core.
+**Pack enrichment (2026-08-29):** synthetic `examples/` (ADR-048),
+PUBLIC_CHANGELOG / CONTRIBUTING / GOVERNANCE. Synced pack-only to public
+unfynd-core.
+**Class A vision alignment (2026-08-30):** README / SPEC / APPLICATIONS.md
+aligned to https://www.unfynd.com/core (vision first; industries; Core
+underneath / you build; not personal AI). App MVP status table
+(`SPEC-STATUS.md`) **removed** from public pack — App honesty stays in
+`CONTINUE.md`. Root README updated same pass. Pack source under
+`public/unfynd-core/`; sync pack-only to public unfynd-core when publishing.
 UNFYND App and proprietary assets stay private until a later ADR. No MIG-* /
 Freeze reopen / Act from ADR-047 / ADR-048.
 

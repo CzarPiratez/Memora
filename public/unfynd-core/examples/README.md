@@ -5,15 +5,12 @@
 reference samples)
 
 These files help humans **inspect** Core Memory / evidence contracts. They are
-**not**:
+illustrative sketches aligned with [`SPEC.md`](../SPEC.md) — not production
+schema locks, not personal data, and not App fixtures.
 
-- Production schema locks or API guarantees
-- Personal, private, or evaluation fixtures from any App repository
-- Proof that Links, Events, Knowledge, Act, or AVAILABLE recall are shipped
-- Runnable validators (a public validator may come later)
-
-Treat field names and nesting as **sketch** shape aligned with [`SPEC.md`](../SPEC.md)
-evidence rules. Implementers should validate against their own schemas and tests.
+Treat field names and nesting as **sketch** shape. Implementers should validate
+against their own schemas and tests. Runnable tooling that exercises these
+examples arrives in later pack phases.
 
 | File | Role |
 |---|---|

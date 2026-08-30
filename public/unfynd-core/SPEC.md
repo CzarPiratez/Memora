@@ -1,37 +1,46 @@
 # UNFYND Core — Public Specification (Class A)
 
-**Status:** Public distillation for Release Class A (contracts / specs only)  
+**Status:** Public distillation for Release Class A (contracts / specs)  
 **License:** Apache License 2.0  
-**Noun:** UNFYND Core — on-device memory and intelligence infrastructure
+**Noun:** UNFYND Core — on-device memory and intelligence infrastructure  
+**Site:** [https://www.unfynd.com/core](https://www.unfynd.com/core)
 
-This document is a plain-language public contract pack. It is **not** a shipping
-manifest, performance SLA, or claim that every described stage is implemented.
-
-**Related:** Honest App status — [`SPEC-STATUS.md`](SPEC-STATUS.md). Synthetic
-illustrative sketches — [`examples/`](examples/). Pack revision and changelog —
-[`README.md`](README.md) / [`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md).
+This document is a plain-language public contract pack. It describes the
+substrate we are building toward. Capability and industry applications —
+[`APPLICATIONS.md`](APPLICATIONS.md). Synthetic sketches —
+[`examples/`](examples/). Pack map — [`README.md`](README.md).
 
 ---
 
 ## 1. What UNFYND Core is
 
-UNFYND Core is **on-device memory and intelligence infrastructure**: durable
-multimodal memory that lives next to personal data that cannot leave the device;
-**local-first**; **evidence-backed**.
+UNFYND Core is **on-device memory and intelligence infrastructure**: how
+multimodal data becomes lasting, inspectable intelligence that can run where the
+data already lives — phones, laptops, workstations, and controlled networks. It
+is infrastructure you **ship, audit, and extend** when the corpus cannot be
+treated as someone else’s training set.
 
-The everyday product goal is to help a person **recall** content by meaning and
-**explain why** a result matched — not to act as a file browser, upload tool, or
-generic chatbot.
+**Core is the system underneath. You build the product.** Core provides ingest
+and retention, recall and ranking, and answers tied to evidence you can open, at
+the boundary you set (device, site, or air gap). Builders wire sources,
+workflows, domain rules, and permissions — for clinics, field teams, enterprises,
+research enclaves, consumer devices, and products we have not named yet.
 
-**UNFYND App** is the multiplatform product surface that uses this substrate.
-This pack describes Core contracts, not the private App implementation.
+UNFYND Core is **not** a personal AI or assistant. Assistants, companions, and
+vertical tools are applications that can sit **on** Core. **UNFYND App** is one
+multiplatform product surface that uses this substrate. This pack describes Core
+contracts, not the private App implementation.
+
+Search and Find are capabilities of products on Core. They are not the whole
+definition of Core. For the industry map and “how” primitives, see
+[`APPLICATIONS.md`](APPLICATIONS.md).
 
 ### 1.1 Local-first / no cloud on the core path
 
 After the required on-device capability is installed:
 
 - Core memory creation, retrieval, ranking, and explanation run **locally**.
-- The core path does **not** send source content, extractions, embeddings,
+- The core path does **not** send source content, extractions facts, embeddings,
   prompts, queries, or Memories to a remote AI service.
 - Optional cloud features (if ever added) need their own explicit product
   decision, consent, and data-handling contract. They are not the Core path.
@@ -48,7 +57,7 @@ Discover → Extract → Understand → Store → Recall → Explain
 
 | Term | Meaning |
 |---|---|
-| **Asset** | A permitted source item (e.g. photo, screenshot, PDF, approved note). Discovery is permissioned; the user does not manually feed each file as the primary workflow. |
+| **Asset** | A permitted source item (e.g. photo, screenshot, PDF, approved note). Discovery is permissioned; the user or organization does not manually feed each file as the primary workflow. |
 | **Memory** | The searchable semantic representation of an Asset (or later, of linked context). It is **not** a copy, replacement, or owner of the original file. |
 | **Evidence** | Bounded, provenance-cited support for what a Memory claims. Explanations cite stored evidence. |
 
@@ -62,6 +71,10 @@ Every Memory has a **stable identity**. Fingerprint, evidence, summary, embeddin
 and explanation may evolve through **traceable revisions**; identity does not
 silently rewrite. Incomplete, failed, or unavailable derived content must not be
 presented as a fully ready Memory.
+
+Memory is a first-class runtime concern: ingest into a durable local record,
+retain for continuity, and reason over a working store that stays inside the
+boundary you set — not a profile uploaded to improve a remote model.
 
 ---
 
@@ -119,20 +132,15 @@ model vendor, HTTP client, or platform SDK.
 Each seam should expose availability, version identity, bounded limits,
 recoverable failure, and cancellation.
 
-### 5.1 MemoryBuilder status (honest)
-
-- The **assemble** contract seam exists: facts + optional local observations →
-  schema-validated Memory (or an honest build outcome).
-- Production assembly today is **deterministic** (extraction facts). Local
-  observations default empty until a Vision path exists.
-- **Vision observations are not yet consumed** into Memory assembly in current
-  product surfaces. Do not claim vision-backed Asset Memories as shipped Core.
+**MemoryBuilder** exposes an assemble contract: facts + optional local
+observations → schema-validated Memory (or an honest build outcome). Vision and
+observation paths mature as Core capabilities advance through product phases.
 
 ---
 
-## 6. Staged memory direction (future)
+## 6. Staged memory direction (future stages)
 
-Approved long-term staging (not a claim of current shipping):
+Approved long-term staging (phases of the Memory model):
 
 ```text
 Original read-only Asset
@@ -144,13 +152,13 @@ Original read-only Asset
 
 - **Asset Memory** — foundation: one permitted Asset version → evidence, anchors,
   evidence-cited summary, provenance.
-- **Link** — future: “these memories appear related,” with inspectable evidence;
-  not a silent merge; not embedding-only.
-- **Event Memory** — future: cautious occurrence context referencing members.
-- **Knowledge Memory** — future: evolving, evidence-backed subject object.
+- **Link** — “these memories appear related,” with inspectable evidence; not a
+  silent merge; not embedding-only.
+- **Event Memory** — cautious occurrence context referencing members.
+- **Knowledge Memory** — evolving, evidence-backed subject object.
 
-Links, Events, and Knowledge are **direction**. They are **not** claimed shipped
-in this pack.
+Links, Events, and Knowledge are **direction**. They arrive as Core and products
+on Core mature.
 
 ---
 
@@ -165,8 +173,8 @@ hardware and not always-on sensing:
 - Stay quiet until a discovery, fingerprint change, user action, or pack-upgrade
   cue.
 - **Recall cheaply** from stored rows.
-- Run expensive reasoning only when explicitly asked (future Grounded Answers over
-  a frozen evidence package) — not on every Find result.
+- Run expensive reasoning when explicitly asked (e.g. future Grounded Answers over
+  a frozen evidence package) — not on every ordinary recall result.
 
 Paused indexing under device pressure is honest product behavior, not a silent
 failure.
@@ -179,28 +187,21 @@ failure.
 - Ask for source access before discovery; access is revocable.
 - Indexing state should be visible and recoverable.
 - Disclose local processing, on-device model/pack storage, and any optional
-  network action **before** the user enables it.
+  network action **before** the user or operator enables it.
 - Core creation / retrieval / ranking / explanation do not depend on cloud AI.
 
 ---
 
-## 9. Explicit non-claims
+## 9. Pack scope
 
-This Class A pack does **not** claim or authorize:
+This Class A pack opens **contracts and specifications** (and synthetic
+examples) under Apache-2.0. It does not open the UNFYND App, proprietary AI
+Packs, evaluation corpora, secrets, or Release Class B commercial packages.
 
-- That the UNFYND App or private monorepo is open source
-- Marketing **AVAILABLE** semantic recall / SLA numbers without measured product
-  decision
-- Shipped Links, Event Memories, or Knowledge Memories
-- Shipped Grounded Answers / generative Ask UI
-- **Act** / agentic tools that act on the user’s behalf (out of current
-  architecture)
-- Chat history, personalities, goal orchestration, or “personal assistant”
-  mutation of originals
-- Neuromorphic silicon or always-on camera/microphone as Core requirements
-- Cloud AI on the Core path
-- Release Class B commercial redistribution rights
-- That VisionEngine observations are already consumed into Memory assembly
+Treat staged direction (Links, Events, Knowledge), Grounded Answers, and Act /
+agentic action as **phases of the vision** described on the Core site and in
+[`APPLICATIONS.md`](APPLICATIONS.md) — not as items bundled in this documentation
+release. Marketing performance SLAs are product decisions outside this pack.
 
 ---
 

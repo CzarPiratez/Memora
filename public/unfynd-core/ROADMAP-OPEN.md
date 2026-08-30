@@ -1,7 +1,8 @@
 # Openness roadmap (Class A pack)
 
-This note separates what **this pack** opens now from what may open later or stay
-closed. It is product strategy documentation, not a shipping schedule.
+This note separates what **this pack** opens now from what arrives in later
+openness phases. It is product strategy documentation, not a shipping schedule
+for every vertical application in [`APPLICATIONS.md`](APPLICATIONS.md).
 
 ---
 
@@ -10,31 +11,33 @@ closed. It is product strategy documentation, not a shipping schedule.
 Curated **Public Specification / Contract** materials under Apache-2.0 in this
 repository:
 
-- Core definition and local-first rules ([`SPEC.md`](SPEC.md))
+- Core vision, local-first rules, and builder model ([`SPEC.md`](SPEC.md))
+- Capability and industry applications ([`APPLICATIONS.md`](APPLICATIONS.md))
 - Memory / evidence model and evidence classes
 - Capability seams (including MemoryBuilder)
 - Truth-before-intelligence / retrieval-first principles
-- Staged direction and explicit non-claims
-- Honest contract vs App status ([`SPEC-STATUS.md`](SPEC-STATUS.md))
+- Staged Memory direction as future stages
 - Synthetic illustrative examples ([`examples/`](examples/); ADR-048)
 - Security reporting, notices, contributing, and short governance
 - Pack changelog ([`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md))
 
 Public materials may say UNFYND Core is open **in the Class A sense**
-(contracts/specs inspectable under Apache-2.0) with an explicit scope boundary.
+(contracts/specs inspectable under Apache-2.0) with an explicit scope boundary:
+this pack is foundations you can read and build on; the App and full stack remain
+under separate decisions.
 
 ---
 
-## May open later (needs a new decision)
+## Later openness phases
 
-Examples that are **not** authorized by Class A alone:
+As Core and this pack mature, further foundations may open under new decisions:
 
-| Candidate | Notes |
+| Phase direction | Notes |
 |---|---|
+| Runnable tooling that exercises Class A contracts | Validator and related developer tooling as pack updates |
 | Additional public SDK / interface docs | Only if curated and provenance-cleared |
 | Broader Core source under a separate license decision | Requires Model A vs B / licensing ADR |
-| Public runnable validator / reference tooling | Planned direction; not shipped in this pack |
-| Website “open Core” wording beyond Class A | Must keep App vs Core boundary honest |
+| Website and Open pages pointing at this pack | Keep App vs Core boundary clear |
 
 **Reference samples:** Synthetic, non-personal Class A examples under the same
 Apache-2.0 license as this pack are authorized (private monorepo ADR-048). They
@@ -46,7 +49,7 @@ later ADR where required.
 
 ---
 
-## Stays closed until a later ADR (typical)
+## Stays in private trees until a later ADR
 
 - UNFYND App
 - Private monorepo (may still use historical folder names)
@@ -64,10 +67,10 @@ later ADR where required.
 quality, commercial) for redistributable technology packages, enterprise SDKs,
 OEM licensing, and similar.
 
-Class B is **not** done by this pack. Commercial product and enterprise
-technology licensing is **separate** from this Apache-2.0 contracts pack. Class A
-must not be read as permission to commercially redistribute components that need
-a separate commercial license.
+Class B is a later phase relative to this pack. Commercial product and
+enterprise technology licensing is **separate** from this Apache-2.0 contracts
+pack. Class A must not be read as permission to commercially redistribute
+components that need a separate commercial license.
 
 Any Class B (or broader Core source) publish requires a **new ADR** and clear
 artifact boundaries.
