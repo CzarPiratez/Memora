@@ -188,6 +188,24 @@ interface MemoryDao {
 
     @Query(
         """
+        SELECT
+            revision_id AS revision_id,
+            evidence_id AS evidence_id,
+            locator AS locator,
+            excerpt AS excerpt
+        FROM memory_evidence
+        WHERE revision_id IN (:revisionIds)
+          AND evidence_kind = 'NOTE_TEXT'
+          AND excerpt != ''
+        ORDER BY revision_id, evidence_id
+        """,
+    )
+    suspend fun findNoteTextEvidenceForEmbedding(
+        revisionIds: List<String>,
+    ): List<MemoryEvidenceSearchRowEntity>
+
+    @Query(
+        """
         SELECT * FROM memory_anchors
         WHERE revision_id IN (:revisionIds)
         ORDER BY revision_id, anchor_id

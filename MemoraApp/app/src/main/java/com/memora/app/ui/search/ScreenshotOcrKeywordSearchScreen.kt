@@ -376,9 +376,8 @@ private fun ScreenshotOcrKeywordHitCard(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = ScreenshotOcrKeywordSearchCopy.whyThisResultBody(
+                        hit = hit,
                         query = query,
-                        screenshotLabel = hit.label,
-                        excerpt = hit.excerpt,
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,

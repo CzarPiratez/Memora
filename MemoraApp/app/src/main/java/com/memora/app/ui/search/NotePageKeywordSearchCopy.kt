@@ -1,5 +1,8 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.memory.CanonicalRecallResult
+import com.memora.app.application.notes.NotePageKeywordSearchHit
+
 /**
  * Plain-language copy for keyword search over note Memory evidence.
  *
@@ -101,7 +104,7 @@ object NotePageKeywordSearchCopy {
         return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
-    const val WHY_THIS_RESULT_LABEL = "Why this result?"
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
     const val HIDE_WHY_LABEL = "Hide explanation"
 
@@ -130,18 +133,9 @@ object NotePageKeywordSearchCopy {
 
     const val BACK_LABEL = "Back"
 
-    fun whyThisResultBody(
-        query: String,
-        noteLabel: String,
-        excerpt: String,
-    ): String {
-        require(query.isNotBlank()) { "Why this result needs the search query." }
-        require(noteLabel.isNotBlank()) { "Why this result needs the saved note label." }
-        require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
+    fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
+        CanonicalRecallWhyCopy.whyThisResult(recall, query)
 
-        return "UNFYND matched \"$query\" in saved note Memory evidence from " +
-            "\"$noteLabel\" on this phone. " +
-            "Matching evidence: $excerpt. " +
-            "This is keyword matching, not meaning-based recall."
-    }
+    fun whyThisResultBody(hit: NotePageKeywordSearchHit, query: String): String =
+        whyThisResultBody(query, hit.recall)
 }

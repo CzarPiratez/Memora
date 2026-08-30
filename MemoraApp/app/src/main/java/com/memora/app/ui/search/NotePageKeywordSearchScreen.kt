@@ -312,9 +312,8 @@ private fun NotePageKeywordHitCard(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = NotePageKeywordSearchCopy.whyThisResultBody(
+                        hit = hit,
                         query = query,
-                        noteLabel = hit.label,
-                        excerpt = hit.excerpt,
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,

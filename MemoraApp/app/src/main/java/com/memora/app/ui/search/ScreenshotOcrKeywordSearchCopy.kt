@@ -1,5 +1,8 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
+import com.memora.app.application.memory.CanonicalRecallResult
+
 /**
  * Plain-language copy for interim keyword search over screenshot Memory evidence.
  *
@@ -138,26 +141,15 @@ object ScreenshotOcrKeywordSearchCopy {
         return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
-    const val WHY_THIS_RESULT_LABEL = "Why this result?"
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
     const val HIDE_WHY_LABEL = "Hide explanation"
 
     const val BACK_LABEL = "Back"
 
-    fun whyThisResultBody(
-        query: String,
-        screenshotLabel: String,
-        excerpt: String,
-    ): String {
-        require(query.isNotBlank()) { "Why this result needs the search query." }
-        require(screenshotLabel.isNotBlank()) {
-            "Why this result needs the saved screenshot label."
-        }
-        require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
+    fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
+        CanonicalRecallWhyCopy.whyThisResult(recall, query)
 
-        return "UNFYND matched \"$query\" in saved screenshot Memory evidence from " +
-            "\"$screenshotLabel\" on this phone. " +
-            "Matching evidence: $excerpt. " +
-            "This is keyword matching, not meaning-based recall."
-    }
+    fun whyThisResultBody(hit: ScreenshotOcrKeywordSearchHit, query: String): String =
+        whyThisResultBody(query, hit.recall)
 }

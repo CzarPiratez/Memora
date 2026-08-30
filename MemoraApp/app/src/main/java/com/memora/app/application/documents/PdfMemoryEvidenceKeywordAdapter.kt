@@ -3,6 +3,7 @@ package com.memora.app.application.documents
 import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
 import com.memora.app.application.memory.MemoryEvidenceSearchHit
 import com.memora.app.application.memory.MemoryEvidenceSearchOutcome
+import com.memora.app.application.memory.toCanonicalRecallResult
 import com.memora.app.domain.memory.PdfPageEvidenceLocator
 
 /**
@@ -34,12 +35,6 @@ internal object PdfMemoryEvidenceKeywordAdapter {
         val pageNumber = hit.openPageNumber
             ?: PdfPageEvidenceLocator.parsePageNumber(hit.locator.value)
             ?: return null
-        return PdfKeywordSearchHit(
-            label = hit.label,
-            pageNumber = pageNumber,
-            excerpt = hit.excerpt,
-            sourceId = hit.sourceId.value,
-            sourceAssetKey = hit.sourceAssetKey.value,
-        )
+        return PdfKeywordSearchHit(recall = hit.toCanonicalRecallResult())
     }
 }

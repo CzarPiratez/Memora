@@ -12,8 +12,8 @@ import java.security.MessageDigest
 import javax.inject.Inject
 
 /**
- * Indexes photo/screenshot OCR [MemoryEvidence] excerpts into
- * [MemoryEvidenceEmbeddingStore] (MIG-05 claim B slice 1).
+ * Indexes photo/screenshot OCR and note [MemoryEvidence] excerpts into
+ * [MemoryEvidenceEmbeddingStore] (MIG-05 claim B slices 1–2).
  *
  * Evidence-only writer; fingerprint-skips unchanged text. Never invents evidence ids.
  */

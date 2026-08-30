@@ -196,6 +196,8 @@ class AiPackDisclosureViewModel @Inject constructor(
                         memoryRepository.findPdfPageEvidenceIds(revisionIds)
                     val ocrEvidenceByRevision =
                         memoryRepository.findOcrTextEvidenceForEmbedding(revisionIds)
+                    val noteEvidenceByRevision =
+                        memoryRepository.findNoteTextEvidenceForEmbedding(revisionIds)
                     val pageCandidates = candidates.flatMap { summary ->
                         val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
                         if (lookup.assetType != AssetType.PDF) return@flatMap emptyList()
@@ -276,7 +278,45 @@ class AiPackDisclosureViewModel @Inject constructor(
                             },
                         )
                     }
-                    MeaningEvidenceIndexBatchResults(pdf = pdfResult, ocr = ocrResult)
+                    val noteCandidates = candidates.flatMap { summary ->
+                        val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
+                        if (lookup.assetType != AssetType.NOTE) return@flatMap emptyList()
+                        noteEvidenceByRevision[summary.revisionId].orEmpty().map { row ->
+                            OcrEvidenceEmbeddingCandidate(
+                                revisionId = summary.revisionId,
+                                memoryId = summary.memoryId,
+                                excerpt = row.excerpt,
+                                evidenceId = row.evidenceId,
+                            )
+                        }
+                    }
+                    val noteResult = if (noteCandidates.isEmpty()) {
+                        IndexOcrEvidenceEmbeddingsResult.Completed(0, 0, 0)
+                    } else {
+                        mutableUiState.value = mutableUiState.value.copy(
+                            progressFeedback = AiPackDisclosureCopy.progressNoteEvidence(
+                                processed = 0,
+                                total = noteCandidates.size,
+                            ),
+                        )
+                        indexOcrEvidenceEmbeddings(
+                            candidates = noteCandidates,
+                            nowEpochMs = now,
+                            onProgress = { processed, total ->
+                                mutableUiState.value = mutableUiState.value.copy(
+                                    progressFeedback = AiPackDisclosureCopy.progressNoteEvidence(
+                                        processed = processed,
+                                        total = total,
+                                    ),
+                                )
+                            },
+                        )
+                    }
+                    MeaningEvidenceIndexBatchResults(
+                        pdf = pdfResult,
+                        ocr = ocrResult,
+                        note = noteResult,
+                    )
                 }
             }
             when (val availability = embeddingEngine.availability()) {
@@ -313,6 +353,16 @@ class AiPackDisclosureViewModel @Inject constructor(
                         }
                         null -> ""
                     }
+                    val noteEvidencePart = when (val batch = evidenceIndexResult) {
+                        is MeaningEvidenceIndexBatchResults -> when (val notePart = batch.note) {
+                            is IndexOcrEvidenceEmbeddingsResult.Completed ->
+                                " Note evidence indexed ${notePart.indexed} " +
+                                    "(skipped ${notePart.skippedUnchanged}, failed ${notePart.failed})."
+                            is IndexOcrEvidenceEmbeddingsResult.EngineUnavailable ->
+                                " Note evidence index unavailable."
+                        }
+                        null -> ""
+                    }
                     val remainingHint = if (remainingAfterBatch > 0) {
                         " ${AiPackDisclosureCopy.remainingBatchHint(remainingAfterBatch)}"
                     } else {
@@ -320,7 +370,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                     }
                     AiPackDisclosureCopy.FEEDBACK_INDEX_BUILT_PREFIX +
                         "${result.indexed} memories (skipped ${result.skippedUnchanged}, " +
-                        "failed ${result.failed}).$pagePart$ocrEvidencePart$remainingHint " +
+                        "failed ${result.failed}).$pagePart$ocrEvidencePart$noteEvidencePart$remainingHint " +
                         "Use Find by meaning on Welcome next."
                 }
             }
@@ -393,4 +443,5 @@ class AiPackDisclosureViewModel @Inject constructor(
 private data class MeaningEvidenceIndexBatchResults(
     val pdf: IndexPdfPageEmbeddingsResult,
     val ocr: IndexOcrEvidenceEmbeddingsResult,
+    val note: IndexOcrEvidenceEmbeddingsResult,
 )

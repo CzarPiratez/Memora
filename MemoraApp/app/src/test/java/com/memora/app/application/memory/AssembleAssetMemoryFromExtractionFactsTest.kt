@@ -481,6 +481,10 @@ private class FakeMemoryRepository : MemoryRepository {
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, List<MemoryEvidenceSearchRow>>()
 
+    override suspend fun findNoteTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = emptyMap<MemoryRevisionId, List<MemoryEvidenceSearchRow>>()
+
     override suspend fun findSignatureAnchors(
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, List<com.memora.app.domain.memory.MemoryAnchor>>()

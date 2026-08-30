@@ -1,5 +1,7 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
+import com.memora.app.domain.asset.AssetType
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -13,7 +15,15 @@ class NotePageKeywordSearchCopyTest {
             NotePageKeywordSearchCopy.SCOPE_BODY,
             NotePageKeywordSearchCopy.NOTHING_SAVED_BODY,
             NotePageKeywordSearchCopy.readinessBody(3),
-            NotePageKeywordSearchCopy.whyThisResultBody("plan", "Ideas", "…plan…"),
+            NotePageKeywordSearchCopy.whyThisResultBody(
+                query = "plan",
+                recall = CanonicalRecallTestFixtures.keywordRecall(
+                    assetType = AssetType.NOTE,
+                    label = "Ideas",
+                    excerpt = "…plan…",
+                    pageNumber = null,
+                ),
+            ),
             NotePageKeywordSearchCopy.resultsSummary("plan", 1, limitReached = false),
         ).joinToString(" ").lowercase()
 

@@ -222,6 +222,26 @@ class RoomMemoryRepository(
         return result
     }
 
+    override suspend fun findNoteTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>> {
+        if (revisionIds.isEmpty()) return emptyMap()
+        val ids = revisionIds.map { it.value }.distinct()
+        val result = linkedMapOf<MemoryRevisionId, MutableList<MemoryEvidenceSearchRow>>()
+        for (row in database().memoryDao().findNoteTextEvidenceForEmbedding(ids)) {
+            if (row.locator.isBlank() || row.excerpt.isBlank()) continue
+            val revisionId = MemoryRevisionId(row.revisionId)
+            val rows = result.getOrPut(revisionId) { mutableListOf() }
+            rows += MemoryEvidenceSearchRow(
+                revisionId = revisionId,
+                evidenceId = MemoryEvidenceId(row.evidenceId),
+                locator = row.locator,
+                excerpt = row.excerpt,
+            )
+        }
+        return result
+    }
+
     override suspend fun findSignatureAnchors(
         revisionIds: Collection<MemoryRevisionId>,
     ): Map<MemoryRevisionId, List<MemoryAnchor>> {

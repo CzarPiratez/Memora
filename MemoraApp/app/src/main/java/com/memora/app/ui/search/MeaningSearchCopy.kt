@@ -2,6 +2,7 @@ package com.memora.app.ui.search
 
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchReadiness
+import com.memora.app.application.memory.toCanonicalRecallResult
 import com.memora.app.domain.asset.AssetType
 
 /**
@@ -87,28 +88,8 @@ object MeaningSearchCopy {
         return "Cites page $pageNumber"
     }
 
-    fun whyThisResult(hit: MeaningSearchHit, query: String): String {
-        require(query.isNotBlank())
-        val excerpt = hit.summaryText.trim().replace(Regex("\\s+"), " ")
-        val clipped = if (excerpt.length <= 160) excerpt else excerpt.take(157) + "…"
-        val pageCite = when {
-            hit.rankedPdfPageNumber != null ->
-                " It matched indexed PDF page ${hit.rankedPdfPageNumber}."
-            hit.citedPdfPageNumber != null ->
-                " It cites page ${hit.citedPdfPageNumber} of the PDF."
-            else -> ""
-        }
-        val boostNote = if (hit.evidenceTokenBoosted) {
-            " Rank also rose because your cue appears in this saved evidence text " +
-                "(disclosed assist — still candidate meaning, not keyword Find alone)."
-        } else {
-            ""
-        }
-        return "Why this result? Your cue \"$query\" ranked closest to this saved " +
-            "Asset Memory evidence: \"$clipped\".$pageCite$boostNote Score is " +
-            "candidate cosine similarity on this phone — not a guarantee of full " +
-            "meaning match."
-    }
+    fun whyThisResult(hit: MeaningSearchHit, query: String): String =
+        CanonicalRecallWhyCopy.whyThisResult(hit.toCanonicalRecallResult(), query)
 
     const val OPEN_ORIGINAL_LABEL = "Open original"
 

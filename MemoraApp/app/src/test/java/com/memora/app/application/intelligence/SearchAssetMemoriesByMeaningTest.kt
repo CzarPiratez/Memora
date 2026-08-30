@@ -414,6 +414,10 @@ class SearchAssetMemoriesByMeaningTest {
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>> = emptyMap()
 
+        override suspend fun findNoteTextEvidenceForEmbedding(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>> = emptyMap()
+
         override suspend fun findSignatureAnchors(
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, List<MemoryAnchor>> = emptyMap()

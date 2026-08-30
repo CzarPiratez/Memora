@@ -1,8 +1,9 @@
 # Recall convergence DONE (Canonical Recall program exit)
 
-**Status: OPEN** — do not claim the Recall / Canonical Recall program complete
-until every box in this file is verified. Boxes below remain unchecked until
-truly done.
+**Status: COMPLETE** — Canonical path **and** Retirement sections satisfied
+(2026-08-31). Shared result model + shared Why contract implemented. Does
+**not** claim marketing AVAILABLE, MIG-05 claim B (notes evidence embeddings),
+or Grounded Answers / Act.
 
 **Authority:** Architecture Freeze §3 (one evidence substrate; one canonical
 recall pipeline); ADR-049 (Canonical Recall naming); Migration Spec MIG-06 /
@@ -21,34 +22,37 @@ definition only.
 
 ### Canonical path
 
-- [ ] Canonical Recall exists as the App product-facing retrieval API
-      ViewModels call (ADR-049)
-- [ ] Keyword/literal candidates enter through it (`SearchMemoryEvidence` or
+- [x] Canonical Recall exists as the App product-facing retrieval API
+      ViewModels call (ADR-049) — five Find ViewModels (four keyword + meaning)
+- [x] Keyword/literal candidates enter through it (`SearchMemoryEvidence` or
       successor as candidate gen — MIG-06/07)
-- [ ] Semantic/meaning candidates enter through it (L8 folded in)
-- [ ] Evidence-level embedding candidates enter through it
-- [ ] Anchor-aware structured stage exists as designed (MIG-07B) OR
+- [x] Semantic/meaning candidates enter through it (L8 folded in)
+- [x] Evidence-level embedding candidates enter through it (candidate gen inside
+      `CanonicalRecall`; index drain separate)
+- [x] Anchor-aware structured stage exists as designed (MIG-07B) OR
       explicitly deferred with ADR (do not pretend anchors are recalled if
       unread)
-- [ ] Shared ranking stage exists inside Canonical Recall (L7 retired)
-- [ ] Shared result model exists
-      Contract sketch: `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`
-- [ ] Shared Why / evidence presentation exists (path-labeled: keyword vs
+- [x] Shared ranking stage exists inside Canonical Recall (L7 retired)
+- [x] Shared result model exists
+      `CanonicalRecallResult` + mappers (`MemoryEvidenceSearchHit`,
+      `MeaningSearchHit` → `toCanonicalRecallResult()`); keyword UI hits carry
+      `recall`
+- [x] Shared Why / evidence presentation exists (path-labeled: keyword vs
       meaning per ADR-024 honesty — no silent relabel)
-      Contract sketch: `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`
+      `CanonicalRecallWhyCopy`; per-asset Why copy delegates
 
 ### Retirement (mandatory)
 
-- [ ] L1–L4 keyword Find paths no longer produce final results;
+- [x] L1–L4 keyword Find paths no longer produce final results;
       `SearchPersisted*` / per-type support classes deleted (MIG-07)
-- [ ] L5 `PdfPageEmbedding*` retired (MIG-05 step 4)
-- [ ] L6 remains Retired (regression)
-- [ ] L7 meaning-local ranking removed from product path
-- [ ] L8 meaning ViewModel calls Canonical Recall (not a parallel product
+- [x] L5 `PdfPageEmbedding*` retired (MIG-05 step 4)
+- [x] L6 remains Retired (regression)
+- [x] L7 meaning-local ranking removed from product path
+- [x] L8 meaning ViewModel calls Canonical Recall (not a parallel product
       system)
-- [ ] `LEGACY_RECALL_SURFACE` Live/Dual count = 0 (or only Dual rows with
+- [x] `LEGACY_RECALL_SURFACE` Live/Dual count = 0 (or only Dual rows with
       documented zero product readers and immediate Retire-by — prefer 0)
-- [ ] Escape-hatch test answer: **NO** — user-visible search results cannot
+- [x] Escape-hatch test answer: **NO** — user-visible search results cannot
       be produced without Canonical Recall
 
 ---

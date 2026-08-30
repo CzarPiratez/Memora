@@ -132,6 +132,9 @@ object AiPackDisclosureCopy {
     fun progressOcrEvidence(processed: Int, total: Int): String =
         "Indexing photo/screenshot OCR evidence $processed of $total…"
 
+    fun progressNoteEvidence(processed: Int, total: Int): String =
+        "Indexing note text evidence $processed of $total…"
+
     fun remainingBatchHint(remaining: Int): String =
         "$remaining READY left — tap Build again for the next batch."
 

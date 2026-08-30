@@ -3,6 +3,7 @@ package com.memora.app.application.images
 import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
 import com.memora.app.application.memory.MemoryEvidenceSearchHit
 import com.memora.app.application.memory.MemoryEvidenceSearchOutcome
+import com.memora.app.application.memory.toCanonicalRecallResult
 
 /**
  * Maps MIG-06/07 [MemoryEvidenceSearchOutcome] into existing photo keyword UI models.
@@ -28,10 +29,5 @@ internal object PhotoMemoryEvidenceKeywordAdapter {
         }
 
     fun toPhotoHit(hit: MemoryEvidenceSearchHit): PhotoOcrKeywordSearchHit =
-        PhotoOcrKeywordSearchHit(
-            label = hit.label,
-            excerpt = hit.excerpt,
-            sourceId = hit.sourceId.value,
-            sourceAssetKey = hit.sourceAssetKey.value,
-        )
+        PhotoOcrKeywordSearchHit(recall = hit.toCanonicalRecallResult())
 }

@@ -69,3 +69,15 @@ ESCAPE-HATCH AFTER CHANGE: yes — unchanged; Canonical Recall still not in App;
 - **Documentation/traceability/ADR updates:** CONTINUE + CHANGELOG +
   RECALL_CONVERGENCE_DONE pointers; no new ADR.
 - **Git commit:** Local only when requested; no push.
+
+---
+
+## Implementation delivery (2026-08-31)
+
+- **Type:** App implementation (MIG-07 convergence exit)
+- **Delivered:** `CanonicalRecallResult.kt`, `CanonicalRecallWhyCopy.kt`;
+  keyword hit DTOs carry `recall`; per-asset Why copy delegates; unit tests.
+- **Verification:** `:app:testDebugUnitTest` — CanonicalRecall + Find copy/VM
+  tests green.
+- **RECALL_CONVERGENCE_DONE:** shared result + Why boxes checked; program
+  COMPLETE per file definition (not marketing AVAILABLE).

@@ -1,5 +1,8 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.images.PhotoOcrKeywordSearchHit
+import com.memora.app.application.memory.CanonicalRecallResult
+
 /**
  * Plain-language copy for interim keyword search over photo Memory evidence.
  *
@@ -26,7 +29,7 @@ object PhotoOcrKeywordSearchCopy {
             "and Memory assembly in photo setup first. UNFYND only searches READY photo " +
             "Memory evidence on this phone — this is keyword matching, not meaning-based recall."
     const val SEARCH_COULD_NOT_FINISH_BODY = "Search could not finish. Try again in a moment."
-    const val WHY_THIS_RESULT_LABEL = "Why this result?"
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
     const val HIDE_WHY_LABEL = "Hide explanation"
     const val OPEN_ORIGINAL_LABEL = "Open original"
     const val OPENING_BODY = "Opening a read-only preview of that photo…"
@@ -67,7 +70,9 @@ object PhotoOcrKeywordSearchCopy {
         "Results for \"$query\". Showing $count ${if (count == 1) "match" else "matches"}." +
             if (capped) " UNFYND lists at most 20 matches." else ""
 
-    fun whyThisResultBody(query: String, label: String, excerpt: String) =
-        "UNFYND matched \"$query\" in saved photo Memory evidence from \"$label\". " +
-            "Matching evidence: $excerpt. This is keyword matching, not meaning-based recall."
+    fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
+        CanonicalRecallWhyCopy.whyThisResult(recall, query)
+
+    fun whyThisResultBody(hit: PhotoOcrKeywordSearchHit, query: String): String =
+        whyThisResultBody(query, hit.recall)
 }

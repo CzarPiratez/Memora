@@ -4,6 +4,7 @@ import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
 import com.memora.app.application.documents.PdfPagePreviewRenderResult
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -530,10 +531,9 @@ class PdfKeywordSearchViewModelTest {
     )
 
     private fun sampleHit(label: String = "fixture.pdf", pageNumber: Int = 1) = PdfKeywordSearchHit(
-        label = label,
-        pageNumber = pageNumber,
-        excerpt = "meet mira excerpt",
-        sourceId = "source-1",
-        sourceAssetKey = "asset-1",
+        recall = CanonicalRecallTestFixtures.keywordRecall(
+            label = label,
+            pageNumber = pageNumber,
+        ),
     )
 }

@@ -1,6 +1,8 @@
 package com.memora.app.ui.search
 
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
+import com.memora.app.domain.asset.AssetType
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchOutcome
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.ScreenshotPreviewRenderResult
@@ -165,9 +167,13 @@ class ScreenshotOcrKeywordSearchViewModelTest {
     )
 
     private fun sampleHit() = ScreenshotOcrKeywordSearchHit(
-        label = "Screenshot_memora_note.png",
-        excerpt = "Screenshot note",
-        sourceId = "android-media-store-images",
-        sourceAssetKey = "external_primary:1",
+        recall = CanonicalRecallTestFixtures.keywordRecall(
+            assetType = AssetType.SCREENSHOT,
+            label = "Screenshot_memora_note.png",
+            excerpt = "Screenshot note",
+            pageNumber = null,
+            sourceId = "android-media-store-images",
+            sourceAssetKey = "external_primary:1",
+        ),
     )
 }

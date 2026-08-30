@@ -932,7 +932,10 @@ private fun AssetMemorySetupCard(
                                 state.currentReadyCount,
                             )
                         } else {
-                            AssetMemorySetupCopy.readiness(state.currentReadyCount)
+                            AssetMemorySetupCopy.readiness(
+                                state.currentReadyCount,
+                                state.pendingAssemblyCount,
+                            )
                         },
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -1330,10 +1333,8 @@ fun PdfKeywordSearchScreen(
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = PdfKeywordSearchCopy.whyThisResultBody(
+                                        hit = hit,
                                         query = phase.query,
-                                        documentLabel = hit.label,
-                                        pageNumber = hit.pageNumber,
-                                        excerpt = hit.excerpt,
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,

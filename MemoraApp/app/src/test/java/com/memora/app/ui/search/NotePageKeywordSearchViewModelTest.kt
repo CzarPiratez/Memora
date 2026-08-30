@@ -1,6 +1,8 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
 import com.memora.app.application.notes.NotePageKeywordSearchHit
+import com.memora.app.domain.asset.AssetType
 import com.memora.app.application.notes.NotePageKeywordSearchOutcome
 import com.memora.app.application.notes.NotePageKeywordSearchReadiness
 import com.memora.app.application.notes.OpenPersistedNotePageResult
@@ -163,9 +165,13 @@ class NotePageKeywordSearchViewModelTest {
     )
 
     private fun sampleHit() = NotePageKeywordSearchHit(
-        label = "Ideas",
-        excerpt = "…travel plan…",
-        sourceId = "microsoft.onenote",
-        sourceAssetKey = "p1",
+        recall = CanonicalRecallTestFixtures.keywordRecall(
+            assetType = AssetType.NOTE,
+            label = "Ideas",
+            excerpt = "…travel plan…",
+            pageNumber = null,
+            sourceId = "microsoft.onenote",
+            sourceAssetKey = "p1",
+        ),
     )
 }

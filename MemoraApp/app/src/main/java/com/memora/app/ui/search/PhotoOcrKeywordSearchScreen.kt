@@ -154,7 +154,7 @@ private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: (
                     else PhotoOcrKeywordSearchCopy.WHY_THIS_RESULT_LABEL,
                 )
             }
-            if (why) Text(PhotoOcrKeywordSearchCopy.whyThisResultBody(query, hit.label, hit.excerpt))
+            if (why) Text(PhotoOcrKeywordSearchCopy.whyThisResultBody(hit = hit, query = query))
         }
     }
 }

@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### MIG-05 claim B slice 2 — note text evidence embeddings (2026-08-31)
+
+- **Date:** 2026-08-31
+- **Delivered:** `findNoteTextEvidenceForEmbedding` + meaning-index drain for
+  NOTE assets; reuses `IndexOcrEvidenceEmbeddings`. ADR-050 claim B closed for
+  all MVP asset types.
+- **Truthfulness:** Not marketing AVAILABLE; MIG-05 Spec full close still needs
+  founder checklist per ADR-050.
+
+### Recall program exit — COMPLETE (2026-08-31)
+
+- **Date:** 2026-08-31
+- **Delivered:** `CanonicalRecallResult` + `CanonicalRecallWhyCopy`; keyword
+  hits carry `recall`; all five Find ViewModels use unified Why dialect.
+  `RECALL_CONVERGENCE_DONE` 15/15 boxes checked.
+- **Truthfulness:** Not marketing AVAILABLE; MIG-05 claim B (notes evidence
+  embeddings) still open; not Grounded Answers / Act.
+
+### Recall program exit — partial closure (2026-08-31)
+
+- **Date:** 2026-08-31
+- **Delivered:** `RECALL_CONVERGENCE_DONE` retirement + canonical retrieval
+  boxes checked (13/15). Live/Dual N=0; escape-hatch NO.
+- **Still OPEN:** shared result model + shared Why contract (2 boxes).
+
+### FC-04 — Corpus completeness honesty UI
+
+- **Date:** 2026-08-31
+- **Delivered:** `LoadCorpusCompleteness` + indexed/pending/blocked counts on
+  Find-by-meaning readiness, AI Pack disclosure, and Asset Memory setup.
+- **Truthfulness:** On-device Room counts only; not AVAILABLE; not Recall DONE.
+
 ### MIG-07B Slice 4 — L7 retirement (shared meaning ranker)
 
 - **Date:** 2026-08-31

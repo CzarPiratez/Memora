@@ -1,5 +1,7 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
+import com.memora.app.domain.asset.AssetType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -8,11 +10,15 @@ class ScreenshotOcrKeywordSearchCopyTest {
     fun scope_and_why_stay_keyword_honest_not_meaning_or_photo() {
         val why = ScreenshotOcrKeywordSearchCopy.whyThisResultBody(
             query = "note",
-            screenshotLabel = "Screenshot_memora_note.png",
-            excerpt = "…Screenshot note…",
+            recall = CanonicalRecallTestFixtures.keywordRecall(
+                assetType = AssetType.SCREENSHOT,
+                label = "Screenshot_memora_note.png",
+                excerpt = "…Screenshot note…",
+                pageNumber = null,
+            ),
         )
-        assertEquals(true, why.contains("keyword matching, not meaning-based recall"))
-        assertEquals(true, why.contains("Memory evidence"))
+        assertEquals(true, why.contains("not meaning-based recall"))
+        assertEquals(true, why.contains("screenshot memory"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Ordinary photos"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
         assertEquals(false, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("PHOTO OCR"))

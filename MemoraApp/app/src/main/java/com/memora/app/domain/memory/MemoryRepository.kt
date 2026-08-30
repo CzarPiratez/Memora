@@ -96,6 +96,14 @@ interface MemoryRepository {
     ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>>
 
     /**
+     * NOTE_TEXT evidence rows for meaning-index embedding drains (MIG-05 claim B
+     * slice 2). Missing revisions are omitted; ids are never invented.
+     */
+    suspend fun findNoteTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, List<MemoryEvidenceSearchRow>>
+
+    /**
      * Signature anchors for structured recall (MIG-07B). Missing revisions omitted.
      */
     suspend fun findSignatureAnchors(

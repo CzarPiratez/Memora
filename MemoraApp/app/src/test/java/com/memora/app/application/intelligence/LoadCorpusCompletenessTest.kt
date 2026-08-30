@@ -204,6 +204,10 @@ class LoadCorpusCompletenessTest {
             revisionIds: Collection<com.memora.app.domain.memory.MemoryRevisionId>,
         ) = emptyMap<com.memora.app.domain.memory.MemoryRevisionId, List<com.memora.app.domain.memory.MemoryEvidenceSearchRow>>()
 
+        override suspend fun findNoteTextEvidenceForEmbedding(
+            revisionIds: Collection<com.memora.app.domain.memory.MemoryRevisionId>,
+        ) = emptyMap<com.memora.app.domain.memory.MemoryRevisionId, List<com.memora.app.domain.memory.MemoryEvidenceSearchRow>>()
+
         override suspend fun findSignatureAnchors(
             revisionIds: Collection<com.memora.app.domain.memory.MemoryRevisionId>,
         ) = emptyMap<com.memora.app.domain.memory.MemoryRevisionId, List<com.memora.app.domain.memory.MemoryAnchor>>()

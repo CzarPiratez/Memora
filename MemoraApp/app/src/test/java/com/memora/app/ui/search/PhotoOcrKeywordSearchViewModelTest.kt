@@ -4,6 +4,8 @@ import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 import com.memora.app.application.images.PhotoOcrKeywordSearchOutcome
 import com.memora.app.application.images.PhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.PhotoPreviewRenderResult
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
+import com.memora.app.domain.asset.AssetType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -28,7 +30,16 @@ class PhotoOcrKeywordSearchViewModelTest {
 
     @Test
     fun searchAndOpenPreviewUsePhotoPath() = runTest {
-        val hit = PhotoOcrKeywordSearchHit("receipt.jpg", "Total 42", "media", "photo-1")
+        val hit = PhotoOcrKeywordSearchHit(
+            recall = CanonicalRecallTestFixtures.keywordRecall(
+                assetType = AssetType.PHOTO,
+                label = "receipt.jpg",
+                excerpt = "Total 42",
+                pageNumber = null,
+                sourceId = "media",
+                sourceAssetKey = "photo-1",
+            ),
+        )
         val viewModel = PhotoOcrKeywordSearchViewModel(
             search = { PhotoOcrKeywordSearchOutcome.Matches("total", listOf(hit), false) },
             loadReadiness = { PhotoOcrKeywordSearchReadiness(1) },

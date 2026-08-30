@@ -1,5 +1,6 @@
 package com.memora.app.application.documents
 
+import com.memora.app.application.memory.CanonicalRecallResult
 import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
 
 /**
@@ -8,18 +9,20 @@ import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
  * Mapped from MemoryEvidence search hits; not read from PdfExtractionDao.
  */
 data class PdfKeywordSearchHit(
-    val label: String,
-    val pageNumber: Int,
-    val excerpt: String,
-    val sourceId: String,
-    val sourceAssetKey: String,
+    val recall: CanonicalRecallResult,
 ) {
+    val label: String get() = recall.label
+    val pageNumber: Int
+        get() = recall.openPageNumber
+            ?: error("PDF keyword hit requires a positive open page number.")
+    val excerpt: String get() = recall.excerpt
+    val sourceId: String get() = recall.sourceId.value
+    val sourceAssetKey: String get() = recall.sourceAssetKey.value
+
     init {
-        require(label.isNotBlank()) { "A PDF search hit needs a label." }
-        require(pageNumber > 0) { "A PDF search hit page number must be positive." }
-        require(excerpt.isNotBlank()) { "A PDF search hit needs an excerpt." }
-        require(sourceId.isNotBlank()) { "A PDF search hit needs a source id." }
-        require(sourceAssetKey.isNotBlank()) { "A PDF search hit needs a source asset key." }
+        require(recall.openPageNumber != null && recall.openPageNumber > 0) {
+            "A PDF search hit page number must be positive."
+        }
     }
 }
 

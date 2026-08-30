@@ -1,5 +1,6 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.memory.CanonicalRecallTestFixtures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -34,9 +35,11 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.WHY_THIS_RESULT_LABEL,
             PdfKeywordSearchCopy.whyThisResultBody(
                 query = "meet mira",
-                documentLabel = "memora-persist-fixture.pdf",
-                pageNumber = 2,
-                excerpt = "…meet mira tomorrow…",
+                recall = CanonicalRecallTestFixtures.keywordRecall(
+                    label = "memora-persist-fixture.pdf",
+                    excerpt = "…meet mira tomorrow…",
+                    pageNumber = 2,
+                ),
             ),
             PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_LABEL,
             PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_HINT,
@@ -69,27 +72,27 @@ class PdfKeywordSearchCopyTest {
 
     @Test
     fun why_this_result_cites_query_document_page_and_excerpt() {
-        assertEquals(
-            "UNFYND matched \"meet mira\" in saved PDF page text from " +
-                "\"memora-persist-fixture.pdf\" on this phone (Page 1). " +
-                "Matching evidence: Café memory: meet Mira at 10:30…. " +
-                "This is keyword matching, not meaning-based recall.",
-            PdfKeywordSearchCopy.whyThisResultBody(
-                query = "meet mira",
-                documentLabel = "memora-persist-fixture.pdf",
-                pageNumber = 1,
+        val why = PdfKeywordSearchCopy.whyThisResultBody(
+            query = "meet mira",
+            recall = CanonicalRecallTestFixtures.keywordRecall(
+                label = "memora-persist-fixture.pdf",
                 excerpt = "Café memory: meet Mira at 10:30…",
+                pageNumber = 1,
             ),
         )
+        assertTrue(why.contains("meet mira"))
+        assertTrue(why.contains("memora-persist-fixture.pdf"))
+        assertTrue(why.contains("Café memory: meet Mira at 10:30…"))
+        assertTrue(why.contains("PDF page 1"))
+        assertTrue(why.contains("keyword match"))
+        assertTrue(why.contains("not meaning-based recall"))
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun why_this_result_rejects_blank_document_label() {
+    fun why_this_result_rejects_blank_recall_label() {
         PdfKeywordSearchCopy.whyThisResultBody(
             query = "meet mira",
-            documentLabel = " ",
-            pageNumber = 1,
-            excerpt = "meet mira",
+            recall = CanonicalRecallTestFixtures.keywordRecall(label = " "),
         )
     }
 

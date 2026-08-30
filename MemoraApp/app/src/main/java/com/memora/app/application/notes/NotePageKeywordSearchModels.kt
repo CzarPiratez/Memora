@@ -1,5 +1,6 @@
 package com.memora.app.application.notes
 
+import com.memora.app.application.memory.CanonicalRecallResult
 import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
 
 /**
@@ -9,19 +10,12 @@ import com.memora.app.application.memory.MemoryEvidenceLiteralSearchSupport
  * Open-original remains source-identity based (OneNote web/client URLs).
  */
 data class NotePageKeywordSearchHit(
-    val label: String,
-    val excerpt: String,
-    val sourceId: String,
-    val sourceAssetKey: String,
+    val recall: CanonicalRecallResult,
 ) {
-    init {
-        require(label.isNotBlank()) { "A note search hit needs a label." }
-        require(excerpt.isNotBlank()) { "A note search hit needs an excerpt." }
-        require(sourceId.isNotBlank()) { "A note search hit needs a source id." }
-        require(sourceAssetKey.isNotBlank()) {
-            "A note search hit needs a source asset key."
-        }
-    }
+    val label: String get() = recall.label
+    val excerpt: String get() = recall.excerpt
+    val sourceId: String get() = recall.sourceId.value
+    val sourceAssetKey: String get() = recall.sourceAssetKey.value
 }
 
 sealed interface NotePageKeywordSearchOutcome {

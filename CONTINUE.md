@@ -25,6 +25,20 @@ guards in CI. Phase 2 Gradle modules not started. See
 `docs/CORE_APP_SEPARATION_PLAN.md`. Does not authorize Class B, repo split,
 or full Core open source.
 
+**Docs note (MIG-05 claim B slice 2, 2026-08-31):** Note `NOTE_TEXT` evidence
+embeddings on Build meaning index tap. Closes ADR-050 claim B for all MVP asset
+types. See `CHANGE_CONTROL_MIG05B_NOTE_EVIDENCE_EMBEDDINGS.md`. Not marketing
+AVAILABLE.
+
+**Docs note (Recall program exit, 2026-08-31):** `RECALL_CONVERGENCE_DONE`
+**COMPLETE** — all 15 boxes (retirement + canonical path). Shared result
+(`CanonicalRecallResult`) + shared Why (`CanonicalRecallWhyCopy`). Not marketing
+AVAILABLE; MIG-05 claim B (notes evidence embeddings) still open.
+
+**Docs note (FC-04, 2026-08-31):** Corpus completeness honesty UI delivered —
+indexed / pending / blocked counts on meaning Find, AI Pack disclosure, and
+Asset Memory setup. See `CHANGE_CONTROL_FC04_CORPUS_COMPLETENESS_HONESTY.md`.
+
 **Docs note (MIG-07B Slice 4, 2026-08-31):** L7 token boost moved from
 `SearchAssetMemoriesByMeaning` to `AnchorAwareMeaningRecallRanking` inside
 `CanonicalRecall`. L7 → Retired. Live/Dual **N = 0**. Not Recall DONE.

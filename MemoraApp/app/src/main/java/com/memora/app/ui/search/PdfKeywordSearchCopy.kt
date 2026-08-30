@@ -1,5 +1,8 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.documents.PdfKeywordSearchHit
+import com.memora.app.application.memory.CanonicalRecallResult
+
 /**
  * Plain-language copy for interim keyword search over saved PDF text.
  *
@@ -123,7 +126,7 @@ object PdfKeywordSearchCopy {
         return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
-    const val WHY_THIS_RESULT_LABEL = "Why this result?"
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
     const val HIDE_WHY_LABEL = "Hide explanation"
 
@@ -131,30 +134,12 @@ object PdfKeywordSearchCopy {
 
     fun pageLabel(pageNumber: Int): String = "Page $pageNumber"
 
-    /**
-     * Builds a citation from stored hit fields and the search query only.
-     *
-     * [documentLabel] is the same saved display name shown on the result card.
-     * Does not invent confidence, meaning, or AI reasons, and does not reopen files.
-     */
-    fun whyThisResultBody(
-        query: String,
-        documentLabel: String,
-        pageNumber: Int,
-        excerpt: String,
-    ): String {
-        require(query.isNotBlank()) { "Why this result needs the search query." }
-        require(documentLabel.isNotBlank()) {
-            "Why this result needs the saved document label."
-        }
-        require(pageNumber > 0) { "Why this result needs a positive page number." }
-        require(excerpt.isNotBlank()) { "Why this result needs a stored excerpt." }
+    /** Unified Canonical Recall Why dialect (`CANONICAL_RECALL_RESULT_CONTRACT.md`). */
+    fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
+        CanonicalRecallWhyCopy.whyThisResult(recall, query)
 
-        return "UNFYND matched \"$query\" in saved PDF page text from " +
-            "\"$documentLabel\" on this phone (${pageLabel(pageNumber)}). " +
-            "Matching evidence: $excerpt. " +
-            "This is keyword matching, not meaning-based recall."
-    }
+    fun whyThisResultBody(hit: PdfKeywordSearchHit, query: String): String =
+        whyThisResultBody(query, hit.recall)
 
     const val OPEN_ORIGINAL_PDF_LABEL = "Open original PDF"
 

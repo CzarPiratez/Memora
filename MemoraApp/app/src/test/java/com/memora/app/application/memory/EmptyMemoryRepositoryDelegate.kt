@@ -52,6 +52,10 @@ internal class EmptyMemoryRepositoryDelegate : MemoryRepository {
         revisionIds: Collection<MemoryRevisionId>,
     ) = error("not used")
 
+    override suspend fun findNoteTextEvidenceForEmbedding(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = error("not used")
+
     override suspend fun findSignatureAnchors(
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, List<com.memora.app.domain.memory.MemoryAnchor>>()
