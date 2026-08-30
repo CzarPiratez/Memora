@@ -38,7 +38,7 @@ and remove or update its row here.
 | FC-01 | **Reciprocal Rank Fusion (RRF)** for keyword + meaning lists | Core | candidate | MIG-07B authorized | Named fusion inside Canonical Recall ranking; no parallel Find path |
 | FC-02 | **On-device cross-encoder rerank** over top-k `MemoryEvidence` | Core | candidate | After MIG-07B; new or extended `RecallRanker` port | Bounded (e.g. 20–50 hits); quality jump without full corpus rescore |
 | FC-03 | **Evidence chunking policy** per asset type (PDF page, OCR block, note section) | Core | candidate | Before MIG-05 B wide rollout; Grounded Answers eval corpus | Stable passage boundaries at index time; anchors on every evidence slice |
-| FC-04 | **Corpus completeness honesty** in UI (indexed / pending / blocked counts) | App | candidate | App UX milestone; permission/disclosure patterns exist | “Trust wow” for regulated users; extend meaning-index progress pattern |
+| FC-04 | **Corpus completeness honesty** in UI (indexed / pending / blocked counts) | App | **delivered** (2026-08-31) | App UX milestone; permission/disclosure patterns exist | `CHANGE_CONTROL_FC04_CORPUS_COMPLETENESS_HONESTY.md` |
 | FC-05 | **Zero-egress / air-gap verification pack** (checklist + optional CI assertion) | Core | candidate | Class A / commercial readiness; no product feature required first | Provable core path never egresses; supports regulated buyers |
 | FC-06 | **Evidence lineage in Explain** (extraction schema, model id/version, memory revision) | Both | candidate | After recall convergence; Explain MVP enhancement | Substrate largely exists; surface in App |
 

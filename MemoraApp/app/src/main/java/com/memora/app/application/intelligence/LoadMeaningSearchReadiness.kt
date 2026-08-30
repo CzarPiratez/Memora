@@ -5,6 +5,7 @@ import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -13,26 +14,20 @@ import kotlinx.coroutines.withContext
 /** Honest inventory for the Find-by-meaning screen (on-device embedder path). */
 class LoadMeaningSearchReadiness @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,
-    private val embeddingStore: MemoryEmbeddingStore,
-    private val evidenceEmbeddingStore: MemoryEvidenceEmbeddingStore,
-    private val memoryRepository: MemoryRepository,
-    private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
+    private val loadCorpusCompleteness: LoadCorpusCompleteness,
 ) {
     suspend operator fun invoke(): MeaningSearchReadiness = withContext(Dispatchers.IO) {
         when (val availability = embeddingEngine.availability()) {
             is CapabilityAvailability.Unavailable ->
                 MeaningSearchReadiness.EngineUnavailable(availability.reason)
             is CapabilityAvailability.Available -> {
-                applyMig05EvidenceSearchCutover.ensureApplied(availability.model)
-                // Summary + evidence stores only (PdfPageEmbedding* retired MIG-05 step 4).
-                // dual-write does not double-count the same page vectors.
-                val indexed = embeddingStore.countForModel(availability.model) +
-                    evidenceEmbeddingStore.countForModel(availability.model)
-                val memoriesReady = memoryRepository.countCurrentReady()
+                val snapshot = loadCorpusCompleteness()
+                val counts = snapshot.counts
                 MeaningSearchReadiness.Ready(
                     model = availability.model,
-                    indexedCount = indexed,
-                    memoriesReadyCount = memoriesReady,
+                    indexedCount = counts.meaningVectorsIndexed,
+                    memoriesReadyCount = counts.memoriesReady,
+                    corpusCompleteness = snapshot,
                 )
             }
         }
@@ -50,6 +45,7 @@ sealed interface MeaningSearchReadiness {
         val model: ModelVersionIdentity,
         val indexedCount: Int,
         val memoriesReadyCount: Int,
+        val corpusCompleteness: CorpusCompletenessSnapshot,
     ) : MeaningSearchReadiness {
         init {
             require(indexedCount >= 0)

@@ -70,6 +70,13 @@ fun AiPackDisclosureScreen(
         )
         Spacer(modifier = Modifier.height(20.dp))
         Section(title = AiPackDisclosureCopy.STATUS_TITLE, body = uiState.statusBody)
+        uiState.corpusCompletenessBody?.let { corpus ->
+            Spacer(modifier = Modifier.height(12.dp))
+            Section(
+                title = AiPackDisclosureCopy.CORPUS_COMPLETENESS_TITLE,
+                body = corpus,
+            )
+        }
         uiState.feedbackMessage?.let { message ->
             Spacer(modifier = Modifier.height(12.dp))
             Text(

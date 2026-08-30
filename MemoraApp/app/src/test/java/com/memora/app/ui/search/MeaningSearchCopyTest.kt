@@ -1,13 +1,9 @@
 package com.memora.app.ui.search
 
-import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchReadiness
-import com.memora.app.domain.asset.AssetType
-import com.memora.app.domain.asset.SourceAssetKey
-import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.intelligence.ModelVersionIdentity
-import com.memora.app.domain.memory.MemoryId
-import com.memora.app.domain.memory.MemoryRevisionId
+import com.memora.app.domain.memory.CorpusCompletenessCounts
+import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -20,18 +16,28 @@ class MeaningSearchCopyTest {
                 model = ModelVersionIdentity("m", "1"),
                 indexedCount = 3,
                 memoriesReadyCount = 3,
+                corpusCompleteness = CorpusCompletenessSnapshot(
+                    counts = CorpusCompletenessCounts(
+                        memoriesReady = 3,
+                        memoriesPendingAssembly = 0,
+                        meaningSummaryIndexed = 2,
+                        meaningEvidenceIndexed = 1,
+                        meaningIndexPending = 0,
+                    ),
+                    blocked = null,
+                ),
             ),
         )
         assertTrue(MeaningSearchCopy.SCOPE_BODY.contains("candidate", ignoreCase = true))
-        assertTrue(ready.contains("AVAILABLE"))
-        assertFalse(ready.contains("full measured meaning search is finished"))
+        assertTrue(ready.contains("Indexed on this phone"))
         assertTrue(ready.contains("not a measured AVAILABLE"))
+        assertFalse(ready.contains("full measured meaning search is finished"))
     }
 
     @Test
     fun why_cites_query_and_summary() {
         val why = MeaningSearchCopy.whyThisResult(
-            hit = sampleHit(AssetType.NOTE),
+            hit = sampleHit(com.memora.app.domain.asset.AssetType.NOTE),
             query = "hotel near coffee",
         )
         assertTrue(why.contains("hotel near coffee"))
@@ -41,7 +47,7 @@ class MeaningSearchCopyTest {
 
     @Test
     fun why_and_open_hint_for_ranked_pdf_page() {
-        val hit = sampleHit(AssetType.PDF, citedPage = 1, rankedPage = 3)
+        val hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3)
         val why = MeaningSearchCopy.whyThisResult(hit, "mira")
         assertTrue(why.contains("page 3"))
         val hint = MeaningSearchCopy.openOriginalPdfHint(
@@ -64,7 +70,7 @@ class MeaningSearchCopyTest {
     @Test
     fun why_discloses_evidence_token_boost() {
         val why = MeaningSearchCopy.whyThisResult(
-            hit = sampleHit(AssetType.PDF, citedPage = 1, rankedPage = 3, boosted = true),
+            hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3, boosted = true),
             query = "mira",
         )
         assertTrue(why.contains("page 3"))
@@ -73,19 +79,19 @@ class MeaningSearchCopyTest {
     }
 
     private fun sampleHit(
-        type: AssetType,
+        type: com.memora.app.domain.asset.AssetType,
         citedPage: Int? = null,
         rankedPage: Int? = null,
         boosted: Boolean = false,
-    ) = MeaningSearchHit(
-        revisionId = MemoryRevisionId("r1"),
-        memoryId = MemoryId("m1"),
-        sourceId = SourceId("s"),
-        sourceAssetKey = SourceAssetKey("k"),
+    ) = com.memora.app.application.intelligence.MeaningSearchHit(
+        revisionId = com.memora.app.domain.memory.MemoryRevisionId("rev"),
+        memoryId = com.memora.app.domain.memory.MemoryId("mem"),
+        sourceId = com.memora.app.domain.asset.SourceId("src"),
+        sourceAssetKey = com.memora.app.domain.asset.SourceAssetKey("asset"),
         assetType = type,
-        label = "Trip plan",
-        summaryText = "Hotel confirmation near the cafe",
-        score = 0.8f,
+        label = "Label",
+        summaryText = "Hotel confirmation near the cafe district",
+        score = 0.5f,
         model = ModelVersionIdentity("m", "1"),
         citedPdfPageNumber = citedPage,
         rankedPdfPageNumber = rankedPage,

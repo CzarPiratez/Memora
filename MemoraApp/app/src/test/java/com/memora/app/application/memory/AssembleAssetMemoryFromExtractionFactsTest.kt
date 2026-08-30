@@ -414,6 +414,10 @@ private class FakeFactSource(
     override suspend fun findNextPendingAsset(
         assemblySchemaVersion: MemoryAssemblySchemaVersion,
     ): Asset? = null
+
+    override suspend fun countPendingAssembly(
+        assemblySchemaVersion: MemoryAssemblySchemaVersion,
+    ): Int = 0
 }
 
 private class FakeMemoryRepository : MemoryRepository {

@@ -43,21 +43,14 @@ object MeaningSearchCopy {
         "Could not check meaning-search readiness on this phone. Try opening this screen again."
 
     fun readinessBody(snapshot: MeaningSearchReadiness.Ready): String {
-        if (snapshot.indexedCount == 0) {
-            return if (snapshot.memoriesReadyCount == 0) {
-                "No Asset Memories are ready yet. Build memories from saved facts first, " +
-                    "then build a meaning index from About on-device meaning search."
-            } else {
-                "Asset Memories are ready, but the meaning index is empty. " +
-                    "Open About on-device meaning search and build the meaning index."
-            }
+        val corpus = CorpusHonestyCopy.summaryBody(snapshot.corpusCompleteness)
+        if (snapshot.indexedCount == 0 && snapshot.memoriesReadyCount == 0 &&
+            snapshot.corpusCompleteness.counts.memoriesPendingAssembly == 0
+        ) {
+            return "No Asset Memories are ready yet. Build memories from saved facts first, " +
+                "then build a meaning index from About on-device meaning search."
         }
-        val indexed = if (snapshot.indexedCount == 1) {
-            "1 indexed memory"
-        } else {
-            "${snapshot.indexedCount} indexed memories"
-        }
-        return "$indexed ready for candidate meaning search on this phone " +
+        return "$corpus Candidate meaning search on this phone " +
             "(on-device Universal Sentence Encoder). This is not a measured AVAILABLE claim."
     }
 

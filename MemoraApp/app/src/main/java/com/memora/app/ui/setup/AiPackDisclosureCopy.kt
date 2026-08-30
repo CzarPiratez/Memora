@@ -51,6 +51,8 @@ object AiPackDisclosureCopy {
 
     const val STATUS_TITLE = "Status right now"
 
+    const val CORPUS_COMPLETENESS_TITLE = "Corpus on this phone"
+
     const val STATUS_NOT_ACKNOWLEDGED =
         "No disclosure recorded yet. Meaning search is off. " +
             "Keyword search on Welcome still works for text UNFYND has already saved."

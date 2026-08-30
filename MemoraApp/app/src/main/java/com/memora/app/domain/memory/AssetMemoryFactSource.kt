@@ -30,4 +30,9 @@ interface AssetMemoryFactSource {
     suspend fun findNextPendingAsset(
         assemblySchemaVersion: MemoryAssemblySchemaVersion,
     ): Asset?
+
+    /** Assets with saved facts that still need an Asset Memory for [assemblySchemaVersion]. */
+    suspend fun countPendingAssembly(
+        assemblySchemaVersion: MemoryAssemblySchemaVersion,
+    ): Int
 }

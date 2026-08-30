@@ -150,6 +150,17 @@ class RoomAssetMemoryFactSource(
         notePageSchemaVersion = NotePageSchemaVersion.V1.value,
     )?.toDomain()?.asset
 
+    override suspend fun countPendingAssembly(
+        assemblySchemaVersion: MemoryAssemblySchemaVersion,
+    ): Int = database().assetMemoryFactDao().countPendingAssembly(
+        assemblySchemaVersion = assemblySchemaVersion.value,
+        pdfSchemaVersion = PDF_SCHEMA,
+        screenshotOcrSchemaVersion = ScreenshotOcrSchemaVersion.V1.value,
+        photoOcrSchemaVersion = PhotoOcrSchemaVersion.V1.value,
+        exifSchemaVersion = ImageExifSchemaVersion.V1.value,
+        notePageSchemaVersion = NotePageSchemaVersion.V1.value,
+    )
+
     private fun exifFact(entity: ImageExifExtractionEntity?): AssetMemoryFact? {
         entity ?: return null
         val dateTaken = entity.datetimeOriginal?.takeIf(String::isNotBlank)

@@ -13,6 +13,7 @@ import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddings
 import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddings
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
+import com.memora.app.application.intelligence.LoadCorpusCompleteness
 import com.memora.app.application.intelligence.MeaningIndexBatchLimits
 import com.memora.app.application.intelligence.MemoryEmbeddingCandidate
 import com.memora.app.application.intelligence.OcrEvidenceEmbeddingCandidate
@@ -28,7 +29,9 @@ import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
+import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import com.memora.app.domain.memory.MemoryRepository
+import com.memora.app.ui.search.CorpusHonestyCopy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +43,7 @@ import kotlinx.coroutines.withContext
 
 data class AiPackDisclosureUiState(
     val statusBody: String,
+    val corpusCompletenessBody: String? = null,
     val showAcknowledge: Boolean,
     val showActivate: Boolean,
     val showDownloadModel: Boolean,
@@ -63,6 +67,7 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val indexOcrEvidenceEmbeddings: IndexOcrEvidenceEmbeddings,
     private val savedPdfPages: SavedPdfPageTextSource,
     private val memoryRepository: MemoryRepository,
+    private val loadCorpusCompleteness: LoadCorpusCompleteness,
     private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
@@ -74,7 +79,7 @@ class AiPackDisclosureViewModel @Inject constructor(
 
     fun refresh() {
         viewModelScope.launch {
-            mutableUiState.value = withContext(Dispatchers.Default) { buildState() }
+            mutableUiState.value = withContext(Dispatchers.IO) { buildStateWithCorpus() }
         }
     }
 
@@ -90,7 +95,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 )
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
-                buildState(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED)
+                buildStateWithCorpus(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_ACKNOWLEDGED)
             }
         }
     }
@@ -112,7 +117,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 is ActivateOfflineEmbeddingPackResult.Failed -> result.reason
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
-                buildState(feedbackMessage = feedback)
+                buildStateWithCorpus(feedbackMessage = feedback)
             }
         }
     }
@@ -133,7 +138,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 is DownloadOnDeviceEmbeddingModelResult.Failed -> result.reason
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
-                buildState(feedbackMessage = feedback)
+                buildStateWithCorpus(feedbackMessage = feedback)
             }
         }
     }
@@ -150,7 +155,7 @@ class AiPackDisclosureViewModel @Inject constructor(
             }
             if (summaries.isEmpty()) {
                 mutableUiState.value = withContext(Dispatchers.IO) {
-                    buildState(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY)
+                    buildStateWithCorpus(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY)
                 }
                 return@launch
             }
@@ -320,7 +325,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 }
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
-                buildState(feedbackMessage = feedback)
+                buildStateWithCorpus(feedbackMessage = feedback)
             }
         }
     }
@@ -342,7 +347,19 @@ class AiPackDisclosureViewModel @Inject constructor(
         )
     }
 
-    private fun buildState(feedbackMessage: String? = null): AiPackDisclosureUiState {
+    private suspend fun buildStateWithCorpus(
+        feedbackMessage: String? = null,
+    ): AiPackDisclosureUiState {
+        val embeddingAvailable =
+            embeddingEngine.availability() is CapabilityAvailability.Available
+        val snapshot = if (embeddingAvailable) loadCorpusCompleteness() else null
+        return buildState(feedbackMessage = feedbackMessage, corpusSnapshot = snapshot)
+    }
+
+    private fun buildState(
+        feedbackMessage: String? = null,
+        corpusSnapshot: CorpusCompletenessSnapshot? = null,
+    ): AiPackDisclosureUiState {
         val packId = EmbeddingFirstAiPackTrack.PLANNED_PACK_ID
         val entry = ledger.entry(packId)
         val installationState = aiPackManager.installationState(packId)
@@ -365,6 +382,7 @@ class AiPackDisclosureViewModel @Inject constructor(
             showActivate = canActivate,
             showDownloadModel = disclosed && !modelInstalled,
             showBuildIndex = embeddingAvailable,
+            corpusCompletenessBody = corpusSnapshot?.let { CorpusHonestyCopy.aiPackCorpusLine(it) },
             isBusy = false,
             progressFeedback = null,
             feedbackMessage = feedbackMessage,

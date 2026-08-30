@@ -8,6 +8,8 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.memory.CorpusCompletenessCounts
+import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
 import kotlinx.coroutines.Dispatchers
@@ -161,6 +163,16 @@ class MeaningSearchViewModelTest {
                 model = model,
                 indexedCount = 1,
                 memoriesReadyCount = 1,
+                corpusCompleteness = CorpusCompletenessSnapshot(
+                    counts = CorpusCompletenessCounts(
+                        memoriesReady = 1,
+                        memoriesPendingAssembly = 0,
+                        meaningSummaryIndexed = 1,
+                        meaningEvidenceIndexed = 0,
+                        meaningIndexPending = 0,
+                    ),
+                    blocked = null,
+                ),
             )
         },
         open: suspend (MeaningSearchHit, String) -> MeaningOpenOriginalResult = { _, _ ->

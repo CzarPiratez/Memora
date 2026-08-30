@@ -2,9 +2,11 @@ package com.memora.app.ui.setup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.intelligence.LoadCorpusCompleteness
 import com.memora.app.application.memory.AssetMemoryDrainResult
 import com.memora.app.application.memory.RunPendingAssetMemoryAssembly
-import com.memora.app.domain.memory.MemoryRepository
+import com.memora.app.domain.memory.CorpusCompletenessCounts
+import com.memora.app.ui.search.CorpusHonestyCopy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ sealed interface AssetMemorySetupState {
     data object Loading : AssetMemorySetupState
     data class Ready(
         val currentReadyCount: Int,
+        val pendingAssemblyCount: Int = 0,
         val assembledInLastRun: Int = 0,
         val hasMore: Boolean = false,
     ) : AssetMemorySetupState
@@ -26,7 +29,7 @@ sealed interface AssetMemorySetupState {
 @HiltViewModel
 class AssetMemorySetupViewModel @Inject constructor(
     private val runPendingAssembly: RunPendingAssetMemoryAssembly,
-    private val memoryRepository: MemoryRepository,
+    private val loadCorpusCompleteness: LoadCorpusCompleteness,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow<AssetMemorySetupState>(
         AssetMemorySetupState.Loading,
@@ -48,6 +51,7 @@ class AssetMemorySetupViewModel @Inject constructor(
             }.getOrNull()) {
                 is AssetMemoryDrainResult.Completed -> AssetMemorySetupState.Ready(
                     currentReadyCount = result.currentReadyCount,
+                    pendingAssemblyCount = pendingAssemblyCount(),
                     assembledInLastRun = result.assembledCount,
                     hasMore = result.hasMore,
                 )
@@ -65,13 +69,21 @@ class AssetMemorySetupViewModel @Inject constructor(
 
     private fun refreshCount() {
         viewModelScope.launch {
-            mutableUiState.value = runCatching { memoryRepository.countCurrentReady() }
+            mutableUiState.value = runCatching { loadCorpusCompleteness() }
                 .fold(
-                    onSuccess = { AssetMemorySetupState.Ready(it) },
+                    onSuccess = { snapshot ->
+                        AssetMemorySetupState.Ready(
+                            currentReadyCount = snapshot.counts.memoriesReady,
+                            pendingAssemblyCount = snapshot.counts.memoriesPendingAssembly,
+                        )
+                    },
                     onFailure = { AssetMemorySetupState.Failed(0) },
                 )
         }
     }
+
+    private suspend fun pendingAssemblyCount(): Int =
+        loadCorpusCompleteness().counts.memoriesPendingAssembly
 
     private fun countFrom(state: AssetMemorySetupState): Int = when (state) {
         AssetMemorySetupState.Loading -> 0
@@ -92,9 +104,19 @@ object AssetMemorySetupCopy {
     const val BUILDING = "Building memories from saved facts on this phone…"
     const val FAILED = "UNFYND could not finish building saved fact memories. You can try again."
 
-    fun readiness(count: Int): String =
-        if (count == 1) "1 current evidence-backed Asset Memory is saved."
-        else "$count current evidence-backed Asset Memories are saved."
+    fun readiness(counts: CorpusCompletenessCounts): String =
+        CorpusHonestyCopy.assetMemoryReadiness(counts)
+
+    fun readiness(readyCount: Int, pendingAssemblyCount: Int = 0): String =
+        CorpusHonestyCopy.assetMemoryReadiness(
+            CorpusCompletenessCounts(
+                memoriesReady = readyCount,
+                memoriesPendingAssembly = pendingAssemblyCount,
+                meaningSummaryIndexed = 0,
+                meaningEvidenceIndexed = 0,
+                meaningIndexPending = 0,
+            ),
+        )
 
     fun completed(assembledCount: Int, currentReadyCount: Int): String =
         "Built $assembledCount in this step. ${readiness(currentReadyCount)} " +
