@@ -84,4 +84,4 @@ ESCAPE-HATCH AFTER CHANGE: YES — L7, L8 still produce hits without going throu
 - **Documentation/traceability/ADR updates:** this file; CONTINUE; CHANGELOG;
   enforcement docs; GOVERNANCE auth; Cursor invariants. ADR-049 substance
   unchanged (naming); delivery realizes thin KEYWORD API.
-- **Git commit:** (see local commit after this delivery)
+- **Git commit:** `1f6331d` (local)
