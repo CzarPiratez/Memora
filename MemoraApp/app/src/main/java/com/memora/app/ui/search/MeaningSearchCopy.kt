@@ -16,10 +16,9 @@ object MeaningSearchCopy {
     const val SCREEN_TITLE = "Find by meaning"
 
     const val SCOPE_BODY =
-        "Search ranks Asset Memories you already built, using the on-device meaning " +
-            "model on this phone. This is candidate meaning ranking — not a claim that " +
-            "full measured meaning search is finished. Keyword Find buttons still search " +
-            "exact words. UNFYND does not upload your memories for this search."
+        "Search ranks Asset Memories you already built with the on-device meaning model " +
+            "on this phone. Use keyword Find for exact words. Your memories never leave " +
+            "this phone for search."
 
     const val QUERY_LABEL = "What are you trying to remember?"
 
@@ -51,8 +50,7 @@ object MeaningSearchCopy {
             return "No Asset Memories are ready yet. Build memories from saved facts first, " +
                 "then build a meaning index from About on-device meaning search."
         }
-        return "$corpus Candidate meaning search on this phone " +
-            "(on-device Universal Sentence Encoder). This is not a measured AVAILABLE claim."
+        return "$corpus Meaning search on this phone uses the on-device Universal Sentence Encoder."
     }
 
     fun engineUnavailableBody(reason: String): String {
@@ -103,7 +101,7 @@ object MeaningSearchCopy {
     ): String {
         if (rankedPdfPageNumber != null) {
             return "$OPEN_ORIGINAL_HINT Opens ranked PDF page $rankedPdfPageNumber " +
-                "from the meaning index (candidate page ranking — not measured AVAILABLE)."
+                "from the meaning index."
         }
         val citeBit = if (citedPdfPageNumber != null) {
             "Memory cite is page $citedPdfPageNumber."

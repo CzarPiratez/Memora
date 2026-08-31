@@ -25,6 +25,18 @@ guards in CI. Phase 2 Gradle modules not started. See
 `docs/CORE_APP_SEPARATION_PLAN.md`. Does not authorize Class B, repo split,
 or full Core open source.
 
+**Docs note (Recall reach STALE deadlock, 2026-08-31):** Fixed MIG-05 premature
+STALE + READY-only page-index lookups that emptied keyword Find and left
+Pages indexed 0. Fresh PDFs stay READY until summary-indexed; Build drains
+evidence for READY+STALE; keyword Find includes STALE excerpts. See
+`CHANGE_CONTROL_RECALL_REACH_STALE_EVIDENCE_DEADLOCK.md`. Not AVAILABLE.
+
+**Docs note (Product voice refresh, 2026-08-31):** Welcome, Privacy, Find,
+setup summaries, and Why copy reframed to capability-forward voice per product
+direction (no leading negative / interim framing). Direct AppCompat dependency
+fixes AGP 9 MSAL resource linking. Emulator retest: keyword Find → rebuild
+meaning index → Find by meaning on MemoraFixtures PDFs.
+
 **Docs note (MIG-05 claim B slice 2, 2026-08-31):** Note `NOTE_TEXT` evidence
 embeddings on Build meaning index tap. Closes ADR-050 claim B for all MVP asset
 types. See `CHANGE_CONTROL_MIG05B_NOTE_EVIDENCE_EMBEDDINGS.md`. Not marketing

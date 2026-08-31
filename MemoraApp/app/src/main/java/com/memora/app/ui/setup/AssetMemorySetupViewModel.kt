@@ -98,7 +98,7 @@ object AssetMemorySetupCopy {
     const val BODY =
         "Build evidence-backed memories from saved PDF text, image OCR, " +
             "useful photo facts, and saved OneNote page text. " +
-            "This runs on-device without an AI pack. It does not provide meaning-based ranking yet."
+            "Everything runs on-device. Find by meaning uses the on-device model and index."
     const val BUILD_LABEL = "Build memories from saved facts"
     const val CONTINUE_LABEL = "Continue building saved fact memories"
     const val BUILDING = "Building memories from saved facts on this phone…"
@@ -120,5 +120,6 @@ object AssetMemorySetupCopy {
 
     fun completed(assembledCount: Int, currentReadyCount: Int): String =
         "Built $assembledCount in this step. ${readiness(currentReadyCount)} " +
-            "PDF, image, and note keyword search remain the interim recall path."
+            "Use keyword search for exact words; meaning search needs the on-device model " +
+            "and meaning index."
 }

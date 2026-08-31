@@ -10,7 +10,7 @@ import org.junit.Test
 
 class MeaningSearchCopyTest {
     @Test
-    fun scope_and_readiness_stay_candidate_not_available() {
+    fun scope_and_readiness_describe_on_device_meaning_search() {
         val ready = MeaningSearchCopy.readinessBody(
             MeaningSearchReadiness.Ready(
                 model = ModelVersionIdentity("m", "1"),
@@ -28,10 +28,11 @@ class MeaningSearchCopyTest {
                 ),
             ),
         )
-        assertTrue(MeaningSearchCopy.SCOPE_BODY.contains("candidate", ignoreCase = true))
+        assertTrue(MeaningSearchCopy.SCOPE_BODY.contains("on-device meaning model"))
         assertTrue(ready.contains("Indexed on this phone"))
-        assertTrue(ready.contains("not a measured AVAILABLE"))
-        assertFalse(ready.contains("full measured meaning search is finished"))
+        assertTrue(ready.contains("Universal Sentence Encoder"))
+        assertFalse(ready.contains("not a measured AVAILABLE"))
+        assertFalse(ready.contains("not a claim"))
     }
 
     @Test
@@ -55,7 +56,7 @@ class MeaningSearchCopyTest {
             rankedPdfPageNumber = 3,
         )
         assertTrue(hint.contains("page 3"))
-        assertTrue(hint.contains("not measured AVAILABLE"))
+        assertFalse(hint.contains("not measured AVAILABLE"))
         assertTrue(MeaningSearchCopy.rankedPdfPageLabel(3).contains("3"))
     }
 
@@ -75,7 +76,6 @@ class MeaningSearchCopyTest {
         )
         assertTrue(why.contains("page 3"))
         assertTrue(why.contains("appears in this saved evidence"))
-        assertTrue(why.contains("disclosed assist"))
     }
 
     private fun sampleHit(

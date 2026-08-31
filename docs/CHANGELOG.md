@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Product voice refresh + build fix (2026-08-31)
+
+- **Date:** 2026-08-31
+- **Delivered:** Welcome/Privacy onboarding, Find screens, setup summaries, and
+  Why copy reframed to capability-forward product voice (no leading “not yet” /
+  interim framing). Direct `androidx.appcompat` dependency fixes AGP 9 resource
+  linking for MSAL (Compose + OneNote auth).
+- **Truthfulness:** Internal governance / AVAILABLE boundaries unchanged in code
+  comments and change control; user-facing copy describes what UNFYND does.
+
+### Fix: Recall reach — STALE / page evidence index deadlock (2026-08-31)
+
+- **Date:** 2026-08-31
+- **Delivered:** Narrow MIG-05 STALE gaps to summary-indexed PDFs missing evidence
+  embeddings; meaning-index lookups include STALE for Build + meaning hits;
+  keyword MemoryEvidence search includes STALE (excerpts stay searchable).
+  See `CHANGE_CONTROL_RECALL_REACH_STALE_EVIDENCE_DEADLOCK.md`.
+- **Truthfulness:** Defect fix on Canonical Recall path; Live/Dual N unchanged
+  (0); not marketing AVAILABLE.
+
 ### MIG-05 claim B slice 2 — note text evidence embeddings (2026-08-31)
 
 - **Date:** 2026-08-31

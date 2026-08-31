@@ -989,7 +989,7 @@ fun UnfyndWelcomeScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "UNFYND will help you find photos, documents, screenshots, and notes using the details you remember.",
+            text = "Your privacy-first, on-device AI",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -1596,13 +1596,13 @@ fun PrivacyScreen(
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Your memories stay yours",
+            text = "Intelligence on-device.",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "UNFYND needs your permission before it can help you find anything. It will never alter or delete your original files.",
+            text = "UNFYND will never delete or alter your files.",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -1924,8 +1924,7 @@ private fun PhotoOcrExtractSection(
             } else {
                 Text(
                     "UNFYND can read Latin text visible in catalogued ordinary photos. " +
-                        "It opens photos read-only and stores OCR text on-device. " +
-                        "This is keyword text extraction, not meaning-based recall.",
+                        "It opens photos read-only and stores OCR text on-device for exact-word search.",
                 )
                 Spacer(Modifier.height(12.dp))
                 Button(onClick = onStartPhotoOcr, modifier = Modifier.fillMaxWidth()) {

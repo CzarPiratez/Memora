@@ -56,8 +56,8 @@ class PdfKeywordSearchCopyTest {
             ),
         ).joinToString("\n").lowercase()
 
-        assertTrue(copy.contains("keyword"))
-        assertTrue(copy.contains("not meaning-based"))
+        assertTrue(copy.contains("exact words"))
+        assertFalse(copy.contains("not meaning-based"))
         assertTrue(copy.contains("results for \"meet mira\""))
         assertTrue(copy.contains("memora-persist-fixture.pdf"))
         assertFalse(copy.contains("sqlcipher"))
@@ -84,8 +84,8 @@ class PdfKeywordSearchCopyTest {
         assertTrue(why.contains("memora-persist-fixture.pdf"))
         assertTrue(why.contains("Café memory: meet Mira at 10:30…"))
         assertTrue(why.contains("PDF page 1"))
-        assertTrue(why.contains("keyword match"))
-        assertTrue(why.contains("not meaning-based recall"))
+        assertTrue(why.contains("exact words"))
+        assertTrue(why.contains("saved evidence"))
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -151,7 +151,7 @@ class PdfKeywordSearchCopyTest {
         assertTrue(body.contains("nothing is ready"))
         assertTrue(body.contains("local pdf reading"))
         assertTrue(body.contains("memory assembly"))
-        assertTrue(body.contains("keyword matching"))
+        assertFalse(body.contains("not meaning-based"))
         assertFalse(body.contains("matched \""))
         assertFalse(body.contains("try different words"))
         assertFalse(body.contains("confidence"))
@@ -166,13 +166,11 @@ class PdfKeywordSearchCopyTest {
             PdfKeywordSearchCopy.readinessBody(pageCount = 0, documentCount = 0),
         )
         assertEquals(
-            "1 searchable PDF memory excerpt from 1 PDF is ready for keyword search on this phone. " +
-                "This is keyword matching, not meaning-based recall.",
+            "1 searchable PDF memory excerpt from 1 PDF is ready for exact-word search on this phone.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 1, documentCount = 1),
         )
         assertEquals(
-            "3 searchable PDF memory excerpts from 2 PDFs are ready for keyword search on this phone. " +
-                "This is keyword matching, not meaning-based recall.",
+            "3 searchable PDF memory excerpts from 2 PDFs are ready for exact-word search on this phone.",
             PdfKeywordSearchCopy.readinessBody(pageCount = 3, documentCount = 2),
         )
     }

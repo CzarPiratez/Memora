@@ -18,11 +18,9 @@ object CanonicalRecallWhyCopy {
         val clipped = if (excerpt.length <= 160) excerpt else excerpt.take(157) + "…"
         val pathLine = when (result.retrievalPath) {
             CanonicalRecallRetrievalPath.KEYWORD ->
-                "This is a keyword match on saved evidence text on this phone — " +
-                    "not meaning-based recall."
+                "This result matches your exact words in saved evidence on this phone."
             CanonicalRecallRetrievalPath.MEANING ->
-                "This is candidate meaning ranking on this phone — not a measured " +
-                    "AVAILABLE claim."
+                "This result ranked by on-device meaning similarity on this phone."
         }
         val pageLine = when {
             result.openPageNumber != null && result.assetType == AssetType.PDF ->
@@ -35,15 +33,13 @@ object CanonicalRecallWhyCopy {
             else -> ""
         }
         val boostLine = if (result.evidenceTokenBoosted) {
-            " Rank also rose because your cue appears in this saved evidence text " +
-                "(disclosed assist — still candidate meaning, not keyword Find alone)."
+            " Rank also rose because your cue appears in this saved evidence text."
         } else {
             ""
         }
         val scoreLine = when (result.retrievalPath) {
             CanonicalRecallRetrievalPath.MEANING ->
-                " Score is candidate cosine similarity on this phone — not a guarantee " +
-                    "of full meaning match."
+                " Score reflects on-device meaning similarity."
             CanonicalRecallRetrievalPath.KEYWORD -> ""
         }
         return "$WHY_THIS_RESULT_LABEL Your cue \"$query\" matched this saved " +

@@ -9,8 +9,8 @@ class IndexingSummaryTest {
     fun `full-library completion states the bounded count and metadata-only honesty`() {
         assertEquals(
             "UNFYND indexed 1 item from your permitted photo library. " +
-                "This permitted photo catalogue is currently up to date. " +
-                "This lists metadata only; it does not read photo contents or create searchable memories yet.",
+                "This permitted photo catalogue is up to date on this phone. " +
+                "Next: read text from photos or screenshots, then build memories.",
             completedIndexingSummary(
                 discoveredAssetCount = 1,
                 hasMore = false,
@@ -23,8 +23,7 @@ class IndexingSummaryTest {
     fun `selected-photo completion never describes access as the full library`() {
         assertEquals(
             "UNFYND indexed 2 items from only the photos you selected. " +
-                "More permitted items remain. Tap Start indexing to keep listing photo metadata. " +
-                "This does not read photo contents or create searchable memories yet.",
+                "More permitted items remain. Tap Start indexing to keep building your on-device photo catalogue.",
             completedIndexingSummary(
                 discoveredAssetCount = 2,
                 hasMore = true,
@@ -37,8 +36,8 @@ class IndexingSummaryTest {
     fun `zero-item page remains a truthful completed result`() {
         assertEquals(
             "UNFYND indexed 0 items from your permitted photo library. " +
-                "This permitted photo catalogue is currently up to date. " +
-                "This lists metadata only; it does not read photo contents or create searchable memories yet.",
+                "This permitted photo catalogue is up to date on this phone. " +
+                "Next: read text from photos or screenshots, then build memories.",
             completedIndexingSummary(
                 discoveredAssetCount = 0,
                 hasMore = false,
@@ -55,10 +54,10 @@ class IndexingSummaryTest {
         )
         assertEquals(
             "UNFYND saved basic facts for 3 photos (from 3 catalogued items). " +
-                "This is EXIF and size metadata only — not OCR, keyword search, or meaning-based recall.",
+                "Date, camera, and size metadata stay on this phone.",
             summary,
         )
-        assertEquals(false, summary.lowercase().contains("searchable memories"))
+        assertEquals(true, summary.contains("metadata"))
     }
 
     @Test
@@ -70,12 +69,10 @@ class IndexingSummaryTest {
         assertEquals(
             "UNFYND saved on-device text from 1 screenshot " +
                 "(from 1 catalogued screenshots). " +
-                "This is OCR text only — not meaning-based recall. " +
-                "You can search those words from Find saved screenshot text on the welcome screen. " +
-                "Ordinary photos are not OCR’d in this step.",
+                "Search exact words from Find saved screenshot text on Welcome. " +
+                "Ordinary photos use a separate text-reading step.",
             summary,
         )
-        assertEquals(false, summary.lowercase().contains("meaning-based recall yet"))
         assertEquals(true, summary.contains("Find saved screenshot text"))
     }
 }

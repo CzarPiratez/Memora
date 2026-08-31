@@ -17,7 +17,7 @@ class ScreenshotOcrKeywordSearchCopyTest {
                 pageNumber = null,
             ),
         )
-        assertEquals(true, why.contains("not meaning-based recall"))
+        assertEquals(true, why.contains("exact words"))
         assertEquals(true, why.contains("screenshot memory"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Ordinary photos"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
@@ -32,8 +32,7 @@ class ScreenshotOcrKeywordSearchCopyTest {
             ScreenshotOcrKeywordSearchCopy.readinessBody(0),
         )
         assertEquals(
-            "1 screenshot with READY Memory evidence is ready for keyword search on this phone. " +
-                "This is keyword matching, not meaning-based recall.",
+            "1 screenshot with READY Memory evidence is ready for exact-word search on this phone.",
             ScreenshotOcrKeywordSearchCopy.readinessBody(1),
         )
     }

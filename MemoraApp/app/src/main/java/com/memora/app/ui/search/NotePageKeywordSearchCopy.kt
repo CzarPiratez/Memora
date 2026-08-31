@@ -15,9 +15,8 @@ object NotePageKeywordSearchCopy {
     const val ENTRY_LABEL = "Find saved note text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in note Memory evidence already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall yet. " +
-            "UNFYND does not call Microsoft or reopen OneNote for this search."
+        "Search matches exact words in note Memory evidence saved on this phone. " +
+            "Search uses saved evidence on this phone."
 
     const val QUERY_LABEL = "Words to find"
 
@@ -41,9 +40,7 @@ object NotePageKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is ready for note keyword search yet. In Notes indexing, Connect OneNote, " +
-            "Discover pages, Extract OneNote page text, then finish Memory assembly. " +
-            "UNFYND only searches READY note Memory evidence on this phone — this is " +
-            "keyword matching, not meaning-based recall."
+            "Discover pages, Extract OneNote page text, then finish Memory assembly."
 
     const val READINESS_LOADING_BODY = "Checking saved note memory evidence on this phone…"
 
@@ -66,8 +63,7 @@ object NotePageKeywordSearchCopy {
         }
         val items = if (noteCount == 1) "1 note" else "$noteCount notes"
         val verb = if (noteCount == 1) "is" else "are"
-        return "$items with READY Memory evidence $verb ready for keyword search on this phone. " +
-            "This is keyword matching, not meaning-based recall."
+        return "$items with READY Memory evidence $verb ready for exact-word search on this phone."
     }
 
     const val SEARCH_COULD_NOT_FINISH_BODY =

@@ -27,10 +27,8 @@ class NotePageKeywordSearchCopyTest {
             NotePageKeywordSearchCopy.resultsSummary("plan", 1, limitReached = false),
         ).joinToString(" ").lowercase()
 
-        assertTrue(all.contains("keyword"))
-        assertTrue(all.contains("memory evidence") || all.contains("onenote") || all.contains("note"))
-        assertFalse(all.contains("meaning-based recall yet") && all.contains("ai understands"))
-        assertTrue(all.contains("not meaning-based"))
+        assertTrue(all.contains("exact words"))
+        assertFalse(all.contains("not meaning-based"))
         assertFalse(all.contains("cloud search"))
         assertFalse(all.contains("memory ranking"))
         assertTrue(NotePageKeywordSearchCopy.readinessBody(3).contains("READY Memory evidence"))
@@ -41,7 +39,7 @@ class NotePageKeywordSearchCopyTest {
         assertTrue(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT.contains("network"))
         assertTrue(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT.contains("does not edit"))
         assertTrue(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT.contains("Memory evidence"))
-        assertTrue(NotePageKeywordSearchCopy.SCOPE_BODY.contains("does not call Microsoft"))
+        assertTrue(NotePageKeywordSearchCopy.SCOPE_BODY.contains("saved evidence"))
         assertFalse(NotePageKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY.contains("preview inside"))
     }
 }

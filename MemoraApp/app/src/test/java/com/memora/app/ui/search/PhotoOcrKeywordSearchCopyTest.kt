@@ -19,7 +19,7 @@ class PhotoOcrKeywordSearchCopyTest {
                 pageNumber = null,
             ),
         )
-        assertTrue(why.contains("not meaning-based recall"))
+        assertTrue(why.contains("exact words"))
         assertTrue(why.contains("photo memory"))
         assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Screenshots are not included"))
         assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
@@ -34,8 +34,7 @@ class PhotoOcrKeywordSearchCopyTest {
             PhotoOcrKeywordSearchCopy.readinessBody(0),
         )
         assertEquals(
-            "1 photo with READY Memory evidence is ready for keyword search on this phone. " +
-                "This is keyword matching, not meaning-based recall.",
+            "1 photo with READY Memory evidence is ready for exact-word search on this phone.",
             PhotoOcrKeywordSearchCopy.readinessBody(1),
         )
     }

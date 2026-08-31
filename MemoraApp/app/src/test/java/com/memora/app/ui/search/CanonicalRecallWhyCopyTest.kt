@@ -23,8 +23,8 @@ class CanonicalRecallWhyCopyTest {
         assertTrue(why.contains("memora-persist-fixture.pdf"))
         assertTrue(why.contains("Café memory: meet Mira at 10:30…"))
         assertTrue(why.contains("PDF page 1"))
-        assertTrue(why.contains("keyword match"))
-        assertTrue(why.contains("not meaning-based recall"))
+        assertTrue(why.contains("exact words"))
+        assertTrue(why.contains("saved evidence"))
         assertFalse(why.contains("confidence"))
     }
 
@@ -43,9 +43,8 @@ class CanonicalRecallWhyCopyTest {
             query = "mira",
         )
 
-        assertTrue(why.contains("candidate meaning ranking"))
-        assertTrue(why.contains("not a measured AVAILABLE claim"))
-        assertTrue(why.contains("disclosed assist"))
-        assertTrue(why.contains("candidate cosine similarity"))
+        assertTrue(why.contains("on-device meaning similarity"))
+        assertTrue(why.contains("appears in this saved evidence"))
+        assertTrue(why.contains("meaning similarity"))
     }
 }

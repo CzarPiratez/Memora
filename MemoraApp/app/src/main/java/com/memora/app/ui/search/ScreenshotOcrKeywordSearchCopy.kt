@@ -12,10 +12,8 @@ object ScreenshotOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved screenshot text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in screenshot Memory evidence already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall yet. " +
-            "UNFYND does not reopen your original screenshots for this search. " +
-            "Ordinary photos are not included."
+        "Search matches exact words in screenshot Memory evidence saved on this phone. " +
+            "Your original screenshots stay where they are. Ordinary photos are not included."
 
     const val QUERY_LABEL = "Words to find"
 
@@ -38,9 +36,7 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is ready for screenshot keyword search yet. Finish Read text from " +
-            "screenshots and Memory assembly in photo setup first. UNFYND only searches " +
-            "READY screenshot Memory evidence on this phone — this is keyword matching, " +
-            "not meaning-based recall."
+            "screenshots and Memory assembly in photo setup first."
 
     const val READINESS_LOADING_BODY = "Checking screenshot memory evidence on this phone…"
 
@@ -66,8 +62,7 @@ object ScreenshotOcrKeywordSearchCopy {
             "$screenshotCount screenshots"
         }
         val verb = if (screenshotCount == 1) "is" else "are"
-        return "$items with READY Memory evidence $verb ready for keyword search on this phone. " +
-            "This is keyword matching, not meaning-based recall."
+        return "$items with READY Memory evidence $verb ready for exact-word search on this phone."
     }
 
     const val SEARCH_COULD_NOT_FINISH_BODY =

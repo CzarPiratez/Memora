@@ -12,9 +12,8 @@ object PdfKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved PDF text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in PDF Memory evidence already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall yet. " +
-            "UNFYND does not reopen your original files for this search."
+        "Search matches exact words in PDF Memory evidence saved on this phone. " +
+            "Your original files stay where they are."
 
     const val QUERY_LABEL = "Words to find"
 
@@ -41,9 +40,7 @@ object PdfKeywordSearchCopy {
 
     const val NOTHING_SAVED_BODY =
         "Nothing is ready for PDF keyword search yet. Finish Local PDF reading and " +
-            "Memory assembly for a connected folder first. UNFYND only searches READY " +
-            "PDF Memory evidence on this phone — this is keyword matching, not " +
-            "meaning-based recall."
+            "Memory assembly for a connected folder first."
 
     const val READINESS_LOADING_BODY = "Checking PDF memory evidence on this phone…"
 
@@ -81,8 +78,7 @@ object PdfKeywordSearchCopy {
             "$documentCount PDFs"
         }
         val verb = if (pageCount == 1) "is" else "are"
-        return "$excerpts from $documents $verb ready for keyword search on this phone. " +
-            "This is keyword matching, not meaning-based recall."
+        return "$excerpts from $documents $verb ready for exact-word search on this phone."
     }
 
     const val SEARCH_COULD_NOT_FINISH_BODY =

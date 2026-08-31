@@ -13,10 +13,8 @@ object PhotoOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved photo text"
 
     const val SCOPE_BODY =
-        "Search looks for exact words in photo Memory evidence already saved on this phone. " +
-            "This is keyword matching, not meaning-based recall yet. " +
-            "UNFYND does not reopen your original photos for this search. " +
-            "Screenshots are not included."
+        "Search matches exact words in photo Memory evidence saved on this phone. " +
+            "Your original photos stay where they are. Screenshots are not included."
 
     const val QUERY_LABEL = "Words to find"
     const val SEARCH_LABEL = "Search on this phone"
@@ -26,8 +24,7 @@ object PhotoOcrKeywordSearchCopy {
     const val SEARCHING_BODY = "Searching saved photo memory evidence on this phone…"
     const val NOTHING_SAVED_BODY =
         "Nothing is ready for photo keyword search yet. Finish Read text from photos " +
-            "and Memory assembly in photo setup first. UNFYND only searches READY photo " +
-            "Memory evidence on this phone — this is keyword matching, not meaning-based recall."
+            "and Memory assembly in photo setup first."
     const val SEARCH_COULD_NOT_FINISH_BODY = "Search could not finish. Try again in a moment."
     const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
     const val HIDE_WHY_LABEL = "Hide explanation"
@@ -62,8 +59,7 @@ object PhotoOcrKeywordSearchCopy {
         }
         val items = if (photoCount == 1) "1 photo" else "$photoCount photos"
         val verb = if (photoCount == 1) "is" else "are"
-        return "$items with READY Memory evidence $verb ready for keyword search on this phone. " +
-            "This is keyword matching, not meaning-based recall."
+        return "$items with READY Memory evidence $verb ready for exact-word search on this phone."
     }
 
     fun resultsSummary(query: String, count: Int, capped: Boolean): String =

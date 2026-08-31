@@ -30,12 +30,12 @@ class NotesConnectorHonestyCopyTest {
         assertTrue(all.contains("network"))
         assertTrue(NotesConnectorHonestyCopy.SCOPE_BODY.contains("not a UNFYND account"))
         assertTrue(NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("Find saved note text"))
-        assertTrue(NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("keyword"))
+        assertTrue(NotesConnectorHonestyCopy.STATUS_CONNECTED_SUFFIX.contains("exact-word search"))
         assertTrue(NotesConnectorHonestyCopy.FEEDBACK_CONNECTED.contains("Find saved note text"))
 
         assertFalse(all.contains("all notes on"))
         assertFalse(all.contains("memory ranking"))
-        assertFalse(all.contains("meaning-based recall yet") && !all.contains("not meaning"))
+        assertFalse(all.contains("not meaning-based recall"))
     }
 
     @Test
