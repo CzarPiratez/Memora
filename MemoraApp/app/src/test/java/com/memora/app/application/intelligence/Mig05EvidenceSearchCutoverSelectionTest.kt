@@ -12,13 +12,25 @@ class Mig05EvidenceSearchCutoverSelectionTest {
     private val readyD = MemoryRevisionId("rev-d")
 
     @Test
-    fun selects_only_ready_with_pdf_page_evidence_and_zero_evidence_embeddings() {
+    fun selects_only_ready_with_summary_pdf_page_evidence_and_zero_evidence_embeddings() {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB, readyC, readyD),
             revisionIdsWithPdfPageEvidence = setOf(readyA, readyB, readyC),
+            revisionIdsWithSummaryEmbeddings = setOf(readyA, readyB, readyC, readyD),
             revisionIdsWithEvidenceEmbeddings = setOf(readyB),
         )
         assertEquals(setOf(readyA, readyC), gaps)
+    }
+
+    @Test
+    fun does_not_select_fresh_ready_without_summary_embedding() {
+        val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
+            readyRevisionIds = setOf(readyA, readyB),
+            revisionIdsWithPdfPageEvidence = setOf(readyA, readyB),
+            revisionIdsWithSummaryEmbeddings = emptySet(),
+            revisionIdsWithEvidenceEmbeddings = emptySet(),
+        )
+        assertTrue(gaps.isEmpty())
     }
 
     @Test
@@ -26,6 +38,7 @@ class Mig05EvidenceSearchCutoverSelectionTest {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB),
             revisionIdsWithPdfPageEvidence = setOf(readyA),
+            revisionIdsWithSummaryEmbeddings = setOf(readyA, readyB),
             revisionIdsWithEvidenceEmbeddings = emptySet(),
         )
         assertEquals(setOf(readyA), gaps)
@@ -37,6 +50,7 @@ class Mig05EvidenceSearchCutoverSelectionTest {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA),
             revisionIdsWithPdfPageEvidence = setOf(readyA),
+            revisionIdsWithSummaryEmbeddings = setOf(readyA),
             revisionIdsWithEvidenceEmbeddings = setOf(readyA),
         )
         assertTrue(gaps.isEmpty())
@@ -47,6 +61,7 @@ class Mig05EvidenceSearchCutoverSelectionTest {
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = setOf(readyA, readyB, readyC, readyD),
             revisionIdsWithPdfPageEvidence = setOf(readyA),
+            revisionIdsWithSummaryEmbeddings = setOf(readyA, readyB, readyC, readyD),
             revisionIdsWithEvidenceEmbeddings = emptySet(),
         )
         assertEquals(setOf(readyA), gaps)

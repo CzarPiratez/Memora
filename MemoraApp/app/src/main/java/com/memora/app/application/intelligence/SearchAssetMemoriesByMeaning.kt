@@ -69,7 +69,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
 
         val revisionIds = (summaryIndexed.map { it.revisionId } + evidenceIndexed.map { it.revisionId })
             .distinct()
-        val lookups = memoryRepository.findCurrentReadyMeaningLookups(revisionIds)
+        val lookups = memoryRepository.findMeaningIndexLookups(revisionIds)
         val evidenceRows = memoryRepository.findEvidenceSearchRows(
             evidenceIndexed.map { it.revisionId }.distinct(),
         )

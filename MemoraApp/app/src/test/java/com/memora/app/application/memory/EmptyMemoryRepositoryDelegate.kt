@@ -40,6 +40,10 @@ internal class EmptyMemoryRepositoryDelegate : MemoryRepository {
         revisionIds: Collection<MemoryRevisionId>,
     ) = error("not used")
 
+    override suspend fun findMeaningIndexLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = error("not used")
+
     override suspend fun findPdfPageEvidenceIds(
         revisionIds: Collection<MemoryRevisionId>,
     ) = error("not used")

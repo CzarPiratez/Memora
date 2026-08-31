@@ -77,6 +77,7 @@ class CanonicalRecallTest {
             memoryRepository = EmptyMemoryRepositoryDelegate(),
             applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
                 memoryRepository = EmptyMemoryRepositoryDelegate(),
+                embeddingStore = EmptyMemoryEmbeddingStore(),
                 evidenceEmbeddingStore = EmptyMemoryEvidenceEmbeddingStore(),
             ),
         ),

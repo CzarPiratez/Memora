@@ -469,6 +469,10 @@ private class FakeMemoryRepository : MemoryRepository {
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
 
+    override suspend fun findMeaningIndexLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ) = emptyMap<MemoryRevisionId, MemoryMeaningLookup>()
+
     override suspend fun findPdfPageEvidenceIds(
         revisionIds: Collection<MemoryRevisionId>,
     ) = emptyMap<MemoryRevisionId, Map<Int, MemoryEvidenceId>>()

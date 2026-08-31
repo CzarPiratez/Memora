@@ -131,6 +131,31 @@ class RoomMemoryRepository(
 
     override suspend fun findCurrentReadyMeaningLookups(
         revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, MemoryMeaningLookup> =
+        meaningLookups(
+            revisionIds = revisionIds,
+            query = { dao, schema, ids ->
+                dao.findCurrentReadyMeaningLookups(schema, ids)
+            },
+        )
+
+    override suspend fun findMeaningIndexLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, MemoryMeaningLookup> =
+        meaningLookups(
+            revisionIds = revisionIds,
+            query = { dao, schema, ids ->
+                dao.findMeaningIndexLookups(schema, ids)
+            },
+        )
+
+    private suspend fun meaningLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+        query: suspend (
+            MemoryDao,
+            String,
+            List<String>,
+        ) -> List<MemoryMeaningLookupRow>,
     ): Map<MemoryRevisionId, MemoryMeaningLookup> {
         if (revisionIds.isEmpty()) return emptyMap()
         val ids = revisionIds.map { it.value }.distinct()
@@ -140,10 +165,8 @@ class RoomMemoryRepository(
             .mapValues { (_, rows) ->
                 PdfPageEvidenceLocator.firstPageNumber(rows.map { it.locator })
             }
-        return dao.findCurrentReadyMeaningLookups(
-            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
-            revisionIds = ids,
-        ).associate { row ->
+        val schema = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value
+        return query(dao, schema, ids).associate { row ->
             val revisionId = MemoryRevisionId(row.revisionId)
             revisionId to MemoryMeaningLookup(
                 revisionId = revisionId,

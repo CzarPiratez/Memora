@@ -58,6 +58,7 @@ class SearchAssetMemoriesByMeaningTest {
                 evidenceStore = InMemoryMemoryEvidenceEmbeddingStore(),
                 cutover = ApplyMig05EvidenceSearchCutover(
                     memoryRepository = FakeMemoryRepository(),
+                    embeddingStore = InMemoryMemoryEmbeddingStore(),
                     evidenceEmbeddingStore = InMemoryMemoryEvidenceEmbeddingStore(),
                 ),
             )("cafe receipt")
@@ -259,6 +260,7 @@ class SearchAssetMemoriesByMeaningTest {
         memoryRepository: MemoryRepository = FakeMemoryRepository(),
         cutover: ApplyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
             memoryRepository = memoryRepository,
+            embeddingStore = embeddingStore,
             evidenceEmbeddingStore = evidenceStore,
         ),
     ) = SearchAssetMemoriesByMeaning(
@@ -397,6 +399,11 @@ class SearchAssetMemoriesByMeaningTest {
         ): Int = 0
 
         override suspend fun findCurrentReadyMeaningLookups(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, MemoryMeaningLookup> =
+            lookups.filterKeys { it in revisionIds }
+
+        override suspend fun findMeaningIndexLookups(
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, MemoryMeaningLookup> =
             lookups.filterKeys { it in revisionIds }

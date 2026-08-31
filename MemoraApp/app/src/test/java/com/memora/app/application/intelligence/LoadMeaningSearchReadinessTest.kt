@@ -58,6 +58,19 @@ class LoadMeaningSearchReadinessTest {
                 },
                 applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
                     memoryRepository = com.memora.app.application.memory.EmptyMemoryRepositoryDelegate(),
+                    embeddingStore = object : com.memora.app.domain.intelligence.MemoryEmbeddingStore {
+                        override fun find(
+                            revisionId: com.memora.app.domain.memory.MemoryRevisionId,
+                            model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+                        ) = null
+
+                        override fun upsert(record: com.memora.app.domain.intelligence.MemoryEmbeddingRecord) = Unit
+
+                        override fun listForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) =
+                            emptyList<com.memora.app.domain.intelligence.MemoryEmbeddingRecord>()
+
+                        override fun countForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) = 0
+                    },
                     evidenceEmbeddingStore = object : com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore {
                         override fun find(
                             revisionId: com.memora.app.domain.memory.MemoryRevisionId,

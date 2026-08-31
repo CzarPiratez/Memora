@@ -191,7 +191,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 is IndexMemoryEmbeddingsResult.EngineUnavailable -> null
                 is IndexMemoryEmbeddingsResult.Completed -> withContext(Dispatchers.IO) {
                     val revisionIds = candidates.map { it.revisionId }
-                    val lookups = memoryRepository.findCurrentReadyMeaningLookups(revisionIds)
+                    val lookups = memoryRepository.findMeaningIndexLookups(revisionIds)
                     val evidenceIdsByRevision =
                         memoryRepository.findPdfPageEvidenceIds(revisionIds)
                     val ocrEvidenceByRevision =

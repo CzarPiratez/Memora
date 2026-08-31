@@ -61,9 +61,18 @@ interface MemoryRepository {
 
     /**
      * Current-fingerprint READY Memory rows for meaning-hit display, keyed by revision.
-     * Missing / stale revisions are omitted.
+     * Missing / [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions are omitted.
      */
     suspend fun findCurrentReadyMeaningLookups(
+        revisionIds: Collection<MemoryRevisionId>,
+    ): Map<MemoryRevisionId, MemoryMeaningLookup>
+
+    /**
+     * Current-fingerprint READY + [MemoryIntegrityState.STALE_REINDEX_REQUIRED]
+     * Memory rows for meaning-index evidence drains (and meaning hit display while
+     * evidence embeddings catch up). Missing revisions are omitted.
+     */
+    suspend fun findMeaningIndexLookups(
         revisionIds: Collection<MemoryRevisionId>,
     ): Map<MemoryRevisionId, MemoryMeaningLookup>
 

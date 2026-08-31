@@ -216,8 +216,9 @@ interface MemoryDao {
     ): List<MemoryAnchorEntity>
 
     /**
-     * Count of evidence rows on current-fingerprint READY Memories (MIG-06/07).
-     * Zero means nothing is available for literal evidence search yet.
+     * Count of evidence rows on current-fingerprint READY or STALE_REINDEX_REQUIRED
+     * Memories (MIG-06/07). STALE means evidence embeddings need reindex; excerpts
+     * remain keyword-searchable. Zero means nothing is available for literal search.
      * Pass null [assetType] for all types; otherwise filter to that AssetType name.
      */
     @Query(
@@ -229,7 +230,7 @@ interface MemoryDao {
           ON a.source_id = m.source_id
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
-        WHERE m.integrity_state = 'READY'
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND e.excerpt != ''
           AND (:assetType IS NULL OR a.asset_type = :assetType)
@@ -242,7 +243,9 @@ interface MemoryDao {
 
     /**
      * Evidence + distinct-document counts for Find readiness (MIG-07).
-     * Pass null [assetType] for all types; otherwise filter to that AssetType name.
+     * Includes STALE_REINDEX_REQUIRED so keyword readiness is not emptied during
+     * meaning evidence reindex. Pass null [assetType] for all types; otherwise
+     * filter to that AssetType name.
      */
     @Query(
         """
@@ -256,7 +259,7 @@ interface MemoryDao {
           ON a.source_id = m.source_id
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
-        WHERE m.integrity_state = 'READY'
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND e.excerpt != ''
           AND (:assetType IS NULL OR a.asset_type = :assetType)
@@ -269,7 +272,7 @@ interface MemoryDao {
 
     /**
      * Literal substring search over [memory_evidence.excerpt] for current-fingerprint
-     * READY Memories (MIG-06/07). No FTS; no schema bump.
+     * READY and STALE_REINDEX_REQUIRED Memories (MIG-06/07). No FTS; no schema bump.
      * Pass null [assetType] for all types; otherwise filter to that AssetType name.
      */
     @Query(
@@ -292,7 +295,7 @@ interface MemoryDao {
           ON a.source_id = m.source_id
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
-        WHERE m.integrity_state = 'READY'
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND e.excerpt != ''
           AND (:assetType IS NULL OR a.asset_type = :assetType)
@@ -332,6 +335,32 @@ interface MemoryDao {
         """,
     )
     suspend fun findCurrentReadyMeaningLookups(
+        assemblySchemaVersion: String,
+        revisionIds: List<String>,
+    ): List<MemoryMeaningLookupRow>
+
+    @Query(
+        """
+        SELECT
+            m.revision_id AS revision_id,
+            m.memory_id AS memory_id,
+            m.source_id AS source_id,
+            m.source_asset_key AS source_asset_key,
+            m.summary_text AS summary_text,
+            a.asset_type AS asset_type,
+            a.display_name AS display_name
+        FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND m.summary_text != ''
+          AND m.revision_id IN (:revisionIds)
+        """,
+    )
+    suspend fun findMeaningIndexLookups(
         assemblySchemaVersion: String,
         revisionIds: List<String>,
     ): List<MemoryMeaningLookupRow>

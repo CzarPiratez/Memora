@@ -132,6 +132,7 @@ class LoadCorpusCompletenessTest {
         evidenceEmbeddingStore = evidenceStore,
         applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
             memoryRepository = memoryRepository,
+            embeddingStore = summaryStore,
             evidenceEmbeddingStore = evidenceStore,
         ),
     )
@@ -189,6 +190,10 @@ class LoadCorpusCompletenessTest {
         ) = 0
 
         override suspend fun findCurrentReadyMeaningLookups(
+            revisionIds: Collection<com.memora.app.domain.memory.MemoryRevisionId>,
+        ) = emptyMap<com.memora.app.domain.memory.MemoryRevisionId, com.memora.app.domain.memory.MemoryMeaningLookup>()
+
+        override suspend fun findMeaningIndexLookups(
             revisionIds: Collection<com.memora.app.domain.memory.MemoryRevisionId>,
         ) = emptyMap<com.memora.app.domain.memory.MemoryRevisionId, com.memora.app.domain.memory.MemoryMeaningLookup>()
 

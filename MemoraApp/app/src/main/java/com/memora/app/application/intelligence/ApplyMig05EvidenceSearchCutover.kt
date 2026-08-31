@@ -1,5 +1,6 @@
 package com.memora.app.application.intelligence
 
+import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.memory.MemoryIntegrityState
@@ -12,9 +13,12 @@ import kotlinx.coroutines.sync.withLock
 
 /**
  * MIG-05 cutover: mark gap READY revisions
- * [MemoryIntegrityState.STALE_REINDEX_REQUIRED] when they have ≥1
- * `pdf:page:N` MemoryEvidence but zero evidence embeddings for [model], and
- * restore READY once evidence embeddings exist.
+ * [MemoryIntegrityState.STALE_REINDEX_REQUIRED] when they already have a summary
+ * embedding for [model], have ≥1 `pdf:page:N` MemoryEvidence, but zero evidence
+ * embeddings for that model — and restore READY once evidence embeddings exist.
+ *
+ * Fresh memories (not yet summary-indexed) stay READY so keyword Find and the
+ * Build meaning index evidence drain are not deadlocked by premature STALE.
  *
  * Trigger: first readiness / search path (and after meaning-index taps).
  * Selection is intentional and narrow — never mass-STALE.
@@ -23,6 +27,7 @@ import kotlinx.coroutines.sync.withLock
 @Singleton
 class ApplyMig05EvidenceSearchCutover @Inject constructor(
     private val memoryRepository: MemoryRepository,
+    private val embeddingStore: MemoryEmbeddingStore,
     private val evidenceEmbeddingStore: MemoryEvidenceEmbeddingStore,
 ) {
     private val mutex = Mutex()
@@ -34,12 +39,15 @@ class ApplyMig05EvidenceSearchCutover @Inject constructor(
         val readyRevisionIds = memoryRepository.listCurrentReadyRevisionIds()
         val pdfPageEvidenceRevisionIds =
             memoryRepository.findPdfPageEvidenceIds(readyRevisionIds).keys
+        val summaryRevisionIds = embeddingStore.listForModel(model)
+            .mapTo(linkedSetOf()) { it.revisionId }
         val evidenceRevisionIds = evidenceEmbeddingStore.listForModel(model)
             .mapTo(linkedSetOf()) { it.revisionId }
 
         val gaps = Mig05EvidenceSearchCutoverSelection.selectGapRevisionIds(
             readyRevisionIds = readyRevisionIds,
             revisionIdsWithPdfPageEvidence = pdfPageEvidenceRevisionIds,
+            revisionIdsWithSummaryEmbeddings = summaryRevisionIds,
             revisionIdsWithEvidenceEmbeddings = evidenceRevisionIds,
         )
         val markedStale = if (gaps.isEmpty()) {
