@@ -14,7 +14,6 @@ import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserClientResult
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserDescriptorHandoff
 import com.memora.app.data.pdfbox.isolation.IsolatedPdfParserBindingStatus
 import com.memora.app.data.pdfbox.isolation.toApprovedPdfParsingOutcome
-import com.memora.app.data.saf.ContentResolverSafPdfDescriptorPlatform
 import com.memora.app.data.saf.SafPdfReadOnlyDescriptorAccess
 import com.memora.app.data.saf.SyntheticPdfDocumentsProvider
 import com.memora.app.data.saf.SafPdfDocumentFingerprint
@@ -129,9 +128,7 @@ class ParseApprovedPdfWithIsolatedParserIntegrationTest {
         descriptorAccess = SafPdfReadOnlyDescriptorAccess(
             approvalRepository = FakeApprovalRepository(approval),
             accessValidator = SequencedAccessValidator(accessStates),
-            platform = ContentResolverSafPdfDescriptorPlatform(
-                ApplicationProvider.getApplicationContext(),
-            ),
+            context = ApplicationProvider.getApplicationContext(),
         ),
         parser = ApprovedPdfBorrowedParser { descriptor, signal ->
             parser.parseBorrowed(descriptor, signal).toApprovedPdfParsingOutcome()

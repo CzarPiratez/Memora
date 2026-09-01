@@ -270,15 +270,28 @@ class RoomMemoryRepository(
     ): Map<MemoryRevisionId, List<MemoryAnchor>> {
         if (revisionIds.isEmpty()) return emptyMap()
         val ids = revisionIds.map { it.value }.distinct()
+        val dao = database().memoryDao()
+        val evidenceByRevisionAndAnchor = dao.findAnchorEvidenceForRevisions(ids)
+            .groupBy { it.revisionId to it.anchorId }
+            .mapValues { (_, rows) ->
+                rows.mapTo(linkedSetOf()) { MemoryEvidenceId(it.evidenceId) }
+            }
         val result = linkedMapOf<MemoryRevisionId, MutableList<MemoryAnchor>>()
-        for (entity in database().memoryDao().findAnchorsForRevisions(ids)) {
+        for (entity in dao.findAnchorsForRevisions(ids)) {
+            val kind = runCatching { MemoryAnchorKind.valueOf(entity.anchorKind) }.getOrNull()
+                ?: continue
+            val anchorText = entity.anchorText.trim()
+            if (anchorText.isBlank()) continue
+            val evidenceIds = evidenceByRevisionAndAnchor[entity.revisionId to entity.anchorId]
+                .orEmpty()
+            if (evidenceIds.isEmpty()) continue
             val revisionId = MemoryRevisionId(entity.revisionId)
             val anchors = result.getOrPut(revisionId) { mutableListOf() }
             anchors += MemoryAnchor(
                 id = MemoryAnchorId(entity.anchorId),
-                kind = MemoryAnchorKind.valueOf(entity.anchorKind),
-                text = MemoryText(entity.anchorText),
-                evidenceIds = emptySet(),
+                kind = kind,
+                text = MemoryText(anchorText),
+                evidenceIds = evidenceIds,
             )
         }
         return result

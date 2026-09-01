@@ -243,6 +243,62 @@ class SearchAssetMemoriesByMeaningTest {
     }
 
     @Test
+    fun repository_failure_returns_failed_outcome() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val revision = MemoryRevisionId("rev-fail")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = revision,
+                memoryId = MemoryId("mem-fail"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(1f, 0f, 0f)),
+                sourceTextFingerprint = "fp",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = ThrowingMemoryRepository(),
+        )("invoice")
+
+        assertTrue(outcome is MeaningSearchOutcome.Failed)
+        assertEquals("lookup failed", (outcome as MeaningSearchOutcome.Failed).reason)
+    }
+
+    @Test
+    fun dimension_mismatch_returns_empty_matches_not_failed() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val revision = MemoryRevisionId("rev-dim")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = revision,
+                memoryId = MemoryId("mem-dim"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(1f, 0f)),
+                sourceTextFingerprint = "fp",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(
+                lookups = mapOf(
+                    revision to lookup(revision, MemoryId("mem-dim"), "invoice.pdf"),
+                ),
+            ),
+        )("invoice")
+
+        val matches = outcome as MeaningSearchOutcome.Matches
+        assertTrue(matches.hits.isEmpty())
+    }
+
+    @Test
     fun does_not_import_saved_pdf_page_text_source() {
         val imports = SearchAssetMemoriesByMeaning::class.java.declaredConstructors
             .flatMap { it.parameterTypes.toList() }
@@ -360,7 +416,7 @@ class SearchAssetMemoriesByMeaningTest {
             }
     }
 
-    private class FakeMemoryRepository(
+    private open class FakeMemoryRepository(
         private val lookups: Map<MemoryRevisionId, MemoryMeaningLookup> = emptyMap(),
         private val evidenceRows: Map<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>> =
             emptyMap(),
@@ -428,5 +484,12 @@ class SearchAssetMemoriesByMeaningTest {
         override suspend fun findSignatureAnchors(
             revisionIds: Collection<MemoryRevisionId>,
         ): Map<MemoryRevisionId, List<MemoryAnchor>> = emptyMap()
+    }
+
+    private class ThrowingMemoryRepository : FakeMemoryRepository() {
+        override suspend fun findMeaningIndexLookups(
+            revisionIds: Collection<MemoryRevisionId>,
+        ): Map<MemoryRevisionId, MemoryMeaningLookup> =
+            throw IllegalStateException("lookup failed")
     }
 }

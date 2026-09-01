@@ -92,6 +92,39 @@ class AnchorAwareMeaningRecallRankingTest {
     }
 
     @Test
+    fun apply_advisory_topic_with_signature_anchors_does_not_throw() = runBlocking {
+        val invoiceMatch = MemoryRevisionId("rev-invoice")
+        val other = MemoryRevisionId("rev-other")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "invoice",
+            hits = listOf(
+                hit(invoiceMatch, 0.8f, label = "memora-open-5page.pdf"),
+                hit(other, 0.7f, label = "memora-open-3page.pdf"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "invoice",
+            memoryRepository = FakeAnchorRepository(
+                mapOf(
+                    invoiceMatch to listOf(
+                        topicAnchor("memora-open-5page.pdf", MemoryEvidenceId("e-topic-5")),
+                    ),
+                    other to listOf(
+                        topicAnchor("memora-open-3page.pdf", MemoryEvidenceId("e-topic-3")),
+                    ),
+                ),
+            ),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(2, ranked.hits.size)
+        assertEquals(invoiceMatch, ranked.hits.first().revisionId)
+    }
+
+    @Test
     fun apply_without_time_or_topic_cue_returns_boost_only() = runBlocking {
         val outcome = MeaningSearchOutcome.Matches(
             query = "wifi",
@@ -135,6 +168,13 @@ class AnchorAwareMeaningRecallRankingTest {
         score = score,
         label = "Label",
         summaryText = "Summary",
+    )
+
+    private fun topicAnchor(text: String, evidenceId: MemoryEvidenceId) = MemoryAnchor(
+        id = MemoryAnchorId("topic-${text.hashCode()}"),
+        kind = MemoryAnchorKind.TOPIC,
+        text = MemoryText(text),
+        evidenceIds = setOf(evidenceId),
     )
 
     private fun timeAnchor(text: String) = MemoryAnchor(

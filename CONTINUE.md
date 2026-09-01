@@ -4,7 +4,14 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-08-31
+**Updated:** 2026-09-01
+
+**Docs note (Find by meaning anchor fix, 2026-09-01):** Fixed
+`findSignatureAnchors` empty-evidence crash that surfaced as
+SearchCouldNotFinish for typical queries; MediaPipe embed serialization;
+Room integration + failure-path tests. See
+`CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md`. Emulator retest: meaning index
+built → Find `invoice` / `mira`. Not AVAILABLE.
 
 **Docs note:** Root `README.md` frames UNFYND App as privacy-first on-device
 **intelligence** (pillars; multimodal digital world; Sees→…→Acts; Core

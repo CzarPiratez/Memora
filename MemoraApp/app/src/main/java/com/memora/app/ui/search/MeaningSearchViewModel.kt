@@ -1,5 +1,6 @@
 package com.memora.app.ui.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.intelligence.LoadMeaningSearchReadiness
@@ -163,7 +164,8 @@ class MeaningSearchViewModel(
             mutableUiState.update { it.copy(readiness = MeaningSearchReadinessUi.Loading) }
             val readiness = try {
                 loadReadiness()
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                Log.w(TAG, "meaning search readiness failed", error)
                 mutableUiState.update {
                     it.copy(readiness = MeaningSearchReadinessUi.CouldNotLoad)
                 }
@@ -229,7 +231,8 @@ class MeaningSearchViewModel(
                 searchByMeaning(query)
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                Log.w(TAG, "meaning search threw", error)
                 if (generation != searchGeneration.get()) return@launch
                 mutableUiState.update { state ->
                     if (generation != searchGeneration.get()) return@update state
@@ -251,7 +254,10 @@ class MeaningSearchViewModel(
                     MeaningSearchPhase.EngineUnavailable(outcome.reason)
                 is MeaningSearchOutcome.NothingIndexed ->
                     MeaningSearchPhase.NothingIndexed(query = outcome.query)
-                is MeaningSearchOutcome.Failed -> MeaningSearchPhase.SearchCouldNotFinish
+                is MeaningSearchOutcome.Failed -> {
+                    Log.w(TAG, "meaning search failed: ${outcome.reason}")
+                    MeaningSearchPhase.SearchCouldNotFinish
+                }
                 is MeaningSearchOutcome.Matches -> when {
                     outcome.hits.isEmpty() ->
                         MeaningSearchPhase.NoMatches(query = outcome.query)
@@ -382,6 +388,8 @@ class MeaningSearchViewModel(
     }
 
     companion object {
+        private const val TAG = "MeaningSearchViewModel"
+
         const val DEFAULT_MIN_SEARCHING_VISIBLE_MS = 350L
     }
 }

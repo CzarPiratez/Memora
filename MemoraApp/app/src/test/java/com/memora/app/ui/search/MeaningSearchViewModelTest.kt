@@ -157,6 +157,52 @@ class MeaningSearchViewModelTest {
         assertEquals(MeaningOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
     }
 
+    @Test
+    fun search_failure_leaves_recoverable_phase_not_spinning() = runTest {
+        val viewModel = viewModel { error("simulated search failure") }
+        viewModel.onQueryChanged("invoice")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertEquals(MeaningSearchPhase.SearchCouldNotFinish, viewModel.uiState.value.phase)
+    }
+
+    @Test
+    fun failed_outcome_maps_to_search_could_not_finish() = runTest {
+        val viewModel = viewModel {
+            MeaningSearchOutcome.Failed(reason = "On-device embedding failed.")
+        }
+        viewModel.onQueryChanged("invoice")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertEquals(MeaningSearchPhase.SearchCouldNotFinish, viewModel.uiState.value.phase)
+    }
+
+    @Test
+    fun engine_unavailable_maps_to_distinct_phase() = runTest {
+        val viewModel = viewModel {
+            MeaningSearchOutcome.EngineUnavailable(reason = "model missing")
+        }
+        viewModel.onQueryChanged("invoice")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        val phase = viewModel.uiState.value.phase as MeaningSearchPhase.EngineUnavailable
+        assertEquals("model missing", phase.reason)
+    }
+
+    @Test
+    fun readiness_load_failure_maps_to_could_not_load() = runTest {
+        val viewModel = MeaningSearchViewModel(
+            searchByMeaning = { MeaningSearchOutcome.NothingIndexed("x") },
+            loadReadiness = { error("readiness failed") },
+            openOriginal = { _, _ -> MeaningOpenOriginalResult.CouldNotOpen },
+            launchOneNoteOriginal = { _, _ -> false },
+            minSearchingVisibleMs = 0L,
+        )
+        viewModel.onScreenVisible()
+        advanceUntilIdle()
+        assertEquals(MeaningSearchReadinessUi.CouldNotLoad, viewModel.uiState.value.readiness)
+    }
+
     private fun viewModel(
         readiness: suspend () -> MeaningSearchReadiness = {
             MeaningSearchReadiness.Ready(

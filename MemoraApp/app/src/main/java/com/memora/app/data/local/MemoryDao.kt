@@ -215,6 +215,17 @@ interface MemoryDao {
         revisionIds: List<String>,
     ): List<MemoryAnchorEntity>
 
+    @Query(
+        """
+        SELECT * FROM memory_anchor_evidence
+        WHERE revision_id IN (:revisionIds)
+        ORDER BY revision_id, anchor_id, evidence_id
+        """,
+    )
+    suspend fun findAnchorEvidenceForRevisions(
+        revisionIds: List<String>,
+    ): List<MemoryAnchorEvidenceEntity>
+
     /**
      * Count of evidence rows on current-fingerprint READY or STALE_REINDEX_REQUIRED
      * Memories (MIG-06/07). STALE means evidence embeddings need reindex; excerpts

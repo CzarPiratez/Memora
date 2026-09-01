@@ -1,5 +1,6 @@
 package com.memora.app.application.intelligence
 
+import android.util.Log
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
@@ -41,13 +42,28 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         rawQuery: String,
         limit: Int = DEFAULT_LIMIT,
     ): MeaningSearchOutcome = withContext(Dispatchers.Default) {
+        try {
+            searchInternal(rawQuery = rawQuery, limit = limit)
+        } catch (error: Exception) {
+            Log.w(TAG, "meaning candidate search failed", error)
+            MeaningSearchOutcome.Failed(
+                error.message?.takeIf { it.isNotBlank() }
+                    ?: "Meaning search failed on this phone.",
+            )
+        }
+    }
+
+    private suspend fun searchInternal(
+        rawQuery: String,
+        limit: Int,
+    ): MeaningSearchOutcome {
         require(limit > 0)
         val query = rawQuery.trim()
-        if (query.isEmpty()) return@withContext MeaningSearchOutcome.BlankQuery
+        if (query.isEmpty()) return MeaningSearchOutcome.BlankQuery
 
         val model = when (val availability = embeddingEngine.availability()) {
             is CapabilityAvailability.Unavailable ->
-                return@withContext MeaningSearchOutcome.EngineUnavailable(availability.reason)
+                return MeaningSearchOutcome.EngineUnavailable(availability.reason)
             is CapabilityAvailability.Available -> availability.model
         }
 
@@ -56,14 +72,14 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         val summaryIndexed = embeddingStore.listForModel(model)
         val evidenceIndexed = evidenceEmbeddingStore.listForModel(model)
         if (summaryIndexed.isEmpty() && evidenceIndexed.isEmpty()) {
-            return@withContext MeaningSearchOutcome.NothingIndexed(query = query)
+            return MeaningSearchOutcome.NothingIndexed(query = query)
         }
 
         val queryVector = when (val encoded = embeddingEngine.embedText(query)) {
             is EmbeddingEncodeResult.Unavailable ->
-                return@withContext MeaningSearchOutcome.EngineUnavailable(encoded.reason)
+                return MeaningSearchOutcome.EngineUnavailable(encoded.reason)
             is EmbeddingEncodeResult.Failed ->
-                return@withContext MeaningSearchOutcome.Failed(encoded.reason)
+                return MeaningSearchOutcome.Failed(encoded.reason)
             is EmbeddingEncodeResult.Success -> encoded.vector
         }
 
@@ -73,20 +89,37 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         val evidenceRows = memoryRepository.findEvidenceSearchRows(
             evidenceIndexed.map { it.revisionId }.distinct(),
         )
+        val dropStats = MeaningSearchCandidateDropStats()
 
         val summaryHits = summaryIndexed.mapNotNull { record ->
-            val lookup = lookups[record.revisionId] ?: return@mapNotNull null
-            if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
+            val lookup = lookups[record.revisionId]
+            if (lookup == null) {
+                dropStats.missingLookup += 1
+                return@mapNotNull null
+            }
+            if (record.vector.dimensions != queryVector.dimensions) {
+                dropStats.dimensionMismatch += 1
+                return@mapNotNull null
+            }
             val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
-            if (cosine < MIN_CANDIDATE_SCORE) return@mapNotNull null
+            if (cosine < MIN_CANDIDATE_SCORE) {
+                dropStats.belowMinScore += 1
+                return@mapNotNull null
+            }
+            val label = lookup.displayLabel.trim()
+            val summaryText = lookup.summaryText.trim()
+            if (label.isBlank() || summaryText.isBlank()) {
+                dropStats.blankLabelOrSummary += 1
+                return@mapNotNull null
+            }
             MeaningSearchHit(
                 revisionId = record.revisionId,
                 memoryId = record.memoryId,
                 sourceId = lookup.sourceId,
                 sourceAssetKey = lookup.sourceAssetKey,
                 assetType = lookup.assetType,
-                label = lookup.displayLabel,
-                summaryText = lookup.summaryText,
+                label = label,
+                summaryText = summaryText,
                 citedPdfPageNumber = lookup.citedPdfPageNumber,
                 rankedPdfPageNumber = null,
                 score = cosine,
@@ -96,23 +129,44 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         }
 
         val evidenceHits = evidenceIndexed.mapNotNull { record ->
-            val lookup = lookups[record.revisionId] ?: return@mapNotNull null
-            if (record.vector.dimensions != queryVector.dimensions) return@mapNotNull null
+            val lookup = lookups[record.revisionId]
+            if (lookup == null) {
+                dropStats.missingLookup += 1
+                return@mapNotNull null
+            }
+            if (record.vector.dimensions != queryVector.dimensions) {
+                dropStats.dimensionMismatch += 1
+                return@mapNotNull null
+            }
             val evidence = evidenceRows[record.revisionId]?.get(record.evidenceId)
-                ?: return@mapNotNull null
+            if (evidence == null) {
+                dropStats.missingEvidenceRow += 1
+                return@mapNotNull null
+            }
             val excerpt = ResolveMeaningPdfOpenPage.truncateForEmbed(evidence.excerpt)
                 .takeIf { it.isNotBlank() }
-                ?: return@mapNotNull null
+            if (excerpt == null) {
+                dropStats.blankExcerpt += 1
+                return@mapNotNull null
+            }
             val rankedPage = PdfPageEvidenceLocator.parsePageNumber(evidence.locator)
             val cosine = EmbeddingSimilarity.cosine(queryVector, record.vector)
-            if (cosine < MIN_CANDIDATE_SCORE) return@mapNotNull null
+            if (cosine < MIN_CANDIDATE_SCORE) {
+                dropStats.belowMinScore += 1
+                return@mapNotNull null
+            }
+            val label = lookup.displayLabel.trim()
+            if (label.isBlank()) {
+                dropStats.blankLabelOrSummary += 1
+                return@mapNotNull null
+            }
             MeaningSearchHit(
                 revisionId = record.revisionId,
                 memoryId = record.memoryId,
                 sourceId = lookup.sourceId,
                 sourceAssetKey = lookup.sourceAssetKey,
                 assetType = lookup.assetType,
-                label = lookup.displayLabel,
+                label = label,
                 summaryText = excerpt,
                 citedPdfPageNumber = lookup.citedPdfPageNumber,
                 rankedPdfPageNumber = rankedPage,
@@ -133,8 +187,19 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             }
             .sortedByDescending { it.score }
 
+        if (deduped.isEmpty() && dropStats.hasDrops()) {
+            Log.w(
+                TAG,
+                dropStats.toLogMessage(
+                    summaryIndexed = summaryIndexed.size,
+                    evidenceIndexed = evidenceIndexed.size,
+                    query = query,
+                ),
+            )
+        }
+
         val limited = deduped.take(limit)
-        MeaningSearchOutcome.Matches(
+        return MeaningSearchOutcome.Matches(
             query = query,
             hits = limited,
             limitReached = deduped.size > limit,
@@ -143,6 +208,8 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "SearchAssetMemoriesByMeaning"
+
         const val DEFAULT_LIMIT = 10
 
         /** Soft floor so near-zero noise is not listed as a candidate. */

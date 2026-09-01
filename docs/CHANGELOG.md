@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Fix: Find by meaning — anchor load crash + hardening (2026-09-01)
+
+- **Date:** 2026-09-01
+- **Delivered:** `findSignatureAnchors` loads cited evidence from
+  `memory_anchor_evidence` (fixes crash on typical ≥4-char queries during anchor
+  ranking). MediaPipe embedder serialized for index+search safety. Candidate drop
+  diagnostics + failure-path tests (ViewModel, Canonical Recall, Room integration).
+  See `CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md`.
+- **Truthfulness:** Defect fix on Canonical Recall MEANING path; Live/Dual N
+  unchanged (0); not marketing AVAILABLE.
+
 ### Product voice refresh + build fix (2026-08-31)
 
 - **Date:** 2026-08-31
