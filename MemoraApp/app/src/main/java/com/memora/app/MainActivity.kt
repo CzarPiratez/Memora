@@ -124,6 +124,7 @@ import com.memora.app.ui.setup.PhotoOcrExtractUiState
 import com.memora.app.ui.setup.completedImageExifExtractSummary
 import com.memora.app.ui.setup.completedIndexingSummary
 import com.memora.app.ui.setup.completedPdfFolderIndexingSummary
+import com.memora.app.ui.setup.idlePdfFolderIndexingSummary
 import com.memora.app.ui.setup.completedScreenshotOcrExtractSummary
 import com.memora.app.ui.setup.completedPhotoOcrExtractSummary
 import com.memora.app.ui.setup.AssetMemorySetupCopy
@@ -2266,6 +2267,28 @@ private fun PdfFolderIndexingControl(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(PDF_FOLDER_INDEX_FIRST_INDEX_LABEL)
+        }
+
+        is PdfFolderIndexingState.READY_TO_CHECK -> {
+            Text(
+                text = idlePdfFolderIndexingSummary(indexing.totalAssetCount),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(PDF_FOLDER_INDEX_CHECK_FOR_NEW_LABEL)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onStartIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(PDF_FOLDER_INDEX_FIRST_INDEX_LABEL)
+            }
         }
 
         PdfFolderIndexingState.IN_PROGRESS -> Column(

@@ -5,6 +5,15 @@ import org.junit.Test
 
 class PdfFolderIndexingSummaryTest {
     @Test
+    fun idle_summary_for_returning_users_offers_check_for_new_pdfs() {
+        assertEquals(
+            "5 PDF items already listed in this connected folder. Tap Check for new PDFs after " +
+                "you add files. Text search still needs Local PDF reading for each document.",
+            idlePdfFolderIndexingSummary(totalAssetCount = 5),
+        )
+    }
+
+    @Test
     fun `first completed drain states totals and local reading next step`() {
         assertEquals(
             "Found 3 new PDFs this pass. 3 PDF items in this connected folder. " +

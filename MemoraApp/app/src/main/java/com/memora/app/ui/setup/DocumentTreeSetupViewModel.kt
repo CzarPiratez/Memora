@@ -38,6 +38,19 @@ sealed interface DocumentTreeConnectionState {
 sealed interface PdfFolderIndexingState {
     data object NOT_STARTED : PdfFolderIndexingState
 
+    /**
+     * Folder was indexed before; offer rescan without implying this is a first-time index.
+     */
+    data class READY_TO_CHECK(
+        val totalAssetCount: Int,
+    ) : PdfFolderIndexingState {
+        init {
+            require(totalAssetCount > 0) {
+                "Ready-to-check needs a positive saved PDF count."
+            }
+        }
+    }
+
     data object IN_PROGRESS : PdfFolderIndexingState
 
     data class COMPLETED(
@@ -108,6 +121,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)?.sourceId
             if (connectedId != null) {
                 observeDiscoveryWork(connectedId)
+                refreshIndexingIdleState(connectedId)
             }
         }
     }
@@ -135,6 +149,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)?.sourceId
             if (connectedId != null) {
                 observeDiscoveryWork(connectedId)
+                refreshIndexingIdleState(connectedId)
             }
         }
     }
@@ -244,6 +259,18 @@ class DocumentTreeSetupViewModel @Inject constructor(
                     ),
                 )
             }
+        }
+    }
+
+    private suspend fun refreshIndexingIdleState(sourceId: SourceId) {
+        if (mutableUiState.value.indexing !is PdfFolderIndexingState.NOT_STARTED) return
+        val count = runCatching {
+            assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
+        }.getOrDefault(0)
+        if (count > 0) {
+            mutableUiState.value = mutableUiState.value.copy(
+                indexing = PdfFolderIndexingState.READY_TO_CHECK(totalAssetCount = count),
+            )
         }
     }
 }

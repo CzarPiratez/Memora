@@ -13,8 +13,13 @@ meaning index. Corpus: 3 PDFs in `Documents/unfynd-test`. See
 
 **SAF PDF folder rescan (2026-09-02):** Completed checkpoint clears on explicit
 re-index; UI shows new-vs-total counts and **Check for new PDFs**. See
-`docs/CHANGE_CONTROL_SAF_PDF_FOLDER_RESCAN.md`. Next: keyword AND (F-01), meaning
-lexical filter (F-02), Why copy (F-03).
+`docs/CHANGE_CONTROL_SAF_PDF_FOLDER_RESCAN.md`. Device re-verify: runbook
+`docs/A01_FOLLOWUP_DEVICE_VERIFICATION_RUNBOOK.md` §F-04.
+
+**Canonical Recall quality (2026-09-02):** F-01 keyword AND per asset, F-02 meaning
+lexical filter, F-03 consumer Why copy delivered in Canonical Recall. See
+`docs/CHANGE_CONTROL_CANONICAL_RECALL_QUALITY_F01_F03.md`. Unified device verify:
+`docs/A01_FOLLOWUP_DEVICE_VERIFICATION_RUNBOOK.md`.
 
 **Post-MVP program (2026-09-01):** Authoritative gate-driven plan at
 `docs/POST_MVP_PROGRAM_V1.md` (phases P1–P6, foundation checklist, open-source

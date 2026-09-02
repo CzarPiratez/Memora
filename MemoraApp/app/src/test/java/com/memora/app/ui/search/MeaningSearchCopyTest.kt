@@ -50,7 +50,7 @@ class MeaningSearchCopyTest {
     fun why_and_open_hint_for_ranked_pdf_page() {
         val hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3)
         val why = MeaningSearchCopy.whyThisResult(hit, "mira")
-        assertTrue(why.contains("page 3"))
+        assertTrue(why.contains("Page 3"))
         val hint = MeaningSearchCopy.openOriginalPdfHint(
             citedPdfPageNumber = 1,
             rankedPdfPageNumber = 3,
@@ -74,8 +74,8 @@ class MeaningSearchCopyTest {
             hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3, boosted = true),
             query = "mira",
         )
-        assertTrue(why.contains("page 3"))
-        assertTrue(why.contains("appears in this saved evidence"))
+        assertTrue(why.contains("Page 3"))
+        assertTrue(why.contains("also appear in this saved text"))
     }
 
     private fun sampleHit(

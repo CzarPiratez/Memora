@@ -15,42 +15,43 @@ object CanonicalRecallWhyCopy {
     fun whyThisResult(result: CanonicalRecallResult, query: String): String {
         require(query.isNotBlank())
         val excerpt = result.excerpt.trim().replace(Regex("\\s+"), " ")
-        val clipped = if (excerpt.length <= 160) excerpt else excerpt.take(157) + "…"
-        val pathLine = when (result.retrievalPath) {
-            CanonicalRecallRetrievalPath.KEYWORD ->
-                "This result matches your exact words in saved evidence on this phone."
-            CanonicalRecallRetrievalPath.MEANING ->
-                "This result ranked by on-device meaning similarity on this phone."
+        val clipped = if (excerpt.length <= 120) excerpt else excerpt.take(117) + "…"
+        val displayLabel = friendlyDisplayLabel(result.label)
+        val lines = buildList {
+            add(WHY_THIS_RESULT_LABEL)
+            add("You searched for \"$query\".")
+            add("Matched ${assetTypeLabel(result.assetType)}: $displayLabel.")
+            if (result.openPageNumber != null && result.assetType == AssetType.PDF) {
+                add("Page ${result.openPageNumber} of the saved document.")
+            }
+            add("Saved text: \"$clipped\"")
+            add(
+                when (result.retrievalPath) {
+                    CanonicalRecallRetrievalPath.KEYWORD ->
+                        "Found by exact words in evidence saved on this phone."
+                    CanonicalRecallRetrievalPath.MEANING ->
+                        "Ranked by meaning from your saved memories on this phone."
+                },
+            )
+            if (result.evidenceTokenBoosted) {
+                add("Your cue words also appear in this saved text.")
+            }
         }
-        val pageLine = when {
-            result.openPageNumber != null && result.assetType == AssetType.PDF ->
-                " It matched PDF page ${result.openPageNumber}."
-            else -> ""
+        return lines.joinToString("\n")
+    }
+
+    internal fun friendlyDisplayLabel(label: String): String {
+        val separator = label.indexOf('_')
+        if (separator in 33..45 && label.substring(0, separator).all { it.isDigit() || it in 'a'..'f' }) {
+            return label.substring(separator + 1)
         }
-        val locatorLine = when {
-            result.locator != null && result.openPageNumber == null ->
-                " Locator: ${result.locator.value}."
-            else -> ""
-        }
-        val boostLine = if (result.evidenceTokenBoosted) {
-            " Rank also rose because your cue appears in this saved evidence text."
-        } else {
-            ""
-        }
-        val scoreLine = when (result.retrievalPath) {
-            CanonicalRecallRetrievalPath.MEANING ->
-                " Score reflects on-device meaning similarity."
-            CanonicalRecallRetrievalPath.KEYWORD -> ""
-        }
-        return "$WHY_THIS_RESULT_LABEL Your cue \"$query\" matched this saved " +
-            "${assetTypeLabel(result.assetType)} \"${result.label}\": \"$clipped\"." +
-            "$pageLine$locatorLine $pathLine$boostLine$scoreLine"
+        return label
     }
 
     private fun assetTypeLabel(type: AssetType): String = when (type) {
-        AssetType.PDF -> "PDF memory"
-        AssetType.SCREENSHOT -> "screenshot memory"
-        AssetType.PHOTO -> "photo memory"
-        AssetType.NOTE -> "note memory"
+        AssetType.PDF -> "PDF"
+        AssetType.SCREENSHOT -> "screenshot"
+        AssetType.PHOTO -> "photo"
+        AssetType.NOTE -> "note"
     }
 }

@@ -64,10 +64,34 @@ class DocumentTreeSetupViewModelTest {
     }
 
     @Test
+    fun restores_ready_to_check_when_folder_already_has_pdfs() = runTest {
+        val sourceId = SourceId("android-saf-document-tree:restored")
+        val viewModel = DocumentTreeSetupViewModel(
+            RecordingApprover(),
+            RecordingFinder(sourceId = sourceId),
+            RecordingScheduler(),
+            RecordingAssetRepository(staticPdfCount = 5),
+        )
+
+        dispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(
+            PdfFolderIndexingState.READY_TO_CHECK(totalAssetCount = 5),
+            viewModel.uiState.value.indexing,
+        )
+    }
+
+    @Test
     fun restoresTheMostRecentSavedFolderForAnExplicitIndexingRequest() = runTest {
         val sourceId = SourceId("android-saf-document-tree:restored")
         val scheduler = RecordingScheduler()
-        val assets = RecordingAssetRepository(pdfCount = 1)
+        // Count sequence:
+        // 1) restore idle refresh (0 → stay Index this folder, not Check for new)
+        // 2) onIndexRequested before-count
+        // 3) completed total
+        val assets = RecordingAssetRepository(
+            countsOnIndex = listOf(0, 0, 1),
+        )
         val viewModel = DocumentTreeSetupViewModel(
             RecordingApprover(),
             RecordingFinder(sourceId = sourceId),
@@ -77,6 +101,7 @@ class DocumentTreeSetupViewModelTest {
 
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(DocumentTreeConnectionState.CONNECTED(sourceId), viewModel.uiState.value.connection)
+        assertEquals(PdfFolderIndexingState.NOT_STARTED, viewModel.uiState.value.indexing)
 
         viewModel.onIndexRequested()
         advanceUntilIdle()
@@ -139,7 +164,7 @@ class DocumentTreeSetupViewModelTest {
             RecordingApprover(),
             RecordingFinder(),
             scheduler,
-            RecordingAssetRepository(pdfCount = 0),
+            RecordingAssetRepository(staticPdfCount = 0),
         )
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -214,7 +239,13 @@ class DocumentTreeSetupViewModelTest {
         val treeUri = "content://example/tree/documents"
         val sourceId = DocumentTreeSource.sourceIdFor(treeUri)
         val scheduler = RecordingScheduler()
-        val assets = RecordingAssetRepository(pdfCount = 2)
+        // Count sequence:
+        // 1) after connect idle refresh (0 → Index this folder)
+        // 2) onIndexRequested before-count
+        // 3) completed total
+        val assets = RecordingAssetRepository(
+            countsOnIndex = listOf(0, 0, 2),
+        )
         val viewModel = DocumentTreeSetupViewModel(
             RecordingApprover(),
             RecordingFinder(),
@@ -229,6 +260,7 @@ class DocumentTreeSetupViewModelTest {
 
         viewModel.onPersistedReadAccessReceived(treeUri)
         dispatcher.scheduler.advanceUntilIdle()
+        assertEquals(PdfFolderIndexingState.NOT_STARTED, viewModel.uiState.value.indexing)
         viewModel.onIndexRequested()
         advanceUntilIdle()
         assertEquals(PdfFolderIndexingState.IN_PROGRESS, viewModel.uiState.value.indexing)
@@ -401,8 +433,11 @@ class DocumentTreeSetupViewModelTest {
     }
 
     private class RecordingAssetRepository(
-        private val pdfCount: Int = 0,
+        private val countsOnIndex: List<Int> = emptyList(),
+        private val staticPdfCount: Int = 0,
     ) : AssetRepository {
+        private var countCallIndex = 0
+
         override suspend fun save(record: AssetIndexRecord) = Unit
 
         override suspend fun find(identity: AssetIdentity): AssetIndexRecord? = null
@@ -412,8 +447,13 @@ class DocumentTreeSetupViewModelTest {
             type: AssetType,
         ): Asset? = null
 
-        override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int =
-            if (type == AssetType.PDF) pdfCount else 0
+        override suspend fun countBySourceAndType(sourceId: SourceId, type: AssetType): Int {
+            if (type != AssetType.PDF) return 0
+            if (countsOnIndex.isEmpty()) return staticPdfCount
+            val count = countsOnIndex[countCallIndex.coerceAtMost(countsOnIndex.lastIndex)]
+            countCallIndex += 1
+            return count
+        }
 
         override suspend fun findNextPdfPendingLocalReading(
             sourceId: SourceId,

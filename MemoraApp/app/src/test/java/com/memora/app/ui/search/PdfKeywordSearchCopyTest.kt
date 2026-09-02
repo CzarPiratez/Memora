@@ -83,9 +83,9 @@ class PdfKeywordSearchCopyTest {
         assertTrue(why.contains("meet mira"))
         assertTrue(why.contains("memora-persist-fixture.pdf"))
         assertTrue(why.contains("Café memory: meet Mira at 10:30…"))
-        assertTrue(why.contains("PDF page 1"))
+        assertTrue(why.contains("Page 1"))
         assertTrue(why.contains("exact words"))
-        assertTrue(why.contains("saved evidence"))
+        assertTrue(why.contains("evidence saved on this phone"))
     }
 
     @Test(expected = IllegalArgumentException::class)

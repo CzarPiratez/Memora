@@ -18,7 +18,7 @@ class ScreenshotOcrKeywordSearchCopyTest {
             ),
         )
         assertEquals(true, why.contains("exact words"))
-        assertEquals(true, why.contains("screenshot memory"))
+        assertEquals(true, why.contains("Matched screenshot:"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Ordinary photos"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
         assertEquals(false, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("PHOTO OCR"))

@@ -92,6 +92,67 @@ class SearchMemoryEvidenceTest {
     }
 
     @Test
+    fun multi_word_query_ignores_and_and_commas_between_tokens() = runBlocking {
+        val row = documentRow(
+            excerpt = "Irregular consonants school anchor silky wreck cook",
+            evidenceId = "e-both",
+        )
+        val search = SearchMemoryEvidence(FakeExcerptSearch(rows = listOf(row)))
+        val commaOutcome = search("silky, wreck") as MemoryEvidenceSearchOutcome.Matches
+        val andOutcome = search("silky and wreck") as MemoryEvidenceSearchOutcome.Matches
+        assertEquals(1, commaOutcome.hits.size)
+        assertEquals(1, andOutcome.hits.size)
+    }
+
+    @Test
+    fun multi_word_query_requires_all_tokens_per_asset() = runBlocking {
+        val rows = listOf(
+            documentRow(
+                excerpt = "Page 1 lists scan words for practice",
+                evidenceId = "e-scan",
+                memoryId = "mem-a",
+                sourceAssetKey = "pdf-a",
+                label = "List-A.pdf",
+            ),
+            documentRow(
+                excerpt = "Page 2 silky texture vocabulary",
+                evidenceId = "e-silky",
+                memoryId = "mem-a",
+                sourceAssetKey = "pdf-a",
+                label = "List-A.pdf",
+            ),
+            documentRow(
+                excerpt = "Only scan appears here",
+                evidenceId = "e-scan-only",
+                memoryId = "mem-b",
+                sourceAssetKey = "pdf-b",
+                label = "List-B.pdf",
+            ),
+        )
+        val search = SearchMemoryEvidence(FakeExcerptSearch(rows = rows))
+        val outcome = search("scan silky") as MemoryEvidenceSearchOutcome.Matches
+
+        assertEquals(1, outcome.hits.size)
+        assertEquals("List-A.pdf", outcome.hits.single().label)
+    }
+
+    @Test
+    fun multi_word_query_returns_empty_when_no_asset_has_all_tokens() = runBlocking {
+        val rows = listOf(
+            documentRow(excerpt = "scan words only", evidenceId = "e-1"),
+            documentRow(
+                excerpt = "silky words only",
+                evidenceId = "e-2",
+                memoryId = "mem-other",
+                sourceAssetKey = "pdf-other",
+            ),
+        )
+        val search = SearchMemoryEvidence(FakeExcerptSearch(rows = rows))
+        val outcome = search("scan silky") as MemoryEvidenceSearchOutcome.Matches
+        assertTrue(outcome.hits.isEmpty())
+    }
+
+    @Test
     fun non_matching_query_returns_empty_matches_when_corpus_exists() = runBlocking {
         val search = SearchMemoryEvidence(
             FakeExcerptSearch(rows = listOf(documentRow(excerpt = "unrelated PDF text"))),
@@ -184,17 +245,20 @@ class SearchMemoryEvidenceTest {
     private fun documentRow(
         excerpt: String = "document excerpt",
         evidenceId: String = "e-doc",
+        memoryId: String = "mem-doc",
+        sourceAssetKey: String = "pdf-1",
+        label: String = "Contract.pdf",
     ): MemoryEvidenceExcerptMatch = MemoryEvidenceExcerptMatch(
-        memoryId = MemoryId("mem-doc"),
-        revisionId = MemoryRevisionId("rev-doc"),
+        memoryId = MemoryId(memoryId),
+        revisionId = MemoryRevisionId("rev-$memoryId"),
         evidenceId = MemoryEvidenceId(evidenceId),
         kind = MemoryEvidenceKind.DOCUMENT_TEXT,
         locator = EvidenceLocator(PdfPageEvidenceLocator.formatLocator(3)),
         excerpt = excerpt,
         sourceId = SourceId("saf-document-tree"),
-        sourceAssetKey = SourceAssetKey("pdf-1"),
+        sourceAssetKey = SourceAssetKey(sourceAssetKey),
         assetType = AssetType.PDF,
-        displayLabel = "Contract.pdf",
+        displayLabel = label,
     )
 
     private fun noteRow(

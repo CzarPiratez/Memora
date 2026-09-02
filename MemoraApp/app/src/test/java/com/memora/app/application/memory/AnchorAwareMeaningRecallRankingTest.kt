@@ -24,6 +24,35 @@ class AnchorAwareMeaningRecallRankingTest {
     private val model = ModelVersionIdentity("test-model", "1")
 
     @Test
+    fun apply_skips_lexical_filter_for_explicit_time_queries() = runBlocking {
+        val revMatch = MemoryRevisionId("rev-match")
+        val revMiss = MemoryRevisionId("rev-miss")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "notes in 2024",
+            hits = listOf(
+                hit(revMiss, 0.95f),
+                hit(revMatch, 0.9f),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "notes in 2024",
+            memoryRepository = FakeAnchorRepository(
+                mapOf(
+                    revMatch to listOf(timeAnchor("Date taken: 2024-03-01")),
+                    revMiss to listOf(timeAnchor("Date taken: 2022-01-01")),
+                ),
+            ),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(1, filtered.hits.size)
+        assertEquals(revMatch, filtered.hits.single().revisionId)
+    }
+
+    @Test
     fun apply_explicit_time_excludes_non_matching_anchor_hits() = runBlocking {
         val revMatch = MemoryRevisionId("rev-match")
         val revMiss = MemoryRevisionId("rev-miss")
@@ -122,6 +151,40 @@ class AnchorAwareMeaningRecallRankingTest {
 
         assertEquals(2, ranked.hits.size)
         assertEquals(invoiceMatch, ranked.hits.first().revisionId)
+    }
+
+    @Test
+    fun apply_lexical_and_filter_excludes_semantic_hits_missing_explicit_tokens() = runBlocking {
+        val scanOnly = MemoryRevisionId("rev-scan")
+        val scanAndSilky = MemoryRevisionId("rev-both")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "files with scan and silky",
+            hits = listOf(
+                hit(
+                    revisionId = scanOnly,
+                    score = 0.9f,
+                    label = "List-B.pdf",
+                    summaryText = "Spelling list with scan words only",
+                ),
+                hit(
+                    revisionId = scanAndSilky,
+                    score = 0.7f,
+                    label = "List-A.pdf",
+                    summaryText = "Page 2 scan and silky vocabulary practice",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "files with scan and silky",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(1, filtered.hits.size)
+        assertEquals(scanAndSilky, filtered.hits.single().revisionId)
     }
 
     @Test

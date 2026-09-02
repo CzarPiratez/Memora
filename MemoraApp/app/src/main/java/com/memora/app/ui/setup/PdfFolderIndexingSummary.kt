@@ -1,6 +1,13 @@
 package com.memora.app.ui.setup
 
 /** Truthful copy for SAF PDF-folder metadata discovery (not text extraction). */
+internal fun idlePdfFolderIndexingSummary(totalAssetCount: Int): String {
+    val totalDescription = if (totalAssetCount == 1) "item" else "items"
+    return "$totalAssetCount PDF $totalDescription already listed in this connected folder. " +
+        "Tap Check for new PDFs after you add files. Text search still needs Local PDF reading " +
+        "for each document."
+}
+
 internal fun completedPdfFolderIndexingSummary(
     totalAssetCount: Int,
     newlyDiscoveredAssetCount: Int,
