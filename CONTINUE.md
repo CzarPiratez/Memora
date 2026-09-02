@@ -4,7 +4,17 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-01
+**Updated:** 2026-09-02
+
+**A-01 offline device proof (2026-09-02):** **PASS** on Samsung SM-A156E —
+airplane-mode keyword + meaning Find, Why, Open original after USE pack +
+meaning index. Corpus: 3 PDFs in `Documents/unfynd-test`. See
+`docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`. Not AVAILABLE.
+
+**SAF PDF folder rescan (2026-09-02):** Completed checkpoint clears on explicit
+re-index; UI shows new-vs-total counts and **Check for new PDFs**. See
+`docs/CHANGE_CONTROL_SAF_PDF_FOLDER_RESCAN.md`. Next: keyword AND (F-01), meaning
+lexical filter (F-02), Why copy (F-03).
 
 **Post-MVP program (2026-09-01):** Authoritative gate-driven plan at
 `docs/POST_MVP_PROGRAM_V1.md` (phases P1–P6, foundation checklist, open-source

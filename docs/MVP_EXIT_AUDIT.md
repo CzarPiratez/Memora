@@ -30,7 +30,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | Keyword Find — note (OneNote) | **PASS** | `docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` N0–N7 accepted |
 | Find by meaning — plumbing | **PASS** | Page embeddings E5c; MIG-05 claim B all MVP types; anchor fix 2026-09-01 |
 | Find by meaning — emulator E2E | **PASS** | `CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md`; CONTINUE: `invoice` / `mira` on emulator |
-| Find by meaning — physical device E2E | **PARTIAL** | M4 midrange PDF page recall measured (Galaxy A15); **full App offline meaning path on physical device after 2026-09-01 fixes not re-recorded in change control** |
+| Find by meaning — physical device E2E | **PASS** | `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` — Samsung SM-A156E; offline meaning Find + Why + Open original (2026-09-02) |
 | Shared result + Why contract | **PASS** | `CanonicalRecallResult` + `CanonicalRecallWhyCopy`; `CANONICAL_RECALL_RESULT_CONTRACT.md` |
 | STALE / reach deadlock regression | **PASS** | `CHANGE_CONTROL_RECALL_REACH_STALE_EVIDENCE_DEADLOCK.md` |
 | Meaning search anchor crash (≥4 char queries) | **PASS** | `CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md` (2026-09-01) |
@@ -57,7 +57,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | AI Pack install + meaning index build | **PASS** | USE model path; M3/M4 measurement records |
 | PDF page recall measurement (fixture corpus) | **PASS** | M1 JVM; M2 emulator; M3 USE emulator; M4 midrange execute |
 | Marketing AVAILABLE / SLA claim | **FAIL** | Enterprise completion §B — founder decision **open** |
-| **A-01** offline end-to-end (airplane mode after pack) | **PARTIAL** | `docs/LOCAL_AI_BENCHMARK_PLAN.md` §Offline; `docs/ROADMAP.md` lists A-01 **open** — no change-control record closing full create→Find→Why offline proof on physical device |
+| **A-01** offline end-to-end (airplane mode after pack) | **PASS** | `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` — Samsung SM-A156E; keyword + meaning Find, Why, Open original offline (build `bf511ca`) |
 | Battery / latency budgets (index + query) | **FAIL** | Enterprise completion §C — open |
 | Emulator-only as AVAILABLE host | **FAIL** (by policy) | Benchmark plan: midrange required before AVAILABLE claim |
 
@@ -93,9 +93,8 @@ Each row cites **evidence pointers** — not conversational memory.
 ### Blocks marketing AVAILABLE today
 
 1. **Product AVAILABLE decision** — enterprise completion §B (founder review).
-2. **A-01** full offline end-to-end proof on physical device not closed.
-3. **Battery / latency budgets** not recorded.
-4. **Physical device re-validation** of meaning Find after 2026-09-01 anchor fix recommended before AVAILABLE.
+2. **Battery / latency budgets** not recorded.
+3. **Recall quality follow-ups** from A-01 session (multi-word keyword, meaning lexical filter, Why copy, SAF rescan) — see `CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` §Known limitations.
 
 ### Does not block engineering post-MVP prep
 
@@ -114,11 +113,11 @@ Each row cites **evidence pointers** — not conversational memory.
 Ordered by **dependency**, not calendar:
 
 1. Close **Class A validator** slice (public pack runnable proof).
-2. Record **A-01** offline proof on physical device (change control + log).
-3. Re-run **meaning Find E2E** on physical device post anchor fix; attach evidence.
-4. Implement **FC-02 slice 2** cross-encoder; wire into `AnchorAwareMeaningRecallRanking`.
-5. Publish Class A pack per `docs/PUBLISH_CLASS_A_PACK.md`.
-6. Founder **AVAILABLE** review only after rows in §F blockers 1–4 addressed.
+2. Close **SAF PDF incremental rescan** (F-04) and **Canonical Recall quality** slices (F-01–F-03).
+3. Implement **FC-02 slice 2** cross-encoder; wire into `AnchorAwareMeaningRecallRanking`.
+4. Publish Class A pack per `docs/PUBLISH_CLASS_A_PACK.md`.
+5. Record **battery / latency budgets** (enterprise completion §C).
+6. Founder **AVAILABLE** review only after §F blockers addressed.
 
 ---
 
@@ -126,5 +125,6 @@ Ordered by **dependency**, not calendar:
 
 | Date | Change |
 |---|---|
+| 2026-09-02 | A-01 PASS on Samsung SM-A156E (`CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`) |
 | 2026-09-02 | Domain foundations slice 1; FC-02 authorized; A-01 runbook |
 | 2026-09-01 | Initial audit opened |
