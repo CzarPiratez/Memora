@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### Post-MVP program, Class A validator, domain foundations (2026-09-02)
+
+- **Date:** 2026-09-02
+- **Delivered:** `POST_MVP_PROGRAM_V1.md`, `MVP_EXIT_AUDIT.md`, Class A validator +
+  CI, `EXPORT_CONTRACT.md` / `INTEGRATION.md`, `A01_OFFLINE_DEVICE_PROOF_RUNBOOK.md`,
+  `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md` (authorized), domain foundations:
+  `AudioSegmentEvidenceLocator`, `domain.grounding` contracts, `RecallRanker.rank` +
+  `IdentityRecallRanker`, `EmbeddingModelSignature` alias.
+- **Truthfulness:** Not AVAILABLE; FC-02 slice 2 (cross-encoder wiring) not shipped;
+  A-01 requires physical device proof per runbook.
+
+### Post-MVP program + Class A conformance validator (2026-09-01)
+
+- **Date:** 2026-09-01
+- **Delivered:** `docs/POST_MVP_PROGRAM_V1.md` — gate-driven post-MVP phases,
+  foundation checklist, Core/App matrix, open-source ladder. `docs/MVP_EXIT_AUDIT.md`
+  — honest PASS/FAIL/PARTIAL inventory for MVP exit. Class A pack: JSON Schema,
+  Python validator CLI, `BUILDING.md`, CI job, `EXPORT_CONTRACT.md` +
+  `INTEGRATION.md` planning sketches, two new synthetic examples.
+- **Truthfulness:** Program doc does not authorize AVAILABLE, Act, FC-02, or
+  Grounded Answers implementation. Audit records open blockers (A-01, AVAILABLE
+  decision, battery/latency budgets).
+
 ### Fix: Find by meaning — anchor load crash + hardening (2026-09-01)
 
 - **Date:** 2026-09-01

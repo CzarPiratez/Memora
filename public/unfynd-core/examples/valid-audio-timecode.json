@@ -1,0 +1,32 @@
+{
+  "_comment": "Synthetic illustrative sketch only - not production schema lock, not personal data.",
+  "sketchKind": "valid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_audio_001",
+    "assetRef": "asset://synthetic/demo-standup-recording",
+    "revisionHint": 1,
+    "summary": "Demo standup noted a deployment delay discussed at 14:32.",
+    "anchors": [
+      {
+        "type": "TIME",
+        "value": "14:32",
+        "citedEvidenceIds": ["ev_transcript_01"]
+      }
+    ],
+    "evidence": [
+      {
+        "evidenceId": "ev_transcript_01",
+        "evidenceClass": "DIRECT",
+        "kind": "transcript_segment",
+        "excerpt": "We will slip deploy until QA finishes edge cases.",
+        "provenance": "audio:segment:00:14:32",
+        "locator": {
+          "type": "timecode",
+          "startMs": 872000,
+          "endMs": 879500
+        }
+      }
+    ]
+  },
+  "whyAcceptable": "Summary cites DIRECT transcript evidence with a temporal locator; no unsupported claims."
+}

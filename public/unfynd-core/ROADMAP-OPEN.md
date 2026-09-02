@@ -18,6 +18,8 @@ repository:
 - Truth-before-intelligence / retrieval-first principles
 - Staged Memory direction as future stages
 - Synthetic illustrative examples ([`examples/`](examples/); ADR-048)
+- Conformance validator ([`tools/`](tools/), [`BUILDING.md`](BUILDING.md), [`schema/`](schema/))
+- Export and integration planning sketches ([`EXPORT_CONTRACT.md`](EXPORT_CONTRACT.md), [`INTEGRATION.md`](INTEGRATION.md))
 - Security reporting, notices, contributing, and short governance
 - Pack changelog ([`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md))
 
@@ -34,7 +36,7 @@ As Core and this pack mature, further foundations may open under new decisions:
 
 | Phase direction | Notes |
 |---|---|
-| Runnable tooling that exercises Class A contracts | Validator and related developer tooling as pack updates |
+| Runnable tooling that exercises Class A contracts | **Delivered (2026-09-01):** validator, schema sketch, `BUILDING.md`, CI in private monorepo |
 | Additional public SDK / interface docs | Only if curated and provenance-cleared |
 | Broader Core source under a separate license decision | Requires Model A vs B / licensing ADR |
 | Website and Open pages pointing at this pack | Keep App vs Core boundary clear |

@@ -10,3 +10,7 @@ MemoraApp/.idea/
 memora-render/
 Thumbs.db
 .DS_Store
+
+# Python tooling (Class A validator)
+__pycache__/
+*.pyc

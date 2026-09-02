@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unfynd.com/core/schema/memory-evidence-sketch.schema.json",
+  "title": "UNFYND Core Class A Memory / evidence sketch",
+  "description": "Illustrative sketch shape for synthetic Class A examples. Aligns with SPEC.md evidence classes and truth-before-intelligence rules. Not a production Room or API lock.",
+  "type": "object",
+  "required": ["sketchKind"],
+  "properties": {
+    "_comment": { "type": "string" },
+    "sketchKind": {
+      "type": "string",
+      "enum": [
+        "valid_asset_memory",
+        "invalid_asset_memory",
+        "valid_evidence_package_export"
+      ]
+    },
+    "memory": { "$ref": "#/$defs/memorySketch" },
+    "exportBundle": { "$ref": "#/$defs/exportBundleSketch" },
+    "whyAcceptable": { "type": "string" },
+    "rejection": { "$ref": "#/$defs/rejectionBlock" },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "sketchKind": { "const": "valid_asset_memory" } },
+        "required": ["sketchKind"]
+      },
+      "then": { "required": ["memory", "whyAcceptable"] }
+    },
+    {
+      "if": {
+        "properties": { "sketchKind": { "const": "invalid_asset_memory" } },
+        "required": ["sketchKind"]
+      },
+      "then": { "required": ["memory", "rejection"] }
+    },
+    {
+      "if": {
+        "properties": { "sketchKind": { "const": "valid_evidence_package_export" } },
+        "required": ["sketchKind"]
+      },
+      "then": { "required": ["exportBundle", "notes"] }
+    }
+  ],
+  "$defs": {
+    "memorySketch": {
+      "type": "object",
+      "required": [
+        "memoryId",
+        "assetRef",
+        "revisionHint",
+        "summary",
+        "anchors",
+        "evidence"
+      ],
+      "properties": {
+        "memoryId": { "type": "string", "minLength": 1 },
+        "assetRef": { "type": "string", "minLength": 1 },
+        "revisionHint": { "type": "integer", "minimum": 1 },
+        "summary": { "type": "string" },
+        "anchors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/anchorSketch" }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidenceSketch" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "anchorSketch": {
+      "type": "object",
+      "required": ["type", "value", "citedEvidenceIds"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "value": { "type": "string" },
+        "citedEvidenceIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidenceSketch": {
+      "type": "object",
+      "required": [
+        "evidenceId",
+        "evidenceClass",
+        "kind",
+        "excerpt",
+        "provenance"
+      ],
+      "properties": {
+        "evidenceId": { "type": "string", "minLength": 1 },
+        "evidenceClass": {
+          "type": "string",
+          "enum": [
+            "DIRECT",
+            "VALIDATED_OBSERVATION",
+            "RETRIEVAL_SIGNAL",
+            "HYPOTHESIS"
+          ]
+        },
+        "kind": { "type": "string", "minLength": 1 },
+        "excerpt": { "type": "string" },
+        "provenance": { "type": "string", "minLength": 1 },
+        "locator": { "$ref": "#/$defs/locatorSketch" }
+      },
+      "additionalProperties": true
+    },
+    "locatorSketch": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["page", "span", "timecode", "segment", "message_id"]
+        },
+        "page": { "type": "integer", "minimum": 1 },
+        "startMs": { "type": "integer", "minimum": 0 },
+        "endMs": { "type": "integer", "minimum": 0 },
+        "spanStart": { "type": "integer", "minimum": 0 },
+        "spanEnd": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "exportBundleSketch": {
+      "type": "object",
+      "required": [
+        "bundleId",
+        "exportedAt",
+        "coreContractRevision",
+        "memories",
+        "evidenceSlices"
+      ],
+      "properties": {
+        "bundleId": { "type": "string", "minLength": 1 },
+        "exportedAt": { "type": "string", "minLength": 1 },
+        "coreContractRevision": { "type": "string", "minLength": 1 },
+        "memories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["memoryId", "revisionHint", "evidenceSliceIds"],
+            "properties": {
+              "memoryId": { "type": "string" },
+              "revisionHint": { "type": "integer", "minimum": 1 },
+              "evidenceSliceIds": {
+                "type": "array",
+                "items": { "type": "string" },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        "evidenceSlices": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidenceSketch" }
+        },
+        "signatureHint": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "rejectionBlock": {
+      "type": "object",
+      "required": ["status", "why"],
+      "properties": {
+        "status": { "type": "string", "enum": ["reject"] },
+        "why": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    }
+  }
+}

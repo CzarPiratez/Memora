@@ -1,7 +1,19 @@
 # Public pack changelog
 
 All notable changes to this **Class A** Public Specification / Contract pack.
-The pack is documentation and synthetic examples only (Apache-2.0).
+The pack is documentation, synthetic examples, and conformance tooling
+(Apache-2.0).
+
+## 2026-09-01 - Class A conformance validator + export/integration sketches
+
+- Added runnable **example validator** (`tools/validate_class_a_examples.py`),
+  JSON Schema sketch (`schema/memory-evidence-sketch.schema.json`), and
+  [`BUILDING.md`](BUILDING.md) quick start.
+- Added synthetic examples: audio timecode locator, evidence package export sketch.
+- Added planning documents [`EXPORT_CONTRACT.md`](EXPORT_CONTRACT.md) and
+  [`INTEGRATION.md`](INTEGRATION.md).
+- Private monorepo CI runs validator via `class-a-validator` job (publish this
+  pack to the public remote separately per `ROADMAP-OPEN.md`).
 
 ## 2026-08-30 - App/Core public framing: intelligence vision, no em dashes
 

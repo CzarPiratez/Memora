@@ -79,6 +79,9 @@ class UnavailableRecallRanker(
         CapabilityAvailability.Unavailable(reason)
 
     override fun limits(): CapabilityLimits? = null
+
+    override fun rank(query: String, candidates: List<RecallRankCandidate>): RecallRankResult =
+        RecallRankResult.Unavailable(reason)
 }
 
 /** Factory for the full unavailable Local Intelligence set. */

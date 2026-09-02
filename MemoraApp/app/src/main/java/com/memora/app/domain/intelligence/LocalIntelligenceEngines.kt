@@ -75,4 +75,11 @@ interface MemoryBuilder : LocalCapability {
 /** Ranks stored candidate Memories and returns the evidence used. */
 interface RecallRanker : LocalCapability {
     override val capabilityId: CapabilityId get() = CapabilityId.RECALL_RANKER
+
+    /**
+     * Re-orders [candidates] for [query]. Default implementation is unavailable
+     * until an on-device ranker (identity or cross-encoder) is bound.
+     */
+    fun rank(query: String, candidates: List<RecallRankCandidate>): RecallRankResult =
+        RecallRankResult.Unavailable("Recall ranking is not installed on this device yet.")
 }

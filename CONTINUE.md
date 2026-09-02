@@ -6,6 +6,13 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-01
 
+**Post-MVP program (2026-09-01):** Authoritative gate-driven plan at
+`docs/POST_MVP_PROGRAM_V1.md` (phases P1–P6, foundation checklist, open-source
+ladder). MVP exit inventory at `docs/MVP_EXIT_AUDIT.md`. Class A conformance
+validator landed (`public/unfynd-core/tools/`). FC-02 authorized;
+domain foundations slice 1 (grounding contracts, audio locator, RecallRanker port).
+A-01 device runbook: `docs/A01_OFFLINE_DEVICE_PROOF_RUNBOOK.md`. Not AVAILABLE.
+
 **Docs note (Find by meaning anchor fix, 2026-09-01):** Fixed
 `findSignatureAnchors` empty-evidence crash that surfaced as
 SearchCouldNotFinish for typical queries; MediaPipe embed serialization;

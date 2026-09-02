@@ -1,0 +1,34 @@
+{
+  "_comment": "Synthetic export bundle sketch - planning shape only; not production wire format.",
+  "sketchKind": "valid_evidence_package_export",
+  "exportBundle": {
+    "bundleId": "exp_synth_demo_001",
+    "exportedAt": "2026-09-01T12:00:00Z",
+    "coreContractRevision": "class-a-2026-09-01",
+    "memories": [
+      {
+        "memoryId": "mem_synth_demo_001",
+        "revisionHint": 1,
+        "evidenceSliceIds": ["ev_ocr_01", "ev_exif_01"]
+      }
+    ],
+    "evidenceSlices": [
+      {
+        "evidenceId": "ev_ocr_01",
+        "evidenceClass": "DIRECT",
+        "kind": "ocr_text",
+        "excerpt": "Cafe Demo - Latte 4.50",
+        "provenance": "ocr:region:0"
+      },
+      {
+        "evidenceId": "ev_exif_01",
+        "evidenceClass": "DIRECT",
+        "kind": "exif_datetime",
+        "excerpt": "2024-06-15T14:22:00Z",
+        "provenance": "exif:DateTimeOriginal"
+      }
+    ],
+    "signatureHint": "ed25519:placeholder-not-a-real-signature"
+  },
+  "notes": "Raw Assets are not included. Portable cited evidence slices and memory revision references only."
+}

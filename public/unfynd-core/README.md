@@ -3,7 +3,15 @@
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/) · [Core](https://www.unfynd.com/core)  
 **Release class:** Class A: Public Specification / Contract (docs + synthetic examples)  
-**Pack revision:** 2026-08-30 (vision alignment)
+**Pack revision:** 2026-09-01 (Class A conformance validator)
+
+**Quick start (validate synthetic examples):**
+
+```bash
+python tools/validate_class_a_examples.py --self-test
+```
+
+See [`BUILDING.md`](BUILDING.md).
 
 **UNFYND Core®** is on-device **memory and intelligence infrastructure**: how
 memory and intelligence become something you can ship, audit, and extend in
@@ -81,8 +89,8 @@ Under Apache-2.0, this Class A pack publishes:
 | Mode | This pack |
 |---|---|
 | **Inspect** | Read `SPEC.md`, `APPLICATIONS.md`, and `examples/`. |
-| **Build on** | Design against the seams and evidence rules; pair with your own tests and device budgets. Examples are sketches, not schema locks. |
-| **Later phases** | Runnable tooling that exercises these contracts, and further open foundations, arrive as pack updates. |
+| **Build on** | Design against the seams and evidence rules; run `tools/validate_class_a_examples.py` on sketches. |
+| **Later phases** | Domain reference library and further open foundations arrive as pack updates. |
 
 ---
 
@@ -93,6 +101,11 @@ Under Apache-2.0, this Class A pack publishes:
 | [`SPEC.md`](SPEC.md) | Public contracts (definition, evidence, seams, principles) |
 | [`APPLICATIONS.md`](APPLICATIONS.md) | Capability and industry applications |
 | [`examples/`](examples/) | Synthetic Memory / evidence sketches |
+| [`BUILDING.md`](BUILDING.md) | Run the conformance validator |
+| [`schema/`](schema/) | JSON Schema sketch for examples |
+| [`tools/`](tools/) | Validator CLI |
+| [`EXPORT_CONTRACT.md`](EXPORT_CONTRACT.md) | Evidence Package export planning sketch |
+| [`INTEGRATION.md`](INTEGRATION.md) | Integration surface planning sketch |
 | [`ROADMAP-OPEN.md`](ROADMAP-OPEN.md) | What is open now vs later openness phases |
 | [`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md) | Pack revision history |
 | [`SECURITY.md`](SECURITY.md) | Security reporting |
