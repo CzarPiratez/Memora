@@ -12,6 +12,13 @@ audit, extend) where data must stay put — not a personal AI/assistant product.
 The App is one product surface on Core. Industry applications and capability
 map: `public/unfynd-core/APPLICATIONS.md`.
 
+## Engineering charter
+
+**Mandatory for all modes (Agent, Ask, Plan, review):** [`docs/ENGINEERING_CHARTER.md`](docs/ENGINEERING_CHARTER.md) —
+lead-engineer quality bar. Read and follow it before implementing, recommending
+solutions, or offering architectural advice. Enforced in Cursor via
+`.cursor/rules/enterprise-engineering-charter.mdc` (`alwaysApply: true`).
+
 ## Product authority
 
 The immutable product baseline and accepted amendments are registered in

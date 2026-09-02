@@ -1,0 +1,50 @@
+---
+description: Lead-engineer quality bar — read ENGINEERING_CHARTER before any work (all modes)
+alwaysApply: true
+---
+
+# Enterprise engineering charter (enforcement)
+
+Thin gate only. Full text: `docs/ENGINEERING_CHARTER.md`. Not a second
+constitution — product/architecture authority stays in `docs/GOVERNANCE.md`,
+Freeze, and ADRs.
+
+## Mandatory before any task
+
+Applies in **Agent, Ask, Plan, review, and docs** work in this repo:
+
+1. Read `docs/ENGINEERING_CHARTER.md` and follow it.
+2. For implementation: also read `docs/GOVERNANCE.md` pre-work gate and
+   `CONTINUE.md`; inspect current code — never rely on chat memory alone.
+3. For Find / Recall / ranking / Why: read `docs/RECALL_ENFORCEMENT_INDEX.md` and
+   obey `unfynd-architecture-invariants.mdc` (ARCHITECTURAL BOUNDARY block when
+   touching search).
+
+## Pre-flight (state before coding or recommending)
+
+- How does this change affect the rest of the system?
+- Edge cases: loading, empty, error, permission, offline, concurrency.
+- Security and privacy impact.
+- Alternatives considered for non-obvious decisions.
+- Smallest safe change; no unnecessary abstractions or dependencies.
+
+## Implementation bar
+
+Production-quality, not prototypes. Handle real failure modes. UX and
+accessibility matter. No hacks that only pass the immediate test. Call out flawed
+patterns instead of copying them. Surface ambiguity — do not assume.
+
+## Done means
+
+Self-review: bugs, regressions, missing states, weak abstractions, poor UX.
+Verify with tests or an explicit documented gate. Work must be understandable to
+another senior engineer.
+
+Do not optimize for quick fixes or speed. Optimize for building the right thing
+properly.
+
+## Precedence
+
+Explicit **user instruction** in the current message overrides workspace defaults
+(e.g. when to git commit). Charter overrides generic assistant habits. Product
+docs and Freeze override convenience.
