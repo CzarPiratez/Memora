@@ -6,6 +6,12 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-02
 
+**Class A pack published to public GitHub (2026-09-02):** Synced private
+`public/unfynd-core/` (validator, `BUILDING.md`, schema, export/integration
+sketches, 2026-09-01 changelog) to https://github.com/CzarPiratez/unfynd-core
+at SHA `7c573b2119628c5778ca77482d6952bb5153d4a6`. Validator self-test passed
+in clone before push. Per `docs/PUBLISH_CLASS_A_PACK.md`.
+
 **A-01 offline device proof (2026-09-02):** **PASS** on Samsung SM-A156E —
 airplane-mode keyword + meaning Find, Why, Open original after USE pack +
 meaning index. Corpus: 3 PDFs in `Documents/unfynd-test`. See
