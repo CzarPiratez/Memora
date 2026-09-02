@@ -41,12 +41,16 @@ sealed interface PdfFolderIndexingState {
     data object IN_PROGRESS : PdfFolderIndexingState
 
     data class COMPLETED(
-        val discoveredAssetCount: Int,
+        val totalAssetCount: Int,
+        val newlyDiscoveredAssetCount: Int,
         val hasMore: Boolean,
     ) : PdfFolderIndexingState {
         init {
-            require(discoveredAssetCount >= 0) {
+            require(totalAssetCount >= 0) {
                 "A PDF indexing result cannot contain a negative asset count."
+            }
+            require(newlyDiscoveredAssetCount >= 0) {
+                "A PDF indexing result cannot contain a negative new-asset count."
             }
         }
     }
@@ -69,6 +73,8 @@ class DocumentTreeSetupViewModel @Inject constructor(
     val uiState: StateFlow<DocumentTreeSetupUiState> = mutableUiState.asStateFlow()
 
     private var workObservationJob: Job? = null
+
+    private var assetCountBeforeIndexing: Int = 0
 
     init {
         restoreMostRecentConnection()
@@ -152,11 +158,16 @@ class DocumentTreeSetupViewModel @Inject constructor(
             ?: return
         if (mutableUiState.value.indexing == PdfFolderIndexingState.IN_PROGRESS) return
 
-        mutableUiState.value = mutableUiState.value.copy(
-            indexing = PdfFolderIndexingState.IN_PROGRESS,
-        )
-        discoveryWorkScheduler.enqueueDrain(sourceId)
-        observeDiscoveryWork(sourceId)
+        viewModelScope.launch {
+            assetCountBeforeIndexing = runCatching {
+                assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
+            }.getOrDefault(0)
+            mutableUiState.value = mutableUiState.value.copy(
+                indexing = PdfFolderIndexingState.IN_PROGRESS,
+            )
+            discoveryWorkScheduler.enqueueDrain(sourceId)
+            observeDiscoveryWork(sourceId)
+        }
     }
 
     private fun observeDiscoveryWork(sourceId: SourceId) {
@@ -219,6 +230,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 val totalAssets = runCatching {
                     assetRepository.countBySourceAndType(sourceId, AssetType.PDF)
                 }.getOrDefault(0)
+                val newlyDiscovered = (totalAssets - assetCountBeforeIndexing).coerceAtLeast(0)
                 val lastSuccess = infos.lastOrNull { it.state == WorkInfo.State.SUCCEEDED }
                 val hasMore = lastSuccess?.outputData?.getBoolean(
                     SafPdfDiscoveryWorker.KEY_HAS_MORE,
@@ -226,7 +238,8 @@ class DocumentTreeSetupViewModel @Inject constructor(
                 ) == true
                 mutableUiState.value = mutableUiState.value.copy(
                     indexing = PdfFolderIndexingState.COMPLETED(
-                        discoveredAssetCount = totalAssets,
+                        totalAssetCount = totalAssets,
+                        newlyDiscoveredAssetCount = newlyDiscovered,
                         hasMore = hasMore,
                     ),
                 )

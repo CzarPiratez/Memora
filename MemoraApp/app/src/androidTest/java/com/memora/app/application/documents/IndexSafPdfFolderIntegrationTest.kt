@@ -60,6 +60,9 @@ class IndexSafPdfFolderIntegrationTest {
         val approval = requireNotNull(approvalRepository.findAll().firstOrNull()) {
             "Connect a PDF folder in Memora before running this emulator integration test."
         }
+        val checkpointRepository = RoomDiscoveryCheckpointRepository(
+            checkpointDao = { outputDatabase.discoveryCheckpointDao() },
+        )
         val indexer = IndexSafPdfFolder(
             approvalRepository = approvalRepository,
             sourceFactory = SafPdfDiscoverySourceFactory(
@@ -71,11 +74,10 @@ class IndexSafPdfFolderIntegrationTest {
                 ),
             ),
             discoverSourcePage = DiscoverSourcePage(
-                checkpointRepository = RoomDiscoveryCheckpointRepository(
-                    checkpointDao = { outputDatabase.discoveryCheckpointDao() },
-                ),
+                checkpointRepository = checkpointRepository,
                 processDiscoveryResult = ProcessDiscoveryResult(PersistDiscoveryPage(store)),
             ),
+            checkpointRepository = checkpointRepository,
         )
 
         when (val outcome = indexer(approval.sourceId, batchSize = 2)) {

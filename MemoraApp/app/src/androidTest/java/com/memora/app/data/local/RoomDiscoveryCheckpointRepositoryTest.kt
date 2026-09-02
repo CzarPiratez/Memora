@@ -58,4 +58,14 @@ class RoomDiscoveryCheckpointRepositoryTest {
         assertEquals(latest, repository.find(sourceId))
         assertNull(repository.find(SourceId("user-approved-pdf-folder")))
     }
+
+    @Test
+    fun deleteRemovesASavedCheckpoint() = runBlocking {
+        val sourceId = SourceId("android-saf-document-tree:test")
+        repository.save(DiscoveryCursor(sourceId, "saf-pdf-v2:-"))
+
+        repository.delete(sourceId)
+
+        assertNull(repository.find(sourceId))
+    }
 }

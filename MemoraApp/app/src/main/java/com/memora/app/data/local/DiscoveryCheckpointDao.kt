@@ -23,4 +23,7 @@ interface DiscoveryCheckpointDao {
 
     @Query("SELECT COUNT(*) FROM discovery_checkpoints")
     suspend fun count(): Int
+
+    @Query("DELETE FROM discovery_checkpoints WHERE source_id = :sourceId")
+    suspend fun delete(sourceId: String)
 }

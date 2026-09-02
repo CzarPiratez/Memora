@@ -112,6 +112,8 @@ class IndexMediaStoreImagesTest {
         override suspend fun save(cursor: DiscoveryCursor) = Unit
 
         override suspend fun find(sourceId: SourceId): DiscoveryCursor? = null
+
+        override suspend fun delete(sourceId: SourceId) = Unit
     }
 
     private class RecordingStore : DiscoveryPageStore {

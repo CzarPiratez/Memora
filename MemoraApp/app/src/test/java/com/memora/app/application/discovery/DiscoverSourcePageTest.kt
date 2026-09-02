@@ -113,6 +113,8 @@ class DiscoverSourcePageTest {
             assertTrue(cursor == null || cursor.sourceId == sourceId)
             return cursor
         }
+
+        override suspend fun delete(sourceId: SourceId) = Unit
     }
 
     private class RecordingStore : DiscoveryPageStore {

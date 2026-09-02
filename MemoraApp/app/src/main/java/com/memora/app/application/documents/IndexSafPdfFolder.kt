@@ -1,7 +1,9 @@
 package com.memora.app.application.documents
 
 import com.memora.app.application.discovery.DiscoverSourcePage
+import com.memora.app.data.saf.SafPdfDiscoveryCheckpoint
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryFailure
 import com.memora.app.domain.discovery.DiscoveryRequest
 import com.memora.app.domain.discovery.DiscoveryResult
@@ -24,6 +26,7 @@ class IndexSafPdfFolder @Inject constructor(
     private val approvalRepository: DocumentTreeApprovalRepository,
     private val sourceFactory: PdfFolderDiscoverySourceFactory,
     private val discoverSourcePage: DiscoverSourcePage,
+    private val checkpointRepository: DiscoveryCheckpointRepository,
 ) : SafPdfFolderIndexer {
     override suspend operator fun invoke(sourceId: SourceId): SafPdfFolderIndexingOutcome = invoke(
         sourceId = sourceId,
@@ -36,6 +39,7 @@ class IndexSafPdfFolder @Inject constructor(
     ): SafPdfFolderIndexingOutcome {
         val approval = approvalRepository.find(sourceId)
             ?: return SafPdfFolderIndexingOutcome.SourceNotConnected
+        clearCompletedSafPdfCheckpointIfNeeded(sourceId)
         val source = sourceFactory.create(approval)
 
         return when (val result = discoverSourcePage(source, batchSize)) {
@@ -48,6 +52,20 @@ class IndexSafPdfFolder @Inject constructor(
             DiscoveryResult.AccessRequired -> SafPdfFolderIndexingOutcome.AccessRequired
             DiscoveryResult.AccessRevoked -> SafPdfFolderIndexingOutcome.AccessRevoked
             is DiscoveryResult.Failed -> SafPdfFolderIndexingOutcome.Failed(result.failure)
+        }
+    }
+
+    /**
+     * A completed SAF walk stores an empty frame list. Without clearing it, the next
+     * explicit index request would return an empty page immediately and miss new PDFs.
+     */
+    private suspend fun clearCompletedSafPdfCheckpointIfNeeded(sourceId: SourceId) {
+        val cursor = checkpointRepository.find(sourceId) ?: return
+        val completed = runCatching {
+            SafPdfDiscoveryCheckpoint.from(cursor).frames.isEmpty()
+        }.getOrDefault(false)
+        if (completed) {
+            checkpointRepository.delete(sourceId)
         }
     }
 }

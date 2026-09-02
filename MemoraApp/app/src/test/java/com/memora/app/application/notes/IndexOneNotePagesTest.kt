@@ -129,6 +129,10 @@ class IndexOneNotePagesTest {
         override suspend fun save(cursor: DiscoveryCursor) {
             values[cursor.sourceId] = cursor
         }
+
+        override suspend fun delete(sourceId: SourceId) {
+            values.remove(sourceId)
+        }
     }
 
     private class CountingAssetRepository : AssetRepository {

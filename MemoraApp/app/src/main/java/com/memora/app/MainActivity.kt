@@ -115,6 +115,9 @@ import com.memora.app.ui.setup.MEDIASTORE_EXIF_EXTRACT_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_SCREENSHOT_OCR_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.MEDIASTORE_PHOTO_OCR_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.PDF_FOLDER_INDEX_CHECK_FOR_NEW_LABEL
+import com.memora.app.ui.setup.PDF_FOLDER_INDEX_CONTINUE_LABEL
+import com.memora.app.ui.setup.PDF_FOLDER_INDEX_FIRST_INDEX_LABEL
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.ScreenshotOcrExtractUiState
 import com.memora.app.ui.setup.PhotoOcrExtractUiState
@@ -2262,7 +2265,7 @@ private fun PdfFolderIndexingControl(
             onClick = onStartIndexing,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Index this folder")
+            Text(PDF_FOLDER_INDEX_FIRST_INDEX_LABEL)
         }
 
         PdfFolderIndexingState.IN_PROGRESS -> Column(
@@ -2280,20 +2283,25 @@ private fun PdfFolderIndexingControl(
         is PdfFolderIndexingState.COMPLETED -> {
             Text(
                 text = completedPdfFolderIndexingSummary(
-                    discoveredAssetCount = indexing.discoveredAssetCount,
+                    totalAssetCount = indexing.totalAssetCount,
+                    newlyDiscoveredAssetCount = indexing.newlyDiscoveredAssetCount,
                     hasMore = indexing.hasMore,
                 ),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyMedium,
             )
-            if (indexing.hasMore) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = onStartIndexing,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text("Continue folder indexing")
-                }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    if (indexing.hasMore) {
+                        PDF_FOLDER_INDEX_CONTINUE_LABEL
+                    } else {
+                        PDF_FOLDER_INDEX_CHECK_FOR_NEW_LABEL
+                    },
+                )
             }
         }
 

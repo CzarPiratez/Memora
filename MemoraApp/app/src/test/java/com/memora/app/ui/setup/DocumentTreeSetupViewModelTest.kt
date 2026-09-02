@@ -79,6 +79,7 @@ class DocumentTreeSetupViewModelTest {
         assertEquals(DocumentTreeConnectionState.CONNECTED(sourceId), viewModel.uiState.value.connection)
 
         viewModel.onIndexRequested()
+        advanceUntilIdle()
         assertEquals(listOf(sourceId), scheduler.drainRequests)
         assertEquals(PdfFolderIndexingState.IN_PROGRESS, viewModel.uiState.value.indexing)
 
@@ -95,7 +96,11 @@ class DocumentTreeSetupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            PdfFolderIndexingState.COMPLETED(discoveredAssetCount = 1, hasMore = false),
+            PdfFolderIndexingState.COMPLETED(
+                totalAssetCount = 1,
+                newlyDiscoveredAssetCount = 1,
+                hasMore = false,
+            ),
             viewModel.uiState.value.indexing,
         )
     }
@@ -225,6 +230,7 @@ class DocumentTreeSetupViewModelTest {
         viewModel.onPersistedReadAccessReceived(treeUri)
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onIndexRequested()
+        advanceUntilIdle()
         assertEquals(PdfFolderIndexingState.IN_PROGRESS, viewModel.uiState.value.indexing)
         assertEquals(listOf(sourceId), scheduler.drainRequests)
 
@@ -241,7 +247,11 @@ class DocumentTreeSetupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            PdfFolderIndexingState.COMPLETED(discoveredAssetCount = 2, hasMore = false),
+            PdfFolderIndexingState.COMPLETED(
+                totalAssetCount = 2,
+                newlyDiscoveredAssetCount = 2,
+                hasMore = false,
+            ),
             viewModel.uiState.value.indexing,
         )
     }
@@ -262,6 +272,7 @@ class DocumentTreeSetupViewModelTest {
         viewModel.onPersistedReadAccessReceived(treeUri)
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onIndexRequested()
+        advanceUntilIdle()
         assertEquals(PdfFolderIndexingState.IN_PROGRESS, viewModel.uiState.value.indexing)
 
         scheduler.emit(
@@ -304,6 +315,7 @@ class DocumentTreeSetupViewModelTest {
         viewModel.onPersistedReadAccessReceived(treeUri)
         dispatcher.scheduler.advanceUntilIdle()
         viewModel.onIndexRequested()
+        advanceUntilIdle()
 
         scheduler.emit(
             listOf(

@@ -17,4 +17,8 @@ class RoomDiscoveryCheckpointRepository(
     override suspend fun find(sourceId: SourceId): DiscoveryCursor? = checkpointDao()
         .find(sourceId.value)
         ?.toDomain()
+
+    override suspend fun delete(sourceId: SourceId) {
+        checkpointDao().delete(sourceId.value)
+    }
 }

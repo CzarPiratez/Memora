@@ -5,22 +5,44 @@ import org.junit.Test
 
 class PdfFolderIndexingSummaryTest {
     @Test
-    fun `completed folder drain states the count and that text search still needs Local PDF reading`() {
+    fun `first completed drain states totals and local reading next step`() {
         assertEquals(
-            "UNFYND indexed 1 PDF item from this connected folder. " +
-                "This connected folder's PDF list is currently up to date. " +
-                "Text search still needs Local PDF reading for each document.",
-            completedPdfFolderIndexingSummary(discoveredAssetCount = 1, hasMore = false),
+            "Found 3 new PDFs this pass. 3 PDF items in this connected folder. " +
+                "This folder list is up to date for now. Text search still needs Local PDF reading " +
+                "for each document. Tap Check for new PDFs after you add files.",
+            completedPdfFolderIndexingSummary(
+                totalAssetCount = 3,
+                newlyDiscoveredAssetCount = 3,
+                hasMore = false,
+            ),
+        )
+    }
+
+    @Test
+    fun `rescan with no new files is explicit`() {
+        assertEquals(
+            "No new PDFs were listed this pass. 3 PDF items in this connected folder. " +
+                "This folder list is up to date for now. Text search still needs Local PDF reading " +
+                "for each document. Tap Check for new PDFs after you add files.",
+            completedPdfFolderIndexingSummary(
+                totalAssetCount = 3,
+                newlyDiscoveredAssetCount = 0,
+                hasMore = false,
+            ),
         )
     }
 
     @Test
     fun `incomplete drain asks the user to continue metadata listing without claiming text search`() {
         assertEquals(
-            "UNFYND indexed 2 PDF items from this connected folder. " +
+            "Found 2 new PDFs this pass. 2 PDF items in this connected folder. " +
                 "More folder metadata remains. Tap Continue folder indexing to keep listing documents. " +
                 "This does not save PDF text for search yet.",
-            completedPdfFolderIndexingSummary(discoveredAssetCount = 2, hasMore = true),
+            completedPdfFolderIndexingSummary(
+                totalAssetCount = 2,
+                newlyDiscoveredAssetCount = 2,
+                hasMore = true,
+            ),
         )
     }
 }

@@ -7,4 +7,7 @@ interface DiscoveryCheckpointRepository {
     suspend fun save(cursor: DiscoveryCursor)
 
     suspend fun find(sourceId: SourceId): DiscoveryCursor?
+
+    /** Removes a saved checkpoint so the next discovery pass can start fresh. */
+    suspend fun delete(sourceId: SourceId)
 }

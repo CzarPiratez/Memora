@@ -3,6 +3,7 @@ package com.memora.app.application.documents
 import com.memora.app.application.discovery.DiscoverSourcePage
 import com.memora.app.application.discovery.PersistDiscoveryPage
 import com.memora.app.application.discovery.ProcessDiscoveryResult
+import com.memora.app.data.saf.SafPdfDiscoveryCheckpoint
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
@@ -29,6 +30,7 @@ import java.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class IndexSafPdfFolderTest {
@@ -116,17 +118,48 @@ class IndexSafPdfFolderTest {
         )
     }
 
+    @Test
+    fun clearsACompletedCheckpointBeforeStartingAFreshFolderWalk() = runBlocking {
+        val completedCheckpoint = SafPdfDiscoveryCheckpoint(
+            sourceId = approval.sourceId,
+            frames = emptyList(),
+        ).toCursor()
+        val checkpointRepository = RecordingCheckpointRepository(completedCheckpoint)
+        val source = FakeSource(
+            sourceId = approval.sourceId,
+            result = DiscoveryResult.Page(
+                DiscoveryPage(
+                    sourceId = approval.sourceId,
+                    assets = listOf(asset("fresh")),
+                    checkpoint = DiscoveryCursor(approval.sourceId, "after-fresh"),
+                    hasMore = false,
+                ),
+            ),
+        )
+
+        val outcome = indexer(
+            source = source,
+            checkpointRepository = checkpointRepository,
+        )(approval.sourceId)
+
+        assertTrue(checkpointRepository.deleted)
+        assertNull(source.request?.cursor)
+        assertEquals(1, (outcome as SafPdfFolderIndexingOutcome.Indexed).discoveredAssetCount)
+    }
+
     private fun indexer(
         source: AssetDiscoverySource,
         store: RecordingStore = RecordingStore(),
         repositoryApproval: DocumentTreeApproval? = approval,
+        checkpointRepository: DiscoveryCheckpointRepository = EmptyCheckpointRepository,
     ): IndexSafPdfFolder = IndexSafPdfFolder(
         approvalRepository = RecordingApprovalRepository(repositoryApproval),
         sourceFactory = RecordingFactory(source),
         discoverSourcePage = DiscoverSourcePage(
-            checkpointRepository = EmptyCheckpointRepository,
+            checkpointRepository = checkpointRepository,
             processDiscoveryResult = ProcessDiscoveryResult(PersistDiscoveryPage(store)),
         ),
+        checkpointRepository = checkpointRepository,
     )
 
     private fun asset(id: String): Asset = Asset(
@@ -148,10 +181,32 @@ class IndexSafPdfFolderTest {
         override suspend fun findAll(): List<DocumentTreeApproval> = listOfNotNull(approval)
     }
 
+    private class RecordingCheckpointRepository(
+        private var cursor: DiscoveryCursor?,
+    ) : DiscoveryCheckpointRepository {
+        var deleted: Boolean = false
+
+        override suspend fun save(cursor: DiscoveryCursor) {
+            this.cursor = cursor
+        }
+
+        override suspend fun find(sourceId: SourceId): DiscoveryCursor? =
+            cursor?.takeIf { it.sourceId == sourceId }
+
+        override suspend fun delete(sourceId: SourceId) {
+            if (cursor?.sourceId == sourceId) {
+                cursor = null
+                deleted = true
+            }
+        }
+    }
+
     private object EmptyCheckpointRepository : DiscoveryCheckpointRepository {
         override suspend fun save(cursor: DiscoveryCursor) = Unit
 
         override suspend fun find(sourceId: SourceId): DiscoveryCursor? = null
+
+        override suspend fun delete(sourceId: SourceId) = Unit
     }
 
     private class RecordingStore : DiscoveryPageStore {
