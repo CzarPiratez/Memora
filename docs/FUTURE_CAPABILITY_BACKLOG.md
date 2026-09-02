@@ -36,8 +36,8 @@ and remove or update its row here.
 | ID | Capability | Layer | Status | Gate | Notes |
 |---|---|---|---|---|---|
 | FC-01 | **Reciprocal Rank Fusion (RRF)** for keyword + meaning lists | Core | candidate | MIG-07B authorized | Named fusion inside Canonical Recall ranking; no parallel Find path |
-| FC-02 | **On-device cross-encoder rerank** over top-k `MemoryEvidence` | Core | candidate | After MIG-07B; new or extended `RecallRanker` port | Bounded (e.g. 20–50 hits); quality jump without full corpus rescore |
-| FC-03 | **Evidence chunking policy** per asset type (PDF page, OCR block, note section) | Core | candidate | Before MIG-05 B wide rollout; Grounded Answers eval corpus | Stable passage boundaries at index time; anchors on every evidence slice |
+| FC-02 | **Evidence-native on-device RecallRanker** (ADR-051): Stage A semantic head + Stage B structured signals over top-k `MemoryEvidence` | Core | candidate | After MIG-07B; ADR-051; `RecallRanker` port (slice 1 done) | Bounded (40–50); Stage A ≠ full product claim; Stage B needs FC-03 |
+| FC-03 | **Evidence chunking policy** per asset type (PDF page, OCR block, note section) | Core | candidate | Before MIG-05 B wide rollout; Grounded Answers eval corpus; **before ADR-051 Stage B complete** | Stable passage boundaries at index time; anchors on every evidence slice |
 | FC-04 | **Corpus completeness honesty** in UI (indexed / pending / blocked counts) | App | **delivered** (2026-08-31) | App UX milestone; permission/disclosure patterns exist | `CHANGE_CONTROL_FC04_CORPUS_COMPLETENESS_HONESTY.md` |
 | FC-05 | **Zero-egress / air-gap verification pack** (checklist + optional CI assertion) | Core | candidate | Class A / commercial readiness; no product feature required first | Provable core path never egresses; supports regulated buyers |
 | FC-06 | **Evidence lineage in Explain** (extraction schema, model id/version, memory revision) | Both | candidate | After recall convergence; Explain MVP enhancement | Substrate largely exists; surface in App |
@@ -95,7 +95,7 @@ evidence lineage; zero-egress core path; open Class A contracts.
 ```text
 Now (authorized lanes)     → Dual-track Checkpoint 1 (MIG-05 B photo/screenshot + MIG-07B Slice 1)
 Next checkpoints         → MIG-07B Slice 2, FC-04, MIG-07B Slice 3, notes MIG-05 B
-Next candidates (Tier A)   → FC-01 RRF, FC-03 chunking, FC-02 rerank
+Next candidates (Tier A)   → FC-02 Stage A (ADR-051), FC-03, FC-02 Stage B, FC-01 RRF
 Trust packaging            → FC-05 zero-egress, FC-04 corpus honesty, FC-06 lineage
 Grounded Answers           → existing §14 gates; FD-02/03 after model choice
 Scale                      → MIG-11 → FD-04 ANN when measured

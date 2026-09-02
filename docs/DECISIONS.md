@@ -1754,3 +1754,110 @@ saying “MIG-05 complete” when only A is true.
 index pointer, changelog, and this change-control record A vs B. Engineering
 checkpoints may celebrate A; Spec/full claims wait for B.
 
+## ADR-051: Evidence-native on-device RecallRanker
+
+**Status:** Accepted
+
+**Decision:** Spec `RecallRanker` inside Canonical Recall (ADR-049) is
+implemented as an **Evidence-native on-device RecallRanker**: it reorders a
+bounded pool of `MemoryEvidence` candidates using (1) a portable semantic
+relevance head and (2) structured evidence signals already present on stored
+Memories — not bare opaque `(query, passage)` text alone as the sole product
+ranking story. FC-02 remains the delivery vehicle; this ADR upgrades what
+"FC-02 done" means.
+
+**Binding interpretation:**
+
+1. **Single boundary.** All model-backed and multi-signal ranking for product
+   Find stays inside Canonical Recall via `RecallRanker`. No new Find path.
+   Live/Dual **N** must not grow. Keyword Find is out of scope unless a later
+   ADR says otherwise (unchanged from FC-02 non-goals).
+
+2. **Evidence-native thesis.** A candidate is ranked as stored evidence: excerpt
+   text plus available structured signals (locator kind/value, evidence class /
+   kind, anchors when present, lexical completeness against the cue, and
+   honest corpus / availability context when surfaced). The semantic head may
+   score text; product ranking must not pretend those structured signals do
+   not exist. Why copy may cite inspectable factors; it must not invent
+   evidence or disclose unsupported model-private reasoning.
+
+3. **Two delivery stages (binding):**
+   - **Stage A — Semantic head (FC-02 slice 2 baseline):** Bound an on-device
+     relevance model (cross-encoder or measured equivalent) behind
+     `RecallRanker`, pool default **40** / max **50**, wire through
+     `AnchorAwareMeaningRecallRanking`, fall back to `IdentityRecallRanker`
+     when the pack is unavailable, and show measurable lift on
+     `meaning-pdf-page-recall-v1` (or successor) with midrange latency within
+     budget or explicit degraded honesty. Stage A alone may ship as an
+     engineering checkpoint; it is **not** the full ADR-051 product claim.
+   - **Stage B — Evidence-native differentiator:** Extend candidates and rank
+     outputs so structured evidence signals participate in ordering (and Why
+     factors where disclosed). Stage B is the extraordinary / high-value bar
+     this ADR exists to authorize. Marketing or public "evidence-native
+     ranker" language requires Stage B measured green, not Stage A alone.
+
+4. **FC-03 dependency for Stage B.** Stable per-type evidence chunking and
+   locators (FC-03, starting with PDF page / OCR block / note section) are a
+   **hard dependency before Stage B is declared complete**. Ranking cannot
+   honestly claim evidence-native quality on mis-chunked passages. Stage A may
+   proceed on current evidence slices; P2 may resequence FC-03 ahead of or in
+   parallel with Stage B under existing change-control discipline.
+
+5. **Type-agnostic ranker; type-specific ingress.** Future asset types (Word,
+   Excel, PowerPoint, bookmarks, audio, video, and others) enter Find only via
+   permissioned discovery → extraction → chunking + locator → MemoryBuilder →
+   `MemoryEvidence`. `RecallRanker` scores stored evidence; it does not
+   open raw files and does not become a per-format product search system.
+   Each new Asset type still requires its own ADR / change control for
+   access and extraction. Multimodal (non-text) evidence ranking needs a
+   later ADR; this ADR covers text evidence passages first.
+
+6. **Local-first and offline.** Core ranking runs on-device on already-stored
+   excerpts. No cloud rerank API. Pack install may use network for **model
+   bytes only** (same pattern as the embedding AI Pack). Clear index / pack
+   removal must leave Find functional via identity / prior stages.
+
+7. **Model selection is measured, not fashion.** The concrete Stage A pack
+   (runtime, license, size, latency on Galaxy A15-class devices) is chosen in
+   a follow-up change-control delivery record with benchmark evidence. This
+   ADR does not freeze MiniLM, MediaPipe, ONNX, or any vendor artifact by
+   name.
+
+8. **Personalization is deferred.** Opt-in local feedback weights (open /
+   select / dismiss) remain governed by Experience Memory Amendment §7 and
+   require a later ADR. They are not Stage A or Stage B of this ADR.
+
+**Out of scope / non-claims:**
+
+- Does not authorize Grounded Answers runtime, Verifier, Act, Connect, or
+  chat-first entry
+- Does not authorize cloud inference on Memories or source content
+- Does not authorize ColBERT, GraphRAG, multi-agent orchestration, or SLM as
+  the primary Find ranker
+- Does not rewrite hashed Freeze / Migration Spec / Local AI Spec / Grounding /
+  Experience Memory / Product Contract blobs
+- Does not claim marketing AVAILABLE or public "evidence-native ranker shipped"
+  from this ADR alone
+- Does not by itself bind a concrete model file or start App wiring — FC-02
+  change control (updated under this ADR) remains the implementation gate
+- Does not extend Live/Dual legacy rows
+
+**Reason:** Industry default rerank (generic cross-encoder on top-k text) is
+necessary but insufficient for UNFYND's purpose: trusted personal retrieval
+over structured `MemoryEvidence` with explainable Why, offline operation,
+and future asset types. Spec `RecallRanker` and FC-02 named the port and
+the industry stage; this ADR locks the product-differentiating interpretation
+so delivery does not collapse to "another MiniLM wrapper" while still
+requiring a measured semantic baseline (Stage A) before the differentiator
+(Stage B).
+
+**Consequences:**
+
+- `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK` is reinterpreted as Stage A/B
+  under this ADR; slice 2 = Stage A; Stage B + FC-03 sequencing recorded there
+  or in successor change control.
+- `POST_MVP_PROGRAM_V1` P2 and `FUTURE_CAPABILITY_BACKLOG` FC-02 notes
+  must cite ADR-051 (evidence-native, not text-only).
+- Registry / CONTINUE / changelog record acceptance.
+- Implementation proceeds only under FC-02 (and FC-03) change control with
+  architectural convergence blocks; Live/Dual **N** unchanged by this ADR.

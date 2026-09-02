@@ -63,6 +63,7 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 |------|------|
 | Allowlist + statuses | [`LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md) |
 | Naming / Option C | ADR-049 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR049_CANONICAL_RECALL_NAMING.md`](CHANGE_CONTROL_ADR049_CANONICAL_RECALL_NAMING.md) |
+| Evidence-native RecallRanker | ADR-051 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`](CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md) · FC-02 [`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`](CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md) |
 | Cursor invariants | [`.cursor/rules/unfynd-architecture-invariants.mdc`](../.cursor/rules/unfynd-architecture-invariants.mdc) |
 | Change-control + exception | [`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md) · [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) |
 | Program / MIG-05 DONE | [`RECALL_CONVERGENCE_DONE.md`](RECALL_CONVERGENCE_DONE.md) · MIG-05 FULL DONE in [`CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`](CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md) (**ADR-050:** A=PDF slice complete; B=Spec full open) |

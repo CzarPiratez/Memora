@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### ADR-051 Evidence-native on-device RecallRanker (docs-only)
+
+- **Date:** 2026-09-02
+- **Delivered:** Accepted ADR-051 — Spec `RecallRanker` inside Canonical Recall
+  is an Evidence-native on-device ranker: Stage A (measured semantic head /
+  FC-02) + Stage B (structured evidence signals; FC-03 before Stage B complete).
+  Type-agnostic over `MemoryEvidence`. FC-02 change control reinterpreted under
+  ADR-051. Registry / CONTINUE / P2 / backlog pointers.
+  See `CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`.
+- **Truthfulness:** Docs only; no App wiring; not AVAILABLE; Stage A model pack
+  not selected; public “evidence-native ranker” requires Stage B measured green.
+
 ### Post-MVP program, Class A validator, domain foundations (2026-09-02)
 
 - **Date:** 2026-09-02

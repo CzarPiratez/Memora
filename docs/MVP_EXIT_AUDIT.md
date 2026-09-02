@@ -83,7 +83,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | Class A conformance validator + CI | **PASS** | `CHANGE_CONTROL_CLASS_A_CONFORMANCE_VALIDATOR.md`; public publish SHA `7c573b2` on https://github.com/CzarPiratez/unfynd-core (2026-09-02) |
 | `:core-domain` Gradle module | **FAIL** | `CORE_APP_SEPARATION_PLAN.md` Phase 2 not started |
 | Grounding domain interfaces (no runtime) | **PARTIAL** | Slice 1: `domain.grounding` contracts landed; generative runtime deferred |
-| `RecallRanker` port for FC-02 | **PARTIAL** | Slice 1: `rank` API + `IdentityRecallRanker` landed; cross-encoder slice 2 not wired |
+| `RecallRanker` port for FC-02 / ADR-051 | **PARTIAL** | Slice 1 + ADR-051 Accepted; Stage A (semantic head) not wired; Stage B not started |
 | Locator / modelSignature / domain CorpusCoverage | **PARTIAL** | `AudioSegmentEvidenceLocator`, `EmbeddingModelSignature`, `domain.grounding` contracts landed; `CorpusCompleteness` already in domain (FC-04) |
 
 ---
@@ -105,7 +105,8 @@ Each row cites **evidence pointers** — not conversational memory.
 ### Does not block engineering post-MVP prep
 
 - Domain foundations (remaining §7 items; `:core-domain` Phase 2).
-- FC-02 slice 2 (authorized; cross-encoder model not yet bound).
+- FC-02 / ADR-051 Stage A (authorized; semantic head model not yet bound).
+  Stage B is post-MVP differentiator (needs FC-03); not an MVP-exit gate alone.
 
 ### Explicitly out of MVP exit
 
@@ -119,10 +120,12 @@ Ordered by **dependency**, not calendar:
 
 1. ~~Close Class A validator slice~~ **DONE** (validator + public publish `7c573b2`).
 2. ~~Close SAF rescan (F-04) and Canonical Recall quality (F-01–F-03)~~ **DONE** (device PASS).
-3. Implement **FC-02 slice 2** cross-encoder; wire into `AnchorAwareMeaningRecallRanking` (requires model-pack selection).
-4. Record **battery / latency budgets** (enterprise completion §C).
-5. Founder **AVAILABLE** review only after §F blockers addressed.
-6. Optional App risk (not MVP-exit gate): F-05 large SAF folder hang.
+3. ~~Accept ADR-051 Evidence-native RecallRanker~~ **DONE** (docs).
+4. Implement **FC-02 Stage A** (measured on-device relevance pack; wire into
+   `AnchorAwareMeaningRecallRanking`). Then Stage B / FC-03 per ADR-051.
+5. Record **battery / latency budgets** (enterprise completion §C).
+6. Founder **AVAILABLE** review only after §F blockers addressed.
+7. Optional App risk (not MVP-exit gate): F-05 large SAF folder hang.
 
 ---
 
@@ -130,6 +133,7 @@ Ordered by **dependency**, not calendar:
 
 | Date | Change |
 |---|---|
+| 2026-09-02 | ADR-051 accepted; next = FC-02 Stage A (measured pack) |
 | 2026-09-02 | F-01–F-04 device PASS; Class A public publish `7c573b2`; next = FC-02 slice 2 |
 | 2026-09-02 | A-01 PASS on Samsung SM-A156E (`CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`) |
 | 2026-09-02 | Domain foundations slice 1; FC-02 authorized; A-01 runbook |

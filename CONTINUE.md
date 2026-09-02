@@ -13,10 +13,17 @@ at SHA `7c573b2119628c5778ca77482d6952bb5153d4a6`. Validator self-test passed
 in clone before push. Per `docs/PUBLISH_CLASS_A_PACK.md`. Site link deferred
 (founder choice — do not advertise repo on unfynd.com/core yet).
 
+**ADR-051 Evidence-native RecallRanker (2026-09-02):** Accepted. Spec
+`RecallRanker` = evidence-native on-device ranker (Stage A semantic head +
+Stage B structured signals; FC-03 before Stage B complete). See
+`docs/CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`. **Next (product
+track):** FC-02 **Stage A** — measured on-device relevance pack + wire into
+`AnchorAwareMeaningRecallRanking` (`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`);
+then Stage B / FC-03 per ADR-051. Then F-06 battery/latency budgets. Not
+AVAILABLE. Do not claim public “evidence-native ranker” until Stage B green.
+
 **MVP exit docs sync (2026-09-02):** F-01–F-04 device PASS recorded; audit §F/§G
-updated. **Next (product track):** FC-02 slice 2 — select on-device cross-encoder
-pack and wire into `AnchorAwareMeaningRecallRanking` (`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`).
-Then F-06 battery/latency budgets. Not AVAILABLE.
+updated.
 
 **A-01 offline device proof (2026-09-02):** **PASS** on Samsung SM-A156E —
 airplane-mode keyword + meaning Find, Why, Open original after USE pack +

@@ -189,9 +189,13 @@ P6 Platform (export, integration, Class B path)
 
 **Delivers:**
 
-- FC-02: on-device cross-encoder rerank over top-k `MemoryEvidence` inside Canonical Recall (bounded pool).
+- FC-02 / **ADR-051:** Evidence-native on-device `RecallRanker` over top-k
+  `MemoryEvidence` inside Canonical Recall — **Stage A** measured semantic head
+  (bounded pool), then **Stage B** structured evidence signals. Public
+  “evidence-native ranker” language only after Stage B measured green.
 - FC-01: RRF fusion when authorized with MIG-07B convergence (ranking convergence complete per `RECALL_CONVERGENCE_DONE`; FC-01 still needs its own change control).
-- FC-03: evidence chunking policy per asset type (stable passage boundaries).
+- FC-03: evidence chunking policy per asset type (stable passage boundaries) —
+  **hard dependency before ADR-051 Stage B complete**.
 
 **Architectural rule:** All ranking stays inside Canonical Recall. Live/Dual N must remain **0**.
 

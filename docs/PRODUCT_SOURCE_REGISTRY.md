@@ -82,6 +82,14 @@ conversational memory or an untracked desktop file.
     marketing must not say “MIG-05 complete” or “Spec MIG-05 done” without
     stating non-PDF evidence indexing remains open (or wait until B closes).
     ADR-050 does not authorize the non-PDF indexer.
+12. **Evidence-native RecallRanker (ADR-051):** Spec `RecallRanker` inside
+    Canonical Recall is an **Evidence-native on-device RecallRanker** — Stage A
+    measured semantic head (FC-02) plus Stage B structured evidence signals.
+    FC-03 is a hard dependency before Stage B complete. Type-agnostic ranking
+    over `MemoryEvidence`; new Asset types still need their own access /
+    extraction ADRs. Does not authorize AVAILABLE, cloud rerank, App wiring by
+    itself, or hashed Freeze/Spec rewrites. Implementation remains under
+    `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK` (and FC-03 when opened).
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.
