@@ -80,9 +80,9 @@ Each row cites **evidence pointers** — not conversational memory.
 | Row | Verdict | Evidence / notes |
 |---|---|---|
 | `POST_MVP_PROGRAM_V1.md` | **PASS** | Opened 2026-09-01 |
-| Class A conformance validator + CI | **PASS** | `CHANGE_CONTROL_CLASS_A_CONFORMANCE_VALIDATOR.md`; validator self-test green |
+| Class A conformance validator + CI | **PASS** | `CHANGE_CONTROL_CLASS_A_CONFORMANCE_VALIDATOR.md`; public publish SHA `7c573b2` on https://github.com/CzarPiratez/unfynd-core (2026-09-02) |
 | `:core-domain` Gradle module | **FAIL** | `CORE_APP_SEPARATION_PLAN.md` Phase 2 not started |
-| Grounding domain interfaces (no runtime) | **FAIL** | P3 foundation — not yet landed |
+| Grounding domain interfaces (no runtime) | **PARTIAL** | Slice 1: `domain.grounding` contracts landed; generative runtime deferred |
 | `RecallRanker` port for FC-02 | **PARTIAL** | Slice 1: `rank` API + `IdentityRecallRanker` landed; cross-encoder slice 2 not wired |
 | Locator / modelSignature / domain CorpusCoverage | **PARTIAL** | `AudioSegmentEvidenceLocator`, `EmbeddingModelSignature`, `domain.grounding` contracts landed; `CorpusCompleteness` already in domain (FC-04) |
 
@@ -94,13 +94,18 @@ Each row cites **evidence pointers** — not conversational memory.
 
 1. **Product AVAILABLE decision** — enterprise completion §B (founder review).
 2. **Battery / latency budgets** not recorded.
-3. **Recall quality follow-ups** from A-01 session (multi-word keyword, meaning lexical filter, Why copy, SAF rescan) — see `CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` §Known limitations.
+
+### Closed this week (do not re-open as AVAILABLE blockers)
+
+- A-01 offline device proof — **PASS**
+- F-01–F-03 Canonical Recall quality — **PASS** (device verified; `CHANGE_CONTROL_CANONICAL_RECALL_QUALITY_F01_F03.md`)
+- F-04 SAF PDF folder rescan — **PASS** (device verified)
+- Class A pack publish to public `unfynd-core` — **done** (`7c573b2`)
 
 ### Does not block engineering post-MVP prep
 
-- Class A validator (in progress).
-- Domain foundations (P1–P2 prep).
-- FC-02 change control (after explicit authorization).
+- Domain foundations (remaining §7 items; `:core-domain` Phase 2).
+- FC-02 slice 2 (authorized; cross-encoder model not yet bound).
 
 ### Explicitly out of MVP exit
 
@@ -112,12 +117,12 @@ Each row cites **evidence pointers** — not conversational memory.
 
 Ordered by **dependency**, not calendar:
 
-1. Close **Class A validator** slice (public pack runnable proof).
-2. Close **SAF PDF incremental rescan** (F-04) and **Canonical Recall quality** slices (F-01–F-03).
-3. Implement **FC-02 slice 2** cross-encoder; wire into `AnchorAwareMeaningRecallRanking`.
-4. Publish Class A pack per `docs/PUBLISH_CLASS_A_PACK.md`.
-5. Record **battery / latency budgets** (enterprise completion §C).
-6. Founder **AVAILABLE** review only after §F blockers addressed.
+1. ~~Close Class A validator slice~~ **DONE** (validator + public publish `7c573b2`).
+2. ~~Close SAF rescan (F-04) and Canonical Recall quality (F-01–F-03)~~ **DONE** (device PASS).
+3. Implement **FC-02 slice 2** cross-encoder; wire into `AnchorAwareMeaningRecallRanking` (requires model-pack selection).
+4. Record **battery / latency budgets** (enterprise completion §C).
+5. Founder **AVAILABLE** review only after §F blockers addressed.
+6. Optional App risk (not MVP-exit gate): F-05 large SAF folder hang.
 
 ---
 
@@ -125,6 +130,7 @@ Ordered by **dependency**, not calendar:
 
 | Date | Change |
 |---|---|
+| 2026-09-02 | F-01–F-04 device PASS; Class A public publish `7c573b2`; next = FC-02 slice 2 |
 | 2026-09-02 | A-01 PASS on Samsung SM-A156E (`CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`) |
 | 2026-09-02 | Domain foundations slice 1; FC-02 authorized; A-01 runbook |
 | 2026-09-01 | Initial audit opened |

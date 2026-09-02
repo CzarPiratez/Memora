@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-02  
 **Type:** Engineering — Canonical Recall quality  
-**Status:** Delivered — pending unified device verification  
+**Status:** Delivered — **device verified PASS** (Samsung SM-A156E, 2026-09-02)  
 **Requirement IDs:** F-01, F-02, F-03 from `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`  
 **Runbook:** `docs/A01_FOLLOWUP_DEVICE_VERIFICATION_RUNBOOK.md`
 
@@ -44,7 +44,15 @@ EXTENDS LEGACY? no
 
 ## Verification gate
 
-Operator runs `docs/A01_FOLLOWUP_DEVICE_VERIFICATION_RUNBOOK.md` (F-01–F-04 + A-01 regression)
-on Samsung SM-A156E with `Documents/unfynd-test` corpus.
+**Device PASS (2026-09-02)** on Samsung SM-A156E (`Documents/unfynd-test` corpus;
+later expanded folder for F-04). Operator recorded:
 
-Unit suite: `testDebugUnitTest` in Android Studio on delivery build.
+| ID | Verdict | Notes |
+|---|---|---|
+| F-01 | **PASS** | `silky wreck` / `silky, wreck` / `silky + blink` hit when both words in same PDF; cross-file AND correctly empty |
+| F-02 | **PASS** | Natural cue with both content tokens returned the matching PDF only |
+| F-03 | **PASS** | Multiline consumer Why; no similarity/score jargon |
+| F-04 | **PASS** | Rescan + **Check for new PDFs** first when folder already listed |
+| A-01 regression | **PASS** | Offline keyword + meaning after cold start |
+
+Unit suite: **483** `testDebugUnitTest` passed on delivery build.

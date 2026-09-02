@@ -2,9 +2,10 @@
 
 **Date:** 2026-09-02  
 **Type:** Verification — physical device  
-**Status:** Open until operator records PASS  
+**Status:** **PASS** — operator recorded 2026-09-02 on Samsung SM-A156E  
 **Prerequisite proof:** `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` (A-01 PASS)  
-**Code slices:** F-01 keyword AND, F-02 meaning lexical filter, F-03 Why copy, F-04 SAF rescan
+**Code slices:** F-01 keyword AND, F-02 meaning lexical filter, F-03 Why copy, F-04 SAF rescan  
+**Evidence:** `docs/CHANGE_CONTROL_CANONICAL_RECALL_QUALITY_F01_F03.md` verification gate
 
 Does **not** authorize marketing **AVAILABLE**.
 
@@ -101,4 +102,6 @@ Repeat on one keyword hit — still says “exact words in saved evidence”.
 
 ## Record results
 
-Update `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` §Follow-up verification with date, build SHA, and F-01–F-04 verdicts. Update `CONTINUE.md` checkpoint when all PASS.
+**Recorded 2026-09-02:** F-01–F-04 and A-01 regression all **PASS** on SM-A156E.
+See `docs/CHANGE_CONTROL_CANONICAL_RECALL_QUALITY_F01_F03.md` verification gate
+and `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` follow-up verification.

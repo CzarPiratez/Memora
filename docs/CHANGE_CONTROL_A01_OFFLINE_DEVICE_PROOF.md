@@ -90,13 +90,19 @@ After airplane mode + force-stop + cold start:
 
 | ID | Issue | Tracking |
 |---|---|---|
-| F-01 | Keyword Find treats multi-word input as one phrase (no per-file AND) | Canonical Recall keyword path |
-| F-02 | Meaning Find can rank semantically similar files missing explicit cue tokens | Lexical constraint filter in Canonical Recall |
-| F-03 | Why copy exposes engineering phrasing (“on-device meaning similarity”) | `CanonicalRecallWhyCopy` consumer rewrite |
-| F-04 | SAF PDF folder does not rescan after checkpoint complete | **Delivered** — `CHANGE_CONTROL_SAF_PDF_FOLDER_RESCAN.md` (device re-verify) |
+| F-01 | Keyword Find treats multi-word input as one phrase (no per-file AND) | **PASS** — Canonical Recall keyword AND + connector tokens |
+| F-02 | Meaning Find can rank semantically similar files missing explicit cue tokens | **PASS** — lexical AND filter in Canonical Recall |
+| F-03 | Why copy exposes engineering phrasing (“on-device meaning similarity”) | **PASS** — consumer Why rewrite |
+| F-04 | SAF PDF folder does not rescan after checkpoint complete | **PASS** — rescan + Check for new PDFs first |
 | F-05 | Large `Downloads` subtree hung metadata indexing on Samsung | SAF performance investigation |
 | F-06 | Battery / latency budgets | Enterprise completion §C — still open |
 | F-07 | Marketing AVAILABLE | Founder decision — still open |
+
+## Follow-up verification (2026-09-02)
+
+Unified runbook `docs/A01_FOLLOWUP_DEVICE_VERIFICATION_RUNBOOK.md` — **PASS** for
+F-01–F-04 + A-01 offline regression on SM-A156E. Unit tests **483** passed.
+Build era: commits through `e411afc` (quality) + Class A publish recorded separately.
 
 ## Documentation / traceability updates
 
