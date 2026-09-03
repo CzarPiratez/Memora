@@ -42,6 +42,10 @@ object AnchorAwareMeaningRecallRanking {
 
         val revisionIds = reranked.hits.map(MeaningSearchHit::revisionId).distinct()
         val anchorsByRevision = memoryRepository.findSignatureAnchors(revisionIds)
+        // Preserve Stage A / identity order from [reranked]; score-only resort would
+        // undo CE when TOPIC/TIME is only ADVISORY and anchors are missing/neutral.
+        val ceOrder = reranked.hits.mapIndexed { index, hit -> hit.revisionId to index }.toMap()
+        val scoreBeforeAnchors = reranked.hits.associate { it.revisionId to it.score }
         val candidates = reranked.hits.map { hit ->
             AnchorRecallCandidate(
                 revisionId = hit.revisionId,
@@ -51,12 +55,19 @@ object AnchorAwareMeaningRecallRanking {
         }
         val filtered = AnchorStructuredRecallFilter.apply(candidates, constraints)
         val scoreByRevision = filtered.associate { it.revisionId to it.baseScore }
-        val reordered = reranked.hits
-            .filter { scoreByRevision.containsKey(it.revisionId) }
-            .sortedByDescending { scoreByRevision[it.revisionId] ?: 0f }
-            .map { hit ->
-                hit.copy(score = scoreByRevision[hit.revisionId] ?: hit.score)
+        val hitByRevision = reranked.hits.associateBy { it.revisionId }
+        val reordered = filtered
+            .mapNotNull { candidate ->
+                val hit = hitByRevision[candidate.revisionId] ?: return@mapNotNull null
+                hit.copy(score = candidate.baseScore)
             }
+            .sortedWith(
+                compareByDescending<MeaningSearchHit> { hit ->
+                    val adjusted = scoreByRevision[hit.revisionId] ?: hit.score
+                    val before = scoreBeforeAnchors[hit.revisionId] ?: hit.score
+                    adjusted - before
+                }.thenBy { hit -> ceOrder[hit.revisionId] ?: Int.MAX_VALUE },
+            )
         return reranked.copy(hits = reordered)
     }
 
