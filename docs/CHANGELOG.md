@@ -2,6 +2,103 @@
 
 ## Unreleased
 
+### FC-02 Stage A wire (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** ORT promoted to `implementation`; `OnnxCrossEncoderRecallRanker` +
+  `StageARecallRanker`; wired after lexical in `AnchorAwareMeaningRecallRanking` /
+  `CanonicalRecall`; S3 DEGRADED_EXPLICIT pool 20; identity when pack absent;
+  `CHANGE_CONTROL_FC02_STAGE_A_WIRE.md`.
+- **Truthfulness:** CE only when model staged in no-backup; ADR-052 pack UI not
+  shipped; not AVAILABLE.
+
+### FC-02 Stage A S3 device PASS (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** SM-A156E S3 PASS — full40=1517 ms (over 800); reduced20@96=584 ms;
+  disposition **DEGRADED_EXPLICIT** effectivePool=20. Binding for Stage A wire.
+  See `CHANGE_CONTROL_FC02_STAGE_A_S3_LATENCY.md`.
+- **Truthfulness:** Measurement + policy only; Find wire not yet; not AVAILABLE.
+
+### FC-02 Stage A S3 latency harness (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** `RecallRankLatencyPolicy` (WITHIN_BUDGET / DEGRADED_EXPLICIT /
+  IDENTITY_FALLBACK), unit tests, `RecallRankStageALatencyIntegrationTest`,
+  `CHANGE_CONTROL_FC02_STAGE_A_S3_LATENCY.md`, S3 runbook. Device disposition
+  pending founder Logcat.
+- **Truthfulness:** No Find wire; not AVAILABLE; provisional DEGRADED from S1 only
+  until S3 confirms.
+
+### FC-02 Stage A S2 device PASS (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** Samsung SM-A156E S2 PASS — CE hit@1 3/3 on
+  `stageALabeledCases()` after documenting raw-corpus 2/3 mira ambiguity.
+  See `CHANGE_CONTROL_FC02_STAGE_A_S2_FIXTURE.md`.
+- **Truthfulness:** Measurement only; no Find wire; not AVAILABLE; S3 open.
+
+### FC-02 Stage A S2 fixture harness (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** `BertWordPieceTokenizer` (HF golden match for fixture pairs),
+  `ScoreMeaningPdfPageRecallWithCrossEncoder`, JVM unit tests, androidTest
+  `RecallRankStageAFixtureIntegrationTest` (Logcat `MemoraRecallRankS2`), vocab
+  assets, `CHANGE_CONTROL_FC02_STAGE_A_S2_FIXTURE.md`.
+- **Truthfulness:** Device S2 hit@1 result pending; no Find wire; not AVAILABLE.
+
+### FC-02 Stage A S1 device PASS (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** Samsung SM-A156E S1 spike PASS — FULL/40; QInt8 ONNX download
+  23180880 bytes; 40 pairs in 1642 ms (avg 41.05 ms); inputs
+  attention_mask/input_ids/token_type_ids. Spike URL path fix + full BERT inputs.
+  Recorded in FC-02 change control, model brief, S1 runbook, CONTINUE.
+- **Truthfulness:** S1 load/latency smoke only; not Stage A wire; not AVAILABLE;
+  S3 ≤800 ms bar still open (1642 ms observed).
+
+### Docs track check — Recall N=0 + Stage A gate (2026-09-03)
+
+- **Date:** 2026-09-03
+- **Delivered:** Re-synced operator docs to Live/Dual **N = 0** / escape-hatch NO /
+  `RECALL_CONVERGENCE_DONE` COMPLETE; aligned GOVERNANCE + registry with delivered
+  MIG-07/MIG-07B; ADR-052 language in FC-02 / model brief / ORT review; S1 runbook
+  `FC02_STAGE_A_S1_SPIKE_RUNBOOK.md`; MVP audit next actions point at S1 device proof.
+- **Truthfulness:** Policy/docs only for this note; S1 device result still pending;
+  not AVAILABLE; ADR-052 UI not shipped.
+
+### ADR-052 Smart automatic AI pack onboarding (docs-only)
+
+- **Date:** 2026-09-03
+- **Delivered:** Accepted ADR-052 — launch-ready UX: one unified onboarding
+  Continue after combined disclosure; auto meaning pack + auto rerank on eligible
+  tiers; interim AiPackDisclosure multi-tap path is engineering-only.
+  See `CHANGE_CONTROL_ADR052_SMART_AUTOMATIC_AI_PACK_ONBOARDING.md`.
+- **Truthfulness:** Policy only; unified onboarding UI not shipped; not AVAILABLE.
+
+### FC-02 Stage A S1 — device tiers + ONNX spike harness (2026-09-02)
+
+- **Date:** 2026-09-02
+- **Delivered:** `RecallRankDevicePolicy` (FULL/REDUCED/IDENTITY_ONLY pools),
+  optional `RecallRankAiPackTrack`, `OnnxMsMarcoMiniLmCrossEncoderSpec`,
+  `RecallRankCapabilitySupportPolicy`, `AndroidRecallRankDeviceSignals`,
+  `RecallRankStageASpikeIntegrationTest` + `OnnxCrossEncoderSpikeSupport`
+  (androidTest). `onnxruntime-android` 1.28.0 on **androidTest** classpath only.
+  Dependency review: `onnxruntime-android-1.28.0-review.md`. Broader-coverage
+  section added to Stage A model brief.
+- **Truthfulness:** Not wired into Canonical Recall; not AVAILABLE; S1 ONNX test
+  skips without staged model; promote ONNX to implementation after spike green.
+
+### FC-02 Stage A recall-ranker model brief (docs-only)
+
+- **Date:** 2026-09-02
+- **Delivered:** `docs/dependency-review/fc02-stage-a-recall-ranker-model-brief.md`
+  — five candidates evaluated; **recommended default:** ONNX Runtime Mobile +
+  MS MARCO MiniLM-L6 cross-encoder QInt8 (~23 MiB); fallbacks documented. FC-02
+  change control updated with selection table. Pending founder approval + S1 spike.
+- **Truthfulness:** No App code; no new dependency merged; not AVAILABLE; Stage A
+  not wired.
+
 ### ADR-051 Evidence-native on-device RecallRanker (docs-only)
 
 - **Date:** 2026-09-02

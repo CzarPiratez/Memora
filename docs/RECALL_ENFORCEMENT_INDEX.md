@@ -7,26 +7,23 @@ index.**
 
 Operational map for Canonical Recall convergence: keep interim Find paths on the
 allowlist measurable and shrinking. Authority remains Freeze §3 + ADR-049 +
-Migration Spec — this page does not redefine architecture and does **not**
-authorize MIG-07B from this index alone. MIG-07 PDF + screenshot + photo +
-note cutovers are separately authorized (see GOVERNANCE /
-`CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER` /
-`CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER` /
-`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER` /
-`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER`); L1–L4 Retired.
+Migration Spec — this page does not redefine architecture. Current allowlist:
+Live/Dual **N = 0** (L1–L8 Retired). Ranking upgrades (FC-02 / ADR-051) stay
+inside Canonical Recall and need their own change control.
 
 ## Heartbeat
 
-**Live/Dual N = 2** — source of truth: [`docs/LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md)
+**Live/Dual N = 0** — source of truth: [`docs/LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md)
 
 **Rule:** N may **only shrink**, or grow only with an **ADR** (+
 [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) when required).
 Mirror N in `CONTINUE.md` whenever status changes.
 
-Canonical Recall thin KEYWORD façade is **landed** (`CanonicalRecall` →
-`SearchMemoryEvidence`; four keyword ViewModels). Escape-hatch today: **YES**
-(enabling Live: L7, L8). L1–L4 Retired. Honest: thin façade ≠
-`RECALL_CONVERGENCE_DONE` / MIG-07B.
+Canonical Recall is the sole product Find boundary (keyword + meaning). Escape-hatch
+today: **NO** (L1–L8 Retired). Program exit
+[`RECALL_CONVERGENCE_DONE.md`](RECALL_CONVERGENCE_DONE.md) is **COMPLETE**.
+Honest: program DONE ≠ marketing **AVAILABLE**; FC-02 Stage A/B still open under
+ADR-051.
 
 ## 60-second checklist (any Find / Recall / embedding-search change)
 
@@ -34,9 +31,9 @@ Canonical Recall thin KEYWORD façade is **landed** (`CanonicalRecall` →
 2. Do **not** extend a non-Retired Live/Dual row (new ranking, hit types, asset Finds, or Why pipelines) unless ADR + exception with sunset.
 3. On any cutover / status change: recompute **N** in the LEGACY header and mirror it in `CONTINUE.md`.
 4. If opening Find/Recall change-control: fill the architectural convergence block ([`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md)).
-5. Do **not** claim `RECALL_CONVERGENCE_DONE` or authorize MIG-07B from this
-   index alone. Thin KEYWORD `CanonicalRecall` façade may exist; L7/L8 fold-in
-   still needs separate authorization.
+5. Do **not** claim marketing **AVAILABLE** from this index. Program
+   `RECALL_CONVERGENCE_DONE` is already COMPLETE; ranking upgrades (FC-02 /
+   ADR-051) stay inside Canonical Recall and need their own change control.
 
 ## Machine check
 
@@ -63,7 +60,7 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 |------|------|
 | Allowlist + statuses | [`LEGACY_RECALL_SURFACE.md`](LEGACY_RECALL_SURFACE.md) |
 | Naming / Option C | ADR-049 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR049_CANONICAL_RECALL_NAMING.md`](CHANGE_CONTROL_ADR049_CANONICAL_RECALL_NAMING.md) |
-| Evidence-native RecallRanker | ADR-051 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`](CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md) · FC-02 [`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`](CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md) |
+| Evidence-native RecallRanker | ADR-051 in [`DECISIONS.md`](DECISIONS.md) · [`CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`](CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md) · FC-02 [`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`](CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md) · Stage A model brief [`dependency-review/fc02-stage-a-recall-ranker-model-brief.md`](dependency-review/fc02-stage-a-recall-ranker-model-brief.md) |
 | Cursor invariants | [`.cursor/rules/unfynd-architecture-invariants.mdc`](../.cursor/rules/unfynd-architecture-invariants.mdc) |
 | Change-control + exception | [`CHANGE_CONTROL_TEMPLATE.md`](CHANGE_CONTROL_TEMPLATE.md) · [`LEGACY_EXTENSION_EXCEPTION.md`](LEGACY_EXTENSION_EXCEPTION.md) |
 | Program / MIG-05 DONE | [`RECALL_CONVERGENCE_DONE.md`](RECALL_CONVERGENCE_DONE.md) · MIG-05 FULL DONE in [`CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md`](CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md) (**ADR-050:** A=PDF slice complete; B=Spec full open) |
@@ -75,8 +72,7 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | MIG-07 note cutover | [`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
 
-Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 PDF + screenshot +
-photo + note keyword cutovers authorized separately** (L1–L4 Retired).
-**MIG-07B still needs separate authorization.** This index does not authorize
-those from the heartbeat alone. Keyword L1–L4 cutovers complete ≠ Recall
-program DONE (`RECALL_CONVERGENCE_DONE` still open).
+Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B
+L7/L8 cutovers delivered** (Live/Dual **N = 0**; escape-hatch **NO**).
+`RECALL_CONVERGENCE_DONE` is **COMPLETE**. This index does not authorize
+marketing AVAILABLE, FC-02 product wire, Stage B, or new Live/Dual rows.

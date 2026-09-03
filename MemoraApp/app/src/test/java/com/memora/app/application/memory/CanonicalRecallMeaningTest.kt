@@ -11,6 +11,7 @@ import com.memora.app.domain.intelligence.CapabilityLimits
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingVector
+import com.memora.app.domain.intelligence.IdentityRecallRanker
 import com.memora.app.domain.intelligence.MemoryEmbeddingRecord
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
@@ -156,6 +157,7 @@ class CanonicalRecallMeaningTest {
             ),
         ),
         memoryRepository = memoryRepository,
+        recallRanker = IdentityRecallRanker,
     )
 
     private fun record(revisionId: MemoryRevisionId, lead: Float) = MemoryEmbeddingRecord(

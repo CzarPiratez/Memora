@@ -53,6 +53,51 @@ object MeaningPdfPageRecallCorpus {
     )
 
     /**
+     * Stage A / FC-02 S2 labeled cases — same expected pages as [labeledCases], but
+     * mira distractors are near-misses (`maria`) so cross-encoder hit@1 is well-defined.
+     *
+     * Device evidence 2026-09-03: CE on raw [labeledCases] scored **2/3** — mira lost to
+     * another true "meet mira" page (`memora-open-2page.pdf`#2). M1/M2 keep [labeledCases].
+     */
+    fun stageALabeledCases(): List<MeaningPdfPageRecallLabeledCase> = listOf(
+        MeaningPdfPageRecallLabeledCase(
+            caseId = "mira-5page-p5",
+            cue = "mira",
+            expectedAssetFileName = "memora-open-5page.pdf",
+            expectedPageNumber = 5,
+            candidates = listOf(
+                textCandidate("memora-open-5page.pdf", 1, "Page 1 FOXTROT cover sheet"),
+                textCandidate("memora-open-5page.pdf", 5, "Page 5 JULIET meet mira closing"),
+                textCandidate("memora-open-3page.pdf", 3, "Page 3 ECHO meet maria follow-up"),
+                textCandidate("memora-open-2page.pdf", 2, "Memora page two BRAVO meet maria"),
+                textCandidate("Screenshot_memora_note.png", null, "Screenshot note"),
+            ),
+        ),
+        MeaningPdfPageRecallLabeledCase(
+            caseId = "boarding-3page-p2",
+            cue = "boarding",
+            expectedAssetFileName = "memora-open-3page.pdf",
+            expectedPageNumber = 2,
+            candidates = listOf(
+                textCandidate("memora-open-3page.pdf", 1, "Page 1 CHARLIE receipt total"),
+                textCandidate("memora-open-3page.pdf", 2, "Page 2 DELTA boarding pass gate"),
+                textCandidate("memora-open-5page.pdf", 1, "Page 1 FOXTROT cover sheet"),
+            ),
+        ),
+        MeaningPdfPageRecallLabeledCase(
+            caseId = "invoice-5page-p2",
+            cue = "invoice",
+            expectedAssetFileName = "memora-open-5page.pdf",
+            expectedPageNumber = 2,
+            candidates = listOf(
+                textCandidate("memora-open-5page.pdf", 1, "Page 1 FOXTROT cover sheet"),
+                textCandidate("memora-open-5page.pdf", 2, "Page 2 GOLF invoice number"),
+                textCandidate("memora-open-3page.pdf", 1, "Page 1 CHARLIE receipt total"),
+            ),
+        ),
+    )
+
+    /**
      * M1 JVM injected compact-failure pattern: distractor cosines beat the true
      * cue page until evidence-token boost recovers labeled @1.
      */

@@ -1861,3 +1861,85 @@ requiring a measured semantic baseline (Stage A) before the differentiator
 - Registry / CONTINUE / changelog record acceptance.
 - Implementation proceeds only under FC-02 (and FC-03) change control with
   architectural convergence blocks; Live/Dual **N** unchanged by this ADR.
+
+## ADR-052: Smart automatic AI pack onboarding (launch-ready UX)
+
+**Status:** Accepted
+
+**Decision:** At **launch-ready / marketing AVAILABLE**, on-device intelligence
+packs install through **smart automatic onboarding** — not the interim engineering
+setup path (separate disclosure tabs, manual “download meaning model”, manual
+“download rerank pack”). The user gets **one combined, honest disclosure** and
+**one primary Continue**; the app then **automatically** downloads and activates
+only the packs appropriate for this phone (`RecallRankDevicePolicy` tiers).
+
+**Binding interpretation:**
+
+1. **Launch UX bar.** After source permission / first indexing setup, enabling
+   meaning search must not require hunting multiple setup screens. Target:
+   **one affirmative Continue** on the unified onboarding step (combined
+   disclosure), then visible progress — not a chain of optional engineer tabs.
+
+2. **Combined disclosure (not silent).** A single screen (or wizard step) discloses
+   total download size, storage, network use (**model bytes only**), and licenses
+   for every pack that **may** install on this device class. One user approval
+   satisfies `AI_PACK_DELIVERY_SECURITY_PLAN` explicit user-approved download
+   for all packs listed in that disclosure. Silent background install without
+   disclosure is forbidden.
+
+3. **Smart automatic install after Continue.**
+   - **Meaning pack (USE / embedding):** Auto-download and verify on capable
+     phones when user continues unified onboarding (core MVP path).
+   - **Rerank pack (ADR-051 Stage A+):** Auto-download **in the same flow** when
+     `RecallRankDevicePolicy` tier is FULL or REDUCED — not a second product
+     journey. Skip rerank bytes on IDENTITY_ONLY tier.
+   - **Index build:** Auto-start meaning index build after meaning pack is active
+     (with honest progress); user should not need a separate “build index” tap for
+     the default first-run path unless batch limits require “continue indexing”
+     later.
+
+4. **Device-aware (broader coverage).** `RecallRankDevicePolicy` + platform RAM/ABI
+   signals decide FULL (pool 40) / REDUCED (pool 20) / IDENTITY_ONLY (no rerank).
+   Weak phones still get keyword Find and honest copy; they are not forced to
+   download packs that will not run well.
+
+5. **Interim engineering path.** Today’s `AiPackDisclosureScreen` multi-button
+   flow (acknowledge → download → build index) remains valid for **engineering
+   checkpoints and device proof** until unified onboarding ships. It is **not** the
+   launch-ready product UX and must not be described as final in grants or
+   marketing.
+
+6. **Not in APK.** Packs stay out of the base APK (Spec §6 small APK). Smart
+   automatic means **automatic after consent**, not bundling weights in the store
+   install.
+
+7. **Wi‑Fi preference (recommended).** Launch UX should prefer Wi‑Fi for large
+   pack bytes when not on Wi‑Fi (warn or defer — product copy in implementation
+   slice). Hard Wi‑Fi-only gate is not required by this ADR.
+
+8. **Relationship to ADR-051.** Rerank remains **optional to meaning Find**
+   (keyword + meaning work without rerank model). “Optional” means **not required
+   for search to function**, not “user must find a second download screen.” On
+   eligible phones, rerank is **auto-installed in the unified flow** after the
+   same Continue.
+
+**Out of scope / non-claims:**
+
+- Does not authorize silent install without disclosure
+- Does not bundle model weights in APK
+- Does not claim AVAILABLE or ship unified onboarding from this ADR alone
+- Does not remove per-tap index batch limits where memory requires them
+- Does not rewrite hashed Freeze / Spec blobs
+
+**Reason:** MVP meaning search is core product value; launch UX must feel
+automatic while preserving privacy disclosures and device-tier honesty. Separate
+engineering tabs were for verified checkpoints (A-01, M4), not consumer onboarding.
+
+**Consequences:**
+
+- FC-02 / rerank model brief and `RecallRankAiPackTrack` interpret install as
+  **smart automatic on eligible tiers** inside unified onboarding.
+- Future launch slice: replace or wrap interim `AiPackDisclosure` with unified
+  onboarding change control.
+- Registry / CONTINUE / changelog record ADR-052.
+

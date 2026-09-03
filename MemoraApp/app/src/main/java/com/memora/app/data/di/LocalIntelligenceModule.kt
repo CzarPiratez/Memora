@@ -5,12 +5,14 @@ import com.memora.app.data.intelligence.HttpOnDeviceEmbeddingModelDownloader
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
+import com.memora.app.data.intelligence.StageARecallRanker
 import com.memora.app.domain.intelligence.AiPackPayloadStore
 import com.memora.app.domain.intelligence.DeterministicMemoryBuilder
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.MemoryBuilder
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelDownloader
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
+import com.memora.app.domain.intelligence.RecallRanker
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -46,6 +48,13 @@ abstract class LocalIntelligenceModule {
     abstract fun bindMemoryBuilder(
         impl: DeterministicMemoryBuilder,
     ): MemoryBuilder
+
+    /** FC-02 Stage A: ONNX when pack present, else identity. */
+    @Binds
+    @Singleton
+    abstract fun bindRecallRanker(
+        impl: StageARecallRanker,
+    ): RecallRanker
 }
 
 @Module

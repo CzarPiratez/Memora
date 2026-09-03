@@ -106,6 +106,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.work.testing)
+    // FC-02 Stage A: ONNX Runtime for RecallRanker (S1–S3 measured; DEGRADED_EXPLICIT pool 20).
+    implementation(libs.onnxruntime.android)
+    // Keep androidTest able to resolve the same artifact for spike/fixture harnesses.
+    androidTestImplementation(libs.onnxruntime.android)
     // Production classpath for future PersistenceModule switch (Slice 1).
     // PersistenceModule still opens plaintext memora.db until the conversion gate.
     implementation(libs.sqlcipher.android)

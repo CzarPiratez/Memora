@@ -4,7 +4,42 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-02
+**Updated:** 2026-09-03
+
+**FC-02 Stage A wire opened (2026-09-03):** After S3 **DEGRADED_EXPLICIT**
+(effectivePool=20), Stage A CE wired into Canonical Recall:
+`StageARecallRanker` / `OnnxCrossEncoderRecallRanker` after lexical filter;
+ORT on `implementation`; identity when pack missing; vocab in assets (~226 KiB)
+until ADR-052 pack. Model still no-backup (spike staging reused). See
+`CHANGE_CONTROL_FC02_STAGE_A_WIRE.md`. Compile/unit verify in Android Studio.
+Not AVAILABLE. No ADR-052 auto-download UI yet.
+
+**FC-02 Stage A S3 PASS (2026-09-03):** Samsung SM-A156E Logcat `MemoraRecallRankS3`:
+- `full40_len128 wallMs=1517` (over 800) `meets800full=false`
+- `reduced20_len128 wallMs=729` (under 800)
+- `reduced20_len96 wallMs=584` (under 800)
+- `disposition=DEGRADED_EXPLICIT effectivePool=20 tier=FULL`
+Binding for Stage A wire: use **effective pool 20** (seqLen 96 preferred) on this
+midrange class; identity fallback if a query’s aggregate wall would exceed 800 ms
+or pack missing.
+
+**FC-02 Stage A S2 PASS (2026-09-03):** Samsung SM-A156E —
+`fixture hits@1=3/3 pairs=11 wallMs=438 meetsS2=true maxLen=128` (mira/boarding/
+invoice all hit). Prior raw-corpus run was 2/3; fixed via `stageALabeledCases()`.
+
+**S1 spike PASS (2026-09-03):** Samsung SM-A156E Logcat `MemoraRecallRankS1`:
+- Tier: `abi=arm64-v8a ramMb=7562 executionTier=FULL pool=40 supportTier=SUPPORTED`
+- ONNX: `download ok bytes=23180880`; `pairs=40 totalMs=1642 avgPairMs=41.05
+  inputs=[attention_mask, input_ids, token_type_ids] lastScore=-1.7289984`
+- Fixed spike URL (`…/onnx/model.onnx`) + all three BERT inputs. **S1 complete.**
+  Aggregate 1642 ms for 40 pairs is above the **S3** ≤800 ms planning bar — record
+  for S3 (may need pool 20 / seqLen / DEGRADED_EXPLICIT); do **not** block S2 on that.
+
+**ADR-052 Smart automatic AI pack onboarding (2026-09-03):** Accepted. Launch-ready
+UX = **one unified Continue** after combined disclosure → device-aware auto install
+of meaning pack (+ rerank on FULL/REDUCED tiers). Interim `AiPackDisclosure`
+multi-tap flow is engineering-only until onboarding slice ships. See
+`docs/CHANGE_CONTROL_ADR052_SMART_AUTOMATIC_AI_PACK_ONBOARDING.md`.
 
 **Class A pack published to public GitHub (2026-09-02):** Synced private
 `public/unfynd-core/` (validator, `BUILDING.md`, schema, export/integration
@@ -16,11 +51,14 @@ in clone before push. Per `docs/PUBLISH_CLASS_A_PACK.md`. Site link deferred
 **ADR-051 Evidence-native RecallRanker (2026-09-02):** Accepted. Spec
 `RecallRanker` = evidence-native on-device ranker (Stage A semantic head +
 Stage B structured signals; FC-03 before Stage B complete). See
-`docs/CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`. **Next (product
-track):** FC-02 **Stage A** — measured on-device relevance pack + wire into
-`AnchorAwareMeaningRecallRanking` (`CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK.md`);
-then Stage B / FC-03 per ADR-051. Then F-06 battery/latency budgets. Not
-AVAILABLE. Do not claim public “evidence-native ranker” until Stage B green.
+`docs/CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`. **Stage A model
+brief (2026-09-02):** `docs/dependency-review/fc02-stage-a-recall-ranker-model-brief.md`
+— default **ONNX + MS MARCO MiniLM-L6 QInt8**; ADR-052 smart automatic install on
+eligible tiers + device policy landed (`RecallRankDevicePolicy`). **S1 spike**
+scaffolding in tree — runbook: `docs/FC02_STAGE_A_S1_SPIKE_RUNBOOK.md`
+(`RecallRankStageASpikeIntegrationTest`; tier log always; ONNX when model staged).
+Then S2 fixture → Stage A wire. Not AVAILABLE. Do not claim public
+“evidence-native ranker” until Stage B green.
 
 **MVP exit docs sync (2026-09-02):** F-01–F-04 device PASS recorded; audit §F/§G
 updated.

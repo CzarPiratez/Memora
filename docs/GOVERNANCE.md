@@ -55,29 +55,30 @@ MIG-05 / claim **B** complete while the non-PDF evidence indexer remains
 explicitly deferred
 (see `CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE` step 4).
 
-**MIG-07 note only** is authorized and delivered: cut note keyword Find
-over to `SearchMemoryEvidence` (L4 Retired; Live/Dual **N=2**). See
+**MIG-07 note only** was the last keyword cutover authorization in this section:
+cut note keyword Find over to `SearchMemoryEvidence` (L4 Retired; Live/Dual was
+**N=2** with L7/L8 still Live at that moment). See
 `docs/CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`. PDF + screenshot +
 photo cutovers (L1–L3 Retired) remain delivered
 (`CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER`,
 `CHANGE_CONTROL_MIG07_SCREENSHOT_KEYWORD_CUTOVER`,
 `CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER`). **MIG-07 keyword L1–L4
-cutovers complete.**
+cutovers complete.** **MIG-07B** later retired L7/L8; current Live/Dual **N = 0**
+(`docs/LEGACY_RECALL_SURFACE.md`). `RECALL_CONVERGENCE_DONE` is **COMPLETE**.
 
-**Canonical Recall thin façade** is authorized in this delivery: land
-`CanonicalRecall` as the App product-facing retrieval entry for the four
-Memory-evidence keyword Find surfaces; KEYWORD candidate generation remains
-`SearchMemoryEvidence` inside that boundary; wire PDF / screenshot / photo /
-note ViewModels through `CanonicalRecall` only. See
-`docs/CHANGE_CONTROL_CANONICAL_RECALL_THIN_FACADE.md`. Do **not** claim full
-MIG-07 / `RECALL_CONVERGENCE_DONE`, fold L7/L8, start MIG-07B, or implement
-shared ranking / RecallRanker / Grounded Answers from this authorization alone.
+**Canonical Recall** is the App product-facing retrieval entry for keyword +
+meaning Find. KEYWORD candidate generation remains `SearchMemoryEvidence`;
+meaning candidate generation remains `SearchAssetMemoriesByMeaning`; shared
+meaning ranking lives in `AnchorAwareMeaningRecallRanking`. See
+`docs/CHANGE_CONTROL_CANONICAL_RECALL_THIN_FACADE.md` and MIG-07B records.
+Do **not** claim marketing **AVAILABLE**, Grounded Answers runtime, Act, or
+FC-02 Stage A/B complete from this section alone. Ranking upgrades stay inside
+Canonical Recall under `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK` / ADR-051.
 `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not architectural authority and
 is not permission to implement unauthorized MIGs. ADR-043 confirms the freeze
 is suitable for the PKI north star through See/Remember, staged Connect,
 retrieve-by-meaning, and Understand / converse-as-Q&A; Act remains out of
-current architecture. That confirmation does not authorize MIG-07B or reopen
-the Architecture Freeze.
+current architecture. That confirmation does not reopen the Architecture Freeze.
 
 ## Mandatory pre-work gate
 

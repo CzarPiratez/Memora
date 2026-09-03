@@ -90,6 +90,12 @@ conversational memory or an untracked desktop file.
     extraction ADRs. Does not authorize AVAILABLE, cloud rerank, App wiring by
     itself, or hashed Freeze/Spec rewrites. Implementation remains under
     `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK` (and FC-03 when opened).
+13. **Smart automatic AI pack onboarding (ADR-052):** At launch-ready /
+    marketing AVAILABLE, meaning + eligible rerank packs install via **one unified
+    onboarding Continue** after combined disclosure — not interim multi-tab
+    `AiPackDisclosure` engineering flow. Device tier (`RecallRankDevicePolicy`)
+    decides rerank auto-install. Not silent; not bundled in APK. Does not ship UI
+    from this ADR alone.
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.
@@ -125,10 +131,14 @@ declaration for the architecture it names. The migration spec is sequencing
 authority only. MIG-05 step 4 (`PdfPageEmbedding*` retired; Room 15;
 evidence-only index writer; L5 Retired). Do **not** claim Spec MIG-05 / claim
 **B** complete while non-PDF evidence indexer remains deferred.
-**MIG-07 PDF only** is authorized (PDF keyword Find → `SearchMemoryEvidence`;
-L1 Retired; Live/Dual **N=5** — see `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER`).
-Do **not** start L2–L4 cutovers, MIG-07B, or MIG-08–MIG-11 from this registry
-alone. Do **not** claim full MIG-07 / Recall DONE. Phase A plan is still not
+**MIG-07 keyword L1–L4 + MIG-07B L7/L8** are delivered (PDF / screenshot / photo /
+note keyword + meaning fold-in). Live/Dual **N = 0** — see
+`docs/LEGACY_RECALL_SURFACE.md`. `RECALL_CONVERGENCE_DONE` is **COMPLETE**.
+Do **not** claim Spec MIG-05 / claim **B** complete while non-PDF evidence
+indexing remains deferred. Do **not** claim marketing **AVAILABLE**. Do **not**
+start MIG-08–MIG-11, Grounded Answers runtime, or Act from this registry alone.
+FC-02 Stage A/B remains under `CHANGE_CONTROL_FC02_CROSS_ENCODER_RERANK` /
+ADR-051 (and ADR-052 for launch pack onboarding). Phase A plan is still not
 permission for later MIGs. `docs/PHASE_A_IMPLEMENTATION_PLAN_V1.md` is not
 hashed and is not permission to implement.
 

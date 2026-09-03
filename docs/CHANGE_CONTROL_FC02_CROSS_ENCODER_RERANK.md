@@ -40,15 +40,13 @@ language requires ADR-051 **Stage B** measured green — not Stage A alone.
   - [x] `UnavailableRecallRanker` returns honest unavailable rank result
   - [x] No wiring into `CanonicalRecall` until Stage A change-control note
 - **Acceptance criteria (Stage A — semantic head / former “slice 2”):**
-  - [ ] Bounded pool (default top **40** evidence passages, max **50**)
-  - [ ] On-device relevance model (cross-encoder or measured equivalent) behind
-        `RecallRanker` — pack chosen in delivery record with license / size /
-        A15-class latency evidence (ADR-051 §7)
-  - [ ] Invoked from `AnchorAwareMeaningRecallRanking` after token boost,
-        before/with anchor filter (exact order documented in delivery record)
-  - [ ] Measurable recall lift on `meaning-pdf-page-recall-v1` or successor fixture
-  - [ ] Midrange latency within planning budget or explicit degraded copy
-  - [ ] Falls back to identity ranking when reranker unavailable
+  - [x] Bounded pool (S3 DEGRADED_EXPLICIT effective **20**, capacity max 40/50)
+  - [x] On-device relevance model behind `RecallRanker` (ONNX MiniLM QInt8; S1–S3)
+  - [x] Invoked from `AnchorAwareMeaningRecallRanking` **after lexical filter**,
+        before anchor filter (`CHANGE_CONTROL_FC02_STAGE_A_WIRE`)
+  - [x] Measurable recall lift on fixture (S2 3/3 on `stageALabeledCases`)
+  - [x] Midrange latency DEGRADED_EXPLICIT (S3: full 1517 ms; reduced@96 584 ms)
+  - [x] Falls back to identity ranking when reranker unavailable / over budget
 - **Acceptance criteria (Stage B — evidence-native; ADR-051 differentiator):**
   - [ ] Candidates carry structured signals (locator, evidence kind/class,
         anchors when present, lexical completeness) into ranking
@@ -113,6 +111,20 @@ generic MiniLM wrapper.
 - Re-run M4-class device measurement or fixture harness with/without Stage A
 - Stage B vs Stage A comparison before marketing language
 
+## Stage A model selection (2026-09-02)
+
+**Brief:** `docs/dependency-review/fc02-stage-a-recall-ranker-model-brief.md`
+
+| Role | Selection |
+|---|---|
+| **Default** | ONNX Runtime Mobile + `cross-encoder/ms-marco-MiniLM-L-6-v2` QInt8 (~23 MiB) |
+| **Fallback A** | Same model float32 TFLite/ONNX (~87 MiB) if QInt8 misses quality bar |
+| **Fallback B** | `IdentityRecallRanker` when pack unavailable or latency budget exceeded |
+
+**Status:** Recommendation **accepted** (2026-09-02) — S1 spike **PASS** on
+Samsung SM-A156E (2026-09-03). Broader coverage via **ADR-052 smart automatic
+install** on FULL/REDUCED tiers + `RecallRankDevicePolicy`.
+
 ## Explicit non-goals
 
 - Reranking keyword Find (unless separate ADR)
@@ -121,14 +133,27 @@ generic MiniLM wrapper.
 - Cloud rerank API
 - SLM as primary Find ranker
 - Personalization weights (later ADR; Experience Memory §7)
+- Shipping ADR-052 unified onboarding UI before Stage A wire (policy accepted;
+  UI is a later launch slice)
 
 ## Delivery record
 
-- **Files/layers changed:** Slice 1 delivered; Stage A/B pending
-- **Automated verification and result:** Slice 1 unit tests green (prior checkpoint)
-- **Emulator/manual verification and result:** Pending Stage A
-- **Known limitation or follow-up:** Model selection deferred to Stage A delivery
-  record; Stage B awaits FC-03 sequencing
-- **Documentation/traceability/ADR updates:** ADR-051;
-  `CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`
-- **Git commit:** _Pending Stage A_
+- **Files/layers changed:** Slice 1 delivered; Stage A S1 scaffolding landed
+  (device policy, pack track, androidTest ONNX spike harness, ORT androidTest-only);
+  Stage A product wire + Stage B pending
+- **Automated verification and result:** Slice 1 unit tests green (prior);
+  `RecallRankDevicePolicyTest` with S1; connectedDebugAndroidTest S1 PASS
+  (`docs/FC02_STAGE_A_S1_SPIKE_RUNBOOK.md`)
+- **Emulator/manual verification and result:** S1 **PASS** on Samsung SM-A156E
+  (2026-09-03): `abi=arm64-v8a ramMb=7562 executionTier=FULL pool=40`;
+  ONNX download `23180880` bytes; `pairs=40 totalMs=1642 avgPairMs=41.05`;
+  inputs `[attention_mask, input_ids, token_type_ids]`; `lastScore=-1.7289984`.
+  Spike URL fixed to `…/onnx/model.onnx`; all three BERT inputs required.
+- **Known limitation or follow-up:** Aggregate 1642 ms > S3 ≤800 ms planning bar —
+  address in S3 (pool/seqLen/DEGRADED_EXPLICIT). S2 fixture harness opened
+  (`CHANGE_CONTROL_FC02_STAGE_A_S2_FIXTURE.md`); promote ORT + Stage A wire only
+  after S2 device 3/3 + S3 decision. Stage B awaits FC-03; ADR-052 UI after wire.
+- **Documentation/traceability/ADR updates:** ADR-051; ADR-052;
+  `CHANGE_CONTROL_ADR051_EVIDENCE_NATIVE_RECALL_RANKER.md`;
+  `CHANGE_CONTROL_ADR052_SMART_AUTOMATIC_AI_PACK_ONBOARDING.md`
+- **Git commit:** _Pending S1 checkpoint when requested_

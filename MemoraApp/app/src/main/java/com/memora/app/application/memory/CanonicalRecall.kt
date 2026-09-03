@@ -5,6 +5,7 @@ import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.intelligence.RecallRanker
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
 
@@ -13,16 +14,17 @@ import javax.inject.Inject
  *
  * KEYWORD path delegates to [SearchMemoryEvidence]. MEANING path (MIG-07B
  * Slice 2) delegates to [SearchAssetMemoriesByMeaning] with anchor-aware
- * structured filter. [searchHybrid] fuses keyword + meaning via RRF (FC-01).
+ * structured filter and FC-02 Stage A [RecallRanker].
  *
  * Meaning Find ViewModels call [searchByMeaning] (MIG-07B Slice 3). Candidate
  * generation remains [SearchAssetMemoriesByMeaning]; shared ranking (token boost
- * + anchor filter) lives in [AnchorAwareMeaningRecallRanking] (Slice 4).
+ * + lexical + Stage A rerank + anchor filter) lives in [AnchorAwareMeaningRecallRanking].
  */
 class CanonicalRecall @Inject constructor(
     private val searchMemoryEvidence: SearchMemoryEvidence,
     private val searchAssetMemoriesByMeaning: SearchAssetMemoriesByMeaning,
     private val memoryRepository: MemoryRepository,
+    private val recallRanker: RecallRanker,
 ) {
     /**
      * Keyword / literal recall over stored Memory evidence.
@@ -57,6 +59,7 @@ class CanonicalRecall @Inject constructor(
             outcome = outcome,
             rawQuery = rawQuery,
             memoryRepository = memoryRepository,
+            recallRanker = recallRanker,
         )
         return trimMeaningMatches(ranked, limit)
     }

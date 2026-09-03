@@ -33,6 +33,9 @@ mediapipeTasksText = "0.10.29"
 # docs/dependency-review/msal-android-8.4.1-review.md.
 msalAndroid = "8.4.1"
 gson = "2.11.0"
+# FC-02 Stage A spike / future RecallRanker (ADR-051). Reviewed in
+# docs/dependency-review/onnxruntime-android-1.28.0-review.md.
+onnxruntimeAndroid = "1.28.0"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -77,6 +80,7 @@ mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition"
 mediapipe-tasks-text = { group = "com.google.mediapipe", name = "tasks-text", version.ref = "mediapipeTasksText" }
 msal-android = { group = "com.microsoft.identity.client", name = "msal", version.ref = "msalAndroid" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+onnxruntime-android = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnxruntimeAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

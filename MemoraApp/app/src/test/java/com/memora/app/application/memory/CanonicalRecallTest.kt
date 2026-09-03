@@ -11,6 +11,7 @@ import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.intelligence.UnavailableEmbeddingEngine
+import com.memora.app.domain.intelligence.IdentityRecallRanker
 import com.memora.app.domain.memory.EvidenceLocator
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceKind
@@ -82,6 +83,7 @@ class CanonicalRecallTest {
             ),
         ),
         memoryRepository = EmptyMemoryRepositoryDelegate(),
+        recallRanker = IdentityRecallRanker,
     )
 
     private fun documentRow(
