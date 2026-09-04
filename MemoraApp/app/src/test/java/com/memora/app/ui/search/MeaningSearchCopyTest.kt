@@ -29,10 +29,18 @@ class MeaningSearchCopyTest {
             ),
         )
         assertTrue(MeaningSearchCopy.SCOPE_BODY.contains("on-device meaning model"))
+        assertTrue(MeaningSearchCopy.SCOPE_BODY.contains("PDFs, photos, screenshots, and notes"))
         assertTrue(ready.contains("Indexed on this phone"))
         assertTrue(ready.contains("Universal Sentence Encoder"))
         assertFalse(ready.contains("not a measured AVAILABLE"))
         assertFalse(ready.contains("not a claim"))
+    }
+
+    @Test
+    fun filler_query_no_matches_asks_for_a_remembered_word() {
+        val body = MeaningSearchCopy.noMatchesBody("show me the files")
+        assertTrue(body.contains("didn't name anything"))
+        assertFalse(body.contains("close enough"))
     }
 
     @Test

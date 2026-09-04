@@ -56,4 +56,26 @@ class MeaningEvidenceLexicalFilterTest {
             ),
         )
     }
+
+    @Test
+    fun show_me_swimming_timetables_matches_singular_evidence() {
+        assertEquals(
+            listOf("swimming", "timetables"),
+            MeaningEvidenceLexicalFilter.requiredContentTokens(
+                "Show me the files with swimming timetables",
+            ),
+        )
+        assertTrue(
+            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+                query = "Show me the files with swimming timetables",
+                evidenceText = "Year 4 swimming timetable Monday to Friday",
+            ),
+        )
+        assertFalse(
+            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+                query = "Show me the files with swimming timetables",
+                evidenceText = "Bus Discipline Rules for Students",
+            ),
+        )
+    }
 }

@@ -4,8 +4,9 @@ package com.memora.app.domain.intelligence
  * Product recall cue for Find by meaning (scenario bar MF-1).
  *
  * Natural-language questions are first-class: we normalize the raw string, then
- * derive content tokens for embedding and precision. Keyword Find may keep its
- * own normalize helper; meaning must not embed filler-only questions as-is.
+ * derive content tokens for embedding and precision (I1 wrappers + content).
+ * Keyword Find may keep its own normalize helper; meaning must not embed
+ * filler-only questions as-is.
  */
 object MeaningRecallCue {
     const val MAX_QUERY_CHARS = 120

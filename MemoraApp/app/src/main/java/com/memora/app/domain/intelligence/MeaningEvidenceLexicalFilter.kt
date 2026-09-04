@@ -20,7 +20,7 @@ object MeaningEvidenceLexicalFilter {
         if (tokens.isEmpty()) return true
         val haystack = evidenceText.lowercase()
         return tokens.all { token ->
-            Regex("""\b${Regex.escape(token)}\b""").containsMatchIn(haystack)
+            EnglishRecallInflection.occursAsWholeWord(haystack, token)
         }
     }
 }

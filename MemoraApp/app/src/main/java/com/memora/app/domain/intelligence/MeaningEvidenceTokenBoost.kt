@@ -23,7 +23,7 @@ object MeaningEvidenceTokenBoost {
         if (tokens.isEmpty()) return false
         val haystack = evidenceText.lowercase()
         return tokens.any { token ->
-            Regex("""\b${Regex.escape(token)}\b""").containsMatchIn(haystack)
+            EnglishRecallInflection.occursAsWholeWord(haystack, token)
         }
     }
 

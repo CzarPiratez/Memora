@@ -6,13 +6,51 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-04
 
-**Meaning Find MF-1 checkpoint (2026-09-04):** Scenario bar + precision slice
-landed (content-cue embed, lexical ≥1, boost stopwords, trusted list, consumer
-Why). Device: `silky` and `which file has silky in it` / `which file has swimming
-timetable` PASS (precise). **Open follow-up (MF-1.1):** paraphrase gaps — e.g.
-`Show me the files with swimming timetables` returns none while `which file has
-swimming timetable` works. Resume after credit: widen NL cue patterns in
-`MeaningRecallCue` / stopword policy against the scenario bar. Not AVAILABLE.
+**Program state + sequence audit (2026-09-04):**
+`docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
+doc truth drift with exact line fixes, stale-code register, UNFYND Core
+additions, stages 0–5 to MVP exit and beyond, and the numbered execution backlog
+in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
+acceptance on the model; **A1 is done**, A2–A6 remain.
+
+**Tree state:** unit suite **green** — 679 tests, 0 failures (2026-09-04 23:04).
+Defect **D-1** is fixed: `CanonicalRecallMeaningTest` fixtures now carry the
+query word, so the test exercises trimming rather than the MF-1 lexical gate.
+
+**Core capability register (2026-09-04):** `docs/CORE_CAPABILITY_REGISTER_V1.md`
+— **CR-01…CR-09**, the capabilities the founder's Core definition needs that are
+*unmodelled* today (fact validity, conflict reconciliation, audit seam,
+permission-scoped retrieval, re-derivation policy, reproducibility, aggregation
+trust, selective deletion, knowledge stages). Register only: it reserves
+boundaries and states the cost of deferring. **It authorizes no code.**
+
+> **Working-tree loss, 2026-09-04.** All uncommitted MF-1.1 and audit work was
+> discarded from the working tree outside this repo's tooling and rebuilt from
+> the agent transcript, then verified green. Two small deltas to
+> `MeaningTrustedHitPolicy.kt` and `MeaningSearchCopy.kt` had no recorded edit
+> and are at their committed state. **Commit at every checkpoint** — the
+> transcript is a last resort, not a backup.
+
+**Ask Model v1.1 amendment (2026-09-04):** D16 device/corpus scope; §5b result
+and system classes **R1–R8** (open failure, permission loss, near-duplicates,
+duplicate originals, garbage OCR, scale, search-during-index, sensitive cue);
+**one-box** decision registered at §2 + wave **W1.5**; §11 anti-case must be a
+test. Accept **with** v1 in `CHANGE_CONTROL_HUMAN_RECALL_ASK_MODEL_V1.md`.
+
+**Human Recall Ask Model v1 (2026-09-04):** Binding ceiling
+`docs/HUMAN_RECALL_ASK_MODEL.md` — cue dimensions (text, type, time, kinship,
+visual, typos…), ask-shape classes, jobs J1–J17, policies, fixture
+`photo of my daughter in swimming pool last saturday` (including `staurday`),
+impact on Grounded Answers, waves W0–W5. **No Find code in this checkpoint.**
+Next implementation wave is **W1 (J3/J4)** only after founder accepts this
+model. Not AVAILABLE. Does not claim that photo query works today.
+
+**Meaning Find P0:** I1 shape/lexical work continues to map to the Ask Model;
+it does **not** complete natural recall (D7/D11/D4 weekday still blocked).
+
+**Meaning Find Intent Register v2 (2026-09-04):** Holistic scenario bar expanded
+in `docs/MEANING_FIND_PRODUCT_SCENARIO_BAR.md`. P0 = wrappers/lists/hedge/empty;
+P1 = relative time + honesty; P2 = named holes without boiling the ocean.
 
 **Process (2026-09-04):** Holistic scenario planning is **mandatory** for all
 material product slices (`docs/ENGINEERING_CHARTER.md`): user + technical

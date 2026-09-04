@@ -2,6 +2,104 @@
 
 ## Unreleased
 
+### Core capability register v1 + D-1 fix (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** `docs/CORE_CAPABILITY_REGISTER_V1.md` — **CR-01…CR-09**, the
+  capabilities the founder's Core definition ("persistent, multimodal,
+  inspectable intelligence layer … inside the data's trust boundary") requires
+  that are *unmodelled* in Freeze, Grounding Architecture, Ask Model, and code:
+  fact validity/supersession, conflict reconciliation, audit seam,
+  permission-scoped retrieval, re-derivation policy, reproducibility contract,
+  aggregation trust, selective deletion with proof, knowledge stages. Each entry
+  carries a retrofit cost class (Substrate / Path / Surface) and a build trigger.
+- **Also:** `PROGRAM_STATE_AND_SEQUENCE_V1.md` §8b numbered execution backlog
+  (A1…H5) so the sequence survives any single session.
+- **Code:** defect **D-1** fixed — `CanonicalRecallMeaningTest` trimming fixtures
+  now contain the query word, so the test exercises limit trimming instead of
+  colliding with the MF-1 lexical precision gate. The gate was **not** weakened.
+  Unit suite green: 679 tests, 0 failures.
+- **Recovery note:** the uncommitted MF-1.1 and audit work was discarded from the
+  working tree outside this repo's tooling and was rebuilt from the agent
+  transcript (committed blob as base, post-commit edits replayed in order), then
+  verified by compiling and running the full suite. Small uncommitted deltas to
+  `MeaningTrustedHitPolicy.kt` and `MeaningSearchCopy.kt` had no recorded edit
+  and remain at their committed state.
+- **Truthfulness:** Register only — authorizes no code, no Find path, no
+  Grounded Answers runtime, and no marketing AVAILABLE.
+
+### Program state + sequence audit v1 (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** `PROGRAM_STATE_AND_SEQUENCE_V1.md` — verified architecture and
+  Find state, 7 ranked defects (red unit test; lexical gate disabled by any TIME
+  cue; relative time as string `contains`; TOPIC advisory on every query;
+  `and`/`or`/`not` deleted as noise; meaning hits lack `evidenceId`; Why may cite
+  a non-matching page), documentation truth drift (Live/Dual N, MIG-05 claim B,
+  RECALL_CONVERGENCE_DONE), stale-code register, UNFYND Core Class A gaps and
+  per-wave additions, and dependency-ordered stages 0–5.
+- **Truthfulness:** Docs only. No code changed. Not AVAILABLE. Does not close any
+  MVP-exit row; proposes an Ask Model v1.1 amendment (D16 device scope, result /
+  system classes R1–R8, one-box ADR gate) for founder acceptance.
+
+### Human Recall Ask Model v1.1 amendment (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** D16 device / corpus scope (“on my phone”, “on my computer”);
+  §5b result and system classes R1–R8 (open failure, permission loss,
+  near-duplicates, duplicate originals, garbage OCR, scale, search-during-index,
+  sensitive cue); one-box decision registered at §2 and wave **W1.5**;
+  §11 now requires every claimed anti-case to be a test.
+- **Why:** eight scenario-bar rows and two decisions mapped to no class in v1,
+  which the model’s own process rule calls a **model defect**
+  (`PROGRAM_STATE_AND_SEQUENCE_V1.md` §3).
+- **Truthfulness:** Docs only. Accept together with v1. No Find code. Not
+  AVAILABLE. Does not unlock the daughter/pool/Saturday fixture.
+
+### Human Recall Ask Model v1 (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** `HUMAN_RECALL_ASK_MODEL.md` — natural recall dimensions, shape
+  classes, jobs, typo/time/visual/kinship policies, daughter/pool/Saturday
+  fixture, Grounded Answers impact, waves W0–W5. Docs only; not AVAILABLE.
+
+### Meaning Find P0 phase exit (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** Binding phase-exit in `MEANING_FIND_PRODUCT_SCENARIO_BAR.md`
+  (8-row device checklist then MF-1.2). Generator test
+  `MeaningFindP0AskShapeContractTest` so I1 is a contract, not anecdote patches.
+
+### Meaning Find MF-1.1.2 ask-shape catalog + whole-Memory lexical (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** Closed English ask-shape catalog (verbs, type nouns, `e.g.`,
+  `related`); lexical precision over all stored excerpts for the Asset, not
+  only the cosine-winning snippet. Not AVAILABLE.
+
+### Meaning Find MF-1.1.1 filler honesty + doc/scan (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** Filler queries (`show me the files`) skip embed and return no
+  hits; `doc`/`docs` wrappers; lexical match on filename as well as excerpt.
+  Device follow-up after MF-1.1. Not AVAILABLE.
+
+### Meaning Find MF-1.1 wrappers + light plural (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** P0/P1/P2 freeze on the scenario bar (I35–I46 registered P2);
+  ask-shape wrappers and `timetable`/`timetables` whole-word match. Change
+  control `CHANGE_CONTROL_MEANING_FIND_MF1_1_WRAPPERS.md`. Not AVAILABLE;
+  device MF-3 open.
+
+### Meaning Find Intent Register v2 (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** `MEANING_FIND_PRODUCT_SCENARIO_BAR.md` expanded with surface
+  ownership, intent IDs (I1–I34, G*, ACT1), golden wrappers, list-vs-same-file
+  rules, and MIG-07B vs relative-time honesty. Change control
+  `CHANGE_CONTROL_MEANING_FIND_INTENT_REGISTER_V2.md`. Docs only; not AVAILABLE.
+
 ### Meaning Find MF-1 precision + consumer Why (2026-09-04)
 
 - **Date:** 2026-09-04

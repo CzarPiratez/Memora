@@ -264,12 +264,65 @@ class AnchorAwareMeaningRecallRankingTest {
         assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
     }
 
+    @Test
+    fun apply_show_me_timetables_paraphrase_keeps_singular_evidence() = runBlocking {
+        val keep = MemoryRevisionId("rev-tt")
+        val drop = MemoryRevisionId("rev-bus")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "Show me the files with swimming timetables",
+            hits = listOf(
+                hit(drop, 0.92f, summaryText = "Bus Discipline Rules for Students"),
+                hit(keep, 0.28f, summaryText = "Year 4 swimming timetable Monday to Friday"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "Show me the files with swimming timetables",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    @Test
+    fun apply_scan_in_other_saved_page_still_keeps_the_asset() = runBlocking {
+        val keep = MemoryRevisionId("rev-scan")
+        val drop = MemoryRevisionId("rev-bus")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "scan",
+            hits = listOf(
+                hit(drop, 0.9f, label = "Bus.pdf", summaryText = "Bus Discipline Rules"),
+                hit(
+                    keep,
+                    0.31f,
+                    label = "Homework.pdf",
+                    summaryText = "Page 1 cover sheet without the body word",
+                    precisionText = "Page 1 cover sheet without the body word Please scan this form",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "scan",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
     private fun hit(
         revisionId: MemoryRevisionId,
         score: Float,
         label: String = "Label",
         summaryText: String = "Summary",
         rankedPdfPageNumber: Int? = null,
+        precisionText: String = "",
     ) = MeaningSearchHit(
         revisionId = revisionId,
         memoryId = MemoryId("mem-${revisionId.value}"),
@@ -281,6 +334,7 @@ class AnchorAwareMeaningRecallRankingTest {
         score = score,
         model = model,
         rankedPdfPageNumber = rankedPdfPageNumber,
+        precisionText = precisionText,
     )
 
     private fun hit(revisionId: MemoryRevisionId, score: Float) = hit(

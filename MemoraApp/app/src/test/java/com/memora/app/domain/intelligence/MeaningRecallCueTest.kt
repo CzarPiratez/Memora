@@ -29,4 +29,22 @@ class MeaningRecallCueTest {
             MeaningRecallCue.contentTokens("which file has silky in it"),
         )
     }
+
+    @Test
+    fun embed_text_uses_content_tokens_for_show_me_paraphrase() {
+        assertEquals(
+            "swimming timetables",
+            MeaningRecallCue.embedText("Show me the files with swimming timetables"),
+        )
+        assertEquals(
+            listOf("swimming", "timetables"),
+            MeaningRecallCue.contentTokens("Show me the files with swimming timetables"),
+        )
+        assertEquals(
+            "training project",
+            MeaningRecallCue.embedText(
+                "get me some e.g.s from the pdf related to the training project",
+            ),
+        )
+    }
 }

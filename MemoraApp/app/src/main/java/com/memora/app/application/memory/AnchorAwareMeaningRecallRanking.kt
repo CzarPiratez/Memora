@@ -103,7 +103,7 @@ object AnchorAwareMeaningRecallRanking {
         if (constraints.time != RecallConstraintStrength.NONE) return outcome
         if (!MeaningEvidenceLexicalFilter.shouldApply(rawQuery)) return outcome
         val filtered = outcome.hits.filter { hit ->
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(rawQuery, hit.summaryText)
+            MeaningEvidenceLexicalFilter.evidenceSatisfies(rawQuery, hit.lexicalHaystack())
         }
         return outcome.copy(hits = filtered)
     }
@@ -116,7 +116,7 @@ object AnchorAwareMeaningRecallRanking {
             val (score, tokenBoosted) = MeaningEvidenceTokenBoost.apply(
                 cosine = hit.score,
                 query = rawQuery,
-                evidenceText = hit.summaryText,
+                evidenceText = hit.lexicalHaystack(),
             )
             hit.copy(score = score, evidenceTokenBoosted = tokenBoosted)
         }.sortedByDescending { it.score }

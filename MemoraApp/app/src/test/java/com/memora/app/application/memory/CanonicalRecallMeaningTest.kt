@@ -70,8 +70,10 @@ class CanonicalRecallMeaningTest {
             embeddingStore = embeddingStore,
             memoryRepository = MeaningLookupRepository(
                 mapOf(
-                    first to lookup(first, "first.pdf"),
-                    second to lookup(second, "second.pdf"),
+                    // Both must carry the query word: trimming is what is under
+                    // test here, not the MF-1 lexical precision gate.
+                    first to lookup(first, "first.pdf", "Invoice from the plumber"),
+                    second to lookup(second, "second.pdf", "Invoice from the electrician"),
                 ),
             ),
         )
@@ -169,14 +171,18 @@ class CanonicalRecallMeaningTest {
         createdAtEpochMs = 1L,
     )
 
-    private fun lookup(revisionId: MemoryRevisionId, label: String) = MemoryMeaningLookup(
+    private fun lookup(
+        revisionId: MemoryRevisionId,
+        label: String,
+        summaryText: String = "$label summary for meaning search",
+    ) = MemoryMeaningLookup(
         revisionId = revisionId,
         memoryId = MemoryId("mem-${revisionId.value}"),
         sourceId = SourceId("src"),
         sourceAssetKey = SourceAssetKey(label),
         assetType = AssetType.PDF,
         displayLabel = label,
-        summaryText = "$label summary for meaning search",
+        summaryText = summaryText,
     )
 
     private fun topicAnchor(text: String, evidenceId: MemoryEvidenceId) = MemoryAnchor(

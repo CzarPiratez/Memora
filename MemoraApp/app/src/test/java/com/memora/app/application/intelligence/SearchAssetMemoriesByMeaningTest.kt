@@ -66,6 +66,36 @@ class SearchAssetMemoriesByMeaningTest {
         }
 
     @Test
+    fun filler_ask_shape_returns_empty_matches_without_embedding() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val revision = MemoryRevisionId("rev-a")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = revision,
+                memoryId = MemoryId("mem-a"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(1f, 0f, 0f)),
+                sourceTextFingerprint = "fp-a",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        val repo = FakeMemoryRepository(
+            lookups = mapOf(
+                revision to lookup(revision, MemoryId("mem-a"), "Urdu worksheet"),
+            ),
+        )
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = repo,
+        )("show me the files")
+        val matches = outcome as MeaningSearchOutcome.Matches
+        assertTrue(matches.hits.isEmpty())
+        assertEquals(0, engine.embedCalls)
+    }
+
+    @Test
     fun ranks_closer_summary_first() = runBlocking {
         val engine = FixedEmbeddingEngine(model, dimensions = 3)
         val store = InMemoryMemoryEmbeddingStore()
@@ -356,8 +386,12 @@ class SearchAssetMemoriesByMeaningTest {
         override fun limits(): CapabilityLimits =
             CapabilityLimits(maxInputBytes = 1024, maxOutputItems = 1)
 
-        override fun embedText(text: String): EmbeddingEncodeResult =
-            EmbeddingEncodeResult.Success(nextQueryVector, model)
+        override fun embedText(text: String): EmbeddingEncodeResult {
+            embedCalls += 1
+            return EmbeddingEncodeResult.Success(nextQueryVector, model)
+        }
+
+        var embedCalls: Int = 0
     }
 
     private class InMemoryMemoryEmbeddingStore : MemoryEmbeddingStore {

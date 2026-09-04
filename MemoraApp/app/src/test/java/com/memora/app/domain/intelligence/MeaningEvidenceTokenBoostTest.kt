@@ -42,5 +42,17 @@ class MeaningEvidenceTokenBoostTest {
                 evidenceText = "school anchor silky wreck cook",
             ),
         )
+        assertFalse(
+            MeaningEvidenceTokenBoost.evidenceContainsCueToken(
+                query = "Show me the files with swimming timetables",
+                evidenceText = "show me the files on the shelf",
+            ),
+        )
+        assertTrue(
+            MeaningEvidenceTokenBoost.evidenceContainsCueToken(
+                query = "Show me the files with swimming timetables",
+                evidenceText = "Year 4 swimming timetable",
+            ),
+        )
     }
 }

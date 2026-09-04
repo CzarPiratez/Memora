@@ -29,6 +29,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | Keyword Find — photo / screenshot | **PASS** | MIG-07 cutovers delivered |
 | Keyword Find — note (OneNote) | **PASS** | `docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` N0–N7 accepted |
 | Find by meaning — plumbing | **PASS** | Page embeddings E5c; MIG-05 claim B all MVP types; anchor fix 2026-09-01 |
+| Find by meaning — NL intent coverage | **FAIL** | Ask Model `HUMAN_RECALL_ASK_MODEL.md` is the ceiling; I3/I8/I11/vision/typos still open; plumbing PASS ≠ natural recall |
 | Find by meaning — emulator E2E | **PASS** | `CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md`; CONTINUE: `invoice` / `mira` on emulator |
 | Find by meaning — physical device E2E | **PASS** | `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` — Samsung SM-A156E; offline meaning Find + Why + Open original (2026-09-02) |
 | Shared result + Why contract | **PASS** | `CanonicalRecallResult` + `CanonicalRecallWhyCopy`; `CANONICAL_RECALL_RESULT_CONTRACT.md` |
@@ -125,11 +126,14 @@ Ordered by **dependency**, not calendar:
 3. ~~Accept ADR-051 Evidence-native RecallRanker~~ **DONE** (docs).
 4. ~~Accept Stage A model brief + ADR-052 smart automatic onboarding policy~~ **DONE** (docs).
 5. ~~S1 → S2 → S3 → Stage A wire → S4 smoke~~ **DONE** (2026-09-03/04 SM-A156E).
-6. **Device-tier hardening** (live `RecallRankDevicePolicy` in CE ranker) →
-   **ADR-052** unified pack onboarding UI.
-7. Record **battery / latency budgets** (enterprise completion §C).
-8. Founder **AVAILABLE** review only after §F blockers addressed.
-9. Optional App risk (not MVP-exit gate): F-05 large SAF folder hang.
+6. **Human Recall Ask Model** accepted → wave **W1** (J3 grouped lists) — not
+   ADR-052 as Find quality. Photo/kinship/last-Saturday is **W2–W4**, not W1.
+7. **Device-tier hardening** (live `RecallRankDevicePolicy` in CE ranker) →
+   **ADR-052** unified pack onboarding UI (after I1 golden wrappers + Why on device).
+8. Record **battery / latency budgets** (enterprise completion §C).
+9. Founder **AVAILABLE** review only after §F blockers addressed **and** NL
+   intent coverage is no longer FAIL for in-scope I-* slices.
+10. Optional App risk (not MVP-exit gate): F-05 large SAF folder hang.
 
 ---
 
@@ -137,6 +141,7 @@ Ordered by **dependency**, not calendar:
 
 | Date | Change |
 |---|---|
+| 2026-09-04 | Human Recall Ask Model v1; NL FAIL until waves match the model |
 | 2026-09-04 | Stage A S4 wire smoke PASS; next = device-tier hardening → ADR-052 UI |
 | 2026-09-03 | Docs track check: Live/Dual N=0 operator sync; ADR-052 recorded; next = S1 device spike |
 | 2026-09-02 | ADR-051 accepted; next = FC-02 Stage A (measured pack) |

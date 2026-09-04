@@ -4,6 +4,7 @@ import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchReadiness
 import com.memora.app.application.memory.toCanonicalRecallResult
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.intelligence.MeaningRecallCue
 
 /**
  * Plain-language copy for candidate Find-by-meaning (E5b2 / ADR-031/032).
@@ -17,8 +18,9 @@ object MeaningSearchCopy {
 
     const val SCOPE_BODY =
         "Search ranks Asset Memories you already built with the on-device meaning model " +
-            "on this phone. Use keyword Find for exact words. Your memories never leave " +
-            "this phone for search."
+            "on this phone — PDFs, photos, screenshots, and notes once each has a meaning " +
+            "index. Use keyword Find for exact words. Your memories never leave this phone " +
+            "for search."
 
     const val QUERY_LABEL = "What are you trying to remember?"
 
@@ -67,6 +69,10 @@ object MeaningSearchCopy {
 
     fun noMatchesBody(query: String): String {
         require(query.isNotBlank())
+        if (MeaningRecallCue.contentTokens(query).isEmpty()) {
+            return "That didn't name anything from a file. Try a word you remember seeing, " +
+                "like silky or timetable."
+        }
         return "No indexed Asset Memory was close enough to \"$query\" with the " +
             "on-device meaning model. Try a different cue, or use keyword Find."
     }

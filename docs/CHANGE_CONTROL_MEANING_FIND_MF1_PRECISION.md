@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-04  
 **Type:** Domain + application + UI copy (Canonical Recall meaning path)  
-**Bar:** `docs/MEANING_FIND_PRODUCT_SCENARIO_BAR.md`  
+**Bar:** `docs/MEANING_FIND_PRODUCT_SCENARIO_BAR.md` (v2 Intent Register
+supersedes v1 as ceiling; MF-1 still maps to U1–U8 / I1 partial)  
 **Decision guardrails:** Live/Dual N = 0. No second Find path. No AVAILABLE.
 No ADR-052 UI. Innovation within Canonical Recall.
 

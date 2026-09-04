@@ -12,7 +12,10 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.memory.MemoryEvidenceId
+import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryId
+import com.memora.app.domain.memory.MemoryMeaningLookup
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.MemoryRevisionId
 import com.memora.app.domain.memory.PdfPageEvidenceLocator
@@ -61,8 +64,6 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         require(limit > 0)
         val query = MeaningRecallCue.displayQuery(rawQuery)
         if (query.isEmpty()) return MeaningSearchOutcome.BlankQuery
-        val embedQuery = MeaningRecallCue.embedText(rawQuery)
-
         val model = when (val availability = embeddingEngine.availability()) {
             is CapabilityAvailability.Unavailable ->
                 return MeaningSearchOutcome.EngineUnavailable(availability.reason)
@@ -77,6 +78,17 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             return MeaningSearchOutcome.NothingIndexed(query = query)
         }
 
+        // I5: ask-shape only (`show me the files`) must not embed and list neighbors.
+        if (MeaningRecallCue.contentTokens(rawQuery).isEmpty()) {
+            return MeaningSearchOutcome.Matches(
+                query = query,
+                hits = emptyList(),
+                limitReached = false,
+                model = model,
+            )
+        }
+
+        val embedQuery = MeaningRecallCue.embedText(rawQuery)
         val queryVector = when (val encoded = embeddingEngine.embedText(embedQuery)) {
             is EmbeddingEncodeResult.Unavailable ->
                 return MeaningSearchOutcome.EngineUnavailable(encoded.reason)
@@ -88,9 +100,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         val revisionIds = (summaryIndexed.map { it.revisionId } + evidenceIndexed.map { it.revisionId })
             .distinct()
         val lookups = memoryRepository.findMeaningIndexLookups(revisionIds)
-        val evidenceRows = memoryRepository.findEvidenceSearchRows(
-            evidenceIndexed.map { it.revisionId }.distinct(),
-        )
+        val evidenceRows = memoryRepository.findEvidenceSearchRows(revisionIds)
         val dropStats = MeaningSearchCandidateDropStats()
 
         val summaryHits = summaryIndexed.mapNotNull { record ->
@@ -127,6 +137,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 score = cosine,
                 model = model,
                 evidenceTokenBoosted = false,
+                precisionText = precisionTextFor(lookup, record.revisionId, evidenceRows),
             )
         }
 
@@ -175,6 +186,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 score = cosine,
                 model = model,
                 evidenceTokenBoosted = false,
+                precisionText = precisionTextFor(lookup, record.revisionId, evidenceRows),
             )
         }
 
@@ -209,6 +221,16 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         )
     }
 
+    private fun precisionTextFor(
+        lookup: MemoryMeaningLookup,
+        revisionId: MemoryRevisionId,
+        evidenceRows: Map<MemoryRevisionId, Map<MemoryEvidenceId, MemoryEvidenceSearchRow>>,
+    ): String {
+        val excerpts = evidenceRows[revisionId]?.values.orEmpty().map { it.excerpt }
+        return (listOf(lookup.summaryText, lookup.displayLabel, lookup.sourceAssetKey.value) + excerpts)
+            .joinToString(" ")
+    }
+
     companion object {
         private const val TAG = "SearchAssetMemoriesByMeaning"
 
@@ -238,6 +260,11 @@ data class MeaningSearchHit(
     val rankedPdfPageNumber: Int? = null,
     /** True when a significant cue token was found in evidence and boosted score. */
     val evidenceTokenBoosted: Boolean = false,
+    /**
+     * All stored text for this Asset used by lexical precision (summary + every
+     * evidence excerpt + label). Empty means fall back to the ranked snippet.
+     */
+    val precisionText: String = "",
 ) {
     init {
         require(label.isNotBlank())
@@ -245,6 +272,24 @@ data class MeaningSearchHit(
         require(score.isFinite())
         require(citedPdfPageNumber == null || citedPdfPageNumber > 0)
         require(rankedPdfPageNumber == null || rankedPdfPageNumber > 0)
+    }
+
+    /**
+     * Text used for lexical precision (MF-1). Prefers [precisionText] (whole
+     * Memory) so a word like `scan` on any saved page is enough — not only the
+     * cosine-winning snippet.
+     */
+    fun lexicalHaystack(): String {
+        if (precisionText.isNotBlank()) return precisionText
+        val key = sourceAssetKey.value
+        return if (key.isNotBlank() &&
+            !label.contains(key, ignoreCase = true) &&
+            !summaryText.contains(key, ignoreCase = true)
+        ) {
+            "$summaryText $label $key"
+        } else {
+            "$summaryText $label"
+        }
     }
 }
 

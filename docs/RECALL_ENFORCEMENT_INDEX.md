@@ -71,6 +71,8 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | MIG-07 photo cutover | [`CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_PHOTO_KEYWORD_CUTOVER.md) |
 | MIG-07 note cutover | [`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
+| Meaning Find intent / scenario bar | [`MEANING_FIND_PRODUCT_SCENARIO_BAR.md`](MEANING_FIND_PRODUCT_SCENARIO_BAR.md) |
+| Human recall language (ceiling) | [`HUMAN_RECALL_ASK_MODEL.md`](HUMAN_RECALL_ASK_MODEL.md) — required before further NL Find code |
 
 Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B
 L7/L8 cutovers delivered** (Live/Dual **N = 0**; escape-hatch **NO**).
