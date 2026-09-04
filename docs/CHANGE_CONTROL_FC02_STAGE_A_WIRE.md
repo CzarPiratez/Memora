@@ -20,24 +20,30 @@ S3 disposition **DEGRADED_EXPLICIT** effectivePool=20 (prefer seqLen 96).
   no-backup pack files; wire after lexical filter; Identity when unavailable;
   unit tests; no ADR-052 onboarding UI.
 - **Acceptance criteria:**
-  - [ ] ORT on `implementation`
-  - [ ] Ranking after lexical, before anchors; pool from latency policy
-  - [ ] Identity when model/vocab missing
-  - [ ] Existing ranking unit tests green with Identity
-  - [ ] No AVAILABLE claim
+  - [x] ORT on `implementation`
+  - [x] Ranking after lexical, before anchors; pool from latency policy
+  - [x] Identity when model/vocab missing
+  - [x] Existing ranking unit tests green with Identity (+ Stage A CE-order tests)
+  - [x] No AVAILABLE claim
+  - [x] S4 device smoke (CE present + identity absent) — 2026-09-04 SM-A156E
 
 ## Delivery record
 
 - **Files:** ORT `implementation`; `NoBackupRecallRankPackStore`;
   `OnnxCrossEncoderRuntime`; `OnnxCrossEncoderRecallRanker`; `StageARecallRanker`;
   `AnchorAwareMeaningRecallRanking` + `CanonicalRecall` wire; main assets vocab;
-  unit tests; this record.
+  unit tests; this record; `FC02_STAGE_A_S4_WIRE_SMOKE_RUNBOOK.md`.
 - **Disposition used:** S3 DEGRADED_EXPLICIT effectivePool=20 seqLen=96
 - **Known limitation:** Rerank model still installed only via S1/S2 staging /
-  future ADR-052 pack download — not silent auto-install. Vocab interim in APK
-  assets (~226 KiB) until pack bundles tokenizer.
-- **Verification:** Founder runs unit tests + meaning Find with staged model on
-  Samsung (identity path without model).
+  adb push / future ADR-052 pack download — not silent auto-install. Studio
+  **Run app** can wipe no-backup. Vocab interim in APK assets (~226 KiB) until
+  pack bundles tokenizer. Live device-tier signals still hardcoded FULL in
+  parts of `OnnxCrossEncoderRecallRanker`. Single-token cue ranks 2–10 may be
+  noisy (lexical AND needs ≥2 tokens).
+- **Verification:** JVM unit tests PASS; **S4 PASS** 2026-09-04 SM-A156E —
+  CE present `silky` top hit spelling-list PDF (contains word); identity when
+  model renamed away (no crash); model restored 23180880 bytes.
+- **Next:** Device-tier hardening → ADR-052 unified onboarding UI.
 - **Git commit:** When requested
 
 ## Architectural convergence

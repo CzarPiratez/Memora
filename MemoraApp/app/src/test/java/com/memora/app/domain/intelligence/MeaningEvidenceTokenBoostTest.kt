@@ -29,9 +29,18 @@ class MeaningEvidenceTokenBoostTest {
     }
 
     @Test
-    fun ignores_tiny_tokens() {
+    fun ignores_nl_stopwords_for_boost() {
         assertFalse(
-            MeaningEvidenceTokenBoost.evidenceContainsCueToken("a to", "a note to keep"),
+            MeaningEvidenceTokenBoost.evidenceContainsCueToken(
+                query = "which file has",
+                evidenceText = "which file has many pages of rules",
+            ),
+        )
+        assertTrue(
+            MeaningEvidenceTokenBoost.evidenceContainsCueToken(
+                query = "which file has silky in it",
+                evidenceText = "school anchor silky wreck cook",
+            ),
         )
     }
 }

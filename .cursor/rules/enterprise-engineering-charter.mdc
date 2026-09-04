@@ -23,9 +23,14 @@ Applies in **Agent, Ask, Plan, review, and docs** work in this repo:
 ## Pre-flight (state before coding or recommending)
 
 - How does this change affect the rest of the system?
+- **Holistic scenarios** (charter): user journeys + technical failure modes +
+  explicit acceptance bar **before** implement — not only what an ADR already
+  lists. Innovate for user value within architecture; do not ship commodity
+  “top-N vectors” without a trust/NL bar when the surface is product Find.
 - Edge cases: loading, empty, error, permission, offline, concurrency.
 - Security and privacy impact.
-- Alternatives considered for non-obvious decisions.
+- Alternatives considered for non-obvious decisions (include one higher-value
+  option vs plain industry default when relevant).
 - Smallest safe change; no unnecessary abstractions or dependencies.
 
 ## Implementation bar

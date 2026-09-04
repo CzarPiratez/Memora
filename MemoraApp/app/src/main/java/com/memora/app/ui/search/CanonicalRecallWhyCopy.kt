@@ -15,30 +15,62 @@ object CanonicalRecallWhyCopy {
     fun whyThisResult(result: CanonicalRecallResult, query: String): String {
         require(query.isNotBlank())
         val excerpt = result.excerpt.trim().replace(Regex("\\s+"), " ")
-        val clipped = if (excerpt.length <= 120) excerpt else excerpt.take(117) + "…"
+        val clipped = if (excerpt.length <= 100) excerpt else excerpt.take(97) + "…"
         val displayLabel = friendlyDisplayLabel(result.label)
-        val lines = buildList {
-            add(WHY_THIS_RESULT_LABEL)
-            add("You searched for \"$query\".")
-            add("Matched ${assetTypeLabel(result.assetType)}: $displayLabel.")
-            if (result.openPageNumber != null && result.assetType == AssetType.PDF) {
-                add("Page ${result.openPageNumber} of the saved document.")
-            }
-            add("Saved text: \"$clipped\"")
-            add(
-                when (result.retrievalPath) {
-                    CanonicalRecallRetrievalPath.KEYWORD ->
-                        "Found by exact words in evidence saved on this phone."
-                    CanonicalRecallRetrievalPath.MEANING ->
-                        "Ranked by meaning from your saved memories on this phone."
-                },
+        return when (result.retrievalPath) {
+            CanonicalRecallRetrievalPath.KEYWORD -> keywordWhy(
+                query = query,
+                displayLabel = displayLabel,
+                result = result,
+                clipped = clipped,
             )
-            if (result.evidenceTokenBoosted) {
-                add("Your cue words also appear in this saved text.")
-            }
+            CanonicalRecallRetrievalPath.MEANING -> meaningWhy(
+                query = query,
+                displayLabel = displayLabel,
+                result = result,
+                clipped = clipped,
+            )
         }
-        return lines.joinToString("\n")
     }
+
+    private fun keywordWhy(
+        query: String,
+        displayLabel: String,
+        result: CanonicalRecallResult,
+        clipped: String,
+    ): String = buildList {
+        add(WHY_THIS_RESULT_LABEL)
+        add("You searched for \"$query\".")
+        add("Matched ${assetTypeLabel(result.assetType)}: $displayLabel.")
+        if (result.openPageNumber != null && result.assetType == AssetType.PDF) {
+            add("Page ${result.openPageNumber} of the saved document.")
+        }
+        add("Saved text: \"$clipped\"")
+        add("Found by exact words in evidence saved on this phone.")
+    }.joinToString("\n")
+
+    /**
+     * Consumer dialect for meaning (scenario bar U5) — short, no engineering jargon.
+     */
+    private fun meaningWhy(
+        query: String,
+        displayLabel: String,
+        result: CanonicalRecallResult,
+        clipped: String,
+    ): String = buildList {
+        add(WHY_THIS_RESULT_LABEL)
+        add("You asked about \"$query\".")
+        add("This ${assetTypeLabel(result.assetType)}: $displayLabel.")
+        if (result.openPageNumber != null && result.assetType == AssetType.PDF) {
+            add("Page ${result.openPageNumber}.")
+        }
+        add("Because of this saved line: \"$clipped\"")
+        if (result.evidenceTokenBoosted) {
+            add("Your cue words appear in that saved text.")
+        } else {
+            add("Found by meaning from memories on this phone.")
+        }
+    }.joinToString("\n")
 
     internal fun friendlyDisplayLabel(label: String): String {
         val separator = label.indexOf('_')

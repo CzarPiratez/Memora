@@ -234,7 +234,9 @@ not a second product journey at launch.
 - [x] Engineering opened **S3 latency** harness + `RecallRankLatencyPolicy`
 - [x] S3 device disposition recorded (`MemoraRecallRankS3`): **DEGRADED_EXPLICIT**
       effectivePool=20 (full40=1517 ms; reduced20@96=584 ms)
-- [ ] Dependency promoted from `androidTest` to `implementation` with Stage A wire
+- [x] Dependency promoted from `androidTest` to `implementation` with Stage A wire
+- [x] **S4** device smoke PASS (2026-09-04 SM-A156E): CE present + identity
+      absent; see `docs/FC02_STAGE_A_S4_WIRE_SMOKE_RUNBOOK.md`
 
-**After S3 disposition:** Stage A product wire (effective pool 20 under
-DEGRADED_EXPLICIT) → ADR-052 unified onboarding UI (after wire).
+**After S4:** device-tier hardening (live `RecallRankDevicePolicy`) → ADR-052
+unified onboarding UI.

@@ -7,9 +7,10 @@ import org.junit.Test
 
 class MeaningEvidenceLexicalFilterTest {
     @Test
-    fun requires_at_least_two_content_tokens_before_applying() {
-        assertFalse(MeaningEvidenceLexicalFilter.shouldApply("mira"))
+    fun applies_when_cue_has_at_least_one_content_token() {
+        assertTrue(MeaningEvidenceLexicalFilter.shouldApply("mira"))
         assertTrue(MeaningEvidenceLexicalFilter.shouldApply("scan silky"))
+        assertFalse(MeaningEvidenceLexicalFilter.shouldApply("which file has"))
     }
 
     @Test
@@ -17,6 +18,10 @@ class MeaningEvidenceLexicalFilterTest {
         assertEquals(
             listOf("scan", "silky"),
             MeaningEvidenceLexicalFilter.requiredContentTokens("files with scan and silky"),
+        )
+        assertEquals(
+            listOf("silky"),
+            MeaningEvidenceLexicalFilter.requiredContentTokens("which file has silky in it"),
         )
     }
 
@@ -37,11 +42,17 @@ class MeaningEvidenceLexicalFilterTest {
     }
 
     @Test
-    fun single_token_query_does_not_filter() {
+    fun single_token_query_requires_token_in_evidence() {
         assertTrue(
             MeaningEvidenceLexicalFilter.evidenceSatisfies(
-                query = "mira",
-                evidenceText = "No shared words here",
+                query = "silky",
+                evidenceText = "Irregular consonants school anchor silky wreck",
+            ),
+        )
+        assertFalse(
+            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+                query = "silky",
+                evidenceText = "Bus Discipline Rules for Students",
             ),
         )
     }

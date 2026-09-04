@@ -72,7 +72,7 @@ object MeaningSearchCopy {
     }
 
     fun limitReachedBody(): String =
-        "Showing the top ${10} closest memories. Narrow your cue for a tighter list."
+        "Showing the strongest matches for your cue. Add another word if you need a tighter list."
 
     fun hitTypeLabel(type: AssetType): String = when (type) {
         AssetType.PDF -> "PDF memory"
@@ -89,27 +89,24 @@ object MeaningSearchCopy {
     fun whyThisResult(hit: MeaningSearchHit, query: String): String =
         CanonicalRecallWhyCopy.whyThisResult(hit.toCanonicalRecallResult(), query)
 
+    fun friendlyHitLabel(label: String): String =
+        CanonicalRecallWhyCopy.friendlyDisplayLabel(label)
+
     const val OPEN_ORIGINAL_LABEL = "Open original"
 
     const val OPEN_ORIGINAL_HINT =
-        "Opens the original file UNFYND cited for this memory. Search still used the " +
-            "on-device meaning index — not a live re-read for ranking."
+        "Opens the original file this memory cites. The file stays where it is on this phone."
 
     fun openOriginalPdfHint(
         citedPdfPageNumber: Int?,
         rankedPdfPageNumber: Int? = null,
     ): String {
-        if (rankedPdfPageNumber != null) {
-            return "$OPEN_ORIGINAL_HINT Opens ranked PDF page $rankedPdfPageNumber " +
-                "from the meaning index."
-        }
-        val citeBit = if (citedPdfPageNumber != null) {
-            "Memory cite is page $citedPdfPageNumber."
+        val page = rankedPdfPageNumber ?: citedPdfPageNumber
+        return if (page != null) {
+            "$OPEN_ORIGINAL_HINT Opens near page $page."
         } else {
-            "No Memory page cite — page 1 is the fallback if cue-best cannot run."
+            OPEN_ORIGINAL_HINT
         }
-        return "$OPEN_ORIGINAL_HINT On Open, UNFYND may pick a better matching " +
-            "saved page for your cue with the on-device model ($citeBit)."
     }
 
     fun rankedPdfPageLabel(pageNumber: Int): String {

@@ -69,10 +69,14 @@ class CanonicalRecall @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        if (outcome.hits.size <= limit) return outcome
+        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit)
+        if (trusted.isEmpty()) {
+            return outcome.copy(hits = emptyList(), limitReached = false)
+        }
+        val truncated = trusted.size < outcome.hits.size
         return outcome.copy(
-            hits = outcome.hits.take(limit),
-            limitReached = true,
+            hits = trusted,
+            limitReached = truncated || outcome.limitReached,
         )
     }
 

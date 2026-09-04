@@ -45,10 +45,13 @@ class CanonicalRecallWhyCopyTest {
 
         assertTrue(why.contains("Spelling list 4 (1)-1.pdf"))
         assertFalse(why.contains("500fb02768e7a4bc0b91977e9d346a14774802600"))
-        assertTrue(why.contains("meaning from your saved memories"))
-        assertTrue(why.contains("also appear in this saved text"))
+        assertTrue(why.contains("You asked about"))
+        assertTrue(why.contains("Because of this saved line"))
+        assertTrue(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Ranked by meaning from your saved memories"))
         assertFalse(why.contains("on-device meaning similarity"))
         assertFalse(why.contains("Score reflects"))
+        assertFalse(why.contains("cue-best"))
     }
 
     @Test

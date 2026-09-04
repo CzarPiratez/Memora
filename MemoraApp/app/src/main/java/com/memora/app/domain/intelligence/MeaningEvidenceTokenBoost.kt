@@ -11,10 +11,12 @@ object MeaningEvidenceTokenBoost {
     const val TOKEN_BOOST = 0.35f
     const val MIN_TOKEN_CHARS = 3
 
+    /**
+     * Content tokens only — same stopword hygiene as [RecallQueryContentTokens]
+     * (scenario bar T5). Still require [MIN_TOKEN_CHARS] so tiny remnants do not boost.
+     */
     fun significantTokens(query: String): List<String> =
-        TOKEN_SPLIT.split(query.lowercase())
-            .map { it.trim() }
-            .filter { it.length >= MIN_TOKEN_CHARS }
+        RecallQueryContentTokens.tokens(query).filter { it.length >= MIN_TOKEN_CHARS }
 
     fun evidenceContainsCueToken(query: String, evidenceText: String): Boolean {
         val tokens = significantTokens(query)
@@ -34,6 +36,4 @@ object MeaningEvidenceTokenBoost {
         if (!boosted) return cosine.coerceIn(0f, 1f) to false
         return (cosine + TOKEN_BOOST).coerceIn(0f, 1f) to true
     }
-
-    private val TOKEN_SPLIT = Regex("""[^a-z0-9]+""")
 }

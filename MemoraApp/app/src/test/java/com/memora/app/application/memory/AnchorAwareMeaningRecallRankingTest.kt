@@ -82,7 +82,7 @@ class AnchorAwareMeaningRecallRankingTest {
     }
 
     @Test
-    fun apply_token_boost_outranks_higher_cosine_without_matching_token() = runBlocking {
+    fun apply_token_boost_promotes_hit_that_contains_cue_token() = runBlocking {
         val foxtrot = MemoryRevisionId("rev-5")
         val miraPage = MemoryRevisionId("rev-3")
         val outcome = MeaningSearchOutcome.Matches(
@@ -113,11 +113,13 @@ class AnchorAwareMeaningRecallRankingTest {
             memoryRepository = FakeAnchorRepository(),
         ) as MeaningSearchOutcome.Matches
 
-        val top = ranked.hits.first()
+        // Precision (MF-1): foxtrot lacks "mira" and is dropped; mira page remains + boosted.
+        assertEquals(1, ranked.hits.size)
+        val top = ranked.hits.single()
         assertEquals("memora-open-3page.pdf", top.label)
         assertEquals(3, top.rankedPdfPageNumber)
         assertTrue(top.evidenceTokenBoosted)
-        assertTrue(top.score > ranked.hits[1].score)
+        assertTrue(top.score > 0.2f)
     }
 
     @Test
@@ -127,8 +129,18 @@ class AnchorAwareMeaningRecallRankingTest {
         val outcome = MeaningSearchOutcome.Matches(
             query = "invoice",
             hits = listOf(
-                hit(invoiceMatch, 0.8f, label = "memora-open-5page.pdf"),
-                hit(other, 0.7f, label = "memora-open-3page.pdf"),
+                hit(
+                    invoiceMatch,
+                    0.8f,
+                    label = "memora-open-5page.pdf",
+                    summaryText = "GOLF invoice number on page two",
+                ),
+                hit(
+                    other,
+                    0.7f,
+                    label = "memora-open-3page.pdf",
+                    summaryText = "cover sheet mentions invoice briefly",
+                ),
             ),
             limitReached = false,
             model = model,
@@ -191,7 +203,7 @@ class AnchorAwareMeaningRecallRankingTest {
     fun apply_without_time_or_topic_cue_returns_boost_only() = runBlocking {
         val outcome = MeaningSearchOutcome.Matches(
             query = "wifi",
-            hits = listOf(hit(MemoryRevisionId("rev-1"), 0.5f)),
+            hits = listOf(hit(MemoryRevisionId("rev-1"), 0.5f, summaryText = "office wifi password card")),
             limitReached = false,
             model = model,
         )
@@ -203,8 +215,53 @@ class AnchorAwareMeaningRecallRankingTest {
         ) as MeaningSearchOutcome.Matches
 
         assertEquals(outcome.hits.single().revisionId, filtered.hits.single().revisionId)
-        assertEquals(outcome.hits.single().score, filtered.hits.single().score, 0f)
-        assertFalse(filtered.hits.single().evidenceTokenBoosted)
+        assertTrue(filtered.hits.single().evidenceTokenBoosted)
+    }
+
+    @Test
+    fun apply_single_token_drops_hits_missing_cue_word() = runBlocking {
+        val keep = MemoryRevisionId("rev-silky")
+        val drop = MemoryRevisionId("rev-bus")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "silky",
+            hits = listOf(
+                hit(drop, 0.95f, label = "Bus.pdf", summaryText = "Bus Discipline Rules"),
+                hit(keep, 0.4f, label = "Spell.pdf", summaryText = "anchor silky wreck cook"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "silky",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    @Test
+    fun apply_nl_question_still_precision_filters_on_content_token() = runBlocking {
+        val keep = MemoryRevisionId("rev-silky")
+        val drop = MemoryRevisionId("rev-urdu")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "which file has silky in it",
+            hits = listOf(
+                hit(drop, 0.9f, summaryText = "mock urdu paper without the english cue"),
+                hit(keep, 0.3f, summaryText = "Irregular consonants school anchor silky wreck"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "which file has silky in it",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
     }
 
     private fun hit(

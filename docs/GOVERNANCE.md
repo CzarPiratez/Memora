@@ -93,6 +93,10 @@ Before every implementation, product, UX, dependency, data-access, or release st
 4. Check for open ADRs, privacy implications, platform limitations, device support,
    offline behaviour, data retention, dependency, and performance impacts.
 5. Define the smallest testable change and its explicit acceptance criteria.
+   For material product slices, also complete **holistic scenario planning**
+   in `docs/ENGINEERING_CHARTER.md` (user + technical scenarios + acceptance
+   bar **before** implement). Innovation within architecture is expected;
+   skipping the bar is not.
 6. If a requirement conflicts with the platform or another requirement, stop and
    record the conflict. Do not conceal it with a shortcut or unapproved assumption.
 7. Find / Recall / search-embedding / ranking / Why changes must fill the

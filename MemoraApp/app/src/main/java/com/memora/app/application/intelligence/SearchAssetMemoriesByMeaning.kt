@@ -8,6 +8,7 @@ import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingSimilarity
+import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
@@ -58,8 +59,9 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         require(limit > 0)
-        val query = rawQuery.trim()
+        val query = MeaningRecallCue.displayQuery(rawQuery)
         if (query.isEmpty()) return MeaningSearchOutcome.BlankQuery
+        val embedQuery = MeaningRecallCue.embedText(rawQuery)
 
         val model = when (val availability = embeddingEngine.availability()) {
             is CapabilityAvailability.Unavailable ->
@@ -75,7 +77,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             return MeaningSearchOutcome.NothingIndexed(query = query)
         }
 
-        val queryVector = when (val encoded = embeddingEngine.embedText(query)) {
+        val queryVector = when (val encoded = embeddingEngine.embedText(embedQuery)) {
             is EmbeddingEncodeResult.Unavailable ->
                 return MeaningSearchOutcome.EngineUnavailable(encoded.reason)
             is EmbeddingEncodeResult.Failed ->

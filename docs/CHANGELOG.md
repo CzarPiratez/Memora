@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Meaning Find MF-1 precision + consumer Why (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** Scenario bar `MEANING_FIND_PRODUCT_SCENARIO_BAR.md`;
+  `MeaningRecallCue` (NL → content-cue embed); lexical ≥1 token; boost stopwords;
+  trusted short list; meaning Why dialect + friendly labels + short Open hints.
+  Change control `CHANGE_CONTROL_MEANING_FIND_MF1_PRECISION.md`. Not AVAILABLE.
+
+### FC-02 Stage A S4 wire smoke PASS (2026-09-04)
+
+- **Date:** 2026-09-04
+- **Delivered:** SM-A156E product meaning Find — CE present (`silky` top hit
+  spelling-list PDF); identity when model absent (no crash); model restored.
+  Runbook `FC02_STAGE_A_S4_WIRE_SMOKE_RUNBOOK.md`. Not AVAILABLE; ADR-052 UI
+  still next for launch install.
+
 ### FC-02 Stage A wire (2026-09-03)
 
 - **Date:** 2026-09-03

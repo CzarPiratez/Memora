@@ -4,14 +4,34 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-03
+**Updated:** 2026-09-04
 
-**FC-02 Stage A wire opened (2026-09-03):** After S3 **DEGRADED_EXPLICIT**
+**Meaning Find MF-1 checkpoint (2026-09-04):** Scenario bar + precision slice
+landed (content-cue embed, lexical ≥1, boost stopwords, trusted list, consumer
+Why). Device: `silky` and `which file has silky in it` / `which file has swimming
+timetable` PASS (precise). **Open follow-up (MF-1.1):** paraphrase gaps — e.g.
+`Show me the files with swimming timetables` returns none while `which file has
+swimming timetable` works. Resume after credit: widen NL cue patterns in
+`MeaningRecallCue` / stopword policy against the scenario bar. Not AVAILABLE.
+
+**Process (2026-09-04):** Holistic scenario planning is **mandatory** for all
+material product slices (`docs/ENGINEERING_CHARTER.md`): user + technical
+scenarios + acceptance bar **before** implement; innovate for high user value
+**within** architecture (not around it).
+
+**FC-02 Stage A S4 PASS (2026-09-04):** Samsung SM-A156E product meaning Find
+smoke — CE present (`silky` → spelling-list PDF top hit, contains word);
+identity when model renamed away (no crash, same top hit); model restored
+(`…qint8_v1.onnx` 23180880 bytes). Single-token ranks 2–10 may still be noisy
+until MF-1 device verify. Runbook: `docs/FC02_STAGE_A_S4_WIRE_SMOKE_RUNBOOK.md`.
+Not AVAILABLE.
+
+**FC-02 Stage A wire (2026-09-03):** After S3 **DEGRADED_EXPLICIT**
 (effectivePool=20), Stage A CE wired into Canonical Recall:
 `StageARecallRanker` / `OnnxCrossEncoderRecallRanker` after lexical filter;
 ORT on `implementation`; identity when pack missing; vocab in assets (~226 KiB)
-until ADR-052 pack. Model still no-backup (spike staging reused). See
-`CHANGE_CONTROL_FC02_STAGE_A_WIRE.md`. Compile/unit verify in Android Studio.
+until ADR-052 pack. Model still no-backup (spike staging / adb). See
+`CHANGE_CONTROL_FC02_STAGE_A_WIRE.md`. JVM unit tests green; S4 device smoke PASS.
 Not AVAILABLE. No ADR-052 auto-download UI yet.
 
 **FC-02 Stage A S3 PASS (2026-09-03):** Samsung SM-A156E Logcat `MemoraRecallRankS3`:

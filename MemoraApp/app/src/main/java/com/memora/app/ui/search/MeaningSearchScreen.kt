@@ -219,7 +219,7 @@ private fun MeaningHitCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = hit.label,
+                text = MeaningSearchCopy.friendlyHitLabel(hit.label),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )

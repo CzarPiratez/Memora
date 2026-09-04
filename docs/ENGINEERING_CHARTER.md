@@ -104,6 +104,55 @@ right thing properly.
 
 ---
 
+## Holistic scenario planning (mandatory)
+
+This process is **binding for all product development** in UNFYND App and Core
+work in this monorepo — Find, onboarding, indexing, Why, packs, and every later
+surface. It applies **even when** an existing ADR, change control, or spike plan
+is silent on a scenario. Silence in docs is not permission to skip thinking.
+
+### Intent
+
+- **Discover** through tests and devices to **prove** planned scenarios — not to
+  invent the product after shipping a thin technical slice.
+- Prefer **enterprise-grade, high user value** solutions. Commodity patterns are
+  allowed only when they are the right fit; default is to ask how we can do
+  better for privacy-first on-device recall.
+- **Improvise and innovate within reasonable limits** — inside Freeze /
+  Canonical Recall / Memory substrate / accepted ADRs. Innovation is encouraged;
+  a second Find path, silent keyword-as-meaning, or bypassing disclosure is not
+  “innovation,” it is architecture violation.
+
+### Required order (every material slice)
+
+1. **User scenarios** — How a real person uses this (cues, questions, empty,
+   wrong, multilingual library, offline, no pack, first run, trust/Why).
+2. **Technical scenarios** — Failure modes, concurrency, permissions, model
+   absent/degraded, score floors, indexing gaps, device tiers, privacy.
+3. **Acceptance bar** — Explicit pass/fail examples (including anti-cases from
+   real libraries). Encode as tests or a device checklist **before** claiming
+   the slice done.
+4. **Design alternatives** — At least one innovative / higher-value option vs a
+   plain industry-default; choose deliberately; record why in change control
+   when non-obvious.
+5. **Implement** the smallest change that meets the bar inside architecture.
+6. **Verify** against the bar (unit + device as risk requires). New findings
+   update the bar; they should not be “we never thought of the main door.”
+
+### Forbidden process smell
+
+- Measuring only a model spike (load / latency / fixture) and treating that as
+  product Find / UX complete.
+- Shipping “top N closest vectors” without a trust and NL scenario bar.
+- Discovering obvious user journeys only after founder screenshots.
+
+### First application
+
+Meaning Find precision / NL / Why work must open with a **Meaning Find product
+and scenario bar** before further ranking or ADR-052 UI implementation.
+
+---
+
 ## Modes
 
 This charter applies in **every** Cursor mode (Agent, Ask, Plan, review, or

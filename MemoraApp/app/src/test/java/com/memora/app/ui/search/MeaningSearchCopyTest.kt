@@ -61,11 +61,13 @@ class MeaningSearchCopyTest {
     }
 
     @Test
-    fun open_hint_without_ranked_page_keeps_cue_best_path() {
+    fun open_hint_without_page_stays_short_and_plain() {
         val hint = MeaningSearchCopy.openOriginalPdfHint(null)
-        assertTrue(hint.contains("page 1"))
-        assertTrue(hint.contains("fallback"))
-        assertTrue(hint.contains("not a live re-read"))
+        assertTrue(hint.contains("Opens the original file"))
+        assertFalse(hint.contains("cue-best"))
+        assertFalse(hint.contains("fallback"))
+        assertFalse(hint.contains("not a live re-read"))
+        assertFalse(hint.contains("meaning index"))
     }
 
     @Test
@@ -75,7 +77,7 @@ class MeaningSearchCopyTest {
             query = "mira",
         )
         assertTrue(why.contains("Page 3"))
-        assertTrue(why.contains("also appear in this saved text"))
+        assertTrue(why.contains("Your cue words appear"))
     }
 
     private fun sampleHit(
