@@ -3,7 +3,7 @@
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/) · [Core](https://www.unfynd.com/core)  
 **Release class:** Class A: Public Specification / Contract (docs + synthetic examples)  
-**Pack revision:** 2026-09-01 (Class A conformance validator)
+**Pack revision:** 2026-09-05 (scope-aware retrieval direction)
 
 **Quick start (validate synthetic examples):**
 
@@ -42,7 +42,7 @@ architecture. Core is built for that architecture.
 | | |
 |---|---|
 | **What Core provides** | On-device ingest and retention for multimodal data. Recall and ranking across that store. Answers tied to evidence you can open. Runs where you set the boundary: device, site, or air gap. |
-| **What you build** | The app, the workflow, the domain rules. Wire new sources. Specialize retrieval and ranking. Harden permissions for your environment. Ship to clinics, field teams, enterprises, or consumer devices. Same Core, your product on top. |
+| **What you build** | The app, the workflow, the domain rules. Wire new sources. Specialize retrieval and ranking. Author the permission policy for your environment. Ship to clinics, field teams, enterprises, or consumer devices. Same Core, your product on top. |
 
 UNFYND Core is **not** a personal AI or assistant product. Assistants,
 companions, and vertical tools are applications that can be built **on** Core.
@@ -67,6 +67,30 @@ See [`APPLICATIONS.md`](APPLICATIONS.md) for the full industry map (Health,
 Defence and public safety, Government, Enterprise and SMB, Research and
 education, Industrial and field operations, Accessibility, Emergency response,
 Aging / companion care).
+
+---
+
+## Where Core is on this path
+
+Core is already carrying real work. UNFYND App runs on this substrate on Android
+today: permissioned discovery, deterministic extraction (OCR, document and note
+text, image metadata), Memory assembly through a single construction seam,
+on-device embeddings, and recall converging on one canonical Find boundary that
+explains results from stored evidence.
+
+The current build is deepening that foundation - evidence identity carried
+through every retrieval path, so any output can name the stored evidence it
+rests on; ranking that composes meaning with the constraints people actually
+speak, starting with time and type; and the reranking seam moving to an
+on-device cross-encoder.
+
+Next on the path: evidence-tied answers over that ranked set, scope-aware
+retrieval for shared and regulated corpora, the staged memory model beyond a
+single Asset (Asset → Link → Event → Knowledge), and further product surfaces
+beyond the first mobile one.
+
+The contracts in this pack are written for where Core is going, deliberately.
+They are the target implementations are held to, including ours.
 
 ---
 

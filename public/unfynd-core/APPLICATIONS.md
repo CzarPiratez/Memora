@@ -28,6 +28,12 @@ Intelligence in Core is the path from a question to a **justified** output.
    lab networks, government systems, defence enclaves, industrial sites, kits
    with weak or denied connectivity). Cloud round-trip is not the default path
    to intelligence.
+6. **Scope inside the boundary** - a boundary answers *where* intelligence runs;
+   regulated work also asks *who* may see what inside it. Scope belongs in
+   candidate selection, not in a filter applied after ranking: by the time a
+   result exists, its count and its explanation already reveal what was
+   withheld. You author the policy; Core's path is to honour it before results
+   are formed.
 
 For builders, that split matters. You can specialize retrieval for a domain,
 tighten ranking for a workflow, and keep generation inside a boundary the
@@ -39,8 +45,9 @@ what the system used. If a result cannot point back to what it rested on, it is
 not ready for the classes of work Core is meant to serve.
 
 **Core provides** ingest/retention, recall/ranking, evidence-tied answers, and
-respect for the boundary you set. **You build** the app, workflow, domain rules,
-sources, and permissions. Same Core, your product on top.
+respect for the boundary you set - the where, and increasingly the who. **You
+build** the app, workflow, domain rules, sources, and the permission policy that
+fits your organization. Same Core, your product on top.
 
 ---
 

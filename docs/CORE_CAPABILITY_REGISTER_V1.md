@@ -93,6 +93,7 @@ rather than an accident.
 | **Cost** | **Substrate** — recall path, evidence package, and audit trail simultaneously |
 | **Trigger to build** | First multi-role deployment. Reserve the seam now |
 | **Bar** | Scoping happens at **candidate generation**, never as a post-filter on results — a post-filter leaks existence through result counts and Why copy |
+| **Public posture** | Stated as Core direction in the public pack from revision **2026-09-05** (`APPLICATIONS.md` primitive 6, "Scope inside the boundary"). Policy authorship stays with the builder; enforcement is Core's. The candidate-generation bar above is published, so a later post-filter shortcut would contradict a public contract |
 
 ### CR-05 — Re-derivation policy
 

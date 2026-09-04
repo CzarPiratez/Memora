@@ -4,6 +4,18 @@ All notable changes to this **Class A** Public Specification / Contract pack.
 The pack is documentation, synthetic examples, and conformance tooling
 (Apache-2.0).
 
+## 2026-09-05 - Scope-aware retrieval direction + Core progress on the path
+
+- APPLICATIONS: added **Scope inside the boundary** primitive - permission scope
+  belongs in candidate selection, not post-ranking filtering; policy authorship
+  stays with the builder, enforcement is on Core's path.
+- APPLICATIONS / README: division of labour updated accordingly (Core respects
+  the where and increasingly the who; you author the permission policy).
+- README: added **Where Core is on this path** - what Core carries today, what
+  the current build deepens, and what comes next.
+- Contracts unchanged: evidence classes, seams, and frozen principles are the
+  same as the 2026-09-01 revision.
+
 ## 2026-09-01 - Class A conformance validator + export/integration sketches
 
 - Added runnable **example validator** (`tools/validate_class_a_examples.py`),

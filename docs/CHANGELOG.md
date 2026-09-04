@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Public pack revision 2026-09-05 — scope-aware retrieval direction (2026-09-05)
+
+- **Date:** 2026-09-05
+- **Why:** `public/unfynd-core/APPLICATIONS.md` leads with health, defence, and
+  government, all of which assume role-scoped access, while both the pack README
+  and APPLICATIONS assigned **permissions** wholly to the builder. That division
+  is not implementable: a builder handed a ranked list cannot scope it safely,
+  because result counts and Why copy leak the existence of what was withheld
+  (CR-04 bar). The fix moves *enforcement* into Core's stated direction and keeps
+  *policy authorship* with the builder — an increase in Core's scope, not a
+  caveat.
+- **Delivered:** APPLICATIONS primitive 6 "Scope inside the boundary"; division
+  of labour retuned in APPLICATIONS and README ("the where, and increasingly the
+  who"); new README section **Where Core is on this path** (what Core carries
+  today, what the current build deepens, what comes next, and why the published
+  contracts deliberately run ahead of any implementation).
+- **Contracts unchanged.** Evidence classes, capability seams, and frozen
+  principles are identical to pack revision 2026-09-01, and the changelog entry
+  says so, so anyone building against the pack knows nothing shifted underneath.
+- **Recorded against CR-04** (`docs/CORE_CAPABILITY_REGISTER_V1.md`): the
+  candidate-generation bar is now **public**, so a later post-filter shortcut
+  would contradict a published contract rather than only an internal register.
+- **No code change.** Nothing in the App or Core implementation moved; this is
+  public framing plus governance. Not AVAILABLE.
+
 ### Stage 0 precision fixes — D-2 / T10 and D-4 / T11 (2026-09-04)
 
 - **Date:** 2026-09-04
