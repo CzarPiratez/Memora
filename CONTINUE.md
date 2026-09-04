@@ -21,6 +21,15 @@ and **D-4 / T11** (TOPIC is EXPLICIT-only; a plain cue no longer pays an anchor
 round-trip). Remaining in Stage 0: **A4** doc drift, **A5** CONTINUE restructure,
 **A6** founder acceptance of the Ask Model.
 
+**Public pack revision 2026-09-05 — published.** Public remote
+`CzarPiratez/unfynd-core` is at **`4d99a42`** (monorepo source commit `16e8270`);
+prior published revision was `7c573b2`. Scope-aware retrieval is now stated as
+Core direction (`APPLICATIONS.md` primitive 6) with the **candidate-generation**
+bar public, and `README.md` carries **Where Core is on this path**. Contracts are
+byte-identical to revision 2026-09-01 — evidence classes, seams, and frozen
+principles did not move. Recorded against **CR-04** below. Optional follow-up:
+note the revision date on unfynd.com/core.
+
 **Core capability register (2026-09-04):** `docs/CORE_CAPABILITY_REGISTER_V1.md`
 — **CR-01…CR-09**, the capabilities the founder's Core definition needs that are
 *unmodelled* today (fact validity, conflict reconciliation, audit seam,
