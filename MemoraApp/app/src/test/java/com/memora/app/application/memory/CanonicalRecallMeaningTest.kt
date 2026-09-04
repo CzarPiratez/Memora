@@ -118,8 +118,11 @@ class CanonicalRecallMeaningTest {
             embeddingStore = embeddingStore,
             memoryRepository = MeaningLookupRepository(
                 lookups = mapOf(
-                    revMatch to lookup(revMatch, "match.pdf"),
-                    revMiss to lookup(revMiss, "miss.pdf"),
+                    // Both carry the content word `notes`; only the TIME anchor
+                    // separates them. Before T10 this passed for the wrong reason —
+                    // a time cue used to switch the lexical gate off entirely.
+                    revMatch to lookup(revMatch, "match.pdf", "Parent evening notes"),
+                    revMiss to lookup(revMiss, "miss.pdf", "Sports day notes"),
                 ),
                 anchors = mapOf(
                     revMatch to listOf(

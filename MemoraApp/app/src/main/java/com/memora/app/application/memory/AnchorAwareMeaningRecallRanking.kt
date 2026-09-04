@@ -5,6 +5,7 @@ import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.domain.intelligence.IdentityRecallRanker
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
+import com.memora.app.domain.intelligence.RecallQueryContentTokens
 import com.memora.app.domain.intelligence.RecallRankCandidate
 import com.memora.app.domain.intelligence.RecallRankResult
 import com.memora.app.domain.intelligence.RecallRanker
@@ -100,12 +101,29 @@ object AnchorAwareMeaningRecallRanking {
         rawQuery: String,
         constraints: RecallQueryConstraints,
     ): MeaningSearchOutcome.Matches {
-        if (constraints.time != RecallConstraintStrength.NONE) return outcome
-        if (!MeaningEvidenceLexicalFilter.shouldApply(rawQuery)) return outcome
+        val required = requiredContentTokens(rawQuery, constraints)
+        if (required.isEmpty()) return outcome
         val filtered = outcome.hits.filter { hit ->
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(rawQuery, hit.lexicalHaystack())
+            MeaningEvidenceLexicalFilter.satisfies(required, hit.lexicalHaystack())
         }
         return outcome.copy(hits = filtered)
+    }
+
+    /**
+     * Content the person named, minus the words a TIME expression already
+     * consumed. A time cue must not disable precision: `recent files with silky`
+     * still has to contain `silky`, while `notes in 2024` requires `notes` and
+     * leaves `2024` to the TIME anchor stage (bar T10).
+     */
+    private fun requiredContentTokens(
+        rawQuery: String,
+        constraints: RecallQueryConstraints,
+    ): List<String> {
+        val named = MeaningEvidenceLexicalFilter.requiredContentTokens(rawQuery)
+        val timeWords = constraints.timeSpanText
+            ?.let { RecallQueryContentTokens.tokens(it).toSet() }
+            .orEmpty()
+        return if (timeWords.isEmpty()) named else named - timeWords
     }
 
     private fun applyTokenBoost(

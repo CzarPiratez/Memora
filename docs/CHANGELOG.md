@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Stage 0 precision fixes — D-2 / T10 and D-4 / T11 (2026-09-04)
+
+- **Date:** 2026-09-04
+- **D-2 / T10 — a time cue no longer disables lexical precision.** The gate
+  previously returned early whenever the query carried any TIME cue, so
+  `recent files with silky` returned cosine neighbours containing no `silky` —
+  the junk reported from device. Time words are a **constraint**, not content, so
+  `RecallQueryConstraints` now also carries `timeSpanText` (the literal matched
+  expression) and the ranker subtracts those words from the required content
+  tokens instead of abandoning the gate. `notes in 2024` requires `notes` and
+  never the literal `2024`, which stays with the TIME anchor stage.
+- **D-4 / T11 — TOPIC is EXPLICIT-only.** Every query of four or more characters
+  was marked TOPIC advisory with the whole raw question as the title cue, which no
+  anchor can contain, so it never boosted anything while still costing a
+  `findSignatureAnchors` round-trip and a re-sort on every search. A plain cue now
+  skips the anchor stage; a test asserts the lookup count is zero.
+- **Tests:** three T10 anti-cases (explicit, advisory, and time words not required
+  in evidence) plus a T11 round-trip guard. `apply_skips_lexical_filter_for_explicit_time_queries`
+  encoded the defect as intended behaviour and was **replaced**, not relaxed; the
+  Stage A CE order guard was retargeted to a query that still reaches the anchor
+  stage so it keeps its meaning. Fixtures for two time tests now carry the content
+  word, since they previously passed only because the gate was off.
+- **Cleanup:** `MeaningEvidenceLexicalFilter.shouldApply` removed — orphaned by the
+  change and a second source of truth for when precision applies.
+- **Verification:** 682 tests, 0 failures. No new Find path, no new ranker; ranking
+  stays inside Canonical Recall (ADR-049). Not AVAILABLE.
+
 ### Core capability register v1 + D-1 fix (2026-09-04)
 
 - **Date:** 2026-09-04

@@ -7,10 +7,9 @@ import org.junit.Test
 
 class MeaningEvidenceLexicalFilterTest {
     @Test
-    fun applies_when_cue_has_at_least_one_content_token() {
-        assertTrue(MeaningEvidenceLexicalFilter.shouldApply("mira"))
-        assertTrue(MeaningEvidenceLexicalFilter.shouldApply("scan silky"))
-        assertFalse(MeaningEvidenceLexicalFilter.shouldApply("which file has"))
+    fun ask_shape_only_cue_names_no_content_token() {
+        assertEquals(emptyList<String>(), MeaningEvidenceLexicalFilter.requiredContentTokens("which file has"))
+        assertEquals(listOf("mira"), MeaningEvidenceLexicalFilter.requiredContentTokens("mira"))
     }
 
     @Test

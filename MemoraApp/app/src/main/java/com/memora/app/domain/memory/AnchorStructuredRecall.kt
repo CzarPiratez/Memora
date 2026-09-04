@@ -22,6 +22,13 @@ data class RecallQueryConstraints(
     val timeCue: String? = null,
     /** Normalized substring cue for TOPIC matching, when [topic] != [NONE]. */
     val topicCue: String? = null,
+    /**
+     * The literal time expression matched in the query (`in 2024`, `recent`,
+     * `last week`). Those words are a **constraint**, not content: the lexical
+     * precision gate must not demand they appear in stored text, while every
+     * other named word still must (bar T10).
+     */
+    val timeSpanText: String? = null,
 ) {
     init {
         require(timeCue == null || time != RecallConstraintStrength.NONE) {
@@ -29,6 +36,9 @@ data class RecallQueryConstraints(
         }
         require(topicCue == null || topic != RecallConstraintStrength.NONE) {
             "topicCue requires a non-NONE topic strength."
+        }
+        require(timeSpanText == null || time != RecallConstraintStrength.NONE) {
+            "timeSpanText requires a non-NONE time strength."
         }
     }
 }
@@ -64,43 +74,51 @@ object RecallQueryConstraintClassifier {
             )
         }
 
+        // Keep the cue (what a TIME anchor must contain) and the full matched span
+        // (what the lexical gate must not demand) from the same match.
         val timeExplicit = explicitTimePatterns.firstNotNullOfOrNull { pattern ->
             pattern.find(query)?.let { match ->
-                match.groupValues.drop(1).lastOrNull { it.isNotBlank() }?.trim()
+                match.groupValues.drop(1).lastOrNull { it.isNotBlank() }?.trim()?.let { cue ->
+                    cue to match.value
+                }
             }
         }
         if (timeExplicit != null) {
+            val (cue, span) = timeExplicit
             val topicStrength = classifyTopic(query)
             return RecallQueryConstraints(
                 time = RecallConstraintStrength.EXPLICIT,
                 topic = topicStrength,
-                timeCue = timeExplicit.lowercase(),
+                timeCue = cue.lowercase(),
                 topicCue = topicCueOrNull(query, topicStrength),
+                timeSpanText = span,
             )
         }
 
-        val timeAdvisory = advisoryTimePatterns.any { it.containsMatchIn(query) }
+        val timeAdvisory = advisoryTimePatterns.firstNotNullOfOrNull { it.find(query) }
         val topicStrength = classifyTopic(query)
         return RecallQueryConstraints(
-            time = if (timeAdvisory) RecallConstraintStrength.ADVISORY else RecallConstraintStrength.NONE,
+            time = if (timeAdvisory != null) RecallConstraintStrength.ADVISORY else RecallConstraintStrength.NONE,
             topic = topicStrength,
-            timeCue = if (timeAdvisory) {
-                advisoryTimePatterns.firstNotNullOfOrNull { pattern ->
-                    pattern.find(query)?.value?.trim()?.lowercase()
-                }
-            } else {
-                null
-            },
+            timeCue = timeAdvisory?.value?.trim()?.lowercase(),
             topicCue = topicCueOrNull(query, topicStrength),
+            timeSpanText = timeAdvisory?.value,
         )
     }
 
+    /**
+     * TOPIC is a constraint only when the person actually names a title
+     * (`titled "March Invoice"`). Treating every query of a few characters as an
+     * advisory topic cue made the whole raw question the title to match, which no
+     * anchor can ever contain, while still costing an anchor lookup on every
+     * search (bar T11). A topic boost that works belongs to a later slice with
+     * its own cue extraction and tests.
+     */
     private fun classifyTopic(query: String): RecallConstraintStrength =
-        when {
-            explicitTopicPatterns.any { it.containsMatchIn(query) } ->
-                RecallConstraintStrength.EXPLICIT
-            query.length >= 4 -> RecallConstraintStrength.ADVISORY
-            else -> RecallConstraintStrength.NONE
+        if (explicitTopicPatterns.any { it.containsMatchIn(query) }) {
+            RecallConstraintStrength.EXPLICIT
+        } else {
+            RecallConstraintStrength.NONE
         }
 
     private fun topicCueOrNull(

@@ -86,6 +86,13 @@ precision gate off entirely**. `recent files with silky` returns cosine
 neighbours with no `silky` in them — exactly the junk the founder reported.
 This is registered as anti-case T10 in the scenario bar and is currently violated.
 
+**FIXED 2026-09-04 (A2).** The classifier now also reports `timeSpanText`, the
+literal expression it matched. The ranker subtracts those words from the required
+content tokens instead of abandoning the gate: `notes in 2024` requires `notes`
+and never the literal `2024` (which lives on a TIME anchor), while
+`recent files with silky` requires `silky` again. Three anti-cases added, and the
+test that encoded the old behaviour as intended was replaced rather than relaxed.
+
 ### D-3 — Relative time is a string `contains`, so it can never match (**P1, silent no-op**)
 
 ```188:191:MemoraApp/app/src/main/java/com/memora/app/domain/memory/AnchorStructuredRecall.kt
@@ -114,6 +121,12 @@ precision loss and buys nothing.
 sentence, so this never boosts. But because `topic != NONE`, **every** meaning
 search pays an extra `findSignatureAnchors` database round-trip and a re-sort.
 Registered as anti-case T11; currently violated.
+
+**FIXED 2026-09-04 (A3).** TOPIC is now EXPLICIT-only — it is a constraint when
+the person names a title (`titled "March Invoice"`), not whenever a query is four
+characters long. A plain cue skips the anchor stage entirely; a test asserts the
+lookup count is zero. A topic boost that actually works needs its own cue
+extraction and belongs to a later slice, not to a length check.
 
 ### D-5 — `and` / `or` / `not` / `all` are deleted as noise (**P1, whole jobs collapse**)
 
@@ -425,15 +438,16 @@ pick it up by ID. Batch letters map to the stages above.
 
 **Done 2026-09-04:** this document; Ask Model **v1.1** (D16, §5b R1–R8, one-box at
 §2 + wave W1.5, anti-case-as-test at §11); change-control boxes;
-`CORE_CAPABILITY_REGISTER_V1.md` (CR-01…CR-09); **A1** red-test fix.
+`CORE_CAPABILITY_REGISTER_V1.md` (CR-01…CR-09); **A1** red-test fix;
+**A2** (D-2, T10) and **A3** (D-4, T11) — Stage 0 code complete, 682 tests green.
 
 ### Batch A — Stage 0: make the tree honest
 
 | # | Task | Kind | Status |
 |---|---|---|---|
 | A1 | Red test `CanonicalRecallMeaningTest` fixture (**D-1**) | Code | **done** |
-| A2 | Lexical precision gate must survive TIME cues (**D-2**) + T10 anti-case | Code | open |
-| A3 | Drop blanket advisory TOPIC on every query ≥ 4 chars (**D-4**) + T11 | Code | open |
+| A2 | Lexical precision gate must survive TIME cues (**D-2**) + T10 anti-case | Code | **done** |
+| A3 | Drop blanket advisory TOPIC on every query ≥ 4 chars (**D-4**) + T11 | Code | **done** |
 | A4 | Nine doc-drift corrections (§4) | Docs | open |
 | A5 | `CONTINUE.md` "Current truth" table; archive diary to `docs/archive/` | Docs | open |
 | A6 | **Founder:** accept Ask Model v1 + v1.1 | Decision | open |

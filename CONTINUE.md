@@ -13,9 +13,13 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1 is done**, A2–A6 remain.
 
-**Tree state:** unit suite **green** — 679 tests, 0 failures (2026-09-04 23:04).
-Defect **D-1** is fixed: `CanonicalRecallMeaningTest` fixtures now carry the
-query word, so the test exercises trimming rather than the MF-1 lexical gate.
+**Tree state:** unit suite **green** — 682 tests, 0 failures (2026-09-04).
+Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
+cue no longer disables lexical precision — `recent files with silky` requires
+`silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
+and **D-4 / T11** (TOPIC is EXPLICIT-only; a plain cue no longer pays an anchor
+round-trip). Remaining in Stage 0: **A4** doc drift, **A5** CONTINUE restructure,
+**A6** founder acceptance of the Ask Model.
 
 **Core capability register (2026-09-04):** `docs/CORE_CAPABILITY_REGISTER_V1.md`
 — **CR-01…CR-09**, the capabilities the founder's Core definition needs that are

@@ -302,8 +302,8 @@ Device MF-3 still required.
 | T7 | Card label | Friendly filename (strip storage hash prefix) |
 | T8 | Why dialect | Shared contract; consumer-grade; grouped Why names the cue (I17) |
 | T9 | Relative TIME | Classifier + **calendar resolve** + parsed TIME compare; missing TIME never excludes (Freeze §3) |
-| T10 | Explicit TIME + content tokens | Must **not** skip lexical on `notes` merely because `in 2024` was explicit — content and constraint compose |
-| T11 | Topic advisory | Must **not** treat every query ≥ 4 chars as TOPIC advisory with the **full raw question** as title cue |
+| T10 | Explicit TIME + content tokens | Must **not** skip lexical on `notes` merely because `in 2024` was explicit — content and constraint compose. **Landed 2026-09-04:** the matched time span is subtracted from the required tokens, so `notes in 2024` requires `notes` and never the literal `2024`, and `recent files with silky` still requires `silky` |
+| T11 | Topic advisory | Must **not** treat every query ≥ 4 chars as TOPIC advisory with the **full raw question** as title cue. **Landed 2026-09-04:** TOPIC is EXPLICIT-only (named title); a plain cue no longer pays an anchor lookup — guarded by a call-count assertion |
 | T12 | Multi-cue split | Deterministic, tested; no general NLU cloud; English list glue only |
 | T13 | Unicode / injection | Normalize without crash |
 | T14 | IDENTITY_ONLY / low RAM | Same precision contract as T6 |

@@ -12,11 +12,16 @@ object MeaningEvidenceLexicalFilter {
     fun requiredContentTokens(query: String): List<String> =
         RecallQueryContentTokens.tokens(query)
 
-    /** Precision gate when the cue names at least one content token (bar T1 / U1). */
-    fun shouldApply(query: String): Boolean = requiredContentTokens(query).isNotEmpty()
+    fun evidenceSatisfies(query: String, evidenceText: String): Boolean =
+        satisfies(requiredContentTokens(query), evidenceText)
 
-    fun evidenceSatisfies(query: String, evidenceText: String): Boolean {
-        val tokens = requiredContentTokens(query)
+    /**
+     * Precision over an explicit token list, so a caller can drop the words a
+     * structured constraint already consumed. `notes in 2024` must still require
+     * `notes` in stored text but never the literal `2024`, which lives on a TIME
+     * anchor instead (bar T10).
+     */
+    fun satisfies(tokens: List<String>, evidenceText: String): Boolean {
         if (tokens.isEmpty()) return true
         val haystack = evidenceText.lowercase()
         return tokens.all { token ->

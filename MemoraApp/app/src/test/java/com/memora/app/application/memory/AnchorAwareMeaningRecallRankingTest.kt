@@ -23,15 +23,96 @@ import org.junit.Test
 class AnchorAwareMeaningRecallRankingTest {
     private val model = ModelVersionIdentity("test-model", "1")
 
+    /**
+     * T10: an explicit time constraint must not switch precision off. `2024` is
+     * a constraint carried by a TIME anchor; `notes` is content and still has to
+     * appear in stored text.
+     */
     @Test
-    fun apply_skips_lexical_filter_for_explicit_time_queries() = runBlocking {
+    fun apply_explicit_time_still_requires_the_content_word() = runBlocking {
+        val keep = MemoryRevisionId("rev-notes")
+        val dropNoContent = MemoryRevisionId("rev-no-notes")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "notes in 2024",
+            hits = listOf(
+                // Right date, wrong document: nothing here says "notes".
+                hit(dropNoContent, 0.95f, summaryText = "Bus discipline rules"),
+                hit(keep, 0.4f, summaryText = "Parent evening notes"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "notes in 2024",
+            memoryRepository = FakeAnchorRepository(
+                mapOf(
+                    keep to listOf(timeAnchor("Date taken: 2024-03-01")),
+                    dropNoContent to listOf(timeAnchor("Date taken: 2024-05-02")),
+                ),
+            ),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    /** T10, advisory half: `recent` must not disable precision on `silky`. */
+    @Test
+    fun apply_advisory_time_still_requires_the_content_word() = runBlocking {
+        val keep = MemoryRevisionId("rev-silky")
+        val drop = MemoryRevisionId("rev-bus")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "recent files with silky",
+            hits = listOf(
+                hit(drop, 0.95f, label = "Bus.pdf", summaryText = "Bus Discipline Rules"),
+                hit(keep, 0.3f, label = "Spell.pdf", summaryText = "anchor silky wreck cook"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "recent files with silky",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    /** The time words themselves are never required in stored text (T10). */
+    @Test
+    fun apply_does_not_require_the_time_words_in_evidence() = runBlocking {
+        val keep = MemoryRevisionId("rev-notes")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "notes in 2024",
+            hits = listOf(hit(keep, 0.4f, summaryText = "Parent evening notes")),
+            limitReached = false,
+            model = model,
+        )
+
+        val filtered = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "notes in 2024",
+            memoryRepository = FakeAnchorRepository(
+                mapOf(keep to listOf(timeAnchor("Date taken: 2024-03-01"))),
+            ),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    @Test
+    fun apply_explicit_time_excludes_non_matching_anchor_hits() = runBlocking {
         val revMatch = MemoryRevisionId("rev-match")
         val revMiss = MemoryRevisionId("rev-miss")
         val outcome = MeaningSearchOutcome.Matches(
             query = "notes in 2024",
             hits = listOf(
-                hit(revMiss, 0.95f),
-                hit(revMatch, 0.9f),
+                // Both carry the content word, so only the anchor can separate them.
+                hit(revMiss, 0.95f, summaryText = "Sports day notes"),
+                hit(revMatch, 0.9f, summaryText = "Parent evening notes"),
             ),
             limitReached = false,
             model = model,
@@ -52,33 +133,27 @@ class AnchorAwareMeaningRecallRankingTest {
         assertEquals(revMatch, filtered.hits.single().revisionId)
     }
 
+    /**
+     * T11: a plain cue carries no TOPIC constraint, so the ranker must not pay
+     * for an anchor lookup on every search.
+     */
     @Test
-    fun apply_explicit_time_excludes_non_matching_anchor_hits() = runBlocking {
-        val revMatch = MemoryRevisionId("rev-match")
-        val revMiss = MemoryRevisionId("rev-miss")
+    fun apply_plain_query_does_not_reach_for_anchors() = runBlocking {
+        val repository = FakeAnchorRepository()
         val outcome = MeaningSearchOutcome.Matches(
-            query = "notes in 2024",
-            hits = listOf(
-                hit(revMiss, 0.95f),
-                hit(revMatch, 0.9f),
-            ),
+            query = "silky",
+            hits = listOf(hit(MemoryRevisionId("rev-1"), 0.4f, summaryText = "anchor silky wreck")),
             limitReached = false,
             model = model,
         )
 
-        val filtered = AnchorAwareMeaningRecallRanking.apply(
+        AnchorAwareMeaningRecallRanking.apply(
             outcome = outcome,
-            rawQuery = "notes in 2024",
-            memoryRepository = FakeAnchorRepository(
-                mapOf(
-                    revMatch to listOf(timeAnchor("Date taken: 2024-03-01")),
-                    revMiss to listOf(timeAnchor("Date taken: 2022-01-01")),
-                ),
-            ),
-        ) as MeaningSearchOutcome.Matches
+            rawQuery = "silky",
+            memoryRepository = repository,
+        )
 
-        assertEquals(1, filtered.hits.size)
-        assertEquals(revMatch, filtered.hits.single().revisionId)
+        assertEquals(0, repository.signatureAnchorLookups)
     }
 
     @Test
@@ -122,12 +197,18 @@ class AnchorAwareMeaningRecallRankingTest {
         assertTrue(top.score > 0.2f)
     }
 
+    /**
+     * Regression guard from the Stage A CE fix: when the anchor stage runs but
+     * every anchor is neutral, it must preserve the incoming rank order rather
+     * than resorting on score. Driven by an advisory TIME cue, since TOPIC is no
+     * longer advisory on ordinary queries (T11).
+     */
     @Test
-    fun apply_advisory_topic_with_signature_anchors_does_not_throw() = runBlocking {
+    fun apply_preserves_rank_order_when_anchors_are_neutral() = runBlocking {
         val invoiceMatch = MemoryRevisionId("rev-invoice")
         val other = MemoryRevisionId("rev-other")
         val outcome = MeaningSearchOutcome.Matches(
-            query = "invoice",
+            query = "recent invoice",
             hits = listOf(
                 hit(
                     invoiceMatch,
@@ -146,21 +227,24 @@ class AnchorAwareMeaningRecallRankingTest {
             model = model,
         )
 
-        val ranked = AnchorAwareMeaningRecallRanking.apply(
-            outcome = outcome,
-            rawQuery = "invoice",
-            memoryRepository = FakeAnchorRepository(
-                mapOf(
-                    invoiceMatch to listOf(
-                        topicAnchor("memora-open-5page.pdf", MemoryEvidenceId("e-topic-5")),
-                    ),
-                    other to listOf(
-                        topicAnchor("memora-open-3page.pdf", MemoryEvidenceId("e-topic-3")),
-                    ),
+        val repository = FakeAnchorRepository(
+            mapOf(
+                invoiceMatch to listOf(
+                    topicAnchor("memora-open-5page.pdf", MemoryEvidenceId("e-topic-5")),
+                ),
+                other to listOf(
+                    topicAnchor("memora-open-3page.pdf", MemoryEvidenceId("e-topic-3")),
                 ),
             ),
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "recent invoice",
+            memoryRepository = repository,
         ) as MeaningSearchOutcome.Matches
 
+        assertEquals(1, repository.signatureAnchorLookups)
         assertEquals(2, ranked.hits.size)
         assertEquals(invoiceMatch, ranked.hits.first().revisionId)
     }
@@ -361,9 +445,15 @@ class AnchorAwareMeaningRecallRankingTest {
     private class FakeAnchorRepository(
         private val anchors: Map<MemoryRevisionId, List<MemoryAnchor>> = emptyMap(),
     ) : MemoryRepository by EmptyMemoryRepositoryDelegate() {
+        /** Counted so T11 can prove the anchor round-trip is not paid per search. */
+        var signatureAnchorLookups: Int = 0
+            private set
+
         override suspend fun findSignatureAnchors(
             revisionIds: Collection<MemoryRevisionId>,
-        ): Map<MemoryRevisionId, List<MemoryAnchor>> =
-            anchors.filterKeys { it in revisionIds }
+        ): Map<MemoryRevisionId, List<MemoryAnchor>> {
+            signatureAnchorLookups++
+            return anchors.filterKeys { it in revisionIds }
+        }
     }
 }
