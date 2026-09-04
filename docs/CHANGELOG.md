@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+### A4 — doc truth drift cleared (2026-09-05)
+
+- **Date:** 2026-09-05
+- **Why:** the audit found the same fact stated three ways. A reader could open
+  three governance docs and get Live/Dual **0**, **2**, or **5**; two docs said
+  `RECALL_CONVERGENCE_DONE` was still open while the gate itself has read
+  **COMPLETE** since 2026-08-31; `ROADMAP` still listed A-01 open after it passed
+  on a physical device. Drift like this is not cosmetic — `CONTINUE.md`
+  "Next eng default" item 1 was still pointing engineers at a closed program exit.
+- **Fixed (all nine §4 rows):** Live/Dual corrected to **0** in `CONTINUE.md`,
+  `CORE_APP_SEPARATION_PLAN.md`, and `PRODUCT_SOURCE_REGISTRY.md`; convergence
+  status corrected in three `CONTINUE.md` locations; `MVP_EXIT_AUDIT.md` meaning
+  plumbing row now separates the delivered **engineering slice** from
+  **ADR-050 claim B (Spec-full), which stays OPEN**; `ROADMAP.md` records A-01
+  closed 2026-09-02; `PHASE_A_IMPLEMENTATION_PLAN_V1.md` carries a **SUPERSEDED**
+  banner; six `PRD_TRACEABILITY.md` rows refreshed.
+- **Two judgement calls, recorded in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §4.**
+  Dated snapshots (e.g. "Status truth check 2026-08-30") were **left intact** and
+  the surrounding standing claims date-stamped instead — a build diary is history,
+  and rewriting it destroys the record. `PRD_TRACEABILITY` rows were set to their
+  *actual* state rather than flipped to a flat "Delivered": **P-01** and **P-12**
+  remain honestly partial because Ask Model NL coverage is still **FAIL**, and
+  **P-10** records that understanding is deterministic only. Overclaiming here
+  would have violated truth-before-intelligence to close a docs task.
+- **Also corrected beyond the nine:** three further `CONTINUE.md` claims that
+  contradicted the same facts — the MIG-07B docs note, "Next eng default" item 1,
+  and "Shared result/Why UI contract still open" (both boxes are checked in
+  `RECALL_CONVERGENCE_DONE.md`; what remains is the *optional* UI redesign, which
+  convergence explicitly does not require). Leaving them would have defeated the
+  purpose of the task.
+- **Knowingly left for A5:** `CONTINUE.md` line ~1243 still reads "A-01 offline
+  end-to-end intelligence remain open" inside the deep diary. It is undated
+  history sitting 1,200 lines below the current checkpoint; fixing every such
+  line is the restructure, not this task.
+- **Verification:** repo-wide grep for `N=2` / `N=5` now returns only dated
+  change-control records, `docs/CHANGELOG.md` history, and the §4 drift table
+  itself — all correct as history. No code touched; no test run required.
+
 ### Public pack revision 2026-09-05 — scope-aware retrieval direction (2026-09-05)
 
 - **Date:** 2026-09-05

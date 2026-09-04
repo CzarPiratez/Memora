@@ -28,7 +28,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | Keyword Find — PDF | **PASS** | MIG-07 PDF cutover; convergence program |
 | Keyword Find — photo / screenshot | **PASS** | MIG-07 cutovers delivered |
 | Keyword Find — note (OneNote) | **PASS** | `docs/CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` N0–N7 accepted |
-| Find by meaning — plumbing | **PASS** | Page embeddings E5c; MIG-05 claim B all MVP types; anchor fix 2026-09-01 |
+| Find by meaning — plumbing | **PASS** | Page embeddings E5c; MIG-05 claim B **engineering slice** delivered for all MVP asset types (`CHANGE_CONTROL_MIG05B_NOTE_EVIDENCE_EMBEDDINGS.md`); anchor fix 2026-09-01. **ADR-050 claim B (Spec-full acceptance) remains OPEN** — do not read this PASS as closing it |
 | Find by meaning — NL intent coverage | **FAIL** | Ask Model `HUMAN_RECALL_ASK_MODEL.md` is the ceiling; I3/I8/I11/vision/typos still open; plumbing PASS ≠ natural recall |
 | Find by meaning — emulator E2E | **PASS** | `CHANGE_CONTROL_MEANING_SEARCH_ANCHOR_FIX.md`; CONTINUE: `invoice` / `mira` on emulator |
 | Find by meaning — physical device E2E | **PASS** | `docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md` — Samsung SM-A156E; offline meaning Find + Why + Open original (2026-09-02) |

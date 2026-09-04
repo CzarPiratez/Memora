@@ -15,8 +15,9 @@ track** E0–E5d + **E4b USE** + **M3** USE page-recall + **M4 plan + execute** 
 **meaning-index progress/cap UI** shipped. Emulator and `midrange_arm64`
 embedding/recall are DEGRADED_EXPLICIT candidate (not AVAILABLE). CI on `main`
 is green. **Enterprise completion** awaits product AVAILABLE decision after M4:
-`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`. A-01 offline
-end-to-end proof and marketing AVAILABLE remain open.
+`docs/ENTERPRISE_COMPLETION_MEANING_PDF_PAGE_RECALL.md`. **A-01 offline
+end-to-end proof closed 2026-09-02** (`docs/CHANGE_CONTROL_A01_OFFLINE_DEVICE_PROOF.md`
+— Samsung SM-A156E, build `bf511ca`); marketing AVAILABLE remains open.
 
 **Exit gate:** an engineering review can prove that normal memory creation, recall,
 ranking, and explanation have no cloud dependency and that unsupported devices receive

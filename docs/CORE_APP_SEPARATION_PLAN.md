@@ -42,8 +42,8 @@ boundaries are clean and an ADR defines the public Core code boundary.
 - `work/` → Android workers; product/scheduling layer (stays with App or
   `core-android` adapter boundary).
 
-**Recall boundary (shipped):** thin `CanonicalRecall` façade; L7/L8 still outside
-until MIG-07B. Live/Dual **N = 2**.
+**Recall boundary (shipped):** thin `CanonicalRecall` façade; L7/L8 retired by
+MIG-07B Slices 3–4 (2026-08-31). Live/Dual **N = 0**.
 
 ---
 

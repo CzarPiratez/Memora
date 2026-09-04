@@ -73,7 +73,8 @@ conversational memory or an untracked desktop file.
     Canonical Recall. ADR-049 naming alone does not authorize L2–L4 / MIG-07B
     or rewrite hashed Freeze / Spec / Grounding / Experience Memory blobs.
     MIG-07 PDF cutover is authorized separately in GOVERNANCE /
-    `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER` (L1 Retired; N=5).
+    `CHANGE_CONTROL_MIG07_PDF_KEYWORD_CUTOVER` (L1 Retired; Live/Dual **N = 0**
+    after MIG-07B — see `docs/LEGACY_RECALL_SURFACE.md`).
 11. **MIG-05 claim levels (ADR-050):** **A** = PDF evidence-embedding delivery
     slice (steps 1–4) COMPLETE for engineering checkpoint language.
     **B** = Migration Spec MIG-05 full acceptance STILL OPEN until non-PDF

@@ -2,6 +2,13 @@
 
 # Memora — Implementation Execution Plan v1.1
 
+> **SUPERSEDED (2026-09-05).** This plan was written before the migration
+> roadmap was executed. **MIG-01 through MIG-07B have landed** (Live/Dual
+> **N = 0**; `docs/RECALL_CONVERGENCE_DONE.md` COMPLETE 2026-08-31), so §1's
+> premise that the roadmap is "not yet implemented" no longer holds. Retained
+> for historical traceability only. **Current sequence:**
+> `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` §8b. **Current state:** `CONTINUE.md`.
+
 **Status:** Execution plan for the current repository state
 **Supersedes:** `MEMORA_IMPLEMENTATION_EXECUTION_PLAN_V1.md` — corrected per the review below, not a redesign
 **Purpose:** Guide Cursor through the remaining implementation work without reopening the frozen architecture

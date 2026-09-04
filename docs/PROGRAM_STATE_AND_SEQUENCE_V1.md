@@ -235,6 +235,20 @@ Do this as one amendment accepted together with v1. It is the difference between
 The audit found the same fact stated three different ways. Each line below is a
 one-line correction, not a rewrite.
 
+> **APPLIED 2026-09-05 (A4).** All nine landed. Three deviations from the table,
+> each deliberate: (a) `CONTINUE.md` line numbers had drifted, so the fixes were
+> made by content — and two further standing claims contradicting the same facts
+> were corrected with them (the MIG-07B docs note, and "Next eng default" item 1,
+> which still pointed engineers at a program exit closed on 2026-08-31);
+> (b) dated snapshots such as **Status truth check 2026-08-30** were left intact
+> and the surrounding claims date-stamped instead — the diary is history, not
+> current truth, and A5 is where that separation gets made structural;
+> (c) `PHASE_A_IMPLEMENTATION_PLAN_V1.md` carries a **SUPERSEDED** banner rather
+> than being moved to `docs/archive/`, so inbound links keep working; the physical
+> move belongs to A5. `PRD_TRACEABILITY.md` rows were set to their *actual* state
+> with evidence pointers, not flipped to a flat "Delivered" — P-01 and P-12 remain
+> honestly partial because Ask Model coverage is still **FAIL**.
+
 | File:line | Says | Truth | Action |
 |---|---|---|---|
 | `CONTINUE.md:277` | Live/Dual = **2** | **0** | Fix |
@@ -448,7 +462,7 @@ pick it up by ID. Batch letters map to the stages above.
 | A1 | Red test `CanonicalRecallMeaningTest` fixture (**D-1**) | Code | **done** |
 | A2 | Lexical precision gate must survive TIME cues (**D-2**) + T10 anti-case | Code | **done** |
 | A3 | Drop blanket advisory TOPIC on every query ≥ 4 chars (**D-4**) + T11 | Code | **done** |
-| A4 | Nine doc-drift corrections (§4) | Docs | open |
+| A4 | Nine doc-drift corrections (§4) | Docs | **done** |
 | A5 | `CONTINUE.md` "Current truth" table; archive diary to `docs/archive/` | Docs | open |
 | A6 | **Founder:** accept Ask Model v1 + v1.1 | Decision | open |
 

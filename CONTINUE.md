@@ -4,22 +4,26 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-04
+**Updated:** 2026-09-05
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
 doc truth drift with exact line fixes, stale-code register, UNFYND Core
 additions, stages 0–5 to MVP exit and beyond, and the numbered execution backlog
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
-acceptance on the model; **A1 is done**, A2–A6 remain.
+acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
 **Tree state:** unit suite **green** — 682 tests, 0 failures (2026-09-04).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
 and **D-4 / T11** (TOPIC is EXPLICIT-only; a plain cue no longer pays an anchor
-round-trip). Remaining in Stage 0: **A4** doc drift, **A5** CONTINUE restructure,
-**A6** founder acceptance of the Ask Model.
+round-trip). **A4** doc drift is cleared (2026-09-05): Live/Dual is stated as
+**0** everywhere it is claimed as current, `RECALL_CONVERGENCE_DONE` reads
+**COMPLETE**, A-01 reads closed, MIG-05 claim B is no longer implied complete,
+`PHASE_A_IMPLEMENTATION_PLAN_V1.md` is banner-marked SUPERSEDED, and six
+`PRD_TRACEABILITY` rows carry their real state. Remaining in Stage 0:
+**A5** CONTINUE restructure, **A6** founder acceptance of the Ask Model.
 
 **Public pack revision 2026-09-05 — published.** Public remote
 `CzarPiratez/unfynd-core` is at **`4d99a42`** (monorepo source commit `16e8270`);
@@ -222,7 +226,8 @@ Asset Memory setup. See `CHANGE_CONTROL_FC04_CORPUS_COMPLETENESS_HONESTY.md`.
 `CHANGE_CONTROL_DUAL_TRACK_CHECKPOINT_1.md`.
 
 **Docs note (MIG-07B change control):** Slices 1–4 delivered. MIG-07B ranking
-convergence complete; `RECALL_CONVERGENCE_DONE` program exit still open.
+convergence complete; `RECALL_CONVERGENCE_DONE` program exit was still open at
+that point and reached **COMPLETE** on 2026-08-31.
 
 **Phase 1 slice 4 (2026-08-30):** `UserConfirmedDerivedDataClearer` +
 `OnDeviceEmbeddingModelDownloader` ports; Core boundary allowlist 5→3 (OneNote
@@ -245,8 +250,8 @@ product-facing retrieval entry for PDF / screenshot / photo / note keyword
 Finds; KEYWORD candidate generation remains `SearchMemoryEvidence` inside that
 boundary. Meaning Find routes through `CanonicalRecall.searchByMeaning`. Four
 keyword ViewModels + `MeaningSearchViewModel` inject `CanonicalRecall` only.
-Live/Dual **N = 0**. **Not** `RECALL_CONVERGENCE_DONE` (shared result/Why +
-program-exit boxes remain). Per **ADR-050:** claim **A** COMPLETE; claim **B** OPEN.
+Live/Dual **N = 0**. **Not** `RECALL_CONVERGENCE_DONE` *at this checkpoint* —
+that program exit reached **COMPLETE** on 2026-08-31 (`docs/RECALL_CONVERGENCE_DONE.md`). Per **ADR-050:** claim **A** COMPLETE; claim **B** OPEN.
 **MIG-04** MemoryBuilder seam remains live. Ranking, Find/Why UI redesign,
 Links, Event/Knowledge, Grounded Answers code, package rename, VisionEngine,
 and remaining `RECALL_CONVERGENCE_DONE` program-exit items are not started. Hashed freeze/spec/amendment files unchanged.
@@ -318,8 +323,8 @@ Does not rewrite hashed Spec/Freeze. MIG-07 note cutover is separately
 authorized in GOVERNANCE /
 `CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER`.
 
-**Legacy recall surface:** Live/Dual = **2** (see `docs/LEGACY_RECALL_SURFACE.md`;
-audit: `docs/ESCAPE_HATCH_AUDIT.md` — MIG-07 note checkpoint; L4 Retired).
+**Legacy recall surface:** Live/Dual = **0** (see `docs/LEGACY_RECALL_SURFACE.md`;
+audit: `docs/ESCAPE_HATCH_AUDIT.md` — L1–L8 all Retired after MIG-07B, 2026-08-31).
 
 **Status truth check 2026-08-30:** CONTINUE + LEGACY + code agree; N=2
 (L1–L8 Retired; Room 15; evidence-only index;
@@ -338,8 +343,9 @@ Change-control convergence block + `docs/LEGACY_EXTENSION_EXCEPTION.md`.
 (see RECALL_ENFORCEMENT_INDEX; MIG-07 PDF + screenshot + photo + note allowlist).
 
 **Docs note (Recall / MIG-05 DONE checklists):** Program-exit definitions only.
-Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (still open — shared
-result/Why contract; MIG-05 claim B; program-exit boxes). MIG-05 FULL DONE checklist
+Recall program exit: `docs/RECALL_CONVERGENCE_DONE.md` (**COMPLETE** 2026-08-31 —
+all 15 boxes; shared result/Why contract landed. MIG-05 claim B and marketing
+AVAILABLE are separate gates and remain open). MIG-05 FULL DONE checklist
 in `docs/CHANGE_CONTROL_MIG05_EVIDENCE_EMBEDDING_STORE.md` — per **ADR-050**,
 claim **A** (PDF slice) may be treated complete; claim **B** / Spec full and
 the non-PDF box remain **open**. MIG-07 keyword L1–L4 cutovers alone do
@@ -348,7 +354,10 @@ the non-PDF box remain **open**. MIG-07 keyword L1–L4 cutovers alone do
 **Docs note (Canonical Recall result + Why contract):** Logical shared hit/Why
 shape — `docs/CANONICAL_RECALL_RESULT_CONTRACT.md`. `CanonicalRecall` façade
 landed for keyword + meaning Find; shared meaning ranking (token boost + anchor
-filter) landed (MIG-07B Slice 4). Shared result/Why UI contract still open.
+filter) landed (MIG-07B Slice 4). Shared result model **and** shared Why contract
+are **implemented** (`RECALL_CONVERGENCE_DONE.md` boxes checked 2026-08-31); what
+remains is the optional Find/Why **UI redesign**, which convergence explicitly does
+not require — asset-scoped screens over a shared API are allowed.
 ### Where we are (honest)
 
 UNFYND runs on the Medium Phone emulator as a **local-first memory retrieval**
@@ -390,9 +399,10 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 
 **Next eng default (parallel workstreams):**
 
-1. **`RECALL_CONVERGENCE_DONE` program exit** — shared result/Why contract,
-   MIG-05 claim B, remaining program-exit boxes. MIG-07B Slices 1–4 **landed**
-   (Live/Dual N=0). Gate: `docs/RECALL_CONVERGENCE_DONE.md` (still open).
+1. **`RECALL_CONVERGENCE_DONE` program exit** — **CLOSED 2026-08-31**; shared
+   result/Why contract landed, MIG-07B Slices 1–4 landed (Live/Dual N=0). This
+   item is superseded: the current sequence is `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md`
+   **§8b**. MIG-05 claim B remains open under item 2 below.
 2. **MIG-05 remaining / deferral (ADR-050 claim B)** — non-PDF evidence
    indexer when authorized, or accept PDF-only vectors via a future ADR.
    Do not claim Spec MIG-05 / claim **B** complete while non-PDF remains
