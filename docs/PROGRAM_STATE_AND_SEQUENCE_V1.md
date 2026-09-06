@@ -241,6 +241,10 @@ Canonical Recall, not to candidate generation. `MeaningEvidenceLexicalFilter.pre
 compiles the cue once per query so corpus-wide admission does not pay a `Regex`
 build per candidate.
 
+**Completed by D-15 (2026-09-06):** the original fix reserved seats only for the
+exact AND. Once D-12 made precision a tier, a two-word cue with no exact match
+fell back to cosine-only admission — D-11 one level down.
+
 ### D-12 — The lexical AND was a veto, so meaning could not answer a paraphrase (**P0, fixed**)
 
 **FIXED 2026-09-06.** Found on device *after* D-11 landed. `swimming timetable`
@@ -274,6 +278,25 @@ Ask Model: satisfies **P-AND vs P-LIST** (a descriptive phrase is not a
 conjunction the person intends) and **P-ANSWER / P-EVIDENCE** (a partial answer
 presented as a whole one is worse than an empty one). Live/Dual **N = 0**
 unchanged; no new Find path, no new ranker.
+
+### D-15 — Admission reserved seats only for the exact AND (**P0, fixed**)
+
+**FIXED 2026-09-06.** D-11 reserved a pool seat when stored text satisfied
+*every* named word. D-12 then made precision a tier, so `swimming schedule`
+became a legitimate partial answer — but admission still treated "no exact AND"
+as "no lexical claim", and the swimming-timetable PDF had to win a cosine seat
+or the new tier had nothing to show. At ~1000 memories that is the same
+reachability hole as D-11, one level down.
+
+**Fixed** by admitting on *coverage depth*: how many named words the Memory
+carries, using the same `PreparedCue.matchingTokens` that D-12 ranks with.
+Deeper coverage claims seats first; remaining seats stay cosine neighbours;
+the pool is still returned in cosine order. No second lexical derivation, no
+new Find path, no ranking in candidate generation. Live/Dual **N = 0**.
+
+Zero-overlap paraphrase (`kids water lessons` against a file that says
+neither word) is still an honest empty. That is the meaning-only tier, not
+this defect.
 
 ### D-13 — `notes` is only ever a content word (**P1, open — J7 / P-TYPE**)
 

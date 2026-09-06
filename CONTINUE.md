@@ -21,16 +21,16 @@ causes were in **candidate generation**, not in the MF-1.1 precision work:
   passed at 25 memories failed at ~1000.** Admission is now lexically aware;
   ranking is unchanged and still belongs to Canonical Recall.
 
-Newly registered and still **open**: **D-12** (a strict lexical AND has no recall
-floor — one missing word yields a bare empty instead of an honest partial),
-**D-13** (J7 / P-TYPE: `notes` is only ever a content word, so `notes in 2026`
-returns screenshots saying "Note:"), **D-14** (D16 corpus scope: UNFYND's own
-screenshots compete). All three are in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2.
+**D-12** (`2861e80`) and **D-15** landed after the device re-test: precision is
+a tier, not a veto, and admission now reserves seats by coverage depth so a
+partial match cannot starve the way an exact match used to. Still **open**:
+**D-13** (J7 / P-TYPE), **D-14** (D16: UNFYND's own screenshots compete),
+drain automation (D-9 / Batch I), and a meaning-only tier for zero-overlap
+paraphrase. All in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2.
 
-**Next action:** debug APK is built; re-run the P0 checklist on the physical
-phone. Queries 3 and 7 still empty after this would mean the text was never
-extracted, not that Find cannot see it — check `swimming` and `timetable`
-separately on the per-type keyword screens to tell those apart.
+**Next action:** D-14 (self-screenshots outranking real files) is the most
+visible remaining demo risk. Drain automation is the largest remaining
+operational risk.
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,

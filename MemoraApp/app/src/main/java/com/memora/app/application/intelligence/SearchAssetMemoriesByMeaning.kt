@@ -233,9 +233,17 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
      * precision gate ever saw it. Queries that passed against 25 memories
      * answered nothing against ~1000 for that reason alone (defect D-11).
      *
-     * Candidates whose stored text satisfies every named word claim seats first;
-     * the remaining seats keep the best cosine neighbours, so a cue with no
-     * literal match still degrades to meaning rather than to empty.
+     * Candidates claim seats by how many named words their stored text carries
+     * (defect D-15). Deeper coverage is admitted first; remaining seats keep
+     * the best cosine neighbours, so a cue with no literal overlap still
+     * degrades to meaning rather than to empty.
+     *
+     * D-11 reserved seats only for the exact AND. After D-12 made precision a
+     * tier, that left a hole one level down: `swimming schedule` has no
+     * two-word match, so the swimming-timetable PDF had to win a cosine seat
+     * or the precision tier had nothing to show. Admission now uses the same
+     * [MeaningEvidenceLexicalFilter.PreparedCue.matchingTokens] count that
+     * D-12 ranks with, so the two cannot drift apart.
      *
      * Admission only. The pool is handed back in cosine order because this class
      * generates candidates and does not rank them — token boost, precision,
@@ -249,11 +257,12 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         if (candidates.size <= limit) return candidates
         val cue = MeaningEvidenceLexicalFilter.prepare(MeaningRecallCue.contentTokens(rawQuery))
         if (cue.isEmpty) return candidates.take(limit)
-        val (literal, neighbours) = candidates.partition { cue.satisfies(it.lexicalHaystack()) }
-        if (literal.isEmpty()) return candidates.take(limit)
-        return (literal + neighbours)
+        // [candidates] is already cosine-desc; a stable depth sort keeps that
+        // order inside each depth, then we restore cosine order for the return.
+        val admitted = candidates
+            .sortedByDescending { cue.matchingTokens(it.lexicalHaystack()).size }
             .take(limit)
-            .sortedByDescending { it.score }
+        return admitted.sortedByDescending { it.score }
     }
 
     private fun precisionTextFor(

@@ -105,6 +105,44 @@ class MeaningEvidenceLexicalFilterTest {
         assertFalse(prepared.isEmpty)
     }
 
+    /**
+     * D-15 / D-12 share [PreparedCue.matchingTokens]. The count must equal
+     * the number of named words that would pass a one-word [satisfies], in
+     * cue order — not a second derivation.
+     */
+    @Test
+    fun matching_tokens_are_the_named_words_that_satisfy_one_at_a_time() {
+        val tokens = MeaningRecallCue.contentTokens("swimming schedule")
+        val prepared = MeaningEvidenceLexicalFilter.prepare(tokens)
+        assertEquals(listOf("swimming", "schedule"), tokens)
+        assertEquals(
+            listOf("swimming"),
+            prepared.matchingTokens("Grade 2 Swimming Timetable 2026"),
+        )
+        assertEquals(
+            listOf("swimming", "schedule"),
+            prepared.matchingTokens("Swimming schedule term 2"),
+        )
+        assertEquals(
+            emptyList<String>(),
+            prepared.matchingTokens("Bus Discipline Rules for Students"),
+        )
+        assertEquals(
+            listOf("schedule"),
+            prepared.matchingTokens("period schedule only"),
+        )
+        assertFalse(prepared.satisfies("Grade 2 Swimming Timetable 2026"))
+        assertTrue(prepared.satisfies("Swimming schedule term 2"))
+    }
+
+    @Test
+    fun matching_tokens_on_an_empty_cue_are_empty() {
+        val prepared = MeaningEvidenceLexicalFilter.prepare(emptyList())
+        assertTrue(prepared.isEmpty)
+        assertEquals(emptyList<String>(), prepared.matchingTokens("anything"))
+        assertTrue(prepared.satisfies("anything"))
+    }
+
     /** The exact composition Canonical Recall applies (defect D-10). */
     private fun satisfies(query: String, evidenceText: String): Boolean =
         MeaningEvidenceLexicalFilter.satisfies(

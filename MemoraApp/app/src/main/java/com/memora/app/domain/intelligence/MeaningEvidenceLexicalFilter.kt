@@ -3,10 +3,11 @@ package com.memora.app.domain.intelligence
 /**
  * Lexical AND precision gate for meaning recall (F-02 + scenario bar MF-1).
  *
- * When the cue names one or more content tokens, every token must appear in the
- * ranked evidence text. Semantic cosine remains candidate generation; this filter
- * removes soft neighbors that do not support the named cue. Not keyword Find and
- * not measured AVAILABLE.
+ * When the cue names one or more content tokens, [satisfies] is the exact AND
+ * over those tokens. [PreparedCue.matchingTokens] is the same compilation
+ * counted per word, which candidate admission (D-15) and the precision tier
+ * (D-12) both read. Semantic cosine remains candidate generation. Not keyword
+ * Find and not measured AVAILABLE.
  *
  * The token list comes from [MeaningRecallCue.contentTokens] so that precision
  * and candidate generation always agree on what the person named (defect D-10).
@@ -32,27 +33,51 @@ object MeaningEvidenceLexicalFilter {
     fun prepare(tokens: List<String>): PreparedCue =
         PreparedCue(
             tokens.map { token ->
-                EnglishRecallInflection.wholeWordVariants(token).map { variant ->
-                    Regex("""\b${Regex.escape(variant)}\b""")
-                }
+                TokenCue(
+                    token = token,
+                    variants = EnglishRecallInflection.wholeWordVariants(token).map { variant ->
+                        Regex("""\b${Regex.escape(variant)}\b""")
+                    },
+                )
             },
         )
 
     /**
      * One cue compiled for repeated evaluation. A token with no usable variant
      * can never be satisfied, matching [EnglishRecallInflection.occursAsWholeWord].
+     *
+     * [satisfies] is the exact AND. [matchingTokens] is the same compilation
+     * counted per word, so candidate admission (D-15) and the precision tier
+     * (D-12) cannot disagree about how many named words a Memory carries.
      */
     class PreparedCue internal constructor(
-        private val variantsPerToken: List<List<Regex>>,
+        private val tokens: List<TokenCue>,
     ) {
-        val isEmpty: Boolean get() = variantsPerToken.isEmpty()
+        val isEmpty: Boolean get() = tokens.isEmpty()
 
         fun satisfies(evidenceText: String): Boolean {
-            if (variantsPerToken.isEmpty()) return true
+            if (tokens.isEmpty()) return true
             val haystack = evidenceText.lowercase()
-            return variantsPerToken.all { variants ->
-                variants.any { it.containsMatchIn(haystack) }
-            }
+            return tokens.all { it.matches(haystack) }
         }
+
+        /**
+         * Named words from this cue that appear in [evidenceText], in cue order.
+         * Empty cue → empty list (there is nothing to match), which is why
+         * [satisfies] and [matchingTokens] diverge on the empty case.
+         */
+        fun matchingTokens(evidenceText: String): List<String> {
+            if (tokens.isEmpty()) return emptyList()
+            val haystack = evidenceText.lowercase()
+            return tokens.filter { it.matches(haystack) }.map { it.token }
+        }
+    }
+
+    internal data class TokenCue(
+        val token: String,
+        val variants: List<Regex>,
+    ) {
+        fun matches(haystack: String): Boolean =
+            variants.any { it.containsMatchIn(haystack) }
     }
 }

@@ -400,6 +400,131 @@ class SearchAssetMemoriesByMeaningTest {
      * its own: with nothing matching, candidate generation still hands meaning
      * neighbours downstream and lets the lexical precision gate decide.
      */
+    /**
+     * D-15: after D-12, a two-word cue with no exact AND still has a partial
+     * tier. Admission must reserve a seat for a Memory that carries *some* of
+     * the named words, not only one that carries all of them — otherwise
+     * `swimming schedule` depends on cosine luck the same way D-11 did.
+     */
+    @Test
+    fun a_partial_literal_match_outside_the_cosine_pool_is_still_reachable() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val lookups = mutableMapOf<MemoryRevisionId, MemoryMeaningLookup>()
+
+        repeat(4) { index ->
+            val revision = MemoryRevisionId("rev-near-$index")
+            val memory = MemoryId("mem-near-$index")
+            store.upsert(
+                MemoryEmbeddingRecord(
+                    revisionId = revision,
+                    memoryId = memory,
+                    model = model,
+                    vector = EmbeddingVector(floatArrayOf(1f, 0.05f * index, 0f)),
+                    sourceTextFingerprint = "fp-near-$index",
+                    createdAtEpochMs = index.toLong(),
+                ),
+            )
+            lookups[revision] = lookup(
+                revisionId = revision,
+                memoryId = memory,
+                label = "bus-rules-$index.pdf",
+                summaryText = "Bus discipline rules for students",
+            )
+        }
+
+        val target = MemoryRevisionId("rev-swim")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = target,
+                memoryId = MemoryId("mem-swim"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.2f, 1f, 0f)),
+                sourceTextFingerprint = "fp-swim",
+                createdAtEpochMs = 99L,
+            ),
+        )
+        lookups[target] = lookup(
+            revisionId = target,
+            memoryId = MemoryId("mem-swim"),
+            label = "Grade-2-Swimming-TT-2026.pdf",
+            summaryText = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+        )
+
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(lookups = lookups),
+        )("swimming schedule", 2)
+
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        assertEquals(2, hits.size)
+        assertTrue(hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
+        assertEquals(hits.sortedByDescending { it.score }, hits)
+    }
+
+    /**
+     * Deeper coverage claims the scarce seat: an exact match far from the
+     * query vector beats a nearer one-word partial. Admission still returns
+     * cosine order; this test uses a pool of one so order is vacuous.
+     */
+    @Test
+    fun an_exact_match_claims_a_seat_before_a_partial() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val lookups = mutableMapOf<MemoryRevisionId, MemoryMeaningLookup>()
+
+        repeat(4) { index ->
+            val revision = MemoryRevisionId("rev-partial-$index")
+            val memory = MemoryId("mem-partial-$index")
+            store.upsert(
+                MemoryEmbeddingRecord(
+                    revisionId = revision,
+                    memoryId = memory,
+                    model = model,
+                    vector = EmbeddingVector(floatArrayOf(1f, 0.05f * index, 0f)),
+                    sourceTextFingerprint = "fp-partial-$index",
+                    createdAtEpochMs = index.toLong(),
+                ),
+            )
+            lookups[revision] = lookup(
+                revisionId = revision,
+                memoryId = memory,
+                label = "swim-only-$index.pdf",
+                summaryText = "Grade 2 swimming lessons",
+            )
+        }
+
+        val exact = MemoryRevisionId("rev-exact")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = exact,
+                memoryId = MemoryId("mem-exact"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.2f, 1f, 0f)),
+                sourceTextFingerprint = "fp-exact",
+                createdAtEpochMs = 99L,
+            ),
+        )
+        lookups[exact] = lookup(
+            revisionId = exact,
+            memoryId = MemoryId("mem-exact"),
+            label = "swimming-schedule.pdf",
+            summaryText = "Swimming schedule term 2",
+        )
+
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(lookups = lookups),
+        )("swimming schedule", 1)
+
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        assertEquals(listOf("swimming-schedule.pdf"), hits.map { it.label })
+    }
+
     @Test
     fun a_cue_with_no_literal_match_still_offers_meaning_neighbours() = runBlocking {
         val engine = FixedEmbeddingEngine(model, dimensions = 3)

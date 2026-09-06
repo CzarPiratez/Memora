@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### D-15 — admission reserves seats by coverage depth, not only the exact AND (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Why it existed.** D-11 reserved a pool seat for Memories whose stored text
+  satisfied every named word. D-12 then made precision a tier, so
+  `swimming schedule` is a legitimate partial answer. Admission still treated
+  "no exact AND" as "no lexical claim", so the swimming-timetable PDF had to
+  win a cosine seat or the new tier had nothing to show. Same reachability
+  hole as D-11, one level down.
+- **Fixed** by admitting on coverage depth — how many named words the Memory
+  carries — using the same `PreparedCue.matchingTokens` that D-12 already
+  ranks with. Deeper coverage claims seats first; remaining seats stay the
+  best cosine neighbours; the pool is still returned in cosine order because
+  this class generates candidates and does not rank them.
+- **No new type, no second derivation.** `PreparedCue` already compiled one
+  cue per token. It now reports which of those tokens matched, and
+  `applyLexicalPrecisionTier` reads that instead of preparing one cue per
+  word. Admission and the precision tier cannot drift apart.
+- **Architecture.** Candidate admission inside Canonical Recall. No new Find
+  path, no new ranker, Live/Dual **N = 0**. Zero-overlap paraphrase remains
+  an honest empty (meaning-only tier, not this defect).
+- **Verification:** `a_partial_literal_match_outside_the_cosine_pool_is_still_reachable`
+  (one of two words, far cosine, survives a pool of 2);
+  `an_exact_match_claims_a_seat_before_a_partial` (depth 2 beats depth 1 when
+  seats are scarce); `matching_tokens_are_the_named_words_that_satisfy_one_at_a_time`.
+  Existing D-11 / D-12 tests unchanged. Full `:app:testDebugUnitTest` green.
+
 ### D-12 — lexical precision becomes a tier, so meaning can answer a paraphrase (2026-09-06)
 
 - **Date:** 2026-09-06

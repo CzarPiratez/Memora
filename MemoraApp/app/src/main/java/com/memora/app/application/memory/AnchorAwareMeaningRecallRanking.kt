@@ -123,12 +123,9 @@ object AnchorAwareMeaningRecallRanking {
         val required = MeaningRecallCue.contentTokens(rawQuery)
         if (required.isEmpty() || outcome.hits.isEmpty()) return outcome
 
-        val perWord = required.map { word ->
-            word to MeaningEvidenceLexicalFilter.prepare(listOf(word))
-        }
+        val cue = MeaningEvidenceLexicalFilter.prepare(required)
         val scored = outcome.hits.map { hit ->
-            val haystack = hit.lexicalHaystack()
-            hit to perWord.filter { (_, cue) -> cue.satisfies(haystack) }.map { it.first }
+            hit to cue.matchingTokens(hit.lexicalHaystack())
         }
 
         val exact = scored.filter { it.second.size == required.size }.map { it.first }
