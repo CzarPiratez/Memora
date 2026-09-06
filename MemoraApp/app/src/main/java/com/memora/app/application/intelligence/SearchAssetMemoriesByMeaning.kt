@@ -8,6 +8,7 @@ import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingSimilarity
+import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
@@ -212,13 +213,46 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             )
         }
 
-        val limited = deduped.take(limit)
+        val limited = selectCandidatePool(deduped, rawQuery, limit)
         return MeaningSearchOutcome.Matches(
             query = query,
             hits = limited,
-            limitReached = deduped.size > limit,
+            limitReached = deduped.size > limited.size,
             model = model,
         )
+    }
+
+    /**
+     * Cosine order decides rank; it must not decide reachability.
+     *
+     * The candidate pool is a fixed slice of the corpus and every later stage —
+     * token boost, lexical precision, rerank, anchors — can only subtract. So
+     * once the library outgrew the slice, a Memory holding the very words the
+     * person named could sit outside it and be truncated away before the
+     * precision gate ever saw it. Queries that passed against 25 memories
+     * answered nothing against ~1000 for that reason alone (defect D-11).
+     *
+     * Candidates whose stored text satisfies every named word claim seats first;
+     * the remaining seats keep the best cosine neighbours, so a cue with no
+     * literal match still degrades to meaning rather than to empty.
+     *
+     * Admission only. The pool is handed back in cosine order because this class
+     * generates candidates and does not rank them — token boost, precision,
+     * rerank, and anchors all run later, inside Canonical Recall.
+     */
+    private fun selectCandidatePool(
+        candidates: List<MeaningSearchHit>,
+        rawQuery: String,
+        limit: Int,
+    ): List<MeaningSearchHit> {
+        if (candidates.size <= limit) return candidates
+        val cue = MeaningEvidenceLexicalFilter.prepare(MeaningRecallCue.contentTokens(rawQuery))
+        if (cue.isEmpty) return candidates.take(limit)
+        val (literal, neighbours) = candidates.partition { cue.satisfies(it.lexicalHaystack()) }
+        if (literal.isEmpty()) return candidates.take(limit)
+        return (literal + neighbours)
+            .take(limit)
+            .sortedByDescending { it.score }
     }
 
     private fun precisionTextFor(

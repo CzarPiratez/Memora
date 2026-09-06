@@ -328,6 +328,115 @@ class SearchAssetMemoriesByMeaningTest {
         assertTrue(matches.hits.isEmpty())
     }
 
+    /**
+     * D-11: the pool is a fixed slice of the corpus and every later stage can
+     * only subtract, so a Memory that literally says `silky` must not be
+     * truncated away by cosine before precision ever sees it.
+     */
+    @Test
+    fun a_literal_match_outside_the_cosine_pool_is_still_reachable() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val lookups = mutableMapOf<MemoryRevisionId, MemoryMeaningLookup>()
+
+        // Four near-perfect cosine neighbours that never say `silky`.
+        repeat(4) { index ->
+            val revision = MemoryRevisionId("rev-near-$index")
+            val memory = MemoryId("mem-near-$index")
+            store.upsert(
+                MemoryEmbeddingRecord(
+                    revisionId = revision,
+                    memoryId = memory,
+                    model = model,
+                    vector = EmbeddingVector(floatArrayOf(1f, 0.05f * index, 0f)),
+                    sourceTextFingerprint = "fp-near-$index",
+                    createdAtEpochMs = index.toLong(),
+                ),
+            )
+            lookups[revision] = lookup(
+                revisionId = revision,
+                memoryId = memory,
+                label = "bus-rules-$index.pdf",
+                summaryText = "Bus discipline rules for students",
+            )
+        }
+
+        // The one Memory that does say it, far away in vector space.
+        val target = MemoryRevisionId("rev-silky")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = target,
+                memoryId = MemoryId("mem-silky"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.2f, 1f, 0f)),
+                sourceTextFingerprint = "fp-silky",
+                createdAtEpochMs = 99L,
+            ),
+        )
+        lookups[target] = lookup(
+            revisionId = target,
+            memoryId = MemoryId("mem-silky"),
+            label = "spelling-list.pdf",
+            summaryText = "Irregular consonants anchor silky wreck",
+        )
+
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(lookups = lookups),
+        )("silky", 2)
+
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        assertEquals(2, hits.size)
+        // Reachability, not rank: admission is this class's job, ranking is not.
+        assertTrue(hits.any { it.label == "spelling-list.pdf" })
+        // The pool is still handed back in cosine order.
+        assertEquals(hits.sortedByDescending { it.score }, hits)
+    }
+
+    /**
+     * Admission prefers literal matches but must not invent a precision gate of
+     * its own: with nothing matching, candidate generation still hands meaning
+     * neighbours downstream and lets the lexical precision gate decide.
+     */
+    @Test
+    fun a_cue_with_no_literal_match_still_offers_meaning_neighbours() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val revision = MemoryRevisionId("rev-near")
+        val memory = MemoryId("mem-near")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = revision,
+                memoryId = memory,
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(1f, 0f, 0f)),
+                sourceTextFingerprint = "fp-near",
+                createdAtEpochMs = 1L,
+            ),
+        )
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(
+                lookups = mapOf(
+                    revision to lookup(
+                        revisionId = revision,
+                        memoryId = memory,
+                        label = "bus-rules.pdf",
+                        summaryText = "Bus discipline rules for students",
+                    ),
+                ),
+            ),
+        )("silky", 5)
+
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        assertEquals(1, hits.size)
+        assertEquals("bus-rules.pdf", hits.first().label)
+    }
+
     @Test
     fun does_not_import_saved_pdf_page_text_source() {
         val imports = SearchAssetMemoriesByMeaning::class.java.declaredConstructors
@@ -362,6 +471,7 @@ class SearchAssetMemoriesByMeaningTest {
         memoryId: MemoryId,
         label: String,
         citedPdfPageNumber: Int? = null,
+        summaryText: String = "$label summary text for evidence",
     ) = MemoryMeaningLookup(
         revisionId = revisionId,
         memoryId = memoryId,
@@ -369,7 +479,7 @@ class SearchAssetMemoriesByMeaningTest {
         sourceAssetKey = SourceAssetKey(label),
         assetType = AssetType.PDF,
         displayLabel = label,
-        summaryText = "$label summary text for evidence",
+        summaryText = summaryText,
         citedPdfPageNumber = citedPdfPageNumber,
     )
 

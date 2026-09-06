@@ -2,6 +2,46 @@
 
 ## Unreleased
 
+### D-11 — cosine decided reachability, not just rank (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device.** `swimming timetable` and `get me some e.g.s from the pdf
+  related to the training project` both answered nothing against ~1000 indexed
+  memories, while single-word cues still worked.
+- **Root cause.** `CanonicalRecall.searchByMeaning` asks
+  `SearchAssetMemoriesByMeaning` for a pool of `min(limit * 3, 30)` candidates,
+  and that pool was selected by cosine alone: `deduped.take(limit)`. Every stage
+  after it — token boost, lexical precision, Stage A rerank, anchor filter,
+  trusted-hit band — can only remove. So a Memory containing the exact words the
+  person named was unreachable unless the embedding had already ranked it in the
+  top 30. At 25 memories the pool was the whole library and this was invisible;
+  at ~1000 the pool is roughly 3% of it. **The device failures were not a
+  regression from the precision work — they are the corpus outgrowing the pool.**
+- **Fixed** by making admission lexically aware: candidates whose stored text
+  satisfies every named word claim seats first, then remaining seats keep the
+  best cosine neighbours. A cue with no literal match anywhere still degrades to
+  meaning rather than to empty, so candidate generation does not grow a second,
+  hidden precision gate.
+- **Admission only, not ranking.** The pool is handed back in cosine order.
+  `SearchAssetMemoriesByMeaning` generates candidates; ranking stays inside
+  Canonical Recall. A first attempt returned literal matches first and correctly
+  broke `candidate_gen_ranks_by_cosine_without_token_boost`, which is the test
+  that owns that contract.
+- **Cost.** `EnglishRecallInflection.occursAsWholeWord` compiles a fresh `Regex`
+  per variant per call, which is fine for one ranked hit and not fine across a
+  corpus. `MeaningEvidenceLexicalFilter.prepare` now compiles a cue once per
+  query and evaluates it many times.
+- **Architecture.** No new Find path and no new product ranker: this is candidate
+  admission inside the existing Canonical Recall meaning boundary
+  (`unfynd-architecture-invariants` §4). Live/Dual **N = 0** unchanged.
+- **Verification:** `SearchAssetMemoriesByMeaningTest` gains
+  `a_literal_match_outside_the_cosine_pool_is_still_reachable` (a literal match
+  with far worse cosine survives a pool of 2) and
+  `a_cue_with_no_literal_match_still_offers_meaning_neighbours` (the degrade
+  path). `MeaningEvidenceLexicalFilterTest` gains
+  `a_prepared_cue_agrees_with_the_single_shot_check`. Full
+  `:app:testDebugUnitTest` green (691 tests). Device re-test pending.
+
 ### D-10 — a time word is a constraint, not text to retrieve on (2026-09-06)
 
 - **Date:** 2026-09-06

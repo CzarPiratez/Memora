@@ -79,6 +79,30 @@ class MeaningEvidenceLexicalFilterTest {
     @Test
     fun empty_token_list_is_vacuously_satisfied() {
         assertTrue(MeaningEvidenceLexicalFilter.satisfies(emptyList(), "anything at all"))
+        assertTrue(MeaningEvidenceLexicalFilter.prepare(emptyList()).isEmpty)
+    }
+
+    /**
+     * A cue compiled once for corpus-wide admission (D-11) must decide exactly
+     * what the single-shot call decides.
+     */
+    @Test
+    fun a_prepared_cue_agrees_with_the_single_shot_check() {
+        val tokens = MeaningRecallCue.contentTokens("Show me the files with swimming timetables")
+        val prepared = MeaningEvidenceLexicalFilter.prepare(tokens)
+        listOf(
+            "Year 4 swimming timetable Monday to Friday",
+            "Swimming only, no timetable here",
+            "Bus Discipline Rules for Students",
+            "TIMETABLES and SWIMMING in caps",
+        ).forEach { evidence ->
+            assertEquals(
+                "prepared cue disagreed for: $evidence",
+                MeaningEvidenceLexicalFilter.satisfies(tokens, evidence),
+                prepared.satisfies(evidence),
+            )
+        }
+        assertFalse(prepared.isEmpty)
     }
 
     /** The exact composition Canonical Recall applies (defect D-10). */

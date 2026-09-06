@@ -201,6 +201,72 @@ loop that burns battery forever on one bad asset.
 Terminal per-asset outcomes must be recorded so the cursor advances; only
 genuine infrastructure faults should abort a drain. **Prerequisite for E1/E2.**
 
+### D-10 — A time word was a constraint for precision and content for retrieval (**P0, fixed**)
+
+**FIXED 2026-09-06.** `recent files with silky` answered nothing while bare
+`silky` returned the right PDF. T10 was working: `recent` classifies as an
+advisory TIME constraint and was correctly dropped from the required tokens.
+Candidate generation never learned about that decision — `MeaningRecallCue.embedText`
+derived tokens straight from `RecallQueryContentTokens`, `recent` is not an
+ask-shape wrapper, so the engine embedded `recent silky`. The vector drifted
+toward recency language, the one Memory containing `silky` fell out of the
+candidate pool, and the precision gate had nothing left to keep.
+
+**The defect was the disagreement, not either half.** Two layers each derived
+"what the person named" independently, so the product could filter on a word it
+had never retrieved on. Fixed by making `MeaningRecallCue.contentTokens` the
+single derivation that both read, guarded by an invariant test that fails if
+embed text and required tokens ever separate again.
+
+Recorded consequence: a cue made only of time words (`recent files`,
+`screenshots from last week`) now names no content and returns an honest empty.
+Retrieval by TIME alone remains an unbuilt job (I5).
+
+### D-11 — Cosine decided reachability, not just rank (**P0, fixed**)
+
+**FIXED 2026-09-06.** `CanonicalRecall.searchByMeaning` requests a pool of
+`min(limit * 3, 30)` candidates and that pool was chosen by cosine alone
+(`deduped.take(limit)`). Every stage after it can only subtract, so a Memory
+holding the exact words the person named was unreachable unless the embedding
+had already ranked it in the top 30.
+
+**This is why device queries that passed at 25 memories failed at ~1000**: the
+pool was the whole library, then became roughly 3% of it. Not a regression from
+the precision work — the corpus outgrew the pool.
+
+Fixed by lexically-aware admission: candidates whose stored text satisfies every
+named word claim seats first, remaining seats keep the best cosine neighbours,
+and the pool is still returned in cosine order because ranking belongs to
+Canonical Recall, not to candidate generation. `MeaningEvidenceLexicalFilter.prepare`
+compiles the cue once per query so corpus-wide admission does not pay a `Regex`
+build per candidate.
+
+### D-12 — A strict lexical AND has no recall floor (**P1, open**)
+
+Multi-word cues require *every* content token as a whole word in stored text,
+with no partial tier and no honest degrade. `related to the training project`
+is descriptive phrasing, not a conjunction the person intends — Ask Model
+**P-AND vs P-LIST** says so — yet one missing word yields a bare empty.
+
+Two hits that satisfy one word, clearly labelled as partial, beat zero. The
+answer must name which word it could not find; silent relaxation would be worse
+than the empty. Depends on D-11 being in place, since a recall floor is
+meaningless while the candidate pool can hide the evidence.
+
+### D-13 — `notes` is only ever a content word (**P1, open — J7 / P-TYPE**)
+
+`notes in 2026` returned screenshots containing the string "Note:" rather than
+Note assets. The lexical gate is behaving correctly; the product model is
+missing. **J7 / P-TYPE** requires that a type noun can act as a filter over
+`AssetType` as well as content, chosen by context, without losing the ability to
+find the literal word when that is what was meant.
+
+### D-14 — UNFYND's own screenshots compete as corpus (**P2, open — D16**)
+
+`scan` returns screenshots of UNFYND and WeChat that happen to contain the word.
+Ask Model **D16 (device / corpus scope)** covers this; it needs scoping, not
+ranking tweaks.
+
 ---
 
 ## 3. The earlier "holes" — are they in the Ask Model?
