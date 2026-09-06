@@ -7,6 +7,7 @@ import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
 import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.RecallPrecision
+import com.memora.app.domain.intelligence.UnfyndSelfCapture
 import com.memora.app.domain.intelligence.RecallRankCandidate
 import com.memora.app.domain.intelligence.RecallRankResult
 import com.memora.app.domain.intelligence.RecallRanker
@@ -38,7 +39,7 @@ object AnchorAwareMeaningRecallRanking {
         if (constraints.time == RecallConstraintStrength.NONE &&
             constraints.topic == RecallConstraintStrength.NONE
         ) {
-            return reranked
+            return demoteSelfCaptures(reranked)
         }
 
         val revisionIds = reranked.hits.map(MeaningSearchHit::revisionId).distinct()
@@ -69,12 +70,32 @@ object AnchorAwareMeaningRecallRanking {
                     adjusted - before
                 }.thenBy { hit -> ceOrder[hit.revisionId] ?: Int.MAX_VALUE },
             )
-        return reranked.copy(
-            hits = reordered,
-            // An anchor filter that empties the list also removes the partial
-            // answer the banner was going to describe.
-            precision = if (reordered.isEmpty()) RecallPrecision.Exact else reranked.precision,
+        return demoteSelfCaptures(
+            reranked.copy(
+                hits = reordered,
+                // An anchor filter that empties the list also removes the partial
+                // answer the banner was going to describe.
+                precision = if (reordered.isEmpty()) RecallPrecision.Exact else reranked.precision,
+            ),
         )
+    }
+
+    /**
+     * D-14: a picture of UNFYND matching the cue must not sit above the
+     * original. Order inside each group is unchanged. Runs before the
+     * trusted-hit trim so a high-cosine self-capture cannot set the band.
+     */
+    private fun demoteSelfCaptures(
+        outcome: MeaningSearchOutcome.Matches,
+    ): MeaningSearchOutcome.Matches {
+        val originals = outcome.hits.filterNot { hit ->
+            UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())
+        }
+        val self = outcome.hits.filter { hit ->
+            UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())
+        }
+        if (self.isEmpty() || originals.isEmpty()) return outcome
+        return outcome.copy(hits = originals + self)
     }
 
     private fun applyRecallRanker(

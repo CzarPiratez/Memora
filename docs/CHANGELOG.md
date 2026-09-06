@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### D-14 — pictures of UNFYND no longer outrank the original (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device.** After the human Why rewrite, the first card for
+  `swimming schedule` was still `Screenshot_…_UNFYND.png`, and Why said
+  "This file is What are you trying to remember? files have swimming
+  timetable" — the app's own chrome, treated as the file.
+- **Fixed.** `UnfyndSelfCapture` detects two stored UI phrases, or one plus
+  an UNFYND filename. Those hits are demoted below originals before the
+  trusted-hit trim. Why names them "a screenshot of UNFYND, not the original
+  file" and does not quote the chrome. A real timetable is not affected.
+- The list banner is now "Closest files mention swimming. Nothing saved
+  says schedule." — same fact, not a word inventory.
+- **Verification:** `UnfyndSelfCaptureTest`, ranking demote test, Why
+  self-capture test. `ui.search` + ranking unit tests green.
+
 ### Why explains relevance, not a word inventory (2026-09-06)
 
 - **Date:** 2026-09-06

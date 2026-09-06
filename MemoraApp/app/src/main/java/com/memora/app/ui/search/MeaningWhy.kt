@@ -4,6 +4,7 @@ import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.domain.intelligence.EnglishRecallInflection
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallCue
+import com.memora.app.domain.intelligence.UnfyndSelfCapture
 
 /**
  * Meaning-Find Why — what a person actually asks: why is *this file*
@@ -64,11 +65,19 @@ object MeaningWhy {
         return article + phrase
     }
 
-    fun fileIs(hit: MeaningSearchHit): String =
-        humanizeFilename(hit.label) ?: firstReadableClause(hit.summaryText)
+    fun fileIs(hit: MeaningSearchHit): String {
+        if (UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())) {
+            return UnfyndSelfCapture.FILE_IS
+        }
+        return humanizeFilename(hit.label) ?: firstReadableClause(hit.summaryText)
+    }
 
-    fun fileIs(label: String, excerpt: String): String =
-        humanizeFilename(label) ?: firstReadableClause(excerpt)
+    fun fileIs(label: String, excerpt: String): String {
+        if (UnfyndSelfCapture.matches(label, excerpt)) {
+            return UnfyndSelfCapture.FILE_IS
+        }
+        return humanizeFilename(label) ?: firstReadableClause(excerpt)
+    }
 
     internal fun humanizeFilename(label: String): String? {
         val friendly = CanonicalRecallWhyCopy.friendlyDisplayLabel(label)
@@ -90,6 +99,9 @@ object MeaningWhy {
     }
 
     private fun justifyingLine(hit: MeaningSearchHit, matched: List<String>): String? {
+        if (UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())) {
+            return null
+        }
         val word = matched.firstOrNull()
         if (word != null) {
             windowAround(hit.lexicalHaystack(), word)?.let { return it }

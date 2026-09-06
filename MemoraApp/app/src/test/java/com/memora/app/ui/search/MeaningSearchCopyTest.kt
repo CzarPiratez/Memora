@@ -56,16 +56,14 @@ class MeaningSearchCopyTest {
         assertFalse(body.contains("meaning model"))
     }
 
-    /** A partial list must lead with what is missing, never with what matched. */
     @Test
-    fun partial_match_copy_leads_with_the_missing_word() {
+    fun partial_match_copy_names_what_was_found_and_what_was_not() {
         val body = MeaningSearchCopy.partialMatchBody(
             matched = listOf("swimming"),
             missing = listOf("schedule"),
         )
-        assertTrue(body.indexOf("\"schedule\"") < body.indexOf("\"swimming\""))
-        assertTrue(body.contains("Nothing saved on this phone has \"schedule\""))
-        assertTrue(body.contains("These match \"swimming\""))
+        assertTrue(body.contains("Closest files mention \"swimming\""))
+        assertTrue(body.contains("Nothing saved says \"schedule\""))
     }
 
     @Test

@@ -512,6 +512,44 @@ class AnchorAwareMeaningRecallRankingTest {
         assertEquals(RecallPrecision.Exact, ranked.precision)
     }
 
+    /**
+     * D-14: a higher-scoring picture of UNFYND must sit after the original
+     * file, and must not be dropped by later trim just because we reordered.
+     */
+    @Test
+    fun apply_demotes_a_picture_of_unfynd_below_the_original() = runBlocking {
+        val original = MemoryRevisionId("rev-pdf")
+        val selfie = MemoryRevisionId("rev-selfie")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "swimming schedule",
+            hits = listOf(
+                hit(
+                    selfie,
+                    0.95f,
+                    label = "Screenshot_20260904_124145_UNFYND.png",
+                    summaryText = "What are you trying to remember? files have swimming timetable " +
+                        "Search by meaning on this phone PDF memory",
+                ),
+                hit(
+                    original,
+                    0.55f,
+                    label = "Grade-2-Swimming-TT-2026.pdf",
+                    summaryText = "Grade 2 Swimming Timetable 2026 PERIOD TIME",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(original, selfie), ranked.hits.map { it.revisionId })
+    }
+
     private fun hit(
         revisionId: MemoryRevisionId,
         score: Float,

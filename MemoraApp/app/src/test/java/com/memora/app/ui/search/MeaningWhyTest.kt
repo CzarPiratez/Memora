@@ -5,6 +5,7 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.intelligence.UnfyndSelfCapture
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
 import org.junit.Assert.assertEquals
@@ -55,6 +56,23 @@ class MeaningWhyTest {
         assertEquals("a pterodactyl invoice", why.asked)
         assertEquals("Monthly Rent Collection Records Shop 41 Invoice No SDA", why.fileIs)
         assertTrue(why.citedLine!!.contains("Invoice", ignoreCase = true))
+    }
+
+    @Test
+    fun a_picture_of_unfynd_is_named_as_such_and_does_not_quote_the_chrome() {
+        val why = MeaningWhy.explain(
+            hit = hit(
+                summary = "What are you trying to remember? files have swimming timetable " +
+                    "Search by meaning on this phone PDF memory",
+                label = "Screenshot_20260904_124145_UNFYND.png",
+            ),
+            query = "swimming schedule",
+        )
+        assertEquals(UnfyndSelfCapture.FILE_IS, why.fileIs)
+        assertEquals(null, why.citedLine)
+        val text = MeaningWhy.plainText(why)
+        assertTrue(text.contains("a screenshot of UNFYND, not the original file"))
+        assertFalse(text.contains("What are you trying to remember?"))
     }
 
     @Test

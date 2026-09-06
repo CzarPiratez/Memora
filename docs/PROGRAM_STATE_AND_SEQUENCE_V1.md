@@ -331,11 +331,19 @@ the matching word is not already on the card.
 
 Ask Model **P-EVIDENCE** / **P-ANSWER**; scenario bar U5. Live/Dual **N = 0**.
 
-### D-14 — UNFYND's own screenshots compete as corpus (**P2, open — D16**)
+### D-14 — UNFYND's own screenshots compete as corpus (**P0, fixed — D16**)
 
-`scan` returns screenshots of UNFYND and WeChat that happen to contain the word.
-Ask Model **D16 (device / corpus scope)** covers this; it needs scoping, not
-ranking tweaks.
+**FIXED 2026-09-06.** Found on device: `Screenshot_20260904_124145_UNFYND.png`
+ranked above `Grade-2-Swimming-TT-2026.pdf` for `swimming schedule`, and Why
+said "This file is What are you trying to remember? files have swimming
+timetable" — the product chrome, treated as the file's identity.
+
+**Fixed** by detecting self-captures from stored chrome (two UI phrases, or
+one plus an UNFYND filename) and demoting them *after* ranking but *before*
+the trusted-hit trim, so a high-cosine picture of the app cannot set the
+trust band and drop the original. Why names them "a screenshot of UNFYND,
+not the original file" and does not quote the chrome. A real timetable is
+untouched. Live/Dual **N = 0**; no new Find path.
 
 ---
 

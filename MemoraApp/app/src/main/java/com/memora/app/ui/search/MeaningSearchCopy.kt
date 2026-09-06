@@ -94,8 +94,8 @@ object MeaningSearchCopy {
     fun partialMatchBody(matched: List<String>, missing: List<String>): String {
         require(matched.isNotEmpty())
         require(missing.isNotEmpty())
-        return "Nothing saved on this phone has ${quoteWords(missing)}. " +
-            "These match ${quoteWords(matched)}."
+        return "Closest files mention ${quoteWords(matched)}. " +
+            "Nothing saved says ${quoteWords(missing)}."
     }
 
     /** `a` · `a and b` · `a, b and c` — always quoted, always the person's own words. */
