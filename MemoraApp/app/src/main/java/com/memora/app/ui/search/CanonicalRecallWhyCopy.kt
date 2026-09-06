@@ -3,6 +3,8 @@ package com.memora.app.ui.search
 import com.memora.app.application.memory.CanonicalRecallResult
 import com.memora.app.application.memory.CanonicalRecallRetrievalPath
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
+import com.memora.app.domain.intelligence.MeaningRecallCue
 
 /**
  * Unified Why copy for all Canonical Recall Find hits (contract §3).
@@ -26,9 +28,7 @@ object CanonicalRecallWhyCopy {
             )
             CanonicalRecallRetrievalPath.MEANING -> meaningWhy(
                 query = query,
-                displayLabel = displayLabel,
-                result = result,
-                clipped = clipped,
+                excerpt = result.excerpt,
             )
         }
     }
@@ -50,27 +50,20 @@ object CanonicalRecallWhyCopy {
     }.joinToString("\n")
 
     /**
-     * Consumer dialect for meaning (scenario bar U5) — short, no engineering jargon.
+     * Consumer dialect for meaning (scenario bar U5). The card already shows
+     * the file, page, and snippet; this string only names which of [query]'s
+     * words this excerpt actually contains (defect D-17). The live meaning
+     * screen uses [MeaningWhy] against the whole Memory haystack — this path
+     * has only the excerpt on [CanonicalRecallResult].
      */
     private fun meaningWhy(
         query: String,
-        displayLabel: String,
-        result: CanonicalRecallResult,
-        clipped: String,
-    ): String = buildList {
-        add(WHY_THIS_RESULT_LABEL)
-        add("You asked about \"$query\".")
-        add("This ${assetTypeLabel(result.assetType)}: $displayLabel.")
-        if (result.openPageNumber != null && result.assetType == AssetType.PDF) {
-            add("Page ${result.openPageNumber}.")
-        }
-        add("Because of this saved line: \"$clipped\"")
-        if (result.evidenceTokenBoosted) {
-            add("Your cue words appear in that saved text.")
-        } else {
-            add("Found by meaning from memories on this phone.")
-        }
-    }.joinToString("\n")
+        excerpt: String,
+    ): String {
+        val named = MeaningRecallCue.contentTokens(query)
+        val matched = MeaningEvidenceLexicalFilter.prepare(named).matchingTokens(excerpt)
+        return MeaningWhy.coverageText(matched, named - matched.toSet())
+    }
 
     internal fun friendlyDisplayLabel(label: String): String {
         val separator = label.indexOf('_')

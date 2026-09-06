@@ -2,7 +2,6 @@ package com.memora.app.ui.search
 
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchReadiness
-import com.memora.app.application.memory.toCanonicalRecallResult
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.intelligence.MeaningRecallCue
 
@@ -124,7 +123,7 @@ object MeaningSearchCopy {
     }
 
     fun whyThisResult(hit: MeaningSearchHit, query: String): String =
-        CanonicalRecallWhyCopy.whyThisResult(hit.toCanonicalRecallResult(), query)
+        MeaningWhy.plainText(MeaningWhy.explain(hit, query))
 
     fun friendlyHitLabel(label: String): String =
         CanonicalRecallWhyCopy.friendlyDisplayLabel(label)

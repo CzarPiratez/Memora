@@ -29,7 +29,7 @@ class CanonicalRecallWhyCopyTest {
     }
 
     @Test
-    fun meaning_why_uses_short_lines_and_friendly_pdf_name() {
+    fun meaning_why_names_the_words_in_the_excerpt_and_nothing_else() {
         val why = CanonicalRecallWhyCopy.whyThisResult(
             result = CanonicalRecallTestFixtures.keywordRecall(
                 label = "500fb02768e7a4bc0b91977e9d346a14774802600_Spelling list 4 (1)-1.pdf",
@@ -43,15 +43,32 @@ class CanonicalRecallWhyCopyTest {
             query = "silky wreck",
         )
 
-        assertTrue(why.contains("Spelling list 4 (1)-1.pdf"))
-        assertFalse(why.contains("500fb02768e7a4bc0b91977e9d346a14774802600"))
-        assertTrue(why.contains("You asked about"))
-        assertTrue(why.contains("Because of this saved line"))
-        assertTrue(why.contains("Your cue words appear"))
-        assertFalse(why.contains("Ranked by meaning from your saved memories"))
-        assertFalse(why.contains("on-device meaning similarity"))
-        assertFalse(why.contains("Score reflects"))
+        assertEquals("Has \"silky\" and \"wreck\".", why)
+        assertFalse(why.contains("You asked about"))
+        assertFalse(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Found by meaning"))
         assertFalse(why.contains("cue-best"))
+        assertFalse(why.contains("Score reflects"))
+    }
+
+    @Test
+    fun meaning_why_names_a_missing_word_on_a_partial_excerpt() {
+        val why = CanonicalRecallWhyCopy.whyThisResult(
+            result = CanonicalRecallTestFixtures.keywordRecall(
+                label = "Grade-2-Swimming-TT-2026.pdf",
+                excerpt = "Grade 2 Swimming Timetable 2026",
+                pageNumber = 1,
+            ).copy(
+                retrievalPath = CanonicalRecallRetrievalPath.MEANING,
+                rankScore = 0.5f,
+                evidenceTokenBoosted = true,
+            ),
+            query = "swimming schedule",
+        )
+
+        assertTrue(why.contains("Has \"swimming\"."))
+        assertTrue(why.contains("Does not have \"schedule\"."))
+        assertFalse(why.contains("Your cue words appear"))
     }
 
     @Test

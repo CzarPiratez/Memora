@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### D-17 — Why names the words this file has, and stops claiming all of them (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device.** After D-12 the list banner was honest (`Nothing saved
+  has "schedule"`) and every Why contradicted it: *"Your cue words appear in
+  that saved text."* That sentence fired on any token boost. It was written
+  for exact-AND and was never updated when precision became a tier.
+- **Also too much to read.** Why repeated the query, filename, type, page, and
+  the snippet already on the card — the U5 anti-pattern. The founder asked
+  whether all of that was necessary. It was not.
+- **Fixed.** Why answers one question: which of this file's named words are
+  present. `Has "swimming". Does not have "schedule".` Rendered as a
+  primary-container panel with a colour bar, bold matched words, and
+  error-coloured missing words (labels still say Has / Does not have, so
+  colour is not the only signal). A cited line appears only when the matching
+  word is *not* already on the card — the start of D-7, not a duplicate
+  excerpt.
+- **Not D-14.** Self-screenshots still rank. Not a synonym net.
+- **Verification:** `MeaningWhyTest` pins exact / partial / no-duplicate-snippet
+  / hidden-span citation. `CanonicalRecallWhyCopyTest` and
+  `MeaningSearchCopyTest` forbid the old "cue words appear" / "You asked
+  about" dialect. `:app:testDebugUnitTest` green for `ui.search`.
+
 ### D-15 — admission reserves seats by coverage depth, not only the exact AND (2026-09-06)
 
 - **Date:** 2026-09-06

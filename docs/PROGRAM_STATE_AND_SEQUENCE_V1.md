@@ -146,13 +146,18 @@ The J4 inversion is the worst: an OR-hedge behaves as an AND, so the user gets
 a meaning hit cannot be traced to the specific stored evidence row. This will
 block Grounded Answers citations later (`GROUNDING_ARCHITECTURE.md`).
 
-### D-7 — Why can cite a different page than the one that matched (**P2, trust**)
+### D-7 — Why can cite a different page than the one that matched (**P2, trust — copy half landed**)
 
-The card and Why show the cosine-winning excerpt, while the lexical gate matches
-against `precisionText` — **all** stored excerpts for the asset
-(`SearchAssetMemoriesByMeaning.kt:224-231`). When the matching word is on page 7
-and the best-cosine page is page 2, Why quotes page 2 and the user cannot see why
-the file was returned.
+The card and Why used to show the cosine-winning excerpt, while the lexical gate
+matches against `precisionText` — **all** stored excerpts for the asset. When
+the matching word is on page 7 and the best-cosine page is page 2, Why quoted
+page 2.
+
+**Copy half FIXED 2026-09-06 (D-17):** Why no longer repeats that cosine
+snippet when the card already shows the word, and when the word lives only in
+another stored span it quotes a window around *that* word. The structured
+`evidenceId` / page-accurate citation is still open — Why can name the word
+and a nearby line, not yet “page 7”.
 
 ### D-8 — Meaning index selected a page, not a queue (**P0, corpus reachability**)
 
@@ -305,6 +310,26 @@ Note assets. The lexical gate is behaving correctly; the product model is
 missing. **J7 / P-TYPE** requires that a type noun can act as a filter over
 `AssetType` as well as content, chosen by context, without losing the ability to
 find the literal word when that is what was meant.
+
+### D-17 — Why claimed every cue word appeared (**P0, fixed**)
+
+**FIXED 2026-09-06.** Found on device after D-12. The list banner told the
+truth (`Nothing saved has "schedule". These match "swimming".`) and every
+opened Why contradicted it: *"Your cue words appear in that saved text."*
+That line fired whenever *any* cue word had been token-boosted. It was written
+for the old exact-AND world and was never updated when precision became a
+tier.
+
+The same Why also repeated the query, filename, type, page, and snippet the
+card already showed — the U5 anti-pattern ("duplicate full card excerpt").
+
+**Fixed** by making Why answer one question: which of *this file's* named
+words are present. `Has "swimming". Does not have "schedule".` A coloured
+panel with a primary bar, bold matched words, and error-coloured missing
+words so it is not another muted paragraph. A cited line appears only when
+the matching word is not already on the card.
+
+Ask Model **P-EVIDENCE** / **P-ANSWER**; scenario bar U5. Live/Dual **N = 0**.
 
 ### D-14 — UNFYND's own screenshots compete as corpus (**P2, open — D16**)
 

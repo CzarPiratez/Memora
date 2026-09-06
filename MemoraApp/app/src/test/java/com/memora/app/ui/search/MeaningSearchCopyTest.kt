@@ -79,21 +79,19 @@ class MeaningSearchCopyTest {
     }
 
     @Test
-    fun why_cites_query_and_summary() {
+    fun why_names_the_words_in_this_file_and_does_not_repeat_the_card() {
         val why = MeaningSearchCopy.whyThisResult(
             hit = sampleHit(com.memora.app.domain.asset.AssetType.NOTE),
-            query = "hotel near coffee",
+            query = "hotel",
         )
-        assertTrue(why.contains("hotel near coffee"))
-        assertTrue(why.contains("Hotel confirmation near the cafe"))
-        assertTrue(why.contains("Why this result?"))
+        assertTrue(why.contains("Has \"hotel\"."))
+        assertFalse(why.contains("You asked about"))
+        assertFalse(why.contains("Why this result?"))
+        assertFalse(why.contains("Hotel confirmation near the cafe"))
     }
 
     @Test
-    fun why_and_open_hint_for_ranked_pdf_page() {
-        val hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3)
-        val why = MeaningSearchCopy.whyThisResult(hit, "mira")
-        assertTrue(why.contains("Page 3"))
+    fun open_hint_for_ranked_pdf_page_is_independent_of_why() {
         val hint = MeaningSearchCopy.openOriginalPdfHint(
             citedPdfPageNumber = 1,
             rankedPdfPageNumber = 3,
@@ -114,13 +112,13 @@ class MeaningSearchCopyTest {
     }
 
     @Test
-    fun why_discloses_evidence_token_boost() {
+    fun why_never_claims_every_cue_word_appeared() {
         val why = MeaningSearchCopy.whyThisResult(
             hit = sampleHit(com.memora.app.domain.asset.AssetType.PDF, citedPage = 1, rankedPage = 3, boosted = true),
             query = "mira",
         )
-        assertTrue(why.contains("Page 3"))
-        assertTrue(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Page 3"))
     }
 
     private fun sampleHit(

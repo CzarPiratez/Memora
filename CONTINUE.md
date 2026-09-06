@@ -28,6 +28,11 @@ partial match cannot starve the way an exact match used to. Still **open**:
 drain automation (D-9 / Batch I), and a meaning-only tier for zero-overlap
 paraphrase. All in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2.
 
+**D-17** (`Why`): meaning Why now names the words *this file* has and the
+words it does not. It no longer says "your cue words appear" on a partial
+match, and it no longer repeats the query / filename / snippet already on
+the card. Rendered as a coloured panel.
+
 **Next action:** D-14 (self-screenshots outranking real files) is the most
 visible remaining demo risk. Drain automation is the largest remaining
 operational risk.

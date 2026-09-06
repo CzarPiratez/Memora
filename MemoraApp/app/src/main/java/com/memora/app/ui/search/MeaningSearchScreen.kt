@@ -1,12 +1,18 @@
 package com.memora.app.ui.search
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,12 +35,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.domain.asset.AssetType
@@ -257,11 +270,7 @@ private fun MeaningHitCard(
                 Text(if (showWhy) "Hide why" else "Why this result?")
             }
             if (showWhy) {
-                Text(
-                    text = MeaningSearchCopy.whyThisResult(hit, query),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                MeaningWhyPanel(explanation = MeaningWhy.explain(hit, query))
             }
             Spacer(modifier = Modifier.height(4.dp))
             Button(
@@ -283,5 +292,88 @@ private fun MeaningHitCard(
                 )
             }
         }
+    }
+}
+
+/**
+ * Why is a coloured panel, not another muted paragraph. Matched words are
+ * bold; missing words are named in the error colour so a partial tier cannot
+ * be mistaken for an exact one. Colour is not the only signal — the sentence
+ * still says "Has" / "Does not have".
+ */
+@Composable
+private fun MeaningWhyPanel(explanation: MeaningWhy.Explanation) {
+    val colors = MaterialTheme.colorScheme
+    val spoken = MeaningWhy.plainText(explanation)
+    Surface(
+        color = colors.primaryContainer,
+        contentColor = colors.onPrimaryContainer,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = spoken },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .clip(RoundedCornerShape(12.dp)),
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .fillMaxHeight()
+                    .background(colors.primary),
+            )
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = coverageAnnotated(explanation),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                val cited = explanation.citedLine
+                if (cited != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "On this line: \"$cited\"",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onPrimaryContainer.copy(alpha = 0.82f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun coverageAnnotated(explanation: MeaningWhy.Explanation) =
+    buildAnnotatedString {
+        val matchedStyle = SpanStyle(fontWeight = FontWeight.Bold)
+        val missingStyle = SpanStyle(
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.error,
+        )
+        if (explanation.matched.isEmpty()) {
+            append("None of those words are in this file.")
+        } else {
+            append("Has ")
+            appendQuoted(explanation.matched, matchedStyle)
+            append(".")
+        }
+        if (explanation.missing.isNotEmpty()) {
+            append(" Does not have ")
+            appendQuoted(explanation.missing, missingStyle)
+            append(".")
+        }
+    }
+
+private fun AnnotatedString.Builder.appendQuoted(
+    words: List<String>,
+    style: SpanStyle,
+) {
+    words.forEachIndexed { index, word ->
+        if (index > 0) {
+            append(if (index == words.lastIndex) " and " else ", ")
+        }
+        withStyle(style) { append("\"$word\"") }
     }
 }
