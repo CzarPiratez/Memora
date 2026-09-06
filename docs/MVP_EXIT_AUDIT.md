@@ -81,7 +81,7 @@ Each row cites **evidence pointers** — not conversational memory.
 | Row | Verdict | Evidence / notes |
 |---|---|---|
 | `POST_MVP_PROGRAM_V1.md` | **PASS** | Opened 2026-09-01 |
-| Class A conformance validator + CI | **PASS** | `CHANGE_CONTROL_CLASS_A_CONFORMANCE_VALIDATOR.md`; public publish SHA `7c573b2` on https://github.com/CzarPiratez/unfynd-core (2026-09-02) |
+| Class A conformance validator + CI | **PASS** | `CHANGE_CONTROL_CLASS_A_CONFORMANCE_VALIDATOR.md`; public HEAD **`615629b`** / tag `v0.1.0` on https://github.com/CzarPiratez/unfynd-core (2026-09-07; prior publish `7c573b2`) |
 | `:core-domain` Gradle module | **FAIL** | `CORE_APP_SEPARATION_PLAN.md` Phase 2 not started |
 | Grounding domain interfaces (no runtime) | **PARTIAL** | Slice 1: `domain.grounding` contracts landed; generative runtime deferred |
 | `RecallRanker` port for FC-02 / ADR-051 | **PARTIAL** | Stage A wired + S1–S4 device PASS; identity fallback; ADR-052 UI not shipped; Stage B not started |
@@ -101,7 +101,7 @@ Each row cites **evidence pointers** — not conversational memory.
 - A-01 offline device proof — **PASS**
 - F-01–F-03 Canonical Recall quality — **PASS** (device verified; `CHANGE_CONTROL_CANONICAL_RECALL_QUALITY_F01_F03.md`)
 - F-04 SAF PDF folder rescan — **PASS** (device verified)
-- Class A pack publish to public `unfynd-core` — **done** (`7c573b2`)
+- Class A pack publish to public `unfynd-core` — **done** (`615629b`, tag `v0.1.0`; first publish was `7c573b2`)
 
 ### Does not block engineering post-MVP prep
 
@@ -121,7 +121,7 @@ Each row cites **evidence pointers** — not conversational memory.
 
 Ordered by **dependency**, not calendar:
 
-1. ~~Close Class A validator slice~~ **DONE** (validator + public publish `7c573b2`).
+1. ~~Close Class A validator slice~~ **DONE** (validator + public publish `615629b` / `v0.1.0`).
 2. ~~Close SAF rescan (F-04) and Canonical Recall quality (F-01–F-03)~~ **DONE** (device PASS).
 3. ~~Accept ADR-051 Evidence-native RecallRanker~~ **DONE** (docs).
 4. ~~Accept Stage A model brief + ADR-052 smart automatic onboarding policy~~ **DONE** (docs).
@@ -141,6 +141,7 @@ Ordered by **dependency**, not calendar:
 
 | Date | Change |
 |---|---|
+| 2026-09-07 | Class A pack revision published `615629b` / `v0.1.0` (enterprise hygiene) |
 | 2026-09-04 | Human Recall Ask Model v1; NL FAIL until waves match the model |
 | 2026-09-04 | Stage A S4 wire smoke PASS; next = device-tier hardening → ADR-052 UI |
 | 2026-09-03 | Docs track check: Live/Dual N=0 operator sync; ADR-052 recorded; next = S1 device spike |

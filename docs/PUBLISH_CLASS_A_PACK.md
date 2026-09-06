@@ -22,8 +22,9 @@ validator, `BUILDING.md`, planning sketches.
    (preserve `LICENSE`, `NOTICE`, structure).
 3. Run validator in the clone: `python tools/validate_class_a_examples.py --self-test`
 4. Commit with a pack revision message; push to `main` on the public remote only.
-5. Verify GitHub Actions on the **public** repo if configured there, or rely on
-   private monorepo CI `class-a-validator` job before copy.
+5. Verify GitHub Actions on the **public** repo (`Class A validator` workflow
+   ships in the pack as `.github/workflows/validate.yml`). Private monorepo CI
+   still runs the same script via `class-a-validator`.
 
 ## Never
 

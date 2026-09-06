@@ -50,6 +50,8 @@ N/A — not a Find/Recall App change. Public sketch only.
 
 - **Files/layers:** `public/unfynd-core/**` only.
 - **Automated verification:** `python public/unfynd-core/tools/validate_class_a_examples.py --self-test`
-- **Public publish:** pack-only copy to `CzarPiratez/unfynd-core`; tag `v0.1.0`.
+- **Public publish:** pack-only copy to `CzarPiratez/unfynd-core` at
+  **`615629b`**; tag **`v0.1.0`**. Public CI passed. Homepage
+  https://www.unfynd.com/core; wiki disabled.
 - **Known limitation:** website revision date on unfynd.com/core is still
   optional. Class B / `:core-domain` remain closed.

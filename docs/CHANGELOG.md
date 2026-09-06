@@ -13,8 +13,8 @@
   issue/PR templates; Canonical Recall sketch. `CITATIONS.md` stays a
   maintainer map.
 - **Not Class B.** No App source. No AVAILABLE.
-- **Verification:** validator `--self-test`. Pack-only publish + `v0.1.0` on
-  the public remote after this checkpoint.
+- **Verification:** validator `--self-test`. Pack-only publish **`615629b`**,
+  tag **`v0.1.0`**. Public CI `Class A validator` succeeded.
 
 ### I2 — Asset Memory assembly runs in WorkManager with Stop (2026-09-07)
 
