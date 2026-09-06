@@ -12,6 +12,7 @@
     <string name="clear_index_failed">UNFYND could not clear its private catalogue. Please try again.</string>
     <string name="clear_index_done">Done</string>
     <string name="rebuild_index_message">Your private UNFYND index needs to be rebuilt. Your original photos, documents, and notes are unchanged.</string>
+    <string name="opening_index_content_description">Opening UNFYND</string>
     <string name="unlock_required_title">Unlock your phone</string>
     <string name="unlock_required_body">UNFYND opens your private index only after you unlock this phone. Your original photos, documents, and notes stay where they are.</string>
     <string name="unlock_required_hint">Unlock, then UNFYND continues automatically.</string>

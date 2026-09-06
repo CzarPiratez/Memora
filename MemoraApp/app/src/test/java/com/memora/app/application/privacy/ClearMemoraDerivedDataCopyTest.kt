@@ -26,6 +26,13 @@ class ClearMemoraDerivedDataCopyTest {
         assertNoForbiddenTerms(copy)
     }
 
+    @Test
+    fun opening_index_copy_does_not_ask_to_unlock() {
+        val opening = "Opening UNFYND"
+        assertFalse(opening.lowercase().contains("unlock"))
+        assertNoForbiddenTerms(opening)
+    }
+
     private fun assertNoForbiddenTerms(text: String) {
         val lower = text.lowercase()
         assertFalse(lower.contains("sqlcipher"))

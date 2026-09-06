@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Product surface — launcher mark and honest launch state (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Launcher icon.** Replaced the generated placeholder with the UNFYND mark as
+  an adaptive icon. The mark is drawn as a **vector**, not a scaled bitmap, so it
+  stays sharp on every launcher density and on the Android 12+ splash screen; the
+  old `mipmap-*/ic_launcher*.webp` bitmaps are removed. A `monochrome` layer is
+  supplied so themed-icon launchers do not fall back to a flat silhouette, and
+  `values-v31/themes.xml` points the splash at the same vector.
+- **Launch state was telling the truth badly.** `DatabaseAvailabilityPhase.Checking`
+  rendered `UnlockRequiredScreen`, so an already-unlocked phone was told to
+  "Unlock your phone" during a check that normally lasts a few frames. The copy
+  was accurate about the encrypted index but wrong about the user's situation,
+  which reads as a demand for an action they have already taken.
+- **Fixed** by separating the two states: `Checking` now shows a quiet
+  `OpeningIndexScreen` (a progress indicator with an "Opening UNFYND" content
+  description for screen readers), and `UnlockRequiredScreen` appears only for
+  `WaitingForUnlock` — when the device genuinely is locked. No behaviour change
+  to the deferred-open path itself.
+- **Verification:** `ClearMemoraDerivedDataCopyTest` gains
+  `opening_index_copy_does_not_ask_to_unlock`, asserting the new copy neither
+  says "unlock" nor leaks encryption jargon, so the two states cannot quietly
+  merge again. `:app:testDebugUnitTest` green; debug APK resource merge and
+  install verified on Medium_Phone(AVD) API 36. Confirmed on the founder's
+  physical device.
+
 ### A7 / D-8 — meaning index selects unindexed work, not the newest page (2026-09-06)
 
 - **Date:** 2026-09-06

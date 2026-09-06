@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -401,13 +402,11 @@ fun UnfyndApp(
     modifier: Modifier = Modifier,
 ) {
     when (databaseAvailabilityUiState.phase) {
-        DatabaseAvailabilityPhase.Checking -> UnlockRequiredScreen(
-            showProgress = true,
+        DatabaseAvailabilityPhase.Checking -> OpeningIndexScreen(
             modifier = modifier,
         )
 
         DatabaseAvailabilityPhase.WaitingForUnlock -> UnlockRequiredScreen(
-            showProgress = false,
             modifier = modifier,
         )
 
@@ -859,8 +858,22 @@ private fun UnfyndAppReady(
 }
 
 @Composable
+fun OpeningIndexScreen(
+    modifier: Modifier = Modifier,
+) {
+    val openingDescription = stringResource(R.string.opening_index_content_description)
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { contentDescription = openingDescription },
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
 fun UnlockRequiredScreen(
-    showProgress: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -887,10 +900,6 @@ fun UnlockRequiredScreen(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (showProgress) {
-            Spacer(modifier = Modifier.height(24.dp))
-            CircularProgressIndicator()
-        }
     }
 }
 
