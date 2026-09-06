@@ -22,23 +22,59 @@ import sys
 from pathlib import Path
 from typing import Any
 
-EVIDENCE_CLASSES = frozenset(
-    {
-        "DIRECT",
-        "VALIDATED_OBSERVATION",
-        "RETRIEVAL_SIGNAL",
-        "HYPOTHESIS",
-    }
-)
-
 TRUTH_JUSTIFYING_CLASSES = frozenset({"DIRECT", "VALIDATED_OBSERVATION"})
 
-SKETCH_KINDS = frozenset(
-    {
-        "valid_asset_memory",
-        "invalid_asset_memory",
-        "valid_evidence_package_export",
-    }
+
+def _schema_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "schema" / "memory-evidence-sketch.schema.json"
+
+
+def load_pack_schema() -> dict[str, Any]:
+    path = _schema_path()
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"Class A schema missing: {path}. The validator must not invent enums."
+        )
+    with path.open(encoding="utf-8") as handle:
+        schema = json.load(handle)
+    if not isinstance(schema, dict):
+        raise ValueError("schema root must be an object")
+    version = schema.get("x-unfyndSchemaVersion")
+    if not isinstance(version, str) or not version.strip():
+        raise ValueError("schema must declare x-unfyndSchemaVersion")
+    return schema
+
+
+def _schema_string_enum(schema: dict[str, Any], *keys: str) -> frozenset[str]:
+    node: Any = schema
+    for key in keys:
+        if not isinstance(node, dict) or key not in node:
+            raise KeyError(".".join(keys))
+        node = node[key]
+    values = node if isinstance(node, list) else None
+    if not values or not all(isinstance(item, str) for item in values):
+        raise ValueError(".".join(keys) + " must be a string enum")
+    return frozenset(values)
+
+
+_SCHEMA = load_pack_schema()
+SCHEMA_VERSION = str(_SCHEMA["x-unfyndSchemaVersion"])
+SKETCH_KINDS = _schema_string_enum(_SCHEMA, "properties", "sketchKind", "enum")
+EVIDENCE_CLASSES = _schema_string_enum(
+    _SCHEMA,
+    "$defs",
+    "evidenceSketch",
+    "properties",
+    "evidenceClass",
+    "enum",
+)
+LOCATOR_TYPES = _schema_string_enum(
+    _SCHEMA,
+    "$defs",
+    "locatorSketch",
+    "properties",
+    "type",
+    "enum",
 )
 
 
@@ -94,6 +130,13 @@ def validate_evidence(evidence: Any, path: str, errors: list[str]) -> dict[str, 
         loc = _require_dict(locator, f"{path}.locator", errors)
         if loc is not None:
             ltype = _require_str(loc.get("type"), f"{path}.locator.type", errors)
+            if ltype is not None and ltype not in LOCATOR_TYPES:
+                errors.append(
+                    _err(
+                        f"{path}.locator.type",
+                        f"unknown locator type {ltype!r} (schema {SCHEMA_VERSION})",
+                    )
+                )
             if ltype == "timecode":
                 _require_int(loc.get("startMs"), f"{path}.locator.startMs", errors, minimum=0)
                 end = loc.get("endMs")
@@ -207,7 +250,7 @@ def validate_document(data: Any, *, expect_valid: bool | None = None) -> list[st
         if expect_valid is not False and memory is not None:
             apply_valid_asset_memory_rules(memory, errors)
     elif sketch_kind == "invalid_asset_memory":
-        validate_memory_sketch(root.get("memory"), "$.memory", errors)
+        memory = validate_memory_sketch(root.get("memory"), "$.memory", errors)
         rejection = _require_dict(root.get("rejection"), "$.rejection", errors)
         if rejection is not None:
             status = _require_str(rejection.get("status"), "$.rejection.status", errors)
@@ -216,6 +259,8 @@ def validate_document(data: Any, *, expect_valid: bool | None = None) -> list[st
             _require_str(rejection.get("why"), "$.rejection.why", errors)
         if expect_valid is True:
             errors.append(_err("$", "document is marked invalid but expected valid"))
+        elif memory is not None:
+            apply_valid_asset_memory_rules(memory, errors)
     elif sketch_kind == "valid_evidence_package_export":
         validate_export_bundle(root.get("exportBundle"), "$.exportBundle", errors)
         _require_str(root.get("notes"), "$.notes", errors)
@@ -306,19 +351,7 @@ def validate_file(path: Path) -> list[str]:
     except json.JSONDecodeError as exc:
         return [f"{path}: invalid JSON: {exc}"]
 
-    expect_valid = classify_example(path)
-    if expect_valid is False:
-        structural = validate_document(data, expect_valid=None)
-        if structural:
-            return structural
-        memory = data.get("memory") if isinstance(data, dict) else None
-        if isinstance(memory, dict):
-            truth_errors: list[str] = []
-            apply_valid_asset_memory_rules(memory, truth_errors)
-            if truth_errors:
-                return []
-        return [f"{path}: invalid example must violate valid Asset Memory rules"]
-    return validate_document(data, expect_valid=expect_valid)
+    return validate_document(data, expect_valid=classify_example(path))
 
 
 def default_examples_dir() -> Path:
@@ -334,9 +367,9 @@ def run_self_test() -> int:
         expect_valid = classify_example(path)
         if expect_valid is True and errors:
             failures.append(f"{path.name}: expected valid but got: {'; '.join(errors)}")
-        elif expect_valid is False and errors:
+        elif expect_valid is False and not errors:
             failures.append(
-                f"{path.name}: expected invalid (truth violation) but got: {'; '.join(errors)}"
+                f"{path.name}: expected at least one schema or truth-rule error"
             )
         elif expect_valid is None and errors:
             failures.append(f"{path.name}: unclassified example failed: {'; '.join(errors)}")
@@ -346,7 +379,10 @@ def run_self_test() -> int:
             print(line, file=sys.stderr)
         return 1
 
-    print(f"self-test passed ({len(list(examples_dir.glob('*.json')))} examples)")
+    print(
+        f"self-test passed ({len(list(examples_dir.glob('*.json')))} examples; "
+        f"schema {SCHEMA_VERSION})"
+    )
     return 0
 
 
@@ -386,13 +422,20 @@ def main(argv: list[str] | None = None) -> int:
     exit_code = 0
     for path in paths:
         errors = validate_file(path)
-        if errors:
+        expect_valid = classify_example(path)
+        if expect_valid is False:
+            if errors:
+                print(f"REJECT {path} (as expected)")
+            else:
+                exit_code = 1
+                print(f"FAIL {path} (invalid example was accepted)")
+        elif errors:
             exit_code = 1
             print(f"FAIL {path}")
             for err in errors:
                 print(f"  {err}")
         else:
-            print(f"OK   {path}")
+            print(f"OK     {path}")
 
     return exit_code
 

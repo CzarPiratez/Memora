@@ -44,10 +44,12 @@ regulated system.
 what the system used. If a result cannot point back to what it rested on, it is
 not ready for the classes of work Core is meant to serve.
 
-**Core provides** ingest/retention, recall/ranking, evidence-tied answers, and
-respect for the boundary you set - the where, and increasingly the who. **You
-build** the app, workflow, domain rules, sources, and the permission policy that
-fits your organization. Same Core, your product on top.
+**This pack specifies** ingest/retention, recall/ranking, evidence-tied answers,
+and respect for the boundary you set - the where, and increasingly the who.
+**UNFYND App** is the first implementation of that path. This repository does
+not ship that runtime. **You build** the app, workflow, domain rules, sources,
+and the permission policy that fits your organization. Same Core, your product
+on top.
 
 ---
 
@@ -113,6 +115,21 @@ routines, what “normal” sounds like, without uploading that life to a vendor
 that UNFYND Core itself is the companion product.
 
 ---
+
+## Reserved integrator seams (not in this pack)
+
+These are named so an integrator is not surprised later. They are **not**
+implemented here and are **not** a commitment to a ship date.
+
+- Fact validity over time (a value can be current, then superseded)
+- Conflict shown with working, not silent refusal
+- Optional audit of ask / retrieve / answer, off by default, inside the boundary
+- Permission scope at **candidate generation** (primitive 6 above)
+- Re-derivation when a capability improves (identity stays stable)
+- Reproducible retrieval packages for the same corpus, models, and question
+- Aggregation only with individually cited operands, or an explicit refusal
+- Selective deletion of one source and everything derived from it, with proof
+- Staged memory beyond one Asset (Link → Event → Knowledge; see `SPEC.md` §6)
 
 ## Related contracts
 

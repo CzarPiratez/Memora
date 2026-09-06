@@ -35,6 +35,8 @@ Use: https://github.com/CzarPiratez/unfynd-core/issues
 - App-specific bugs belong with the App maintainers, not this pack tracker
   (unless the publisher expands scope later).
 
+Please follow [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
 ## Pull requests
 
 Contributions to **this docs pack** are welcome via pull request to this

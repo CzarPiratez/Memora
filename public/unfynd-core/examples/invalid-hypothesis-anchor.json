@@ -1,0 +1,30 @@
+{
+  "_comment": "Synthetic REJECT: a HYPOTHESIS-only citation cannot hold an anchor.",
+  "sketchKind": "invalid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_reject_hypothesis_001",
+    "assetRef": "asset://synthetic/demo-cafe-receipt-photo",
+    "revisionHint": 1,
+    "summary": "Maybe this receipt is from a meeting with Alice.",
+    "anchors": [
+      {
+        "type": "PERSON",
+        "value": "Alice",
+        "citedEvidenceIds": ["ev_guess_01"]
+      }
+    ],
+    "evidence": [
+      {
+        "evidenceId": "ev_guess_01",
+        "evidenceClass": "HYPOTHESIS",
+        "kind": "possible_relation",
+        "excerpt": "unconfirmed person mention",
+        "provenance": "hypothesis:unconfirmed"
+      }
+    ]
+  },
+  "rejection": {
+    "status": "reject",
+    "why": "HYPOTHESIS needs more evidence or user confirmation. It cannot alone justify a PERSON anchor or a durable summary."
+  }
+}

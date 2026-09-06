@@ -1,0 +1,26 @@
+{
+  "_comment": "Synthetic REJECT: export memories must only cite slices present in the bundle.",
+  "sketchKind": "valid_evidence_package_export",
+  "exportBundle": {
+    "bundleId": "exp_synth_orphan_001",
+    "exportedAt": "2026-09-07T00:00:00Z",
+    "coreContractRevision": "class-a-2026-09-07",
+    "memories": [
+      {
+        "memoryId": "mem_synth_demo_001",
+        "revisionHint": 1,
+        "evidenceSliceIds": ["ev_ocr_01", "ev_missing_99"]
+      }
+    ],
+    "evidenceSlices": [
+      {
+        "evidenceId": "ev_ocr_01",
+        "evidenceClass": "DIRECT",
+        "kind": "ocr_text",
+        "excerpt": "Cafe Demo - Latte 4.50",
+        "provenance": "ocr:region:0"
+      }
+    ]
+  },
+  "notes": "Intentionally cites ev_missing_99, which is not in evidenceSlices."
+}

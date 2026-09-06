@@ -44,11 +44,17 @@ Structural shape aligned with
 Files named `valid-*.json` must pass. Files named `invalid-*.json` must fail the
 valid Asset Memory rules (while remaining well-formed illustrative rejects).
 
+The validator **loads** [`schema/memory-evidence-sketch.schema.json`](schema/memory-evidence-sketch.schema.json)
+for `sketchKind`, evidence-class, and locator enums (`x-unfyndSchemaVersion`).
+Truth-before-intelligence rules stay in the Python checker (they are not
+expressible as a closed JSON Schema alone).
+
 ## CI
 
-The private monorepo runs this validator in GitHub Actions (`class-a-validator`
-job in `.github/workflows/ci.yml`). The same command should pass before
-publishing an updated Class A pack to the public remote.
+This public repository runs `.github/workflows/validate.yml` on `main` and
+pull requests (`python tools/validate_class_a_examples.py --self-test`).
+The private monorepo still runs the same command as `class-a-validator`
+before a pack copy. Both must pass before a pack revision is published.
 
 ## Scope boundary
 

@@ -1,9 +1,15 @@
 # Citations (maintainer map)
 
-This file is for **private-monorepo maintainers**. External readers of the Class A
-pack do not need it. Paths below are **sources of distillation** inside the
-private tree; they are not opened by Class A and must not be copied verbatim into
-the public pack as hashed freeze blobs.
+**Audience:** private-monorepo maintainers only. External readers can ignore
+this file. It is **not** a public contract and not a license to private
+documents.
+
+**Decision (2026-09-07):** keep this map in the published pack so distillation
+stays auditable, and do **not** add more private paths. Hashed freeze blobs
+must never be copied here.
+
+Paths below are **sources of distillation** inside the private tree; they are
+not opened by Class A.
 
 | Public pack file | Distilled from (private paths) |
 |---|---|

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Class A pack revision 2026-09-07 — public Core repo hygiene
+
+- **Date:** 2026-09-07
+- **Why.** Public `unfynd-core` was in sync with the 2026-09-05 pack, but the
+  pack still said "Core provides" the runtime, the validator ignored its own
+  schema, and the published repo had no CI.
+- **Fixed.** Honesty copy; schema-driven validator (`x-unfyndSchemaVersion`
+  1.1.0); four negative fixtures; public Actions workflow; CoC, versioning,
+  issue/PR templates; Canonical Recall sketch. `CITATIONS.md` stays a
+  maintainer map.
+- **Not Class B.** No App source. No AVAILABLE.
+- **Verification:** validator `--self-test`. Pack-only publish + `v0.1.0` on
+  the public remote after this checkpoint.
+
 ### I2 — Asset Memory assembly runs in WorkManager with Stop (2026-09-07)
 
 - **Date:** 2026-09-07

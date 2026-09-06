@@ -30,6 +30,7 @@ identity of Core.
         └─────────────┴─────────────┘
                       ▼
         Canonical Recall + Evidence Package
+        (see CANONICAL_RECALL.md)
                       ▼
               Memory / evidence store
 ```

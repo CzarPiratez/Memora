@@ -1,0 +1,30 @@
+{
+  "_comment": "Synthetic REJECT: RETRIEVAL_SIGNAL cannot justify a durable claim.",
+  "sketchKind": "invalid_asset_memory",
+  "memory": {
+    "memoryId": "mem_synth_reject_signal_001",
+    "assetRef": "asset://synthetic/demo-cafe-receipt-photo",
+    "revisionHint": 1,
+    "summary": "This file is about a latte at Cafe Demo.",
+    "anchors": [
+      {
+        "type": "TEXT",
+        "value": "latte",
+        "citedEvidenceIds": ["ev_cosine_01"]
+      }
+    ],
+    "evidence": [
+      {
+        "evidenceId": "ev_cosine_01",
+        "evidenceClass": "RETRIEVAL_SIGNAL",
+        "kind": "embedding_similarity",
+        "excerpt": "cosine 0.81 against query vector",
+        "provenance": "embed:query:demo"
+      }
+    ]
+  },
+  "rejection": {
+    "status": "reject",
+    "why": "RETRIEVAL_SIGNAL is candidate generation only. It cannot justify a READY summary or a durable TEXT anchor."
+  }
+}

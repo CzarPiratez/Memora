@@ -529,37 +529,34 @@ support & versioning policy · backup/restore policy.
 
 ## 7. UNFYND Core — what to add, and when
 
-**Today:** Class A is docs + 5 synthetic examples + 1 JSON schema + 1 Python
-validator (validator self-test passes). It is honest about being Class A. It does
-**not** let an outside engineer implement or run anything.
+**Today (2026-09-07):** Class A is docs + 9 synthetic examples + versioned JSON
+schema + schema-driven Python validator + public CI workflow. It is honest that
+this pack specifies Core and UNFYND App is the first implementing surface. It
+does **not** let an outside engineer run the App or a Core library.
 
-### 7.1 Two honest problems now
+### 7.1 Honest problems (G1/G2 closed 2026-09-07)
 
-1. **Present-tense capability copy.** `README.md:44`, `SPEC.md:23-27`,
-   `APPLICATIONS.md:41-43` all say "Core provides ingest… recall and ranking…
-   answers tied to evidence". True of the **private App**; not of the **open
-   pack**. Quoted out of context in a grant deck, that is an overclaim. Fix is
-   one clause, not a rewrite: say which layer provides it today.
-2. **The validator does not use the schema.** `tools/validate_class_a_examples.py`
-   re-implements a subset of the rules in Python and never loads
-   `schema/memory-evidence-sketch.schema.json`. Two sources of truth that can
-   drift. Also: the schema allows any string for anchor `type`, while the private
-   model has a closed `MemoryAnchorKind`.
+1. **Present-tense capability copy.** Closed: pack now says it **specifies**;
+   App implements; this repo is not the runtime.
+2. **Validator vs schema.** Closed: validator loads
+   `x-unfyndSchemaVersion` and schema enums. Remaining: schema still allows
+   any string for anchor `type`, while the private model has a closed
+   `MemoryAnchorKind` (leave open until W2 earns a public TIME/type contract).
 
 ### 7.2 Sequenced Core additions
 
 **Now (no private code opened, no product cost):**
 
-- C-1 Fix the present-tense copy in README / SPEC / APPLICATIONS
-- C-2 Make the validator schema-driven; add a `version` field to the schema
+- C-1 Fix the present-tense copy in README / SPEC / APPLICATIONS — **done**
+- C-2 Make the validator schema-driven; add a `version` field to the schema — **done**
 - C-3 Expand negative fixtures: `RETRIEVAL_SIGNAL`-only justification,
-  `HYPOTHESIS`-only anchor, orphan export slice ref, malformed locator
-- C-4 Public CI workflow in the published repo (today CI is private-only, while
-  `ROADMAP-OPEN.md:39` says "Delivered")
+  `HYPOTHESIS`-only anchor, orphan export slice ref, malformed locator — **done**
+- C-4 Public CI workflow in the published repo — **done** (pack
+  `.github/workflows/validate.yml`)
 - C-5 OSS hygiene: `CODE_OF_CONDUCT`, issue/PR templates, a versioning policy,
-  first semver tag
+  first semver tag — **done** (tag on public remote)
 - C-6 Decide whether `CITATIONS.md` (which lists private doc paths) should ship
-  publicly at all
+  publicly at all — **done**: keep; maintainer map only; do not expand paths
 
 **Per wave, as the App earns it:**
 
@@ -747,15 +744,15 @@ listens to it.
 
 ### Batch G — UNFYND Core public pack
 
-| # | Task | Kind |
-|---|---|---|
-| G1 | Fix present-tense "Core provides" copy (README / SPEC / APPLICATIONS) | Docs |
-| G2 | Make the validator schema-driven; version the schema | Code |
-| G3 | More negative fixtures | Code |
-| G4 | Public CI in the published repo | Build |
-| G5 | OSS hygiene: code of conduct, templates, versioning policy, semver tag | Docs |
-| G6 | Decide whether `CITATIONS.md` ships publicly | Decision |
-| G7 | **Public Canonical Recall API spec** — biggest external spec gap | Docs |
+| # | Task | Kind | Status |
+|---|---|---|---|
+| G1 | Fix present-tense "Core provides" copy (README / SPEC / APPLICATIONS) | Docs | **done** |
+| G2 | Make the validator schema-driven; version the schema | Code | **done** |
+| G3 | More negative fixtures | Code | **done** |
+| G4 | Public CI in the published repo | Build | **done** (workflow in pack; live after publish) |
+| G5 | OSS hygiene: code of conduct, templates, versioning policy, semver tag | Docs | **done** (tag on public remote) |
+| G6 | Decide whether `CITATIONS.md` ships publicly | Decision | **done** — keep as maintainer map; not a contract |
+| G7 | **Public Canonical Recall API spec** — biggest external spec gap | Docs | **done** as sketch (`CANONICAL_RECALL.md`; not frozen) |
 
 ### Batch H — Vision scale
 
@@ -770,7 +767,8 @@ listens to it.
 ### Decisions only the founder can make
 
 Ask Model acceptance (A6) · one box vs two (D3) · AVAILABLE (E4) · ADR-050
-claim B (E2) · `CITATIONS.md` public or not (G6) · the CR-07 aggregation stance.
+claim B (E2) · the CR-07 aggregation stance. (`CITATIONS.md` public-or-not
+is decided: keep as maintainer map.)
 
 ---
 

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: UNFYND Core site
+    url: https://www.unfynd.com/core
+    about: Product vision for Core (not this pack's issue tracker).
+  - name: Security or secret leak
+    url: https://www.unfynd.com/
+    about: Do not paste secrets here. Use the site contact or NOTICE.

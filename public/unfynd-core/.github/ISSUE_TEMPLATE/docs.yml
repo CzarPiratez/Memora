@@ -1,0 +1,28 @@
+name: Pack documentation
+description: Clarify a Class A contract, example, or honesty issue
+title: "[docs] "
+labels: ["docs"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        This tracker is for the Apache-2.0 **contracts pack** only.
+        Do not paste secrets, personal data, or private App source.
+  - type: textarea
+    id: what
+    attributes:
+      label: What should change
+      description: File path and the honesty or clarity problem.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - Contract wording (SPEC / APPLICATIONS)
+        - Example or validator
+        - Over-claim / missing non-claim
+        - Hygiene (CI, versioning, templates)
+    validations:
+      required: true

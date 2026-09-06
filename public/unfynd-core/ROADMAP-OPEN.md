@@ -36,7 +36,7 @@ As Core and this pack mature, further foundations may open under new decisions:
 
 | Phase direction | Notes |
 |---|---|
-| Runnable tooling that exercises Class A contracts | **Delivered (2026-09-01):** validator, schema sketch, `BUILDING.md`, CI in private monorepo |
+| Runnable tooling that exercises Class A contracts | **Delivered:** validator (schema-driven from 2026-09-07), `BUILDING.md`, CI in **this** public repository and in the private monorepo |
 | Additional public SDK / interface docs | Only if curated and provenance-cleared |
 | Broader Core source under a separate license decision | Requires Model A vs B / licensing ADR |
 | Website and Open pages pointing at this pack | Keep App vs Core boundary clear |

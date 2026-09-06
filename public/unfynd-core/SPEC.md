@@ -20,11 +20,13 @@ data already lives - phones, laptops, workstations, and controlled networks. It
 is infrastructure you **ship, audit, and extend** when the corpus cannot be
 treated as someone else’s training set.
 
-**Core is the system underneath. You build the product.** Core provides ingest
-and retention, recall and ranking, and answers tied to evidence you can open, at
-the boundary you set (device, site, or air gap). Builders wire sources,
-workflows, domain rules, and permissions - for clinics, field teams, enterprises,
-research enclaves, consumer devices, and products we have not named yet.
+**Core is the system underneath. You build the product.** This pack **specifies**
+ingest and retention, recall and ranking, and answers tied to evidence you can
+open, at the boundary you set (device, site, or air gap). **UNFYND App** is the
+first implementing surface. This repository is the contract, not that runtime.
+Builders wire sources, workflows, domain rules, and permissions - for clinics,
+field teams, enterprises, research enclaves, consumer devices, and products we
+have not named yet.
 
 UNFYND Core is **not** a personal AI or assistant. Assistants, companions, and
 vertical tools are applications that can sit **on** Core. **UNFYND App** is one

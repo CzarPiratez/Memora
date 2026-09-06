@@ -36,6 +36,12 @@ UNFYND Core is a personal AI or assistant product - those are applications that
 can be built on Core. Do not present staged direction as items bundled in this
 documentation release alone. Marketing performance SLAs are outside this pack.
 
+## Maintainer map
+
+[`CITATIONS.md`](CITATIONS.md) lists private distillation sources. It stays
+published so maintainers can audit the pack, and it is **not** a public
+contract. Do not expand it with more private paths.
+
 ## Changes
 
 Maintainers accept documentation PRs that stay within Class A. Broader openness

@@ -3,7 +3,8 @@
 **License:** [Apache License 2.0](LICENSE)  
 **Product site:** [https://www.unfynd.com/](https://www.unfynd.com/) · [Core](https://www.unfynd.com/core)  
 **Release class:** Class A: Public Specification / Contract (docs + synthetic examples)  
-**Pack revision:** 2026-09-05 (scope-aware retrieval direction)
+**Pack revision:** 2026-09-07 (enterprise hygiene: honesty, schema-driven
+validator, public CI)
 
 **Quick start (validate synthetic examples):**
 
@@ -41,7 +42,8 @@ architecture. Core is built for that architecture.
 
 | | |
 |---|---|
-| **What Core provides** | On-device ingest and retention for multimodal data. Recall and ranking across that store. Answers tied to evidence you can open. Runs where you set the boundary: device, site, or air gap. |
+| **What this pack specifies** | On-device ingest and retention for multimodal data. Recall and ranking across that store. Answers tied to evidence you can open. Runs where you set the boundary: device, site, or air gap. |
+| **What implements it today** | **UNFYND App** on Android is the first product surface on this substrate. This repository publishes the contracts and synthetic conformance tools, not that runtime. |
 | **What you build** | The app, the workflow, the domain rules. Wire new sources. Specialize retrieval and ranking. Author the permission policy for your environment. Ship to clinics, field teams, enterprises, or consumer devices. Same Core, your product on top. |
 
 UNFYND Core is **not** a personal AI or assistant product. Assistants,
@@ -72,13 +74,15 @@ Aging / companion care).
 
 ## Where Core is on this path
 
-Core is already carrying real work. UNFYND App runs on this substrate on Android
-today: permissioned discovery, deterministic extraction (OCR, document and note
-text, image metadata), Memory assembly through a single construction seam,
-on-device embeddings, and recall converging on one canonical Find boundary that
-explains results from stored evidence.
+UNFYND App is the first product surface on this substrate (Android today):
+permissioned discovery, deterministic extraction (OCR, document and note text,
+image metadata), Memory assembly through a single construction seam, on-device
+embeddings, and **one canonical Find boundary** that explains results from
+stored evidence. Parallel App Find paths on that surface have been retired.
+This pack is the contract those implementations are held to; it is not the App
+binary, and it is not a marketing AVAILABLE claim.
 
-The current build is deepening that foundation - evidence identity carried
+The current build is deepening that foundation: evidence identity carried
 through every retrieval path, so any output can name the stored evidence it
 rests on; ranking that composes meaning with the constraints people actually
 speak, starting with time and type; and the reranking seam moving to an
@@ -106,7 +110,9 @@ Under Apache-2.0, this Class A pack publishes:
 - Staged memory direction (Asset → Link → Event → Knowledge) as future stages
 - Low-power posture as an event-driven Memory lifecycle
 - Synthetic illustrative examples ([`examples/`](examples/))
+- Canonical Recall request/response sketch ([`CANONICAL_RECALL.md`](CANONICAL_RECALL.md))
 - Openness phases ([`ROADMAP-OPEN.md`](ROADMAP-OPEN.md))
+- Versioning ([`VERSIONING.md`](VERSIONING.md))
 
 **UNFYND App** and proprietary assets stay private until a later decision.
 
@@ -128,11 +134,14 @@ Under Apache-2.0, this Class A pack publishes:
 | [`BUILDING.md`](BUILDING.md) | Run the conformance validator |
 | [`schema/`](schema/) | JSON Schema sketch for examples |
 | [`tools/`](tools/) | Validator CLI |
+| [`CANONICAL_RECALL.md`](CANONICAL_RECALL.md) | Canonical Recall request/response sketch (not a frozen API) |
 | [`EXPORT_CONTRACT.md`](EXPORT_CONTRACT.md) | Evidence Package export planning sketch |
 | [`INTEGRATION.md`](INTEGRATION.md) | Integration surface planning sketch |
-| [`ROADMAP-OPEN.md`](ROADMAP-OPEN.md) | What is open now vs later openness phases |
+| [`VERSIONING.md`](VERSIONING.md) | Pack and schema version policy |
+| [`ROADMAP-OPEN.md`](ROADMAP-OPEN.md) | What is open today vs later openness phases |
 | [`PUBLIC_CHANGELOG.md`](PUBLIC_CHANGELOG.md) | Pack revision history |
 | [`SECURITY.md`](SECURITY.md) | Security reporting |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Conduct for issues and PRs |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) / [`GOVERNANCE.md`](GOVERNANCE.md) | How this public repo is maintained |
 
 ---

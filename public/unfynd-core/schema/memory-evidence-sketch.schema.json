@@ -2,7 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://unfynd.com/core/schema/memory-evidence-sketch.schema.json",
   "title": "UNFYND Core Class A Memory / evidence sketch",
-  "description": "Illustrative sketch shape for synthetic Class A examples. Aligns with SPEC.md evidence classes and truth-before-intelligence rules. Not a production Room or API lock.",
+  "description": "Illustrative sketch shape for synthetic Class A examples. Aligns with SPEC.md evidence classes and truth-before-intelligence rules. Not a production Room or API lock. tools/validate_class_a_examples.py loads this file as the source of truth for sketchKind, evidenceClass, and locator enums.",
+  "x-unfyndSchemaVersion": "1.1.0",
   "type": "object",
   "required": ["sketchKind"],
   "properties": {
@@ -125,7 +126,16 @@
         "spanStart": { "type": "integer", "minimum": 0 },
         "spanEnd": { "type": "integer", "minimum": 0 }
       },
-      "additionalProperties": true
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "timecode" } },
+            "required": ["type"]
+          },
+          "then": { "required": ["startMs"] }
+        }
+      ]
     },
     "exportBundleSketch": {
       "type": "object",

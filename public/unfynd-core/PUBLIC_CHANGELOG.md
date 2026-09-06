@@ -4,6 +4,26 @@ All notable changes to this **Class A** Public Specification / Contract pack.
 The pack is documentation, synthetic examples, and conformance tooling
 (Apache-2.0).
 
+## 2026-09-07 - Enterprise pack hygiene (honesty, schema-driven validator, public CI)
+
+- README / SPEC / APPLICATIONS: "Core provides" is now **this pack specifies**;
+  UNFYND App is named as the first implementing surface. This repo is not the
+  runtime and not AVAILABLE.
+- README: first App surface uses **one canonical Find boundary** (not
+  "converging"). Parallel App Finds retired; pack remains the contract.
+- APPLICATIONS: reserved integrator seams (fact validity, conflict, audit,
+  re-derivation, reproducibility, aggregation, selective deletion, staged
+  memory) without shipping a private capability register.
+- Validator loads `schema/memory-evidence-sketch.schema.json`
+  (`x-unfyndSchemaVersion` 1.1.0) for enums. No pip dependency.
+- Negative fixtures: RETRIEVAL_SIGNAL-only, HYPOTHESIS-only anchor, orphan
+  export slice, malformed locator.
+- Public CI: `.github/workflows/validate.yml`.
+- Hygiene: `CODE_OF_CONDUCT.md`, `VERSIONING.md`, issue/PR templates.
+- `CANONICAL_RECALL.md` request/response sketch (not a frozen API).
+- `CITATIONS.md` stays as a maintainer map (G6): not a public contract; no
+  new private paths.
+
 ## 2026-09-05 - Scope-aware retrieval direction + Core progress on the path
 
 - APPLICATIONS: added **Scope inside the boundary** primitive - permission scope

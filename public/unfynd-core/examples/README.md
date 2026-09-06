@@ -24,6 +24,10 @@ See [`BUILDING.md`](../BUILDING.md).
 | [`valid-evidence-package-export.json`](valid-evidence-package-export.json) | Export bundle planning sketch (cited slices only) |
 | [`invalid-invented-fact.json`](invalid-invented-fact.json) | Rejected: claim without supporting evidence |
 | [`invalid-empty-evidence.json`](invalid-empty-evidence.json) | Rejected: empty required evidence for a durable claim |
+| [`invalid-retrieval-signal-only.json`](invalid-retrieval-signal-only.json) | Rejected: RETRIEVAL_SIGNAL cannot justify a claim |
+| [`invalid-hypothesis-anchor.json`](invalid-hypothesis-anchor.json) | Rejected: HYPOTHESIS-only anchor citation |
+| [`invalid-orphan-export-ref.json`](invalid-orphan-export-ref.json) | Rejected: export cites a slice that is not in the bundle |
+| [`invalid-malformed-locator.json`](invalid-malformed-locator.json) | Rejected: locator type not in the schema enum |
 
 All content is **fake** (made-up cafe / receipt text). Do not treat it as real
 user data.
