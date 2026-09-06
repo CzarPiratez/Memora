@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Why explains relevance, not a word inventory (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Founder feedback.** "Has swimming. Does not have schedule." is an audit of
+  the lexical gate, not an answer to "why is this file here?" The card also
+  dumped type chips, OCR, page labels, and Open hints — and UNFYND screenshots
+  then repeated the search chrome inside the result.
+- **Fixed.** A result card is now the filename, Why / Hide why, and Open.
+  Why says `You asked about a swimming schedule. This file is Grade 2 Swimming
+  TT 2026.` plus the stored line that supports that. It uses the file's own
+  name or opening words — it never claims schedule means timetable. Missing-word
+  honesty stays on the list banner, not on every card.
+- Filename stays visible when Why is closed so a list of five files is still
+  scannable. The search field at the top of the screen stays; that is how you
+  ask, not a result.
+- **Verification:** `MeaningWhyTest` pins the relevance sentence, the
+  no-synonym claim, screenshot-name fallback, and wrapper stripping.
+  `ui.search` unit tests green.
+
 ### D-17 — Why names the words this file has, and stops claiming all of them (2026-09-06)
 
 - **Date:** 2026-09-06

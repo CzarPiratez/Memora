@@ -3,8 +3,6 @@ package com.memora.app.ui.search
 import com.memora.app.application.memory.CanonicalRecallResult
 import com.memora.app.application.memory.CanonicalRecallRetrievalPath
 import com.memora.app.domain.asset.AssetType
-import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
-import com.memora.app.domain.intelligence.MeaningRecallCue
 
 /**
  * Unified Why copy for all Canonical Recall Find hits (contract §3).
@@ -28,6 +26,7 @@ object CanonicalRecallWhyCopy {
             )
             CanonicalRecallRetrievalPath.MEANING -> meaningWhy(
                 query = query,
+                label = result.label,
                 excerpt = result.excerpt,
             )
         }
@@ -58,11 +57,12 @@ object CanonicalRecallWhyCopy {
      */
     private fun meaningWhy(
         query: String,
+        label: String,
         excerpt: String,
     ): String {
-        val named = MeaningRecallCue.contentTokens(query)
-        val matched = MeaningEvidenceLexicalFilter.prepare(named).matchingTokens(excerpt)
-        return MeaningWhy.coverageText(matched, named - matched.toSet())
+        val asked = MeaningWhy.askedPhrase(query)
+        val fileIs = MeaningWhy.fileIs(label, excerpt)
+        return MeaningWhy.relevanceText(asked, fileIs)
     }
 
     internal fun friendlyDisplayLabel(label: String): String {

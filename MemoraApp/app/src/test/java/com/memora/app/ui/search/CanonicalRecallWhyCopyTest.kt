@@ -43,16 +43,17 @@ class CanonicalRecallWhyCopyTest {
             query = "silky wreck",
         )
 
-        assertEquals("Has \"silky\" and \"wreck\".", why)
-        assertFalse(why.contains("You asked about"))
+        assertTrue(why.contains("You asked about a silky wreck."))
+        assertTrue(why.contains("This file is"))
         assertFalse(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Has \"silky\""))
         assertFalse(why.contains("Found by meaning"))
         assertFalse(why.contains("cue-best"))
         assertFalse(why.contains("Score reflects"))
     }
 
     @Test
-    fun meaning_why_names_a_missing_word_on_a_partial_excerpt() {
+    fun meaning_why_does_not_inventory_missing_words() {
         val why = CanonicalRecallWhyCopy.whyThisResult(
             result = CanonicalRecallTestFixtures.keywordRecall(
                 label = "Grade-2-Swimming-TT-2026.pdf",
@@ -66,8 +67,9 @@ class CanonicalRecallWhyCopyTest {
             query = "swimming schedule",
         )
 
-        assertTrue(why.contains("Has \"swimming\"."))
-        assertTrue(why.contains("Does not have \"schedule\"."))
+        assertTrue(why.contains("You asked about a swimming schedule."))
+        assertTrue(why.contains("This file is Grade 2 Swimming TT 2026."))
+        assertFalse(why.contains("Does not have"))
         assertFalse(why.contains("Your cue words appear"))
     }
 

@@ -84,10 +84,10 @@ class MeaningSearchCopyTest {
             hit = sampleHit(com.memora.app.domain.asset.AssetType.NOTE),
             query = "hotel",
         )
-        assertTrue(why.contains("Has \"hotel\"."))
-        assertFalse(why.contains("You asked about"))
+        assertTrue(why.contains("You asked about a hotel."))
+        assertTrue(why.contains("This file is"))
         assertFalse(why.contains("Why this result?"))
-        assertFalse(why.contains("Hotel confirmation near the cafe"))
+        assertFalse(why.contains("Has \"hotel\""))
     }
 
     @Test
@@ -118,6 +118,7 @@ class MeaningSearchCopyTest {
             query = "mira",
         )
         assertFalse(why.contains("Your cue words appear"))
+        assertFalse(why.contains("Does not have"))
         assertFalse(why.contains("Page 3"))
     }
 

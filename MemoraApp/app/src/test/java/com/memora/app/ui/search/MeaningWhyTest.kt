@@ -9,7 +9,6 @@ import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -17,83 +16,75 @@ class MeaningWhyTest {
     private val model = ModelVersionIdentity("m", "1")
 
     @Test
-    fun exact_cue_names_only_the_words_this_file_has() {
+    fun relevance_pairs_the_ask_with_what_the_file_calls_itself() {
         val why = MeaningWhy.explain(
-            hit = hit(summary = "Irregular consonants school anchor silky wreck cook"),
-            query = "silky",
-        )
-        assertEquals(listOf("silky"), why.matched)
-        assertEquals(emptyList<String>(), why.missing)
-        assertEquals("Has \"silky\".", MeaningWhy.coverageText(why.matched, why.missing))
-        assertFalse(MeaningWhy.plainText(why).contains("cue words", ignoreCase = true))
-        assertFalse(MeaningWhy.plainText(why).contains("You asked about"))
-    }
-
-    @Test
-    fun partial_cue_names_the_missing_word_and_never_claims_it_appeared() {
-        val why = MeaningWhy.explain(
-            hit = hit(summary = "Grade 2 Swimming Timetable 2026 PERIOD TIME"),
+            hit = hit(summary = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE"),
             query = "swimming schedule",
         )
-        assertEquals(listOf("swimming"), why.matched)
-        assertEquals(listOf("schedule"), why.missing)
         val text = MeaningWhy.plainText(why)
-        assertTrue(text.contains("Has \"swimming\"."))
-        assertTrue(text.contains("Does not have \"schedule\"."))
-        assertFalse(text.contains("Your cue words appear"))
-        assertFalse(text.contains("Found by meaning"))
+        assertTrue(text.contains("You asked about a swimming schedule."))
+        assertTrue(text.contains("This file is Grade 2 Swimming TT 2026."))
+        assertTrue(why.citedLine!!.contains("Swimming", ignoreCase = true))
+        assertFalse(text.contains("Has \"swimming\""))
+        assertFalse(text.contains("Does not have"))
+        assertFalse(text.contains("cue words", ignoreCase = true))
     }
 
-    /**
-     * U5: do not repeat the card snippet when the matching word is already
-     * visible there.
-     */
     @Test
-    fun omits_a_cited_line_when_the_card_already_shows_the_word() {
+    fun does_not_claim_schedule_means_timetable() {
         val why = MeaningWhy.explain(
             hit = hit(summary = "Grade 2 Swimming Timetable 2026"),
             query = "swimming schedule",
         )
-        assertNull(why.citedLine)
+        val text = MeaningWhy.plainText(why)
+        assertTrue(text.contains("swimming schedule"))
+        assertTrue(text.contains("Swimming TT") || text.contains("Swimming Timetable"))
+        assertFalse(text.contains("schedule means"))
+        assertFalse(text.contains("same as"))
     }
 
-    /**
-     * D-7 start: when the card snippet does not carry the word but another
-     * stored span does, Why quotes that span instead of the cosine winner.
-     */
     @Test
-    fun cites_the_hidden_span_when_the_card_snippet_does_not_carry_the_word() {
+    fun machine_screenshot_name_falls_back_to_the_saved_line() {
         val why = MeaningWhy.explain(
             hit = hit(
-                summary = "G Recommended Launch Plan To balance engineering complexity",
-                precisionText = "G Recommended Launch Plan. Shop 41 Invoice No. SDA/PLZ/25/04031 due date.",
+                summary = "Monthly Rent Collection Records Shop 41 Invoice No SDA",
+                label = "Screenshot_20260412_131237_Chrome.png",
             ),
             query = "pterodactyl invoice",
         )
-        assertEquals(listOf("invoice"), why.matched)
-        assertEquals(listOf("pterodactyl"), why.missing)
+        assertEquals("a pterodactyl invoice", why.asked)
+        assertEquals("Monthly Rent Collection Records Shop 41 Invoice No SDA", why.fileIs)
         assertTrue(why.citedLine!!.contains("Invoice", ignoreCase = true))
-        assertFalse(why.citedLine!!.contains("Launch Plan"))
     }
 
     @Test
-    fun two_matched_words_read_as_a_list() {
+    fun asked_phrase_uses_content_tokens_not_the_wrappers() {
         assertEquals(
-            "Has \"swimming\" and \"timetable\".",
-            MeaningWhy.coverageText(listOf("swimming", "timetable"), emptyList()),
+            "a swimming schedule",
+            MeaningWhy.askedPhrase("get me some egs from the pdf related to swimming schedule"),
+        )
+        assertEquals("a silky", MeaningWhy.askedPhrase("which file has silky in it?"))
+    }
+
+    @Test
+    fun first_readable_clause_stops_before_timetable_grid_noise() {
+        assertEquals(
+            "Grade 2 Swimming Timetable 2026",
+            MeaningWhy.firstReadableClause("Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE WED"),
         )
     }
 
     private fun hit(
         summary: String,
         precisionText: String = "",
+        label: String = "Grade-2-Swimming-TT-2026.pdf",
     ) = MeaningSearchHit(
         revisionId = MemoryRevisionId("rev"),
         memoryId = MemoryId("mem"),
         sourceId = SourceId("src"),
         sourceAssetKey = SourceAssetKey("asset"),
         assetType = AssetType.PDF,
-        label = "Grade-2-Swimming-TT-2026.pdf",
+        label = label,
         summaryText = summary,
         score = 0.5f,
         model = model,
