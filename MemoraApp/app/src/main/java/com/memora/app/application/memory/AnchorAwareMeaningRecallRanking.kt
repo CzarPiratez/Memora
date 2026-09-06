@@ -5,7 +5,7 @@ import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.domain.intelligence.IdentityRecallRanker
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
-import com.memora.app.domain.intelligence.RecallQueryContentTokens
+import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.RecallRankCandidate
 import com.memora.app.domain.intelligence.RecallRankResult
 import com.memora.app.domain.intelligence.RecallRanker
@@ -14,7 +14,6 @@ import com.memora.app.domain.memory.AnchorStructuredRecallFilter
 import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.domain.memory.RecallConstraintStrength
 import com.memora.app.domain.memory.RecallQueryConstraintClassifier
-import com.memora.app.domain.memory.RecallQueryConstraints
 
 /**
  * Shared meaning ranking stage inside [CanonicalRecall] (MIG-07B + FC-02 Stage A).
@@ -33,7 +32,7 @@ object AnchorAwareMeaningRecallRanking {
 
         val boosted = applyTokenBoost(outcome, rawQuery)
         val constraints = RecallQueryConstraintClassifier.classify(rawQuery)
-        val lexicalFiltered = applyLexicalAndFilter(boosted, rawQuery, constraints)
+        val lexicalFiltered = applyLexicalAndFilter(boosted, rawQuery)
         val reranked = applyRecallRanker(lexicalFiltered, rawQuery, recallRanker)
         if (constraints.time == RecallConstraintStrength.NONE &&
             constraints.topic == RecallConstraintStrength.NONE
@@ -96,34 +95,22 @@ object AnchorAwareMeaningRecallRanking {
         }
     }
 
+    /**
+     * A time cue must not disable precision: `recent files with silky` still has
+     * to contain `silky`, while `notes in 2024` requires `notes` and leaves
+     * `2024` to the TIME anchor stage (bar T10). [MeaningRecallCue.contentTokens]
+     * makes that the same list the query vector was built from (defect D-10).
+     */
     private fun applyLexicalAndFilter(
         outcome: MeaningSearchOutcome.Matches,
         rawQuery: String,
-        constraints: RecallQueryConstraints,
     ): MeaningSearchOutcome.Matches {
-        val required = requiredContentTokens(rawQuery, constraints)
+        val required = MeaningRecallCue.contentTokens(rawQuery)
         if (required.isEmpty()) return outcome
         val filtered = outcome.hits.filter { hit ->
             MeaningEvidenceLexicalFilter.satisfies(required, hit.lexicalHaystack())
         }
         return outcome.copy(hits = filtered)
-    }
-
-    /**
-     * Content the person named, minus the words a TIME expression already
-     * consumed. A time cue must not disable precision: `recent files with silky`
-     * still has to contain `silky`, while `notes in 2024` requires `notes` and
-     * leaves `2024` to the TIME anchor stage (bar T10).
-     */
-    private fun requiredContentTokens(
-        rawQuery: String,
-        constraints: RecallQueryConstraints,
-    ): List<String> {
-        val named = MeaningEvidenceLexicalFilter.requiredContentTokens(rawQuery)
-        val timeWords = constraints.timeSpanText
-            ?.let { RecallQueryContentTokens.tokens(it).toSet() }
-            .orEmpty()
-        return if (timeWords.isEmpty()) named else named - timeWords
     }
 
     private fun applyTokenBoost(

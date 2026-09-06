@@ -1,5 +1,7 @@
 package com.memora.app.domain.intelligence
 
+import com.memora.app.domain.memory.RecallQueryConstraintClassifier
+
 /**
  * Product recall cue for Find by meaning (scenario bar MF-1).
  *
@@ -14,8 +16,24 @@ object MeaningRecallCue {
     fun normalize(rawQuery: String): String =
         rawQuery.trim().replace(WHITESPACE, " ").take(MAX_QUERY_CHARS)
 
-    fun contentTokens(rawQuery: String): List<String> =
-        RecallQueryContentTokens.tokens(normalize(rawQuery))
+    /**
+     * What the person named as content: the words left after ask-shape wrappers
+     * and after any word a structured constraint already owns.
+     *
+     * Candidate generation and the lexical precision gate must both read this
+     * one derivation. While they derived it separately they disagreed, and
+     * `recent files with silky` embedded `recent silky` while requiring only
+     * `silky` — the vector drifted toward recency language, the single file
+     * containing `silky` fell out of the candidate pool, and the query answered
+     * nothing while bare `silky` worked (bar T10, defect D-10).
+     */
+    fun contentTokens(rawQuery: String): List<String> {
+        val normalized = normalize(rawQuery)
+        val named = RecallQueryContentTokens.tokens(normalized)
+        if (named.isEmpty()) return named
+        val consumed = constraintConsumedTokens(normalized)
+        return if (consumed.isEmpty()) named else named - consumed
+    }
 
     /**
      * Text passed to the embedding engine for candidate generation.
@@ -25,12 +43,23 @@ object MeaningRecallCue {
     fun embedText(rawQuery: String): String {
         val normalized = normalize(rawQuery)
         if (normalized.isEmpty()) return normalized
-        val tokens = RecallQueryContentTokens.tokens(normalized)
+        val tokens = contentTokens(normalized)
         return if (tokens.isNotEmpty()) tokens.joinToString(" ") else normalized
     }
 
     /** Query string shown in Why / empty states. */
     fun displayQuery(rawQuery: String): String = normalize(rawQuery)
+
+    /**
+     * Words a TIME expression owns (`recent`, `last week`, `in 2024`). They say
+     * which Memories qualify; they are not text to retrieve on, so neither the
+     * query vector nor the precision gate may treat them as named content.
+     */
+    private fun constraintConsumedTokens(normalizedQuery: String): Set<String> =
+        RecallQueryConstraintClassifier.classify(normalizedQuery)
+            .timeSpanText
+            ?.let { RecallQueryContentTokens.tokens(it).toSet() }
+            .orEmpty()
 
     private val WHITESPACE = Regex("""\s+""")
 }

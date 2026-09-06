@@ -7,14 +7,11 @@ package com.memora.app.domain.intelligence
  * ranked evidence text. Semantic cosine remains candidate generation; this filter
  * removes soft neighbors that do not support the named cue. Not keyword Find and
  * not measured AVAILABLE.
+ *
+ * The token list comes from [MeaningRecallCue.contentTokens] so that precision
+ * and candidate generation always agree on what the person named (defect D-10).
  */
 object MeaningEvidenceLexicalFilter {
-    fun requiredContentTokens(query: String): List<String> =
-        RecallQueryContentTokens.tokens(query)
-
-    fun evidenceSatisfies(query: String, evidenceText: String): Boolean =
-        satisfies(requiredContentTokens(query), evidenceText)
-
     /**
      * Precision over an explicit token list, so a caller can drop the words a
      * structured constraint already consumed. `notes in 2024` must still require

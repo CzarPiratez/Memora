@@ -8,32 +8,32 @@ import org.junit.Test
 class MeaningEvidenceLexicalFilterTest {
     @Test
     fun ask_shape_only_cue_names_no_content_token() {
-        assertEquals(emptyList<String>(), MeaningEvidenceLexicalFilter.requiredContentTokens("which file has"))
-        assertEquals(listOf("mira"), MeaningEvidenceLexicalFilter.requiredContentTokens("mira"))
+        assertEquals(emptyList<String>(), MeaningRecallCue.contentTokens("which file has"))
+        assertEquals(listOf("mira"), MeaningRecallCue.contentTokens("mira"))
     }
 
     @Test
     fun ignores_stop_words_when_building_required_tokens() {
         assertEquals(
             listOf("scan", "silky"),
-            MeaningEvidenceLexicalFilter.requiredContentTokens("files with scan and silky"),
+            MeaningRecallCue.contentTokens("files with scan and silky"),
         )
         assertEquals(
             listOf("silky"),
-            MeaningEvidenceLexicalFilter.requiredContentTokens("which file has silky in it"),
+            MeaningRecallCue.contentTokens("which file has silky in it"),
         )
     }
 
     @Test
     fun evidence_must_contain_all_required_tokens() {
         assertTrue(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "files with scan and silky",
                 evidenceText = "Page 2 scan and silky vocabulary",
             ),
         )
         assertFalse(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "files with scan and silky",
                 evidenceText = "Page 1 scan words only",
             ),
@@ -43,13 +43,13 @@ class MeaningEvidenceLexicalFilterTest {
     @Test
     fun single_token_query_requires_token_in_evidence() {
         assertTrue(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "silky",
                 evidenceText = "Irregular consonants school anchor silky wreck",
             ),
         )
         assertFalse(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "silky",
                 evidenceText = "Bus Discipline Rules for Students",
             ),
@@ -60,21 +60,31 @@ class MeaningEvidenceLexicalFilterTest {
     fun show_me_swimming_timetables_matches_singular_evidence() {
         assertEquals(
             listOf("swimming", "timetables"),
-            MeaningEvidenceLexicalFilter.requiredContentTokens(
-                "Show me the files with swimming timetables",
-            ),
+            MeaningRecallCue.contentTokens("Show me the files with swimming timetables"),
         )
         assertTrue(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "Show me the files with swimming timetables",
                 evidenceText = "Year 4 swimming timetable Monday to Friday",
             ),
         )
         assertFalse(
-            MeaningEvidenceLexicalFilter.evidenceSatisfies(
+            satisfies(
                 query = "Show me the files with swimming timetables",
                 evidenceText = "Bus Discipline Rules for Students",
             ),
         )
     }
+
+    @Test
+    fun empty_token_list_is_vacuously_satisfied() {
+        assertTrue(MeaningEvidenceLexicalFilter.satisfies(emptyList(), "anything at all"))
+    }
+
+    /** The exact composition Canonical Recall applies (defect D-10). */
+    private fun satisfies(query: String, evidenceText: String): Boolean =
+        MeaningEvidenceLexicalFilter.satisfies(
+            MeaningRecallCue.contentTokens(query),
+            evidenceText,
+        )
 }

@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### D-10 — a time word is a constraint, not text to retrieve on (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device.** `recent files with silky` answered nothing while bare
+  `silky` returned the right PDF. The T10 fix was working: `recent` is classified
+  as an advisory TIME constraint and correctly dropped from the lexical
+  requirement, so precision asked only for `silky`. Candidate generation never
+  learned about that decision. `MeaningRecallCue.embedText` derived its own
+  tokens straight from `RecallQueryContentTokens`, `recent` is not an ask-shape
+  wrapper, and so the engine embedded **`recent silky`**. The query vector drifted
+  toward recency language, the single Memory containing `silky` fell out of the
+  cosine candidate pool, and the precision gate was left with nothing to keep.
+- **The defect is the disagreement, not either half.** Two layers each derived
+  "what the person named" independently, so the product could filter on a word it
+  had never retrieved on.
+- **Fixed** by making `MeaningRecallCue.contentTokens` the single derivation:
+  ask-shape wrappers removed, then the words a structured constraint already owns
+  removed. `embedText` builds from it and `AnchorAwareMeaningRecallRanking`
+  filters on it, so the two cannot drift apart again. The now-orphaned aliases
+  `MeaningEvidenceLexicalFilter.requiredContentTokens` / `evidenceSatisfies` are
+  deleted; the filter keeps `satisfies(tokens, text)` and is told what to require.
+- **Consequence, recorded honestly:** a cue made only of time words
+  (`recent files`, `screenshots from last week`) now names no content and returns
+  an honest empty instead of listing cosine neighbours of the word `recent`.
+  Retrieval by TIME alone remains an unbuilt job (I5).
+- **Verification:** `MeaningRecallCueTest` gains
+  `embed_text_drops_the_words_a_time_constraint_owns`,
+  `a_time_only_cue_names_no_content`, and an invariant test
+  `embed_text_is_exactly_the_content_tokens_it_will_be_filtered_on` that fails if
+  the two derivations ever separate again. `MeaningEvidenceLexicalFilterTest` now
+  asserts the real production composition rather than a shortcut alias.
+  `:app:testDebugUnitTest` green. Device re-test pending.
+
 ### Product surface — launcher mark and honest launch state (2026-09-06)
 
 - **Date:** 2026-09-06
