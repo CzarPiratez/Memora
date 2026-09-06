@@ -13,6 +13,7 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.intelligence.RecallPrecision
 import com.memora.app.domain.memory.MemoryEvidenceId
 import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryId
@@ -353,9 +354,19 @@ sealed interface MeaningSearchOutcome {
         val hits: List<MeaningSearchHit>,
         val limitReached: Boolean,
         val model: ModelVersionIdentity,
+        /**
+         * Which of the named words this list's evidence actually contains.
+         * Candidate generation never demotes a list, so it always reports
+         * [RecallPrecision.Exact]; the tier is decided by the precision stage
+         * inside Canonical Recall (defect D-12).
+         */
+        val precision: RecallPrecision = RecallPrecision.Exact,
     ) : MeaningSearchOutcome {
         init {
             require(query.isNotBlank())
+            require(hits.isNotEmpty() || precision == RecallPrecision.Exact) {
+                "An empty list cannot be a partial match."
+            }
         }
     }
 }

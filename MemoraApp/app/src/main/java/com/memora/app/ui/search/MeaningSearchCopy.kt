@@ -67,14 +67,45 @@ object MeaningSearchCopy {
             "Build Asset Memories, then build the meaning index."
     }
 
+    /**
+     * Names what UNFYND actually looked for.
+     *
+     * The old copy said nothing was "close enough with the on-device meaning
+     * model", which blamed the meaning model for a decision the lexical gate had
+     * made — on device the model ranked the right PDFs and the gate removed them.
+     * Since a partial tier now answers whenever any named word was found
+     * (D-12), reaching this state means no saved text carried a single one.
+     */
     fun noMatchesBody(query: String): String {
         require(query.isNotBlank())
-        if (MeaningRecallCue.contentTokens(query).isEmpty()) {
+        val named = MeaningRecallCue.contentTokens(query)
+        if (named.isEmpty()) {
             return "That didn't name anything from a file. Try a word you remember seeing, " +
                 "like silky or timetable."
         }
-        return "No indexed Asset Memory was close enough to \"$query\" with the " +
-            "on-device meaning model. Try a different cue, or use keyword Find."
+        return "Nothing saved on this phone mentions ${quoteWords(named)}. " +
+            "Try a word you remember seeing inside the file, or use keyword Find."
+    }
+
+    /**
+     * Shown when no saved Memory carried every word the person used (D-12). It
+     * must lead with what is *missing*, so a partial list is never mistaken for
+     * a complete one.
+     */
+    fun partialMatchBody(matched: List<String>, missing: List<String>): String {
+        require(matched.isNotEmpty())
+        require(missing.isNotEmpty())
+        return "Nothing saved on this phone has ${quoteWords(missing)}. " +
+            "These match ${quoteWords(matched)}."
+    }
+
+    /** `a` · `a and b` · `a, b and c` — always quoted, always the person's own words. */
+    private fun quoteWords(words: List<String>): String {
+        val quoted = words.map { "\"$it\"" }
+        return when (quoted.size) {
+            1 -> quoted.first()
+            else -> quoted.dropLast(1).joinToString(", ") + " and " + quoted.last()
+        }
     }
 
     fun limitReachedBody(): String =

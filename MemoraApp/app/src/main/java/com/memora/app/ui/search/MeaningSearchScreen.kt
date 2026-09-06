@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.intelligence.RecallPrecision
 
 @Composable
 fun MeaningSearchScreen(
@@ -169,7 +170,18 @@ fun MeaningSearchScreen(
             MeaningSearchPhase.SearchCouldNotFinish ->
                 PhaseBody(MeaningSearchCopy.SEARCH_COULD_NOT_FINISH_BODY)
             is MeaningSearchPhase.Results -> {
-                if (phase.limitReached) {
+                val precision = phase.precision
+                if (precision is RecallPrecision.Partial) {
+                    // What is missing outranks how many were found: "add another
+                    // word" is the wrong advice when a word already went unmatched.
+                    PhaseBody(
+                        MeaningSearchCopy.partialMatchBody(
+                            matched = precision.matched,
+                            missing = precision.missing,
+                        ),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                } else if (phase.limitReached) {
                     PhaseBody(MeaningSearchCopy.limitReachedBody())
                     Spacer(modifier = Modifier.height(12.dp))
                 }

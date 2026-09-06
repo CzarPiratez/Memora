@@ -241,17 +241,39 @@ Canonical Recall, not to candidate generation. `MeaningEvidenceLexicalFilter.pre
 compiles the cue once per query so corpus-wide admission does not pay a `Regex`
 build per candidate.
 
-### D-12 — A strict lexical AND has no recall floor (**P1, open**)
+### D-12 — The lexical AND was a veto, so meaning could not answer a paraphrase (**P0, fixed**)
 
-Multi-word cues require *every* content token as a whole word in stored text,
-with no partial tier and no honest degrade. `related to the training project`
-is descriptive phrasing, not a conjunction the person intends — Ask Model
-**P-AND vs P-LIST** says so — yet one missing word yields a bare empty.
+**FIXED 2026-09-06.** Found on device *after* D-11 landed. `swimming timetable`
+worked; `swimming schedule` returned nothing — against the same PDFs. The
+meaning model ranked those timetables correctly, and the lexical AND gate then
+removed every one of them because none contains the literal word `schedule`.
 
-Two hits that satisfy one word, clearly labelled as partial, beat zero. The
-answer must name which word it could not find; silent relaxation would be worse
-than the empty. Depends on D-11 being in place, since a recall floor is
-meaningless while the candidate pool can hide the evidence.
+**This was the deepest defect of the session.** Embeddings were being used only
+to *order* results they were never allowed to *find*, which makes Meaning Find
+behave as keyword AND search with a meaning label. `silky` worked solely because
+the PDF happens to say `silky`. A person who remembers the idea but not the
+wording — the entire premise of the product — got a blank screen.
+
+The empty state then said nothing was "close enough with the on-device meaning
+model", blaming the meaning model for a decision the gate had made. That is a
+second, independent trust defect and is fixed with it.
+
+**Fixed** by making precision a **tier** rather than a veto (`RecallPrecision`):
+hits carrying every named word win outright — the exact path is byte-for-byte
+today's behaviour — and when no hit carries all of them the list falls to the
+deepest tier available and *states what it could not match*. `swimming schedule`
+now returns the timetables under "Nothing saved on this phone has "schedule".
+These match "swimming"."
+
+**This is not a synonym net.** UNFYND still never asserts that `schedule` means
+`timetable` (`RecallQueryContentTokens` is explicit that `silky` ≠ `smooth`). It
+reports what it matched and what it did not, and lets the reader judge — which
+is also how it teaches a person what their own corpus actually says.
+
+Ask Model: satisfies **P-AND vs P-LIST** (a descriptive phrase is not a
+conjunction the person intends) and **P-ANSWER / P-EVIDENCE** (a partial answer
+presented as a whole one is worse than an empty one). Live/Dual **N = 0**
+unchanged; no new Find path, no new ranker.
 
 ### D-13 — `notes` is only ever a content word (**P1, open — J7 / P-TYPE**)
 

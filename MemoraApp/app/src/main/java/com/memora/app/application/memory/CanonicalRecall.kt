@@ -5,6 +5,7 @@ import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.intelligence.RecallPrecision
 import com.memora.app.domain.intelligence.RecallRanker
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
@@ -71,7 +72,11 @@ class CanonicalRecall @Inject constructor(
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
         val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit)
         if (trusted.isEmpty()) {
-            return outcome.copy(hits = emptyList(), limitReached = false)
+            return outcome.copy(
+                hits = emptyList(),
+                limitReached = false,
+                precision = RecallPrecision.Exact,
+            )
         }
         val truncated = trusted.size < outcome.hits.size
         return outcome.copy(

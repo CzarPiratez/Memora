@@ -43,6 +43,41 @@ class MeaningSearchCopyTest {
         assertFalse(body.contains("close enough"))
     }
 
+    /**
+     * D-12: the empty state used to say nothing was "close enough with the
+     * on-device meaning model", which blamed the model for a decision the
+     * lexical gate had made. It must now name the words it actually looked for.
+     */
+    @Test
+    fun no_matches_names_the_words_it_looked_for_and_blames_nothing() {
+        val body = MeaningSearchCopy.noMatchesBody("swimming schedule")
+        assertTrue(body.contains("\"swimming\" and \"schedule\""))
+        assertFalse(body.contains("close enough"))
+        assertFalse(body.contains("meaning model"))
+    }
+
+    /** A partial list must lead with what is missing, never with what matched. */
+    @Test
+    fun partial_match_copy_leads_with_the_missing_word() {
+        val body = MeaningSearchCopy.partialMatchBody(
+            matched = listOf("swimming"),
+            missing = listOf("schedule"),
+        )
+        assertTrue(body.indexOf("\"schedule\"") < body.indexOf("\"swimming\""))
+        assertTrue(body.contains("Nothing saved on this phone has \"schedule\""))
+        assertTrue(body.contains("These match \"swimming\""))
+    }
+
+    @Test
+    fun partial_match_copy_lists_several_words_readably() {
+        val body = MeaningSearchCopy.partialMatchBody(
+            matched = listOf("grade", "swimming"),
+            missing = listOf("schedule", "term"),
+        )
+        assertTrue(body.contains("\"schedule\" and \"term\""))
+        assertTrue(body.contains("\"grade\" and \"swimming\""))
+    }
+
     @Test
     fun why_cites_query_and_summary() {
         val why = MeaningSearchCopy.whyThisResult(

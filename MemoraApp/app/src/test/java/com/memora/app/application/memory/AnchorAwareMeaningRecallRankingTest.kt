@@ -6,6 +6,7 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.intelligence.RecallPrecision
 import com.memora.app.domain.memory.MemoryAnchor
 import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
@@ -398,6 +399,117 @@ class AnchorAwareMeaningRecallRankingTest {
         ) as MeaningSearchOutcome.Matches
 
         assertEquals(listOf(keep), filtered.hits.map { it.revisionId })
+    }
+
+    /**
+     * D-12, the device case. `swimming schedule` must still reach a PDF that
+     * says `swimming timetable`, and must state that nothing contained
+     * `schedule`. UNFYND never claims the two words are synonyms.
+     */
+    @Test
+    fun apply_falls_back_to_a_partial_tier_when_no_hit_has_every_word() = runBlocking {
+        val timetable = MemoryRevisionId("rev-timetable")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "swimming schedule",
+            hits = listOf(
+                hit(
+                    timetable,
+                    0.6f,
+                    label = "Grade-2-Swimming-TT-2026.pdf",
+                    summaryText = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(timetable), ranked.hits.map { it.revisionId })
+        assertEquals(
+            RecallPrecision.Partial(matched = listOf("swimming"), missing = listOf("schedule")),
+            ranked.precision,
+        )
+    }
+
+    /** An exact tier wins outright; a partial hit never dilutes a complete one. */
+    @Test
+    fun apply_prefers_the_exact_tier_and_drops_partial_hits() = runBlocking {
+        val exact = MemoryRevisionId("rev-exact")
+        val partial = MemoryRevisionId("rev-partial")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "swimming schedule",
+            hits = listOf(
+                hit(partial, 0.9f, label = "TT.pdf", summaryText = "Swimming timetable"),
+                hit(exact, 0.2f, label = "Sched.pdf", summaryText = "Swimming schedule term 2"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(exact), ranked.hits.map { it.revisionId })
+        assertEquals(RecallPrecision.Exact, ranked.precision)
+    }
+
+    /** Matching more of the person's words is the better partial answer. */
+    @Test
+    fun apply_prefers_the_tier_that_matches_more_of_the_named_words() = runBlocking {
+        val deeper = MemoryRevisionId("rev-deeper")
+        val shallower = MemoryRevisionId("rev-shallower")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "grade swimming schedule",
+            hits = listOf(
+                hit(shallower, 0.9f, label = "A.pdf", summaryText = "Swimming lessons"),
+                hit(deeper, 0.1f, label = "B.pdf", summaryText = "Grade 2 swimming timetable"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "grade swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(deeper), ranked.hits.map { it.revisionId })
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("grade", "swimming"),
+                missing = listOf("schedule"),
+            ),
+            ranked.precision,
+        )
+    }
+
+    /** No named word anywhere is still an honest empty, never a partial claim. */
+    @Test
+    fun apply_returns_empty_when_no_hit_carries_any_named_word() = runBlocking {
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "swimming schedule",
+            hits = listOf(hit(MemoryRevisionId("rev-bus"), 0.9f, summaryText = "Bus rules")),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertTrue(ranked.hits.isEmpty())
+        assertEquals(RecallPrecision.Exact, ranked.precision)
     }
 
     private fun hit(

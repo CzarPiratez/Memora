@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### D-12 — lexical precision becomes a tier, so meaning can answer a paraphrase (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device, after D-11 landed.** `swimming timetable` returned the right
+  PDFs. `swimming schedule` returned nothing — against those same PDFs. The
+  meaning model ranked them correctly and the lexical AND gate then removed every
+  one, because none of them contains the literal word `schedule`.
+- **Why this was the deepest defect of the session.** Embeddings were being used
+  only to *order* results they were never allowed to *find*. `silky` worked
+  solely because the PDF happens to say `silky`. Anyone who remembers the idea
+  but not the wording — the premise of the product — got a blank screen. Meaning
+  Find was keyword AND search wearing a meaning label.
+- **A second trust defect, fixed with it.** The empty state read "No indexed
+  Asset Memory was close enough … with the on-device meaning model", blaming the
+  meaning model for a decision the keyword gate had made.
+- **Fixed** by introducing `RecallPrecision` and making the gate a **tier**:
+  - `Exact` — every named word present. Byte-for-byte today's behaviour; an
+    exact tier always wins outright and is never diluted by partial hits.
+  - `Partial(matched, missing)` — no hit carried all the words, so the list falls
+    to the deepest tier available and the screen leads with what is **missing**:
+    *"Nothing saved on this phone has "schedule". These match "swimming"."*
+  - No named word found anywhere is still an honest empty, and `noMatchesBody`
+    now names the words it looked for instead of blaming the model.
+- **Not a synonym net.** UNFYND still never asserts that `schedule` means
+  `timetable`; `RecallQueryContentTokens` remains explicit that `silky` ≠
+  `smooth`. It reports what it matched and what it did not. A side effect worth
+  keeping: this is how the product tells a person what their own corpus says.
+- **Architecture.** Precision stays inside Canonical Recall; no new Find path, no
+  new per-asset ranker, Live/Dual **N = 0** unchanged. Ask Model **P-AND vs
+  P-LIST** and **P-ANSWER / P-EVIDENCE**.
+- **Verification:** `AnchorAwareMeaningRecallRankingTest` gains four tests — the
+  device case, exact-wins-outright, deepest-tier-preferred, and honest-empty.
+  `MeaningSearchCopyTest` pins that the empty state names its words and blames
+  nothing, and that a partial banner leads with the missing word. An outcome
+  invariant makes an empty list unable to advertise a partial match. Full
+  `:app:testDebugUnitTest` green.
+
 ### D-11 — cosine decided reachability, not just rank (2026-09-06)
 
 - **Date:** 2026-09-06

@@ -11,6 +11,7 @@ import com.memora.app.application.intelligence.MeaningSearchReadiness
 import com.memora.app.application.intelligence.OpenMeaningSearchOriginal
 import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.application.notes.ExternalUrlLauncher
+import com.memora.app.domain.intelligence.RecallPrecision
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -94,6 +95,8 @@ sealed interface MeaningSearchPhase {
         val query: String,
         val hits: List<MeaningSearchHit>,
         val limitReached: Boolean,
+        /** Which of the person's words this list's evidence carries (D-12). */
+        val precision: RecallPrecision = RecallPrecision.Exact,
     ) : MeaningSearchPhase {
         init {
             require(query.isNotBlank())
@@ -265,6 +268,7 @@ class MeaningSearchViewModel(
                         query = outcome.query,
                         hits = outcome.hits,
                         limitReached = outcome.limitReached,
+                        precision = outcome.precision,
                     )
                 }
             }
