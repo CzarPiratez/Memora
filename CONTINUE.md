@@ -4,7 +4,33 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-05
+**Updated:** 2026-09-06
+
+**Meaning Find recall — D-10 and D-11 landed (2026-09-06).** The physical-phone
+P0 checklist returned three empties (`swimming timetable`, the `egs` / training
+PDF cue, and `recent files with silky` while bare `silky` passed). Both root
+causes were in **candidate generation**, not in the MF-1.1 precision work:
+
+- **D-10** (`9b0fc48`) — the query vector and the precision gate each derived
+  "what the person named" separately, so `recent files with silky` embedded
+  `recent silky` while requiring only `silky`. `MeaningRecallCue.contentTokens`
+  is now the single derivation both read, pinned by an invariant test.
+- **D-11** (`74d708b`) — the candidate pool (`min(limit * 3, 30)`) was selected
+  by cosine alone and every later stage can only subtract, so a Memory holding
+  the exact words was unreachable outside the top 30. **This is why queries that
+  passed at 25 memories failed at ~1000.** Admission is now lexically aware;
+  ranking is unchanged and still belongs to Canonical Recall.
+
+Newly registered and still **open**: **D-12** (a strict lexical AND has no recall
+floor — one missing word yields a bare empty instead of an honest partial),
+**D-13** (J7 / P-TYPE: `notes` is only ever a content word, so `notes in 2026`
+returns screenshots saying "Note:"), **D-14** (D16 corpus scope: UNFYND's own
+screenshots compete). All three are in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2.
+
+**Next action:** debug APK is built; re-run the P0 checklist on the physical
+phone. Queries 3 and 7 still empty after this would mean the text was never
+extracted, not that Find cannot see it — check `swimming` and `timetable`
+separately on the per-type keyword screens to tell those apart.
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
@@ -13,7 +39,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 682 tests, 0 failures (2026-09-04).
+**Tree state:** unit suite **green** — 691 tests, 0 failures (2026-09-06).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
