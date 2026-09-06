@@ -678,7 +678,7 @@ listens to it.
 
 | # | Task | Kind | Status |
 |---|---|---|---|
-| I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | open |
+| I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | **done** |
 | I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | open |
 | I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | open |
 | I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open |

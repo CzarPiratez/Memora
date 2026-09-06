@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### I1 — meaning-index Build is an application drain, not a ViewModel script (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Why it existed.** `AiPackDisclosureViewModel` selected the queue, indexed
+  summaries and evidence, applied MIG-05 cutover, and guessed remaining work as
+  `pendingTotal - thisBatchSize` before the batch ran. A failed summary would
+  have been reported as finished. A future I3 worker would have had to copy
+  or bypass the UI.
+- **Fixed.** `RunPendingMeaningIndex` owns one bounded drain and returns
+  `hasMore` from a **post-batch** pending count (`hasMore == remainingPending > 0`).
+  Count without a selectable row is a queue mismatch, not “no memories.” Empty
+  and mismatch outcomes skip cutover. The setup screen only maps the result to
+  copy.
+- **Not I2/I3/I4.** No WorkManager. Batch cap stays 25 memories per tap.
+- **Verification:** `RunPendingMeaningIndexTest` (hasMore, disagreement, failed
+  still remaining, cutover skip, PDF/OCR/note type gates);
+  `AiPackDisclosureCopyTest` for honest remaining and mismatch copy.
+  `:app:testDebugUnitTest` **741 tests, 0 failures**.
+
 ### D-9 — a bad asset no longer pins the memory-assembly drain (2026-09-06)
 
 - **Date:** 2026-09-06

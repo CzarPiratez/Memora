@@ -39,3 +39,7 @@
 - **Verification:** `:app:testDebugUnitTest` (targeted + related) green
 - **Truthfulness:** Candidate meaning path unchanged; not marketing AVAILABLE
 - **Git commit:** `5331baf`
+- **Later (I1, 2026-09-06):** remaining work is counted **after** the batch by
+  `RunPendingMeaningIndex`, not `pendingTotal - thisBatchSize` in the ViewModel.
+  Cap, progress phases, and “tap Build again” copy stay. See
+  `CHANGE_CONTROL_I1_MEANING_INDEX_DRAIN_USE_CASE`.

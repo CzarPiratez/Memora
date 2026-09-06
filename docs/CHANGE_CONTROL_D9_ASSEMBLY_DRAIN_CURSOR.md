@@ -56,6 +56,6 @@ N/A — not a Find/Recall change
   tap-through of a known-unusable Asset is a follow-up, not this gate.
 - **Failure/recovery:** infrastructure abort unchanged; skip cleared on new
   facts; derived-data clear drops the table with the DB.
-- **Known limitation:** I1–I4 still open. Skip is construction-time, not
-  corpus-scope (D-14 self-capture remains Find-time).
+- **Known limitation:** I1 is delivered. I2–I4 still open. Skip is
+  construction-time, not corpus-scope (D-14 self-capture remains Find-time).
 - **Git commit:** recorded after JVM green.

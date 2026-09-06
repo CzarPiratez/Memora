@@ -1,6 +1,11 @@
 package com.memora.app.ui.setup
 
+import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
+import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
 import com.memora.app.application.intelligence.MeaningIndexBatchLimits
+import com.memora.app.application.intelligence.MeaningIndexDrainPhase
+import com.memora.app.application.intelligence.MeaningIndexDrainProgress
+import com.memora.app.application.intelligence.RunPendingMeaningIndexResult
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
@@ -121,6 +126,9 @@ object AiPackDisclosureCopy {
     const val FEEDBACK_INDEX_EMPTY =
         "No READY memories to index yet. Build Asset Memory first, then return here."
 
+    const val FEEDBACK_INDEX_SELECTION_DISAGREED_SUFFIX =
+        "That is a queue mismatch, not an empty library. Try Build again."
+
     const val PROGRESS_PREPARING = "Preparing meaning index…"
 
     fun progressSummaries(processed: Int, total: Int): String =
@@ -135,8 +143,68 @@ object AiPackDisclosureCopy {
     fun progressNoteEvidence(processed: Int, total: Int): String =
         "Indexing note text evidence $processed of $total…"
 
+    fun progressFor(progress: MeaningIndexDrainProgress): String = when (progress.phase) {
+        MeaningIndexDrainPhase.SUMMARIES ->
+            progressSummaries(progress.processed, progress.total)
+        MeaningIndexDrainPhase.PDF_PAGES ->
+            progressPages(progress.processed, progress.total)
+        MeaningIndexDrainPhase.OCR_EVIDENCE ->
+            progressOcrEvidence(progress.processed, progress.total)
+        MeaningIndexDrainPhase.NOTE_EVIDENCE ->
+            progressNoteEvidence(progress.processed, progress.total)
+    }
+
     fun remainingBatchHint(remaining: Int): String =
         "$remaining READY left — tap Build again for the next batch."
+
+    fun indexSelectionDisagreed(pendingCount: Int): String {
+        require(pendingCount > 0)
+        val noun = if (pendingCount == 1) "memory" else "memories"
+        return "This phone still lists $pendingCount $noun that need a meaning " +
+            "index, but this tap could not select one. " +
+            FEEDBACK_INDEX_SELECTION_DISAGREED_SUFFIX
+    }
+
+    fun indexDrainFeedback(result: RunPendingMeaningIndexResult): String = when (result) {
+        is RunPendingMeaningIndexResult.EngineUnavailable -> FEEDBACK_INDEX_UNAVAILABLE
+        RunPendingMeaningIndexResult.NothingPending -> FEEDBACK_INDEX_EMPTY
+        is RunPendingMeaningIndexResult.SelectionDisagreed ->
+            indexSelectionDisagreed(result.pendingCount)
+        is RunPendingMeaningIndexResult.Completed -> indexBatchCompleted(result)
+    }
+
+    private fun indexBatchCompleted(result: RunPendingMeaningIndexResult.Completed): String {
+        val pagePart = when (val pdfPart = result.pdf) {
+            is IndexPdfPageEmbeddingsResult.Completed ->
+                " Pages indexed ${pdfPart.indexed} " +
+                    "(skipped ${pdfPart.skippedUnchanged}, failed ${pdfPart.failed})."
+            is IndexPdfPageEmbeddingsResult.EngineUnavailable ->
+                " PDF page index unavailable."
+        }
+        val ocrEvidencePart = when (val ocrPart = result.ocr) {
+            is IndexOcrEvidenceEmbeddingsResult.Completed ->
+                " OCR evidence indexed ${ocrPart.indexed} " +
+                    "(skipped ${ocrPart.skippedUnchanged}, failed ${ocrPart.failed})."
+            is IndexOcrEvidenceEmbeddingsResult.EngineUnavailable ->
+                " OCR evidence index unavailable."
+        }
+        val noteEvidencePart = when (val notePart = result.note) {
+            is IndexOcrEvidenceEmbeddingsResult.Completed ->
+                " Note evidence indexed ${notePart.indexed} " +
+                    "(skipped ${notePart.skippedUnchanged}, failed ${notePart.failed})."
+            is IndexOcrEvidenceEmbeddingsResult.EngineUnavailable ->
+                " Note evidence index unavailable."
+        }
+        val remainingHint = if (result.hasMore) {
+            " ${remainingBatchHint(result.remainingPending)}"
+        } else {
+            ""
+        }
+        return FEEDBACK_INDEX_BUILT_PREFIX +
+            "${result.memories.indexed} memories (skipped ${result.memories.skippedUnchanged}, " +
+            "failed ${result.memories.failed}).$pagePart$ocrEvidencePart$noteEvidencePart$remainingHint " +
+            "Use Find by meaning on Welcome next."
+    }
 
     fun statusBody(
         installationState: AiPackInstallState,

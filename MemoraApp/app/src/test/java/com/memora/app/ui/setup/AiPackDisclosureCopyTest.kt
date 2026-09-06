@@ -1,6 +1,13 @@
 package com.memora.app.ui.setup
 
+import com.memora.app.application.intelligence.IndexMemoryEmbeddingsResult
+import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
+import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
+import com.memora.app.application.intelligence.MeaningIndexDrainPhase
+import com.memora.app.application.intelligence.MeaningIndexDrainProgress
+import com.memora.app.application.intelligence.RunPendingMeaningIndexResult
 import com.memora.app.domain.intelligence.AiPackInstallState
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -51,4 +58,86 @@ class AiPackDisclosureCopyTest {
             ).contains("Meaning model is installed"),
         )
     }
+
+    @Test
+    fun empty_queue_uses_empty_copy_not_mismatch() {
+        val copy = AiPackDisclosureCopy.indexDrainFeedback(
+            RunPendingMeaningIndexResult.NothingPending,
+        )
+        assertEquals(AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY, copy)
+        assertFalse(copy.contains("queue mismatch"))
+    }
+
+    @Test
+    fun selection_disagreement_is_not_an_empty_library() {
+        val copy = AiPackDisclosureCopy.indexDrainFeedback(
+            RunPendingMeaningIndexResult.SelectionDisagreed(4),
+        )
+        assertTrue(copy.contains("4 memories"))
+        assertTrue(copy.contains("queue mismatch"))
+        assertFalse(copy.contains("No READY memories"))
+    }
+
+    @Test
+    fun remaining_hint_uses_after_batch_count() {
+        val remaining = AiPackDisclosureCopy.indexDrainFeedback(
+            completed(remainingPending = 12, hasMore = true),
+        )
+        assertTrue(remaining.contains(AiPackDisclosureCopy.remainingBatchHint(12)))
+
+        val lastBatch = AiPackDisclosureCopy.indexDrainFeedback(
+            completed(remainingPending = 0, hasMore = false),
+        )
+        assertFalse(lastBatch.contains("tap Build again"))
+    }
+
+    @Test
+    fun engine_unavailable_stays_canned() {
+        assertEquals(
+            AiPackDisclosureCopy.FEEDBACK_INDEX_UNAVAILABLE,
+            AiPackDisclosureCopy.indexDrainFeedback(
+                RunPendingMeaningIndexResult.EngineUnavailable("missing pack"),
+            ),
+        )
+    }
+
+    @Test
+    fun progress_maps_each_phase_without_application_copy() {
+        assertEquals(
+            AiPackDisclosureCopy.progressSummaries(1, 3),
+            AiPackDisclosureCopy.progressFor(
+                MeaningIndexDrainProgress(MeaningIndexDrainPhase.SUMMARIES, 1, 3),
+            ),
+        )
+        assertEquals(
+            AiPackDisclosureCopy.progressPages(2, 4),
+            AiPackDisclosureCopy.progressFor(
+                MeaningIndexDrainProgress(MeaningIndexDrainPhase.PDF_PAGES, 2, 4),
+            ),
+        )
+        assertEquals(
+            AiPackDisclosureCopy.progressOcrEvidence(0, 1),
+            AiPackDisclosureCopy.progressFor(
+                MeaningIndexDrainProgress(MeaningIndexDrainPhase.OCR_EVIDENCE, 0, 1),
+            ),
+        )
+        assertEquals(
+            AiPackDisclosureCopy.progressNoteEvidence(3, 3),
+            AiPackDisclosureCopy.progressFor(
+                MeaningIndexDrainProgress(MeaningIndexDrainPhase.NOTE_EVIDENCE, 3, 3),
+            ),
+        )
+    }
+
+    private fun completed(
+        remainingPending: Int,
+        hasMore: Boolean,
+    ) = RunPendingMeaningIndexResult.Completed(
+        memories = IndexMemoryEmbeddingsResult.Completed(1, 0, 0),
+        pdf = IndexPdfPageEmbeddingsResult.Completed(0, 0, 0),
+        ocr = IndexOcrEvidenceEmbeddingsResult.Completed(0, 0, 0),
+        note = IndexOcrEvidenceEmbeddingsResult.Completed(0, 0, 0),
+        remainingPending = remainingPending,
+        hasMore = hasMore,
+    )
 }

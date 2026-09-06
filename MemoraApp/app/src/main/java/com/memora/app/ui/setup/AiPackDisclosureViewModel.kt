@@ -4,24 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackContainer
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackResult
-import com.memora.app.application.intelligence.ApplyMig05EvidenceSearchCutover
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModel
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModelResult
-import com.memora.app.application.intelligence.IndexMemoryEmbeddings
-import com.memora.app.application.intelligence.IndexMemoryEmbeddingsResult
-import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddings
-import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
-import com.memora.app.application.intelligence.IndexPdfPageEmbeddings
-import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
 import com.memora.app.application.intelligence.LoadCorpusCompleteness
-import com.memora.app.application.intelligence.MeaningIndexBatchLimits
-import com.memora.app.application.intelligence.MemoryEmbeddingCandidate
-import com.memora.app.application.intelligence.OcrEvidenceEmbeddingCandidate
-import com.memora.app.application.intelligence.PdfPageEmbeddingCandidate
-import com.memora.app.application.intelligence.ResolveMeaningPdfOpenPage
+import com.memora.app.application.intelligence.RunPendingMeaningIndex
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
-import com.memora.app.domain.asset.AssetType
-import com.memora.app.domain.extraction.SavedPdfPageTextSource
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.AiPackManager
@@ -30,7 +17,6 @@ import com.memora.app.domain.intelligence.EmbeddingEngine
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import com.memora.app.domain.memory.CorpusCompletenessSnapshot
-import com.memora.app.domain.memory.MemoryRepository
 import com.memora.app.ui.search.CorpusHonestyCopy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -62,13 +48,8 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val modelStore: OnDeviceEmbeddingModelStore,
     private val embeddingEngine: EmbeddingEngine,
     private val mediaPipeEmbeddingEngine: MediaPipeEmbeddingEngine,
-    private val indexMemoryEmbeddings: IndexMemoryEmbeddings,
-    private val indexPdfPageEmbeddings: IndexPdfPageEmbeddings,
-    private val indexOcrEvidenceEmbeddings: IndexOcrEvidenceEmbeddings,
-    private val savedPdfPages: SavedPdfPageTextSource,
-    private val memoryRepository: MemoryRepository,
+    private val runPendingMeaningIndex: RunPendingMeaningIndex,
     private val loadCorpusCompleteness: LoadCorpusCompleteness,
-    private val applyMig05EvidenceSearchCutover: ApplyMig05EvidenceSearchCutover,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
     val uiState: StateFlow<AiPackDisclosureUiState> = mutableUiState.asStateFlow()
@@ -147,246 +128,20 @@ class AiPackDisclosureViewModel @Inject constructor(
         if (mutableUiState.value.isBusy || !mutableUiState.value.showBuildIndex) return
         setBusy(progressFeedback = AiPackDisclosureCopy.PROGRESS_PREPARING)
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
-            val limit = MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP
-            // Candidate selection is per model identity: a different model owes
-            // vectors for the whole corpus again.
-            val model = when (val availability = embeddingEngine.availability()) {
-                is CapabilityAvailability.Available -> availability.model
-                is CapabilityAvailability.Unavailable -> {
-                    mutableUiState.value = withContext(Dispatchers.IO) {
-                        buildStateWithCorpus(feedbackMessage = availability.reason)
-                    }
-                    return@launch
-                }
-            }
-            val (pendingTotal, summaries) = withContext(Dispatchers.IO) {
-                memoryRepository.countMeaningIndexPending(model) to
-                    memoryRepository.listMeaningIndexSummaries(model = model, limit = limit)
-            }
-            if (summaries.isEmpty()) {
-                mutableUiState.value = withContext(Dispatchers.IO) {
-                    buildStateWithCorpus(feedbackMessage = AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY)
-                }
-                return@launch
-            }
-            val remainingAfterBatch = (pendingTotal - summaries.size).coerceAtLeast(0)
-            val candidates = summaries.map { summary ->
-                MemoryEmbeddingCandidate(
-                    revisionId = summary.revisionId,
-                    memoryId = summary.memoryId,
-                    summaryText = summary.summaryText,
-                )
-            }
-            mutableUiState.value = mutableUiState.value.copy(
-                progressFeedback = AiPackDisclosureCopy.progressSummaries(
-                    processed = 0,
-                    total = candidates.size,
-                ),
-            )
             val result = withContext(Dispatchers.IO) {
-                indexMemoryEmbeddings(
-                    candidates = candidates,
-                    nowEpochMs = now,
-                    onProgress = { processed, total ->
+                runPendingMeaningIndex(
+                    nowEpochMs = System.currentTimeMillis(),
+                    onProgress = { progress ->
                         mutableUiState.value = mutableUiState.value.copy(
-                            progressFeedback = AiPackDisclosureCopy.progressSummaries(
-                                processed = processed,
-                                total = total,
-                            ),
+                            progressFeedback = AiPackDisclosureCopy.progressFor(progress),
                         )
                     },
                 )
             }
-            val evidenceIndexResult = when (result) {
-                is IndexMemoryEmbeddingsResult.EngineUnavailable -> null
-                is IndexMemoryEmbeddingsResult.Completed -> withContext(Dispatchers.IO) {
-                    val revisionIds = candidates.map { it.revisionId }
-                    val lookups = memoryRepository.findMeaningIndexLookups(revisionIds)
-                    val evidenceIdsByRevision =
-                        memoryRepository.findPdfPageEvidenceIds(revisionIds)
-                    val ocrEvidenceByRevision =
-                        memoryRepository.findOcrTextEvidenceForEmbedding(revisionIds)
-                    val noteEvidenceByRevision =
-                        memoryRepository.findNoteTextEvidenceForEmbedding(revisionIds)
-                    val pageCandidates = candidates.flatMap { summary ->
-                        val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
-                        if (lookup.assetType != AssetType.PDF) return@flatMap emptyList()
-                        val pageEvidenceIds =
-                            evidenceIdsByRevision[summary.revisionId].orEmpty()
-                        savedPdfPages.listCurrentVerifiedPages(
-                            sourceId = lookup.sourceId.value,
-                            sourceAssetKey = lookup.sourceAssetKey.value,
-                        )
-                            .take(ResolveMeaningPdfOpenPage.MAX_PAGES_TO_SCORE)
-                            .map { page ->
-                                PdfPageEmbeddingCandidate(
-                                    revisionId = summary.revisionId,
-                                    memoryId = summary.memoryId,
-                                    pageNumber = page.pageNumber,
-                                    pageText = page.text,
-                                    evidenceId = pageEvidenceIds[page.pageNumber],
-                                )
-                            }
-                    }
-                    val pdfResult = if (pageCandidates.isEmpty()) {
-                        IndexPdfPageEmbeddingsResult.Completed(0, 0, 0)
-                    } else {
-                        mutableUiState.value = mutableUiState.value.copy(
-                            progressFeedback = AiPackDisclosureCopy.progressPages(
-                                processed = 0,
-                                total = pageCandidates.size,
-                            ),
-                        )
-                        indexPdfPageEmbeddings(
-                            candidates = pageCandidates,
-                            nowEpochMs = now,
-                            onProgress = { processed, total ->
-                                mutableUiState.value = mutableUiState.value.copy(
-                                    progressFeedback = AiPackDisclosureCopy.progressPages(
-                                        processed = processed,
-                                        total = total,
-                                    ),
-                                )
-                            },
-                        )
-                    }
-                    val ocrCandidates = candidates.flatMap { summary ->
-                        val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
-                        if (lookup.assetType != AssetType.PHOTO &&
-                            lookup.assetType != AssetType.SCREENSHOT
-                        ) {
-                            return@flatMap emptyList()
-                        }
-                        ocrEvidenceByRevision[summary.revisionId].orEmpty().map { row ->
-                            OcrEvidenceEmbeddingCandidate(
-                                revisionId = summary.revisionId,
-                                memoryId = summary.memoryId,
-                                excerpt = row.excerpt,
-                                evidenceId = row.evidenceId,
-                            )
-                        }
-                    }
-                    val ocrResult = if (ocrCandidates.isEmpty()) {
-                        IndexOcrEvidenceEmbeddingsResult.Completed(0, 0, 0)
-                    } else {
-                        mutableUiState.value = mutableUiState.value.copy(
-                            progressFeedback = AiPackDisclosureCopy.progressOcrEvidence(
-                                processed = 0,
-                                total = ocrCandidates.size,
-                            ),
-                        )
-                        indexOcrEvidenceEmbeddings(
-                            candidates = ocrCandidates,
-                            nowEpochMs = now,
-                            onProgress = { processed, total ->
-                                mutableUiState.value = mutableUiState.value.copy(
-                                    progressFeedback = AiPackDisclosureCopy.progressOcrEvidence(
-                                        processed = processed,
-                                        total = total,
-                                    ),
-                                )
-                            },
-                        )
-                    }
-                    val noteCandidates = candidates.flatMap { summary ->
-                        val lookup = lookups[summary.revisionId] ?: return@flatMap emptyList()
-                        if (lookup.assetType != AssetType.NOTE) return@flatMap emptyList()
-                        noteEvidenceByRevision[summary.revisionId].orEmpty().map { row ->
-                            OcrEvidenceEmbeddingCandidate(
-                                revisionId = summary.revisionId,
-                                memoryId = summary.memoryId,
-                                excerpt = row.excerpt,
-                                evidenceId = row.evidenceId,
-                            )
-                        }
-                    }
-                    val noteResult = if (noteCandidates.isEmpty()) {
-                        IndexOcrEvidenceEmbeddingsResult.Completed(0, 0, 0)
-                    } else {
-                        mutableUiState.value = mutableUiState.value.copy(
-                            progressFeedback = AiPackDisclosureCopy.progressNoteEvidence(
-                                processed = 0,
-                                total = noteCandidates.size,
-                            ),
-                        )
-                        indexOcrEvidenceEmbeddings(
-                            candidates = noteCandidates,
-                            nowEpochMs = now,
-                            onProgress = { processed, total ->
-                                mutableUiState.value = mutableUiState.value.copy(
-                                    progressFeedback = AiPackDisclosureCopy.progressNoteEvidence(
-                                        processed = processed,
-                                        total = total,
-                                    ),
-                                )
-                            },
-                        )
-                    }
-                    MeaningEvidenceIndexBatchResults(
-                        pdf = pdfResult,
-                        ocr = ocrResult,
-                        note = noteResult,
-                    )
-                }
-            }
-            when (val availability = embeddingEngine.availability()) {
-                is CapabilityAvailability.Available ->
-                    withContext(Dispatchers.IO) {
-                        applyMig05EvidenceSearchCutover.ensureApplied(
-                            model = availability.model,
-                            nowEpochMs = now,
-                        )
-                    }
-                is CapabilityAvailability.Unavailable -> Unit
-            }
-            val feedback = when (result) {
-                is IndexMemoryEmbeddingsResult.EngineUnavailable ->
-                    AiPackDisclosureCopy.FEEDBACK_INDEX_UNAVAILABLE
-                is IndexMemoryEmbeddingsResult.Completed -> {
-                    val pagePart = when (val batch = evidenceIndexResult) {
-                        is MeaningEvidenceIndexBatchResults -> when (val pdfPart = batch.pdf) {
-                            is IndexPdfPageEmbeddingsResult.Completed ->
-                                " Pages indexed ${pdfPart.indexed} " +
-                                    "(skipped ${pdfPart.skippedUnchanged}, failed ${pdfPart.failed})."
-                            is IndexPdfPageEmbeddingsResult.EngineUnavailable ->
-                                " PDF page index unavailable."
-                        }
-                        null -> ""
-                    }
-                    val ocrEvidencePart = when (val batch = evidenceIndexResult) {
-                        is MeaningEvidenceIndexBatchResults -> when (val ocrPart = batch.ocr) {
-                            is IndexOcrEvidenceEmbeddingsResult.Completed ->
-                                " OCR evidence indexed ${ocrPart.indexed} " +
-                                    "(skipped ${ocrPart.skippedUnchanged}, failed ${ocrPart.failed})."
-                            is IndexOcrEvidenceEmbeddingsResult.EngineUnavailable ->
-                                " OCR evidence index unavailable."
-                        }
-                        null -> ""
-                    }
-                    val noteEvidencePart = when (val batch = evidenceIndexResult) {
-                        is MeaningEvidenceIndexBatchResults -> when (val notePart = batch.note) {
-                            is IndexOcrEvidenceEmbeddingsResult.Completed ->
-                                " Note evidence indexed ${notePart.indexed} " +
-                                    "(skipped ${notePart.skippedUnchanged}, failed ${notePart.failed})."
-                            is IndexOcrEvidenceEmbeddingsResult.EngineUnavailable ->
-                                " Note evidence index unavailable."
-                        }
-                        null -> ""
-                    }
-                    val remainingHint = if (remainingAfterBatch > 0) {
-                        " ${AiPackDisclosureCopy.remainingBatchHint(remainingAfterBatch)}"
-                    } else {
-                        ""
-                    }
-                    AiPackDisclosureCopy.FEEDBACK_INDEX_BUILT_PREFIX +
-                        "${result.indexed} memories (skipped ${result.skippedUnchanged}, " +
-                        "failed ${result.failed}).$pagePart$ocrEvidencePart$noteEvidencePart$remainingHint " +
-                        "Use Find by meaning on Welcome next."
-                }
-            }
             mutableUiState.value = withContext(Dispatchers.IO) {
-                buildStateWithCorpus(feedbackMessage = feedback)
+                buildStateWithCorpus(
+                    feedbackMessage = AiPackDisclosureCopy.indexDrainFeedback(result),
+                )
             }
         }
     }
@@ -450,9 +205,3 @@ class AiPackDisclosureViewModel @Inject constructor(
         )
     }
 }
-
-private data class MeaningEvidenceIndexBatchResults(
-    val pdf: IndexPdfPageEmbeddingsResult,
-    val ocr: IndexOcrEvidenceEmbeddingsResult,
-    val note: IndexOcrEvidenceEmbeddingsResult,
-)

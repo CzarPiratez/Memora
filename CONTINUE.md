@@ -30,13 +30,15 @@ the trusted-hit trim; Why names relevance, not a word inventory.
 
 **D-9** (`A8`) landed: a terminal per-asset assembly outcome is recorded so
 the cursor advances. Only infrastructure `FailedSafely` still aborts a drain.
-Still **open**: Batch I drain workers (I1–I4), **D-13** (J7 / P-TYPE), and a
+
+**I1** landed: meaning-index Build is `RunPendingMeaningIndex`. `hasMore` is
+the post-batch pending count, not `pending − batchSize` guessed up front.
+Still **open**: I2/I3 workers, I4 time budget, **D-13** (J7 / P-TYPE), and a
 meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
 
-**Next action:** I1 — lift meaning-index orchestration out of
-`AiPackDisclosureViewModel` into an application use case returning `hasMore`.
-Then I2/I3 workers (now unblocked by D-9).
+**Next action:** I2 — `AssetMemoryAssembly` worker trio + in-app progress and
+Stop. Then I3 (same trio for meaning index; must call `RunPendingMeaningIndex`).
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
@@ -45,7 +47,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 722 tests, 0 failures (2026-09-06).
+**Tree state:** unit suite **green** — 741 tests, 0 failures (2026-09-06).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
