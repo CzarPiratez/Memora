@@ -35,8 +35,10 @@
   - [x] Count without a selectable row is `SelectionDisagreed`, not empty copy
   - [x] NothingPending / SelectionDisagreed skip MIG-05 cutover
   - [x] UI remaining hint uses after-batch remaining
-  - [ ] Device: tap Build still indexes a batch and names remaining if more
-        remain (manual; same surface)
+  - [x] Device (SM-A156E, 2026-09-06): Welcome → About → Build. No crash.
+        Queue was empty (1001 summaries already indexed). First tap showed a
+        contradictory empty-library line while corpus said “tap Build”. Honesty
+        copy corrected and re-tapped (see Delivery record).
 - **Holistic scenarios (before implement):**
   - User: empty library → “no READY memories,” not a mismatch
   - User: last 5 of 5 → indexed, no “tap again”
@@ -81,12 +83,22 @@ ESCAPE-HATCH AFTER CHANGE: no — UI still cannot produce a search hit without
 - **Automated verification:** `RunPendingMeaningIndexTest`,
   `AiPackDisclosureCopyTest`. Full `:app:testDebugUnitTest` **741 tests, 0
   failures** (2026-09-06).
-- **Emulator/manual:** same Build surface; no layout change. Device tap-through
-  is a follow-up, not this gate.
+- **Emulator/manual:** Samsung SM-A156E debug install after I1. Path:
+  Welcome → About on-device meaning search → Build meaning index.
+  Corpus: 1001 READY memories, 1001 summary vectors, 467 evidence vectors,
+  `meaningIndexPending = 0`. First tap returned `NothingPending` immediately
+  (no crash; progress not observable because the summary queue is empty).
+  Corpus line always appended “Tap Build…” — fixed so that suffix is only
+  when pending > 0. Empty-queue copy no longer says the library has no
+  memories. Re-install + second tap: corpus and result agree. Leftover
+  evidence (467 vs 1001 summaries) is still not a selectable queue; that is
+  not this slice.
 - **Failure/recovery:** engine unavailable writes nothing; disagreement is
   visible and retryable; `isBusy` still blocks a second tap; derived-data clear
   unchanged.
 - **Known limitation:** I2/I3 workers and I4 time budget remain open. ~40 taps
-  at 25/batch is still the hand-crank. Quantity-as-count (“exactly N cards”)
-  stays parked.
+  at 25/batch is still the hand-crank when summaries are pending.
+  Quantity-as-count (“exactly N cards”) stays parked. Evidence vectors can
+  lag summaries without becoming `meaningIndexPending` (only missing
+  summaries and STALE_REINDEX_REQUIRED rows are selectable).
 - **Git commit:** recorded after JVM green.

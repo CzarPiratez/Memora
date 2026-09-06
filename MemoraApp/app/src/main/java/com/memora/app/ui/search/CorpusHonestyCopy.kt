@@ -35,8 +35,14 @@ object CorpusHonestyCopy {
         }
     }
 
-    fun aiPackCorpusLine(snapshot: CorpusCompletenessSnapshot): String =
-        summaryBody(snapshot) + " Tap Build to index the next batch on this phone."
+    fun aiPackCorpusLine(snapshot: CorpusCompletenessSnapshot): String {
+        val body = summaryBody(snapshot)
+        return if (snapshot.counts.meaningIndexPending > 0) {
+            "$body Tap Build to index the next batch on this phone."
+        } else {
+            body
+        }
+    }
 
     private fun indexedLine(counts: CorpusCompletenessCounts): String {
         val memoryPart = plural(counts.meaningSummaryIndexed, "memory summary", "memory summaries")

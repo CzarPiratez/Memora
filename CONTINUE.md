@@ -33,6 +33,13 @@ the cursor advances. Only infrastructure `FailedSafely` still aborts a drain.
 
 **I1** landed: meaning-index Build is `RunPendingMeaningIndex`. `hasMore` is
 the post-batch pending count, not `pending − batchSize` guessed up front.
+
+**I1 device tap-through (SM-A156E, 2026-09-06):** install + Welcome → About →
+Build. No crash. This phone’s summary queue is already empty (1001/1001).
+The first tap found a copy lie (empty-library result + “tap Build” corpus
+suffix). Honesty copy was corrected and re-tapped. Leftover evidence (467
+vectors) is still not a selectable batch.
+
 Still **open**: I2/I3 workers, I4 time budget, **D-13** (J7 / P-TYPE), and a
 meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.

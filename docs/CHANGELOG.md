@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### I1 device tap-through — empty queue no longer contradicts the corpus line (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Device.** Samsung SM-A156E. Debug install of I1. Welcome → About on-device
+  meaning search → Build. 1001 memories, 1001 summary vectors, 467 evidence
+  vectors. No crash.
+- **Found.** The summary queue was already empty, so Build correctly did
+  nothing — then said “No READY memories… Build Asset Memory first” while the
+  corpus line always added “Tap Build to index the next batch.”
+- **Fixed.** “Tap Build…” only when `meaningIndexPending > 0`. Empty-queue
+  copy says no batch is waiting, not that the library is missing. Re-tapped
+  on the same phone; corpus and result agree.
+- **Not fixed.** Leftover evidence is still not a selectable drain. I2/I3
+  workers still open.
+
 ### I1 — meaning-index Build is an application drain, not a ViewModel script (2026-09-06)
 
 - **Date:** 2026-09-06

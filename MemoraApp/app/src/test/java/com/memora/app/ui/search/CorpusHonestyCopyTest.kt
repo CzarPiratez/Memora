@@ -45,4 +45,37 @@ class CorpusHonestyCopyTest {
         assertTrue(body.contains("5 Asset Memories"))
         assertTrue(body.contains("2 assets still need memory build"))
     }
+
+    @Test
+    fun ai_pack_line_asks_to_build_only_when_the_queue_has_work() {
+        val pending = CorpusHonestyCopy.aiPackCorpusLine(
+            CorpusCompletenessSnapshot(
+                counts = CorpusCompletenessCounts(
+                    memoriesReady = 1001,
+                    memoriesPendingAssembly = 0,
+                    meaningSummaryIndexed = 1001,
+                    meaningEvidenceIndexed = 467,
+                    meaningIndexPending = 12,
+                ),
+                blocked = null,
+            ),
+        )
+        assertTrue(pending.contains("Tap Build to index the next batch"))
+
+        val current = CorpusHonestyCopy.aiPackCorpusLine(
+            CorpusCompletenessSnapshot(
+                counts = CorpusCompletenessCounts(
+                    memoriesReady = 1001,
+                    memoriesPendingAssembly = 0,
+                    meaningSummaryIndexed = 1001,
+                    meaningEvidenceIndexed = 467,
+                    meaningIndexPending = 0,
+                ),
+                blocked = null,
+            ),
+        )
+        assertTrue(current.contains("1001 memory summaries"))
+        assertTrue(current.contains("467 evidence vectors"))
+        assertTrue(!current.contains("Tap Build to index the next batch"))
+    }
 }

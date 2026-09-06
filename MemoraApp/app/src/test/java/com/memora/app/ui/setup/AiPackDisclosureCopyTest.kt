@@ -65,6 +65,8 @@ class AiPackDisclosureCopyTest {
             RunPendingMeaningIndexResult.NothingPending,
         )
         assertEquals(AiPackDisclosureCopy.FEEDBACK_INDEX_EMPTY, copy)
+        assertTrue(copy.contains("No memories are waiting for a meaning-index batch"))
+        assertFalse(copy.contains("No READY memories to index yet"))
         assertFalse(copy.contains("queue mismatch"))
     }
 

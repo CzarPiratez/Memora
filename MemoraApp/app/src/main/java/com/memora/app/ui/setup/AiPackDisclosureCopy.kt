@@ -124,7 +124,8 @@ object AiPackDisclosureCopy {
         "Meaning model is not ready yet. Download it before building an index."
 
     const val FEEDBACK_INDEX_EMPTY =
-        "No READY memories to index yet. Build Asset Memory first, then return here."
+        "No memories are waiting for a meaning-index batch. " +
+            "If none are saved yet, build Asset Memory first."
 
     const val FEEDBACK_INDEX_SELECTION_DISAGREED_SUFFIX =
         "That is a queue mismatch, not an empty library. Try Build again."
