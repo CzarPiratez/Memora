@@ -3,12 +3,16 @@ package com.memora.app.ui.setup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memora.app.application.intelligence.LoadCorpusCompleteness
-import com.memora.app.application.memory.AssetMemoryDrainResult
-import com.memora.app.application.memory.RunPendingAssetMemoryAssembly
 import com.memora.app.domain.memory.CorpusCompletenessCounts
+import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import com.memora.app.ui.search.CorpusHonestyCopy
+import com.memora.app.work.AssetMemoryAssemblyWorkObservation
+import com.memora.app.work.AssetMemoryAssemblyWorkPhase
+import com.memora.app.work.AssetMemoryAssemblyWorkScheduler
+import com.memora.app.work.AssetMemoryAssemblyWorkTotals
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,75 +27,182 @@ sealed interface AssetMemorySetupState {
         val skippedInLastRun: Int = 0,
         val hasMore: Boolean = false,
     ) : AssetMemorySetupState
-    data class Building(val currentReadyCount: Int) : AssetMemorySetupState
+    data class Building(
+        val currentReadyCount: Int,
+        val assembledSoFar: Int = 0,
+        val skippedSoFar: Int = 0,
+        val pendingAtStart: Int = 0,
+        val progressFeedback: String = AssetMemorySetupCopy.BUILDING,
+    ) : AssetMemorySetupState
     data class Failed(val currentReadyCount: Int) : AssetMemorySetupState
 }
 
 @HiltViewModel
-class AssetMemorySetupViewModel @Inject constructor(
-    private val runPendingAssembly: RunPendingAssetMemoryAssembly,
-    private val loadCorpusCompleteness: LoadCorpusCompleteness,
+class AssetMemorySetupViewModel(
+    private val scheduler: AssetMemoryAssemblyWorkScheduler,
+    private val loadSnapshot: suspend () -> CorpusCompletenessSnapshot,
 ) : ViewModel() {
+    @Inject
+    constructor(
+        scheduler: AssetMemoryAssemblyWorkScheduler,
+        loadCorpusCompleteness: LoadCorpusCompleteness,
+    ) : this(scheduler, loadCorpusCompleteness::invoke)
+
     private val mutableUiState = MutableStateFlow<AssetMemorySetupState>(
         AssetMemorySetupState.Loading,
     )
     val uiState: StateFlow<AssetMemorySetupState> = mutableUiState.asStateFlow()
 
+    private var observationJob: Job? = null
+    private var drainRequested: Boolean = false
+    private var pendingAtStart: Int = 0
+
     init {
+        observeWork()
         refreshCount()
     }
 
     fun onBuildRequested() {
-        val current = mutableUiState.value
-        if (current is AssetMemorySetupState.Building) return
-        val count = countFrom(current)
-        mutableUiState.value = AssetMemorySetupState.Building(count)
+        if (mutableUiState.value is AssetMemorySetupState.Building) return
         viewModelScope.launch {
-            mutableUiState.value = when (val result = runCatching {
-                runPendingAssembly()
-            }.getOrNull()) {
-                is AssetMemoryDrainResult.Completed -> AssetMemorySetupState.Ready(
-                    currentReadyCount = result.currentReadyCount,
-                    pendingAssemblyCount = pendingAssemblyCount(),
-                    assembledInLastRun = result.assembledCount,
-                    skippedInLastRun = result.skippedCount,
-                    hasMore = result.hasMore,
-                )
-                is AssetMemoryDrainResult.FailedSafely -> AssetMemorySetupState.Failed(
-                    result.currentReadyCount,
-                )
-                null -> AssetMemorySetupState.Failed(count)
+            val snapshot = runCatching { loadSnapshot() }.getOrNull()
+            val ready = snapshot?.counts?.memoriesReady ?: countFrom(mutableUiState.value)
+            pendingAtStart = snapshot?.counts?.memoriesPendingAssembly ?: 0
+            drainRequested = true
+            mutableUiState.value = buildingState(
+                readyCount = ready,
+                totals = AssetMemoryAssemblyWorkTotals(readyCount = ready),
+            )
+            scheduler.enqueueDrain()
+        }
+    }
+
+    fun onStop() {
+        if (mutableUiState.value !is AssetMemorySetupState.Building) return
+        scheduler.cancel()
+    }
+
+    fun onDerivedDataCleared() {
+        drainRequested = false
+        pendingAtStart = 0
+        scheduler.cancel()
+        mutableUiState.value = AssetMemorySetupState.Ready(currentReadyCount = 0)
+    }
+
+    private fun observeWork() {
+        observationJob?.cancel()
+        observationJob = viewModelScope.launch {
+            scheduler.observeUniqueWork().collect { infos ->
+                applyWorkPhase(AssetMemoryAssemblyWorkObservation.phase(infos))
             }
         }
     }
 
-    fun onDerivedDataCleared() {
-        mutableUiState.value = AssetMemorySetupState.Ready(currentReadyCount = 0)
+    private suspend fun applyWorkPhase(phase: AssetMemoryAssemblyWorkPhase) {
+        when (phase) {
+            AssetMemoryAssemblyWorkPhase.Idle -> Unit
+            is AssetMemoryAssemblyWorkPhase.Active -> {
+                if (!drainRequested) {
+                    drainRequested = true
+                    if (pendingAtStart == 0) {
+                        val pendingNow = runCatching {
+                            loadSnapshot().counts.memoriesPendingAssembly
+                        }.getOrDefault(0)
+                        pendingAtStart = pendingNow + phase.totals.assembled
+                    }
+                }
+                mutableUiState.value = buildingState(
+                    readyCount = phase.totals.readyCount.takeIf { it > 0 }
+                        ?: countFrom(mutableUiState.value),
+                    totals = phase.totals,
+                )
+            }
+            is AssetMemoryAssemblyWorkPhase.Completed -> {
+                if (!isWatchingDrain()) return
+                finishReady(phase.totals)
+            }
+            is AssetMemoryAssemblyWorkPhase.Cancelled -> {
+                if (!isWatchingDrain()) return
+                finishReady(phase.totals, stopped = true)
+            }
+            AssetMemoryAssemblyWorkPhase.Failed -> {
+                if (!isWatchingDrain()) return
+                drainRequested = false
+                mutableUiState.value = AssetMemorySetupState.Failed(
+                    countFrom(mutableUiState.value),
+                )
+            }
+        }
+    }
+
+    private fun isWatchingDrain(): Boolean =
+        drainRequested || mutableUiState.value is AssetMemorySetupState.Building
+
+    private suspend fun finishReady(
+        totals: AssetMemoryAssemblyWorkTotals,
+        stopped: Boolean = false,
+    ) {
+        drainRequested = false
+        val snapshot = runCatching { loadSnapshot() }.getOrNull()
+        val pending = snapshot?.counts?.memoriesPendingAssembly ?: 0
+        val ready = when {
+            totals.readyCount > 0 -> totals.readyCount
+            snapshot != null -> snapshot.counts.memoriesReady
+            else -> countFrom(mutableUiState.value)
+        }
+        mutableUiState.value = AssetMemorySetupState.Ready(
+            currentReadyCount = ready,
+            pendingAssemblyCount = pending,
+            assembledInLastRun = totals.assembled,
+            skippedInLastRun = totals.skipped,
+            hasMore = if (stopped) pending > 0 else totals.hasMore || pending > 0,
+        )
+        pendingAtStart = 0
     }
 
     private fun refreshCount() {
         viewModelScope.launch {
-            mutableUiState.value = runCatching { loadCorpusCompleteness() }
-                .fold(
-                    onSuccess = { snapshot ->
-                        AssetMemorySetupState.Ready(
-                            currentReadyCount = snapshot.counts.memoriesReady,
-                            pendingAssemblyCount = snapshot.counts.memoriesPendingAssembly,
-                        )
-                    },
-                    onFailure = { AssetMemorySetupState.Failed(0) },
-                )
+            val snapshot = runCatching { loadSnapshot() }
+            if (drainRequested || mutableUiState.value is AssetMemorySetupState.Building) {
+                return@launch
+            }
+            mutableUiState.value = snapshot.fold(
+                onSuccess = { loaded ->
+                    AssetMemorySetupState.Ready(
+                        currentReadyCount = loaded.counts.memoriesReady,
+                        pendingAssemblyCount = loaded.counts.memoriesPendingAssembly,
+                    )
+                },
+                onFailure = { AssetMemorySetupState.Failed(0) },
+            )
         }
     }
 
-    private suspend fun pendingAssemblyCount(): Int =
-        loadCorpusCompleteness().counts.memoriesPendingAssembly
+    private fun buildingState(
+        readyCount: Int,
+        totals: AssetMemoryAssemblyWorkTotals,
+    ) = AssetMemorySetupState.Building(
+        currentReadyCount = readyCount,
+        assembledSoFar = totals.assembled,
+        skippedSoFar = totals.skipped,
+        pendingAtStart = pendingAtStart,
+        progressFeedback = AssetMemorySetupCopy.progressFeedback(
+            assembledSoFar = totals.assembled,
+            skippedSoFar = totals.skipped,
+            pendingAtStart = pendingAtStart,
+        ),
+    )
 
     private fun countFrom(state: AssetMemorySetupState): Int = when (state) {
         AssetMemorySetupState.Loading -> 0
         is AssetMemorySetupState.Ready -> state.currentReadyCount
         is AssetMemorySetupState.Building -> state.currentReadyCount
         is AssetMemorySetupState.Failed -> state.currentReadyCount
+    }
+
+    override fun onCleared() {
+        observationJob?.cancel()
+        super.onCleared()
     }
 }
 
@@ -103,6 +214,7 @@ object AssetMemorySetupCopy {
             "Everything runs on-device. Find by meaning uses the on-device model and index."
     const val BUILD_LABEL = "Build memories from saved facts"
     const val CONTINUE_LABEL = "Continue building saved fact memories"
+    const val STOP_LABEL = "Stop"
     const val BUILDING = "Building memories from saved facts on this phone…"
     const val FAILED = "UNFYND could not finish building saved fact memories. You can try again."
 
@@ -119,6 +231,31 @@ object AssetMemorySetupCopy {
                 meaningIndexPending = 0,
             ),
         )
+
+    fun progressFeedback(
+        assembledSoFar: Int,
+        skippedSoFar: Int = 0,
+        pendingAtStart: Int = 0,
+    ): String {
+        val assembled = assembledSoFar.coerceAtLeast(0)
+        val skipped = skippedSoFar.coerceAtLeast(0)
+        val pending = pendingAtStart.coerceAtLeast(0)
+        val skippedNote = if (skipped > 0) {
+            " Skipped $skipped that could not become a memory from the saved facts."
+        } else {
+            ""
+        }
+        return when {
+            pending <= 0 && assembled <= 0 ->
+                "Looking for saved facts that still need a memory…"
+            pending > 0 && assembled <= 0 ->
+                "Starting to build memories from up to $pending saved facts…"
+            pending > 0 ->
+                "Built $assembled of about $pending memories.$skippedNote"
+            else ->
+                "Built $assembled in this pass.$skippedNote"
+        }
+    }
 
     fun completed(
         assembledCount: Int,

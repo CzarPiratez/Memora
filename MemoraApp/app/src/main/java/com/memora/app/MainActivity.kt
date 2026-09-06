@@ -203,6 +203,7 @@ class MainActivity : ComponentActivity() {
                             mediaStoreSetupViewModel::onScreenshotOcrExtractRequested,
                         onPhotoOcrExtractRequested = mediaStoreSetupViewModel::onPhotoOcrExtractRequested,
                         onBuildAssetMemories = assetMemorySetupViewModel::onBuildRequested,
+                        onStopAssetMemories = assetMemorySetupViewModel::onStop,
                         onDocumentTreeReadAccessReceived =
                             documentTreeSetupViewModel::onPersistedReadAccessReceived,
                         onDocumentTreeReadAccessFailed =
@@ -336,6 +337,7 @@ fun UnfyndApp(
     onScreenshotOcrExtractRequested: () -> Unit,
     onPhotoOcrExtractRequested: () -> Unit,
     onBuildAssetMemories: () -> Unit,
+    onStopAssetMemories: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -429,6 +431,7 @@ fun UnfyndApp(
             onScreenshotOcrExtractRequested = onScreenshotOcrExtractRequested,
             onPhotoOcrExtractRequested = onPhotoOcrExtractRequested,
             onBuildAssetMemories = onBuildAssetMemories,
+            onStopAssetMemories = onStopAssetMemories,
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
@@ -518,6 +521,7 @@ private fun UnfyndAppReady(
     onScreenshotOcrExtractRequested: () -> Unit,
     onPhotoOcrExtractRequested: () -> Unit,
     onBuildAssetMemories: () -> Unit,
+    onStopAssetMemories: () -> Unit,
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
@@ -825,6 +829,7 @@ private fun UnfyndAppReady(
             else -> UnfyndWelcomeScreen(
                 assetMemorySetupState = assetMemorySetupState,
                 onBuildAssetMemories = onBuildAssetMemories,
+                onStopAssetMemories = onStopAssetMemories,
                 onBeginSetup = { isShowingPrivacyScreen = true },
                 onConnectPdfFolder = { isShowingDocumentTreeScreen = true },
                 onFindByMeaning = {
@@ -907,6 +912,7 @@ fun UnlockRequiredScreen(
 private fun AssetMemorySetupCard(
     state: AssetMemorySetupState,
     onBuild: () -> Unit,
+    onStop: () -> Unit,
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -928,7 +934,20 @@ private fun AssetMemorySetupCard(
                 is AssetMemorySetupState.Building -> {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(AssetMemorySetupCopy.BUILDING)
+                    Text(
+                        text = state.progressFeedback,
+                        modifier = Modifier.semantics {
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = state.progressFeedback
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(AssetMemorySetupCopy.STOP_LABEL)
+                    }
                 }
                 is AssetMemorySetupState.Failed -> {
                     Text(AssetMemorySetupCopy.FAILED, color = MaterialTheme.colorScheme.error)
@@ -969,6 +988,7 @@ private fun AssetMemorySetupCard(
 fun UnfyndWelcomeScreen(
     assetMemorySetupState: AssetMemorySetupState,
     onBuildAssetMemories: () -> Unit,
+    onStopAssetMemories: () -> Unit,
     onBeginSetup: () -> Unit,
     onConnectPdfFolder: () -> Unit,
     onFindByMeaning: () -> Unit,
@@ -1030,6 +1050,7 @@ fun UnfyndWelcomeScreen(
         AssetMemorySetupCard(
             state = assetMemorySetupState,
             onBuild = onBuildAssetMemories,
+            onStop = onStopAssetMemories,
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(

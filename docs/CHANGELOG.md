@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### I2 — Asset Memory assembly runs in WorkManager with Stop (2026-09-07)
+
+- **Date:** 2026-09-07
+- **Why it existed.** `RunPendingAssetMemoryAssembly` already returned `hasMore`
+  after D-9, but Welcome still ran one 25-memory batch on the ViewModel with
+  no Stop and no auto-continue. Discovery, OCR, PDF, and OneNote already use
+  the worker trio.
+- **Fixed.** One global unique work (`asset-memory-assembly-drain`) calls only
+  that use case. `Completed(hasMore)` continues; `FailedSafely` retries and
+  never continues (D-9). The Welcome card shows progress and Stop. Cancelled
+  work is Ready, not Failed. Clear-index cancels the tag.
+- **Not I3/I4.** Meaning-index still hand-cranks. Batch cap stays 25.
+- **Verification:** decision mapper, work observation, ViewModel, and copy
+  unit tests. `:app:testDebugUnitTest` **756 tests, 0 failures**. Debug APK
+  installed on SM-A156E; lock screen blocked the Welcome tap from adb.
+
 ### I1b — leftover evidence stays in the meaning-index Build queue (2026-09-07)
 
 - **Date:** 2026-09-07

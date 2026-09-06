@@ -686,7 +686,7 @@ listens to it.
 |---|---|---|---|
 | I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | **done** |
 | I1b | Meaning-index pending/select includes leftover embeddable PDF / OCR / note evidence (not only missing summaries / STALE) | Code | **done** |
-| I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | open |
+| I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | **done** |
 | I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | open |
 | I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open |
 
@@ -695,10 +695,11 @@ listens to it.
 > pages; a 300-page PDF and a one-line screenshot are both "1". Time budgets are
 > already an idiom here — see `PdfExtractionWriteBudgets.MAX_PERSIST_ELAPSED_MS`.
 
-> **Hard ordering:** I2 and I3 must not land before **D-9 (A8)**. An
-> auto-continuing worker over the current abort-on-bad-asset drain is a hot loop.
-> I3 must also not land before **I1b** — the meaning-index worker would otherwise
-> see `NothingPending` while leftover evidence remains.
+> **Hard ordering:** I2 and I3 must not land before **D-9 (A8)** — delivered;
+> I2 is done. An auto-continuing worker over the old abort-on-bad-asset drain
+> would have been a hot loop. I3 must also not land before **I1b** — delivered;
+> the meaning-index worker would otherwise see `NothingPending` while leftover
+> evidence remains.
 
 ### Batch B — Register the unmodelled
 

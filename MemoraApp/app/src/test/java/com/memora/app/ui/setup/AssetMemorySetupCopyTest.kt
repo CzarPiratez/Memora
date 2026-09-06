@@ -32,4 +32,27 @@ class AssetMemorySetupCopyTest {
         assertTrue(completed.contains("Skipped 1"))
         assertTrue(completed.contains("could not become a memory"))
     }
+
+    @Test
+    fun `progress copy names the batch without claiming search is ready`() {
+        val starting = AssetMemorySetupCopy.progressFeedback(
+            assembledSoFar = 0,
+            pendingAtStart = 40,
+        )
+        assertTrue(starting.contains("up to 40"))
+        val mid = AssetMemorySetupCopy.progressFeedback(
+            assembledSoFar = 25,
+            skippedSoFar = 1,
+            pendingAtStart = 40,
+        )
+        assertTrue(mid.contains("Built 25 of about 40"))
+        assertTrue(mid.contains("Skipped 1"))
+        assertFalse(mid.contains("available"))
+        assertFalse(mid.contains("AI understands"))
+    }
+
+    @Test
+    fun `stop label is plain language`() {
+        assertTrue(AssetMemorySetupCopy.STOP_LABEL.contains("Stop"))
+    }
 }

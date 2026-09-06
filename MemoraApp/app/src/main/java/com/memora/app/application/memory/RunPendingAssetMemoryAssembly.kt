@@ -8,7 +8,11 @@ import com.memora.app.domain.memory.MemoryAssemblySkipReason
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
 
-/** Explicit, bounded foreground drain over already-saved deterministic facts. */
+/**
+ * Bounded drain over already-saved deterministic facts.
+ * The setup card and [com.memora.app.work.AssetMemoryAssemblyWorker] both call this —
+ * there is no second assembler.
+ */
 class RunPendingAssetMemoryAssembly @Inject constructor(
     private val factSource: AssetMemoryFactSource,
     private val assembler: AssembleAssetMemoryFromExtractionFacts,

@@ -4,7 +4,7 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-06
+**Updated:** 2026-09-07
 
 **Meaning Find recall — D-10 and D-11 landed (2026-09-06).** The physical-phone
 P0 checklist returned three empties (`swimming timetable`, the `egs` / training
@@ -46,13 +46,18 @@ embeddable evidence row already has a vector; 467 vs 1001 is memories
 without OCR / note / PDF-page excerpts, not a hidden queue. I3 will not
 miss leftover embeddings.
 
-Still **open**: I2/I3 workers, I4 time budget, **D-13** (J7 / P-TYPE), and a
-meaning-only tier for zero-overlap paraphrase. All in
+**I2** landed: Welcome **Build memories** enqueues
+`AssetMemoryAssemblyWorker`. The worker is the only auto-continue over
+`RunPendingAssetMemoryAssembly`. `FailedSafely` retries; it does not
+Continue. The card shows progress and Stop. Cancelled work returns Ready.
+
+Still **open**: I3 meaning-index worker, I4 time budget, **D-13** (J7 /
+P-TYPE), and a meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
 
-**Next action:** I2 — assembly worker trio + Stop, or I3 — meaning-index
-worker (now safe to call `RunPendingMeaningIndex`). I3 will idle on this
-phone until new embeddable evidence appears.
+**Next action:** I3 — meaning-index worker trio + Stop (must call
+`RunPendingMeaningIndex`). On this A15 the meaning queue is empty, so I3
+will idle until new embeddable evidence appears. I4 stays last in Batch I.
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
@@ -61,7 +66,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 741 tests, 0 failures (2026-09-06).
+**Tree state:** unit suite **green** — 756 tests, 0 failures (2026-09-07).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
