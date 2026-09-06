@@ -19,5 +19,17 @@ class AssetMemorySetupCopyTest {
         assertTrue(completed.contains("on-device model"))
         assertTrue(completed.contains("meaning index"))
         assertFalse(completed.contains("interim recall"))
+        assertFalse(completed.contains("Skipped"))
+    }
+
+    @Test
+    fun `completed copy names files that could not become a memory`() {
+        val completed = AssetMemorySetupCopy.completed(
+            assembledCount = 24,
+            currentReadyCount = 24,
+            skippedCount = 1,
+        )
+        assertTrue(completed.contains("Skipped 1"))
+        assertTrue(completed.contains("could not become a memory"))
     }
 }

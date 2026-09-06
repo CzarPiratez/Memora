@@ -939,10 +939,11 @@ private fun AssetMemorySetupCard(
                 }
                 is AssetMemorySetupState.Ready -> {
                     Text(
-                        if (state.assembledInLastRun > 0) {
+                        if (state.assembledInLastRun > 0 || state.skippedInLastRun > 0) {
                             AssetMemorySetupCopy.completed(
                                 state.assembledInLastRun,
                                 state.currentReadyCount,
+                                state.skippedInLastRun,
                             )
                         } else {
                             AssetMemorySetupCopy.readiness(

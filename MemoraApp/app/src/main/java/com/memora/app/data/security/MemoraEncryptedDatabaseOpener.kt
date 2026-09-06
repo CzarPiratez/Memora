@@ -479,22 +479,7 @@ object MemoraEncryptedDatabaseOpener {
                 databaseName,
             )
                 .openHelperFactory(factory)
-                .addMigrations(
-                    MemoraDatabaseMigrations.MIGRATION_1_2,
-                    MemoraDatabaseMigrations.MIGRATION_2_3,
-                    MemoraDatabaseMigrations.MIGRATION_3_4,
-                    MemoraDatabaseMigrations.MIGRATION_4_5,
-                    MemoraDatabaseMigrations.MIGRATION_5_6,
-                    MemoraDatabaseMigrations.MIGRATION_6_7,
-                    MemoraDatabaseMigrations.MIGRATION_7_8,
-                    MemoraDatabaseMigrations.MIGRATION_8_9,
-                    MemoraDatabaseMigrations.MIGRATION_9_10,
-                    MemoraDatabaseMigrations.MIGRATION_10_11,
-                    MemoraDatabaseMigrations.MIGRATION_11_12,
-                    MemoraDatabaseMigrations.MIGRATION_12_13,
-                    MemoraDatabaseMigrations.MIGRATION_13_14,
-                    MemoraDatabaseMigrations.MIGRATION_14_15,
-                )
+                .addMigrations(*MemoraDatabaseMigrations.ALL)
                 .build()
                 .also { it.openHelper.writableDatabase }
         } finally {
@@ -508,22 +493,7 @@ object MemoraEncryptedDatabaseOpener {
             MemoraDatabase::class.java,
             ProductionDatabaseIdentity.DATABASE_NAME,
         )
-            .addMigrations(
-                MemoraDatabaseMigrations.MIGRATION_1_2,
-                MemoraDatabaseMigrations.MIGRATION_2_3,
-                MemoraDatabaseMigrations.MIGRATION_3_4,
-                MemoraDatabaseMigrations.MIGRATION_4_5,
-                MemoraDatabaseMigrations.MIGRATION_5_6,
-                MemoraDatabaseMigrations.MIGRATION_6_7,
-                MemoraDatabaseMigrations.MIGRATION_7_8,
-                MemoraDatabaseMigrations.MIGRATION_8_9,
-                MemoraDatabaseMigrations.MIGRATION_9_10,
-                MemoraDatabaseMigrations.MIGRATION_10_11,
-                MemoraDatabaseMigrations.MIGRATION_11_12,
-                MemoraDatabaseMigrations.MIGRATION_12_13,
-                MemoraDatabaseMigrations.MIGRATION_13_14,
-                MemoraDatabaseMigrations.MIGRATION_14_15,
-            )
+            .addMigrations(*MemoraDatabaseMigrations.ALL)
             .build()
             .also { it.openHelper.writableDatabase }
 

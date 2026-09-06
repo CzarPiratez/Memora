@@ -4,6 +4,7 @@ import android.content.Context
 import com.memora.app.application.memory.MemoryEvidenceExcerptSearch
 import com.memora.app.data.local.MemoraDatabase
 import com.memora.app.data.local.RoomAiPackInstallLedger
+import com.memora.app.data.local.RoomAssetMemoryAssemblyOutcomeStore
 import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
@@ -33,6 +34,7 @@ import com.memora.app.domain.intelligence.AiPackManager
 import com.memora.app.domain.intelligence.LedgerBackedAiPackManager
 import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
+import com.memora.app.domain.memory.AssetMemoryAssemblyOutcomeStore
 import com.memora.app.domain.memory.AssetMemoryFactSource
 import com.memora.app.domain.memory.MemoryRepository
 import dagger.Module
@@ -100,6 +102,13 @@ object PersistenceModule {
     @Singleton
     fun provideAssetMemoryFactSource(handle: MemoraDatabaseHandle): AssetMemoryFactSource =
         RoomAssetMemoryFactSource { handle.database() }
+
+    @Provides
+    @Singleton
+    fun provideAssetMemoryAssemblyOutcomeStore(
+        handle: MemoraDatabaseHandle,
+    ): AssetMemoryAssemblyOutcomeStore =
+        RoomAssetMemoryAssemblyOutcomeStore { handle.database() }
 
     @Provides
     @Singleton

@@ -100,6 +100,7 @@ internal class RoomPdfExtractionPersistencePort(
                     )
                 }
                 dao.insertAtomic(header, pages, metadata)
+                database.clearMemoryAssemblySkips(sourceId, sourceAssetKey, fingerprint)
                 PdfExtractionPersistenceWriteOutcome.Persisted
             }
         } catch (_: Exception) {

@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### D-9 — a bad asset no longer pins the memory-assembly drain (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Why it existed.** `RunPendingAssetMemoryAssembly` aborted the whole batch
+  on `NoUsableEvidence`, `AssetMissing`, or `RevisionConflict`. Nothing was
+  persisted, so the same Asset was first on the next tap. An auto-continuing
+  worker would have looped forever on one file.
+- **Fixed.** Terminal per-asset outcomes are recorded in
+  `memory_assembly_skips` (Room 15→16). Pending select and count exclude an
+  active skip. New PDF / OCR / EXIF / note facts clear the skip so the Asset
+  can assemble when the fact set changes. Only infrastructure `FailedSafely`
+  still aborts the drain. The setup card names how many files were skipped.
+- **Not I2/I3.** Workers stay off until this cursor is safe. Batch I may now
+  proceed.
+- **Verification:** `RunPendingAssetMemoryAssemblyTest` (skip-and-continue,
+  second drain does not retry the skip, infrastructure abort does not skip);
+  `AssemblyFactsDigestTest`; setup copy test. JVM unit tests for this slice.
+
 ### D-14 — pictures of UNFYND no longer outrank the original (2026-09-06)
 
 - **Date:** 2026-09-06

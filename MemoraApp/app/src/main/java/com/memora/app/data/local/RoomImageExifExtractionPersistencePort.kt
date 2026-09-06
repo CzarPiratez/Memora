@@ -21,7 +21,8 @@ class RoomImageExifExtractionPersistencePort(
 
     override suspend fun insert(record: ImageExifExtractionRecord) {
         val now = System.currentTimeMillis()
-        database().imageExifExtractionDao().insert(
+        val db = database()
+        db.imageExifExtractionDao().insert(
             ImageExifExtractionEntity(
                 sourceId = record.asset.identity.sourceId.value,
                 sourceAssetKey = record.asset.identity.sourceAssetKey.value,
@@ -38,6 +39,11 @@ class RoomImageExifExtractionPersistencePort(
                 createdAtEpochMillis = now,
                 integrity = record.integrity,
             ),
+        )
+        db.clearMemoryAssemblySkips(
+            sourceId = record.asset.identity.sourceId.value,
+            sourceAssetKey = record.asset.identity.sourceAssetKey.value,
+            fingerprint = record.asset.fingerprint.value,
         )
     }
 

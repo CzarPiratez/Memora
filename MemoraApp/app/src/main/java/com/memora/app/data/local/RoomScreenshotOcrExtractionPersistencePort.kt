@@ -20,7 +20,8 @@ class RoomScreenshotOcrExtractionPersistencePort(
 
     override suspend fun insert(record: ScreenshotOcrExtractionRecord) {
         val now = System.currentTimeMillis()
-        database().screenshotOcrExtractionDao().insert(
+        val db = database()
+        db.screenshotOcrExtractionDao().insert(
             ScreenshotOcrExtractionEntity(
                 sourceId = record.asset.identity.sourceId.value,
                 sourceAssetKey = record.asset.identity.sourceAssetKey.value,
@@ -34,6 +35,11 @@ class RoomScreenshotOcrExtractionPersistencePort(
                 createdAtEpochMillis = now,
                 integrity = record.integrity,
             ),
+        )
+        db.clearMemoryAssemblySkips(
+            sourceId = record.asset.identity.sourceId.value,
+            sourceAssetKey = record.asset.identity.sourceAssetKey.value,
+            fingerprint = record.asset.fingerprint.value,
         )
     }
 

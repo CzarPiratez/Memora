@@ -15,6 +15,13 @@ interface AssetMemoryFactDao {
               AND m.fingerprint = a.fingerprint
               AND m.assembly_schema_version = :assemblySchemaVersion
         )
+        AND NOT EXISTS (
+            SELECT 1 FROM memory_assembly_skips AS s
+            WHERE s.source_id = a.source_id
+              AND s.source_asset_key = a.source_asset_key
+              AND s.fingerprint = a.fingerprint
+              AND s.assembly_schema_version = :assemblySchemaVersion
+        )
         AND (
             EXISTS (
                 SELECT 1 FROM pdf_extraction_pages AS p
@@ -117,6 +124,13 @@ interface AssetMemoryFactDao {
               AND m.source_asset_key = a.source_asset_key
               AND m.fingerprint = a.fingerprint
               AND m.assembly_schema_version = :assemblySchemaVersion
+        )
+        AND NOT EXISTS (
+            SELECT 1 FROM memory_assembly_skips AS s
+            WHERE s.source_id = a.source_id
+              AND s.source_asset_key = a.source_asset_key
+              AND s.fingerprint = a.fingerprint
+              AND s.assembly_schema_version = :assemblySchemaVersion
         )
         AND (
             EXISTS (

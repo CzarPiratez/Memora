@@ -20,6 +20,7 @@ sealed interface AssetMemorySetupState {
         val currentReadyCount: Int,
         val pendingAssemblyCount: Int = 0,
         val assembledInLastRun: Int = 0,
+        val skippedInLastRun: Int = 0,
         val hasMore: Boolean = false,
     ) : AssetMemorySetupState
     data class Building(val currentReadyCount: Int) : AssetMemorySetupState
@@ -53,6 +54,7 @@ class AssetMemorySetupViewModel @Inject constructor(
                     currentReadyCount = result.currentReadyCount,
                     pendingAssemblyCount = pendingAssemblyCount(),
                     assembledInLastRun = result.assembledCount,
+                    skippedInLastRun = result.skippedCount,
                     hasMore = result.hasMore,
                 )
                 is AssetMemoryDrainResult.FailedSafely -> AssetMemorySetupState.Failed(
@@ -118,8 +120,19 @@ object AssetMemorySetupCopy {
             ),
         )
 
-    fun completed(assembledCount: Int, currentReadyCount: Int): String =
-        "Built $assembledCount in this step. ${readiness(currentReadyCount)} " +
+    fun completed(
+        assembledCount: Int,
+        currentReadyCount: Int,
+        skippedCount: Int = 0,
+    ): String {
+        val built = "Built $assembledCount in this step."
+        val skipped = if (skippedCount > 0) {
+            " Skipped $skippedCount that could not become a memory from the saved facts."
+        } else {
+            ""
+        }
+        return "$built$skipped ${readiness(currentReadyCount)} " +
             "Use keyword search for exact words; meaning search needs the on-device model " +
             "and meaning index."
+    }
 }

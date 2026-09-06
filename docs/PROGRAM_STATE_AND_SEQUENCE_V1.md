@@ -194,17 +194,21 @@ the migration test still passes.
 That is the missing drain driver, tracked as E1/E2 below, and it must not be
 automated before **D-9**.
 
-### D-9 — One unusable asset aborts the whole assembly drain (**P0 blocker for automation**)
+### D-9 — One unusable asset aborts the whole assembly drain (**P0, fixed**)
 
-`RunPendingAssetMemoryAssembly.kt:26-33` returns `FailedSafely` for the entire
-drain on `NoUsableEvidence`, `AssetMissing`, `RevisionConflict`, or
-`FailedSafely`. Nothing is persisted for that asset, so `findNextPendingAsset`
-returns the same asset on the next run. Today the user is the circuit breaker —
-they notice and stop tapping. Under an auto-continuing worker this becomes a hot
-loop that burns battery forever on one bad asset.
+**FIXED 2026-09-06.** `RunPendingAssetMemoryAssembly` used to return
+`FailedSafely` for the entire drain on `NoUsableEvidence`, `AssetMissing`,
+`RevisionConflict`, or `FailedSafely`. Nothing was persisted, so
+`findNextPendingAsset` returned the same asset on the next run. A later
+auto-continuing worker would have been a hot loop on one bad asset.
 
-Terminal per-asset outcomes must be recorded so the cursor advances; only
-genuine infrastructure faults should abort a drain. **Prerequisite for E1/E2.**
+**Fixed** by recording a durable skip (`memory_assembly_skips`, Room 15→16)
+keyed by identity + fingerprint + assembly schema and the digest of the fact
+set that failed. Pending select and pending count both exclude active skips.
+New OCR / PDF / EXIF / note facts clear the skip so the Asset is pending
+again. Only `FailedSafely` (infrastructure) still aborts the drain.
+
+Does not start I2/I3 workers. **A8 closed; Batch I may proceed.**
 
 ### D-10 — A time word was a constraint for precision and content for retrieval (**P0, fixed**)
 
@@ -657,7 +661,7 @@ pick it up by ID. Batch letters map to the stages above.
 | A5 | `CONTINUE.md` "Current truth" table; archive diary to `docs/archive/` | Docs | open |
 | A6 | **Founder:** accept Ask Model v1 + v1.1 | Decision | open |
 | A7 | Meaning index must select unindexed work, not the newest page (**D-8**) | Code | **done** |
-| A8 | Terminal per-asset outcomes must advance the assembly cursor (**D-9**) | Code | open |
+| A8 | Terminal per-asset outcomes must advance the assembly cursor (**D-9**) | Code | **done** |
 
 > **A2 note:** `CanonicalRecallMeaningTest.searchByMeaning_wires_anchor_ranking_for_explicit_time_query`
 > passes today *because of* D-2 — its fixtures do not contain "notes". Fixing D-2

@@ -567,4 +567,54 @@ object MemoraDatabaseMigrations {
             db.execSQL("DROP TABLE IF EXISTS `pdf_page_embeddings`")
         }
     }
+
+    /**
+     * D-9: durable per-Asset assembly skips so a bad Asset cannot pin the drain.
+     */
+    val MIGRATION_15_16: Migration = object : Migration(15, 16) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `memory_assembly_skips` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `assembly_schema_version` TEXT NOT NULL,
+                    `reason` TEXT NOT NULL,
+                    `facts_digest` TEXT NOT NULL,
+                    `recorded_at_epoch_millis` INTEGER NOT NULL,
+                    PRIMARY KEY(
+                        `source_id`,
+                        `source_asset_key`,
+                        `fingerprint`,
+                        `assembly_schema_version`
+                    )
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS " +
+                    "`index_memory_assembly_skips_source_id_source_asset_key_fingerprint` " +
+                    "ON `memory_assembly_skips` (`source_id`, `source_asset_key`, `fingerprint`)",
+            )
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(
+        MIGRATION_1_2,
+        MIGRATION_2_3,
+        MIGRATION_3_4,
+        MIGRATION_4_5,
+        MIGRATION_5_6,
+        MIGRATION_6_7,
+        MIGRATION_7_8,
+        MIGRATION_8_9,
+        MIGRATION_9_10,
+        MIGRATION_10_11,
+        MIGRATION_11_12,
+        MIGRATION_12_13,
+        MIGRATION_13_14,
+        MIGRATION_14_15,
+        MIGRATION_15_16,
+    )
 }

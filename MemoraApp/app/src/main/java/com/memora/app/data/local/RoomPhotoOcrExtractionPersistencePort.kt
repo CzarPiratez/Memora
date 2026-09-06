@@ -19,7 +19,8 @@ class RoomPhotoOcrExtractionPersistencePort(
     }
 
     override suspend fun insert(record: PhotoOcrExtractionRecord) {
-        database().photoOcrExtractionDao().insert(
+        val db = database()
+        db.photoOcrExtractionDao().insert(
             PhotoOcrExtractionEntity(
                 sourceId = record.asset.identity.sourceId.value,
                 sourceAssetKey = record.asset.identity.sourceAssetKey.value,
@@ -33,6 +34,11 @@ class RoomPhotoOcrExtractionPersistencePort(
                 createdAtEpochMillis = System.currentTimeMillis(),
                 integrity = record.integrity,
             ),
+        )
+        db.clearMemoryAssemblySkips(
+            sourceId = record.asset.identity.sourceId.value,
+            sourceAssetKey = record.asset.identity.sourceAssetKey.value,
+            fingerprint = record.asset.fingerprint.value,
         )
     }
 

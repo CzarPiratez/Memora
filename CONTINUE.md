@@ -23,19 +23,20 @@ causes were in **candidate generation**, not in the MF-1.1 precision work:
 
 **D-12** (`2861e80`) and **D-15** landed after the device re-test: precision is
 a tier, not a veto, and admission now reserves seats by coverage depth so a
-partial match cannot starve the way an exact match used to. Still **open**:
-**D-13** (J7 / P-TYPE), **D-14** (D16: UNFYND's own screenshots compete),
-drain automation (D-9 / Batch I), and a meaning-only tier for zero-overlap
-paraphrase. All in `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2.
+partial match cannot starve the way an exact match used to.
 
-**D-17** (`Why`): meaning Why now names the words *this file* has and the
-words it does not. It no longer says "your cue words appear" on a partial
-match, and it no longer repeats the query / filename / snippet already on
-the card. Rendered as a coloured panel.
+**D-14** and human Why landed the same day: self-captures are demoted before
+the trusted-hit trim; Why names relevance, not a word inventory.
 
-**Next action:** D-14 (self-screenshots outranking real files) is the most
-visible remaining demo risk. Drain automation is the largest remaining
-operational risk.
+**D-9** (`A8`) landed: a terminal per-asset assembly outcome is recorded so
+the cursor advances. Only infrastructure `FailedSafely` still aborts a drain.
+Still **open**: Batch I drain workers (I1–I4), **D-13** (J7 / P-TYPE), and a
+meaning-only tier for zero-overlap paraphrase. All in
+`PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
+
+**Next action:** I1 — lift meaning-index orchestration out of
+`AiPackDisclosureViewModel` into an application use case returning `hasMore`.
+Then I2/I3 workers (now unblocked by D-9).
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
@@ -44,7 +45,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 691 tests, 0 failures (2026-09-06).
+**Tree state:** unit suite **green** — 722 tests, 0 failures (2026-09-06).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),

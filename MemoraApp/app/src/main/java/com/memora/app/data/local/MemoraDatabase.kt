@@ -24,8 +24,9 @@ import androidx.room.RoomDatabase
         AiPackInstallLedgerEntity::class,
         MemoryEmbeddingEntity::class,
         MemoryEvidenceEmbeddingEntity::class,
+        MemoryAssemblySkipEntity::class,
     ],
-    version = 15,
+    version = 16,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -54,4 +55,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun memoryEmbeddingDao(): MemoryEmbeddingDao
 
     abstract fun memoryEvidenceEmbeddingDao(): MemoryEvidenceEmbeddingDao
+
+    abstract fun memoryAssemblySkipDao(): MemoryAssemblySkipDao
 }
