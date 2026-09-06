@@ -51,6 +51,11 @@ miss leftover embeddings.
 `RunPendingAssetMemoryAssembly`. `FailedSafely` retries; it does not
 Continue. The card shows progress and Stop. Cancelled work returns Ready.
 
+**I2 device tap-through (SM-A156E, 2026-09-07):** Welcome showed 1001 READY.
+Build started `AssetMemoryAssemblyWorker` (SUCCESS ~40 ms, no reschedule).
+Card stayed on the 1001 readiness line. No crash. This library has no
+pending assembly, so Stop was not on screen.
+
 Still **open**: I3 meaning-index worker, I4 time budget, **D-13** (J7 /
 P-TYPE), and a meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.

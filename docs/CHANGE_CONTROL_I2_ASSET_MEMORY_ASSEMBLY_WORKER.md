@@ -40,10 +40,13 @@ assembler or Find path
   - [x] Returning to Welcome reconnects if unique work is still running
   - [x] Derived-data clear cancels the assembly tag
   - [x] Copy has Stop + honest progress; no “available now”
-  - [x] Device: debug APK installed on SM-A156E (`RZCX12KZ6EN`). Phone was
-        locked, so Welcome → Build was not tapped from this machine. JVM
-        covers enqueue / Stop / cancel-as-Ready. User tap is the remaining
-        visual check (queue on this library is likely already empty).
+  - [x] Device (SM-A156E, 2026-09-07): Welcome showed 1001 READY memories.
+        Tap **Build memories from saved facts** started
+        `AssetMemoryAssemblyWorker` (tag `asset-memory-assembly`).
+        `WM-WorkerWrapper`: SUCCESS in ~40 ms; `reschedule = false`
+        (empty queue / CompletedDrain). Welcome stayed Ready with the same
+        1001 line; no Failed, no crash. Stop was not visible because
+        Building lasted less than a frame.
 - **Holistic scenarios (before implement):**
   - User: pending 0 → one short job, then readiness, not a hang
   - User: 40 pending → worker continues; card shows built-so-far; Stop
@@ -93,13 +96,12 @@ ESCAPE-HATCH AFTER CHANGE: no — construction still cannot produce a search
   `AssetMemoryAssemblyWorkObservationTest`, `AssetMemorySetupViewModelTest`,
   `AssetMemorySetupCopyTest`. Full `:app:testDebugUnitTest` **756 tests, 0
   failures** (2026-09-07).
-- **Emulator/manual:** `:app:installDebug` on SM-A156E (`RZCX12KZ6EN`)
-  succeeded. Lock screen was up; Welcome Build was not exercised from adb.
-  Ask the user to unlock → Welcome → **Build memories from saved facts**.
-  Expected on this library: brief Building (or immediate Ready) and no crash.
-  Stop is only visible while Building.
+- **Emulator/manual:** `:app:installDebug` on SM-A156E (`RZCX12KZ6EN`).
+  After unlock: Welcome → Build. Worker SUCCESS ~40 ms, no continuation.
+  Card returned to “1001 current evidence-backed Asset Memories are saved.”
+  No crash. Stop not observable on an empty queue.
 - **Failure/recovery:** `FailedSafely` → retry; Stop → Ready; clear-index
   cancels work; empty queue completes the drain.
 - **Known limitation:** I3/I4 remain open. Batch cap stays 25 memories
   (I4 is the time budget). This phone’s assembly queue may already be empty.
-- **Git commit:** recorded after JVM green.
+- **Git commit:** `93cfd2b` (local; not pushed).

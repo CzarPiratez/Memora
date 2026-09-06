@@ -15,8 +15,9 @@
   work is Ready, not Failed. Clear-index cancels the tag.
 - **Not I3/I4.** Meaning-index still hand-cranks. Batch cap stays 25.
 - **Verification:** decision mapper, work observation, ViewModel, and copy
-  unit tests. `:app:testDebugUnitTest` **756 tests, 0 failures**. Debug APK
-  installed on SM-A156E; lock screen blocked the Welcome tap from adb.
+  unit tests. `:app:testDebugUnitTest` **756 tests, 0 failures**. A15
+  Welcome → Build: worker SUCCESS in ~40 ms, `reschedule = false`, card
+  still 1001 READY, no crash. Empty assembly queue — Stop not visible.
 
 ### I1b — leftover evidence stays in the meaning-index Build queue (2026-09-07)
 
