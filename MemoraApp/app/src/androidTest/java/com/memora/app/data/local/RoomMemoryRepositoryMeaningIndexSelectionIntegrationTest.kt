@@ -148,6 +148,129 @@ class RoomMemoryRepositoryMeaningIndexSelectionIntegrationTest {
         assertTrue(repository.listMeaningIndexSummaries(model = model, limit = 25).isEmpty())
     }
 
+    @Test
+    fun ready_summary_with_unindexed_ocr_stays_selectable() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-ocr-1",
+            kind = "OCR_TEXT",
+            locator = "ocr:block:1",
+            excerpt = "Grade 2 swimming",
+        )
+
+        assertEquals(1, repository.countMeaningIndexPending(model))
+        assertEquals(listOf(revisionOf(1)), repository.listMeaningIndexSummaries(model, 25).map { it.revisionId })
+    }
+
+    @Test
+    fun ready_summary_with_unindexed_note_stays_selectable() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-note-1",
+            kind = "NOTE_TEXT",
+            locator = "note:body",
+            excerpt = "swimming on Thursday",
+        )
+
+        assertEquals(1, repository.countMeaningIndexPending(model))
+        assertEquals(listOf(revisionOf(1)), repository.listMeaningIndexSummaries(model, 25).map { it.revisionId })
+    }
+
+    @Test
+    fun ready_summary_with_unindexed_pdf_page_stays_selectable() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-pdf-1",
+            kind = "DOCUMENT_TEXT",
+            locator = "pdf:page:1",
+            excerpt = "Grade 2 Swimming TT",
+        )
+
+        assertEquals(1, repository.countMeaningIndexPending(model))
+        assertEquals(listOf(revisionOf(1)), repository.listMeaningIndexSummaries(model, 25).map { it.revisionId })
+    }
+
+    @Test
+    fun embedding_the_owed_evidence_clears_the_queue() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-ocr-1",
+            kind = "OCR_TEXT",
+            locator = "ocr:block:1",
+            excerpt = "Grade 2 swimming",
+        )
+        embedEvidence(revisionId = revisionOf(1), evidenceId = "e-ocr-1")
+
+        assertEquals(0, repository.countMeaningIndexPending(model))
+        assertTrue(repository.listMeaningIndexSummaries(model, 25).isEmpty())
+    }
+
+    @Test
+    fun partial_evidence_still_counts_as_pending() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-ocr-1",
+            kind = "OCR_TEXT",
+            locator = "ocr:block:1",
+            excerpt = "swimming",
+        )
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-ocr-2",
+            kind = "OCR_TEXT",
+            locator = "ocr:block:2",
+            excerpt = "timetable",
+        )
+        embedEvidence(revisionId = revisionOf(1), evidenceId = "e-ocr-1")
+
+        assertEquals(1, repository.countMeaningIndexPending(model))
+        assertEquals(listOf(revisionOf(1)), repository.listMeaningIndexSummaries(model, 25).map { it.revisionId })
+    }
+
+    @Test
+    fun metadata_only_or_unresolvable_pdf_id_is_not_pending() = runBlocking {
+        seedMemory(index = 1)
+        seedMemory(index = 2)
+        embed(revisionOf(1))
+        embed(revisionOf(2))
+        seedEvidence(
+            index = 1,
+            evidenceId = "e-meta",
+            kind = "SOURCE_METADATA",
+            locator = "exif:datetime",
+            excerpt = "2026-01-01",
+        )
+        seedEvidence(
+            index = 2,
+            evidenceId = "pdf:page:1",
+            kind = "DOCUMENT_TEXT",
+            locator = "pdf:page:1",
+            excerpt = "cannot write this id",
+        )
+
+        assertEquals(0, repository.countMeaningIndexPending(model))
+        assertTrue(repository.listMeaningIndexSummaries(model, 25).isEmpty())
+    }
+
+    @Test
+    fun ready_summary_without_embeddable_evidence_is_not_pending() = runBlocking {
+        seedMemory(index = 1)
+        embed(revisionOf(1))
+
+        assertEquals(0, repository.countMeaningIndexPending(model))
+        assertTrue(repository.listMeaningIndexSummaries(model, 25).isEmpty())
+    }
+
     private fun revisionOf(index: Int) = MemoryRevisionId("rev-$index")
 
     private suspend fun seedMemory(
@@ -204,6 +327,47 @@ class RoomMemoryRepositoryMeaningIndexSelectionIntegrationTest {
                 dimensions = 1,
                 vectorBlob = ByteArray(FLOAT_BYTES),
                 sourceTextFingerprint = "fp-summary-${revisionId.value}",
+                createdAtEpochMs = BASE_EPOCH_MS,
+            ),
+        )
+    }
+
+    private suspend fun seedEvidence(
+        index: Int,
+        evidenceId: String,
+        kind: String,
+        locator: String,
+        excerpt: String,
+    ) {
+        database.memoryDao().insertEvidence(
+            listOf(
+                MemoryEvidenceEntity(
+                    revisionId = revisionOf(index).value,
+                    evidenceId = evidenceId,
+                    evidenceKind = kind,
+                    evidenceClass = "DIRECT",
+                    locator = locator,
+                    excerpt = excerpt,
+                ),
+            ),
+        )
+    }
+
+    private suspend fun embedEvidence(
+        revisionId: MemoryRevisionId,
+        evidenceId: String,
+        forModel: ModelVersionIdentity = model,
+    ) {
+        database.memoryEvidenceEmbeddingDao().upsert(
+            MemoryEvidenceEmbeddingEntity(
+                revisionId = revisionId.value,
+                memoryId = revisionId.value.replace("rev-", "mem-"),
+                evidenceId = evidenceId,
+                modelId = forModel.modelId,
+                modelVersion = forModel.version,
+                dimensions = 1,
+                vectorBlob = ByteArray(FLOAT_BYTES),
+                sourceTextFingerprint = "fp-evidence-$evidenceId",
                 createdAtEpochMs = BASE_EPOCH_MS,
             ),
         )

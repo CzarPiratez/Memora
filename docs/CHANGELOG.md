@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### I1b — leftover evidence stays in the meaning-index Build queue (2026-09-07)
+
+- **Date:** 2026-09-07
+- **Why it existed.** After I1 on the A15, 1001 summaries were indexed and
+  Build said the queue was empty while only 467 evidence vectors existed.
+  Pending/select only saw missing summaries or `STALE_REINDEX_REQUIRED`.
+  MIG-05 cutover marks STALE only for PDF pages with **zero** evidence
+  vectors, and restores READY on the first one. OCR, notes, and remaining
+  PDF pages never came back.
+- **Fixed.** The shared pending/select WHERE now includes READY memories
+  that still have embeddable PDF / OCR / note evidence without a vector.
+  Count and select stay in agreement. No mass-STALE. No second indexer.
+- **Not I2/I3.** Workers stay off until this cursor is proven on device.
+- **Verification:** instrumented selection test on emulator PASS. A15
+  re-tap: pending still 0, 467 unchanged — this library has no remaining
+  embeddable evidence rows without a vector.
+
 ### I1 device tap-through — empty queue no longer contradicts the corpus line (2026-09-06)
 
 - **Date:** 2026-09-06

@@ -101,7 +101,10 @@ interface MemoryDao {
      * Counts meaning-index work still owed for one model identity.
      *
      * Shares its WHERE clause with [listMeaningIndexSummaries] so the pending
-     * count and the selected batch can never disagree.
+     * count and the selected batch can never disagree. The EXISTS arm is the
+     * leftover-evidence cursor (I1b): READY + summary already embedded, but
+     * embeddable PDF / OCR / note rows still lack an evidence vector. Keep
+     * both queries identical.
      */
     @Query(
         """
@@ -117,7 +120,30 @@ interface MemoryDao {
         WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND m.summary_text != ''
-          AND (e.revision_id IS NULL OR m.integrity_state = 'STALE_REINDEX_REQUIRED')
+          AND (
+            e.revision_id IS NULL
+            OR m.integrity_state = 'STALE_REINDEX_REQUIRED'
+            OR EXISTS (
+              SELECT 1
+              FROM memory_evidence AS ev
+              LEFT JOIN memory_evidence_embeddings AS ee
+                ON ee.revision_id = ev.revision_id
+               AND ee.evidence_id = ev.evidence_id
+               AND ee.model_id = :modelId
+               AND ee.model_version = :modelVersion
+              WHERE ev.revision_id = m.revision_id
+                AND ev.excerpt != ''
+                AND ev.evidence_id NOT LIKE 'pdf:page:%'
+                AND (
+                  ev.evidence_kind IN ('OCR_TEXT', 'NOTE_TEXT')
+                  OR (
+                    ev.evidence_kind = 'DOCUMENT_TEXT'
+                    AND ev.locator LIKE 'pdf:page:%'
+                  )
+                )
+                AND ee.evidence_id IS NULL
+            )
+          )
         """,
     )
     suspend fun countMeaningIndexPending(
@@ -129,13 +155,10 @@ interface MemoryDao {
     /**
      * Next meaning-index batch for one model identity.
      *
-     * Selects a revision when it has no summary embedding for this model, or
-     * when it is STALE_REINDEX_REQUIRED — that state means the summary is
-     * already embedded but evidence embeddings are still owed (MIG-05), so it
-     * must stay selectable until the cutover restores it to READY.
-     *
-     * Never-indexed revisions sort first so a drain makes visible progress
-     * across the whole corpus before it revisits evidence gaps.
+     * Selects a revision when it has no summary embedding for this model, when
+     * it is STALE_REINDEX_REQUIRED (MIG-05 PDF gap), or when READY embeddable
+     * PDF / OCR / note evidence still lacks a vector (I1b). Never-indexed
+     * revisions sort first so a drain covers new summaries before evidence gaps.
      */
     @Query(
         """
@@ -155,7 +178,30 @@ interface MemoryDao {
         WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND m.summary_text != ''
-          AND (e.revision_id IS NULL OR m.integrity_state = 'STALE_REINDEX_REQUIRED')
+          AND (
+            e.revision_id IS NULL
+            OR m.integrity_state = 'STALE_REINDEX_REQUIRED'
+            OR EXISTS (
+              SELECT 1
+              FROM memory_evidence AS ev
+              LEFT JOIN memory_evidence_embeddings AS ee
+                ON ee.revision_id = ev.revision_id
+               AND ee.evidence_id = ev.evidence_id
+               AND ee.model_id = :modelId
+               AND ee.model_version = :modelVersion
+              WHERE ev.revision_id = m.revision_id
+                AND ev.excerpt != ''
+                AND ev.evidence_id NOT LIKE 'pdf:page:%'
+                AND (
+                  ev.evidence_kind IN ('OCR_TEXT', 'NOTE_TEXT')
+                  OR (
+                    ev.evidence_kind = 'DOCUMENT_TEXT'
+                    AND ev.locator LIKE 'pdf:page:%'
+                  )
+                )
+                AND ee.evidence_id IS NULL
+            )
+          )
         ORDER BY (e.revision_id IS NULL) DESC, m.updated_at_epoch_millis DESC
         LIMIT :limit
         """,

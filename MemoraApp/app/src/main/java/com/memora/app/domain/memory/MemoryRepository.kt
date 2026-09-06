@@ -35,9 +35,10 @@ interface MemoryRepository {
     suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary>
 
     /**
-     * Meaning-index work still owed for [model]: candidates that have no summary
-     * embedding yet, plus [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions
-     * that still owe evidence embeddings.
+     * Meaning-index work still owed for [model]: no summary embedding yet,
+     * [MemoryIntegrityState.STALE_REINDEX_REQUIRED], or READY revisions that
+     * still have embeddable PDF / OCR / note evidence without an evidence
+     * embedding for this model.
      *
      * Shares its selection rule with [listMeaningIndexSummaries], so a non-zero
      * count always means a non-empty batch is available.
@@ -46,10 +47,9 @@ interface MemoryRepository {
 
     /**
      * Next meaning-index batch for [model]: current-fingerprint READY revisions
-     * without a summary embedding, plus
-     * [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions still owing
-     * evidence embeddings. Already-indexed revisions are excluded so repeated
-     * drains advance instead of re-selecting the same rows.
+     * without a summary embedding, [MemoryIntegrityState.STALE_REINDEX_REQUIRED]
+     * rows, and READY revisions that still owe embeddable evidence embeddings.
+     * Already-complete revisions are excluded so repeated drains advance.
      */
     suspend fun listMeaningIndexSummaries(
         model: ModelVersionIdentity,

@@ -98,7 +98,6 @@ ESCAPE-HATCH AFTER CHANGE: no — UI still cannot produce a search hit without
   unchanged.
 - **Known limitation:** I2/I3 workers and I4 time budget remain open. ~40 taps
   at 25/batch is still the hand-crank when summaries are pending.
-  Quantity-as-count (“exactly N cards”) stays parked. Evidence vectors can
-  lag summaries without becoming `meaningIndexPending` (only missing
-  summaries and STALE_REINDEX_REQUIRED rows are selectable).
+  Quantity-as-count (“exactly N cards”) stays parked. Leftover evidence
+  selection is **I1b** (`CHANGE_CONTROL_I1B_LEFTOVER_EVIDENCE_QUEUE`).
 - **Git commit:** recorded after JVM green.

@@ -11,9 +11,10 @@ import javax.inject.Inject
 /**
  * One bounded meaning-index drain over READY / STALE-reindex memories.
  *
- * Selects the next batch, indexes summaries then evidence (PDF pages, OCR,
- * notes), applies the MIG-05 evidence cutover, and reports whether more work
- * remains. UI and a future I3 worker must both call this — not a second
+ * Selects the next batch (missing summaries, STALE MIG-05 gaps, or READY
+ * leftover embeddable evidence), indexes summaries then evidence (PDF pages,
+ * OCR, notes), applies the MIG-05 evidence cutover, and reports whether more
+ * work remains. UI and a future I3 worker must both call this — not a second
  * indexing path. Does not schedule WorkManager (I3). Does not change Find.
  */
 class RunPendingMeaningIndex @Inject constructor(

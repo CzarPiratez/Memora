@@ -37,15 +37,22 @@ the post-batch pending count, not `pending − batchSize` guessed up front.
 **I1 device tap-through (SM-A156E, 2026-09-06):** install + Welcome → About →
 Build. No crash. This phone’s summary queue is already empty (1001/1001).
 The first tap found a copy lie (empty-library result + “tap Build” corpus
-suffix). Honesty copy was corrected and re-tapped. Leftover evidence (467
-vectors) is still not a selectable batch.
+suffix). Honesty copy was corrected and re-tapped.
+
+**I1b** landed: leftover embeddable PDF / OCR / note evidence is in the same
+pending/select queue (D-8 agreement). Cutover STALE is not widened.
+Instrumented selection tests PASS. On the A15, pending stayed 0 — every
+embeddable evidence row already has a vector; 467 vs 1001 is memories
+without OCR / note / PDF-page excerpts, not a hidden queue. I3 will not
+miss leftover embeddings.
 
 Still **open**: I2/I3 workers, I4 time budget, **D-13** (J7 / P-TYPE), and a
 meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
 
-**Next action:** I2 — `AssetMemoryAssembly` worker trio + in-app progress and
-Stop. Then I3 (same trio for meaning index; must call `RunPendingMeaningIndex`).
+**Next action:** I2 — assembly worker trio + Stop, or I3 — meaning-index
+worker (now safe to call `RunPendingMeaningIndex`). I3 will idle on this
+phone until new embeddable evidence appears.
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,

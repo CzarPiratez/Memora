@@ -190,6 +190,12 @@ stays selectable, fresh-before-evidence-gap ordering, model change re-owes the
 corpus, count/select agreement, blank summaries excluded). No schema change;
 the migration test still passes.
 
+**Does not fix leftover evidence after summaries are done.** A READY memory
+with a summary vector and unindexed OCR / note / remaining PDF pages stayed
+invisible: cutover STALE is PDF-and-zero-vectors only, and restore fires on
+the first evidence vector. **I1b** admits those rows in the same pending/select
+WHERE without mass-STALE. I3 must not start before I1b.
+
 **Does not fix the tap count.** 995 memories at 25 per tap is still ~40 taps.
 That is the missing drain driver, tracked as E1/E2 below, and it must not be
 automated before **D-9**.
@@ -679,6 +685,7 @@ listens to it.
 | # | Task | Kind | Status |
 |---|---|---|---|
 | I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | **done** |
+| I1b | Meaning-index pending/select includes leftover embeddable PDF / OCR / note evidence (not only missing summaries / STALE) | Code | **done** |
 | I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | open |
 | I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | open |
 | I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open |
@@ -690,6 +697,8 @@ listens to it.
 
 > **Hard ordering:** I2 and I3 must not land before **D-9 (A8)**. An
 > auto-continuing worker over the current abort-on-bad-asset drain is a hot loop.
+> I3 must also not land before **I1b** — the meaning-index worker would otherwise
+> see `NothingPending` while leftover evidence remains.
 
 ### Batch B — Register the unmodelled
 
