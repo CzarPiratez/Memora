@@ -22,7 +22,14 @@ internal class EmptyMemoryRepositoryDelegate : MemoryRepository {
 
     override suspend fun listCurrentReadySummaries(limit: Int) = error("not used")
 
-    override suspend fun listMeaningIndexSummaries(limit: Int) = error("not used")
+    override suspend fun countMeaningIndexPending(
+        model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+    ): Int = error("not used")
+
+    override suspend fun listMeaningIndexSummaries(
+        model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+        limit: Int,
+    ) = error("not used")
 
     override suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId> = error("not used")
 

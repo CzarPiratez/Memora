@@ -451,7 +451,14 @@ private class FakeMemoryRepository : MemoryRepository {
 
     override suspend fun listCurrentReadySummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
 
-    override suspend fun listMeaningIndexSummaries(limit: Int) = emptyList<MemoryEmbeddingSummary>()
+    override suspend fun countMeaningIndexPending(
+        model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+    ): Int = history.size
+
+    override suspend fun listMeaningIndexSummaries(
+        model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+        limit: Int,
+    ) = emptyList<MemoryEmbeddingSummary>()
 
     override suspend fun listCurrentReadyRevisionIds() =
         history.mapTo(linkedSetOf()) { it.revisionId }

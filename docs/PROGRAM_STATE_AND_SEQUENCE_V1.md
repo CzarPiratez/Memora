@@ -154,6 +154,53 @@ against `precisionText` — **all** stored excerpts for the asset
 and the best-cosine page is page 2, Why quotes page 2 and the user cannot see why
 the file was returned.
 
+### D-8 — Meaning index selected a page, not a queue (**P0, corpus reachability**)
+
+**FIXED 2026-09-06.** `MemoryDao.listMeaningIndexSummaries` ordered candidates
+by `updated_at_epoch_millis DESC LIMIT :limit` with no reference to
+`memory_embeddings`, so every Build tap re-offered the same newest 25 rows.
+`IndexMemoryEmbeddings` then correctly skipped them all as unchanged, the
+indexed count never moved, and the rest of the corpus was unreachable no matter
+how many times the user tapped. Found on device with 25 indexed and 970
+pending. Because the same batch drives PDF page, OCR, and note evidence
+indexing, OCR evidence for the untouched assets could never be indexed either.
+
+Fixed by selecting against the index instead of the clock: a `LEFT JOIN` on
+`memory_embeddings` for the active model identity, admitting a revision when it
+has no summary embedding **or** is `STALE_REINDEX_REQUIRED`. That second arm is
+load-bearing — `ApplyMig05EvidenceSearchCutover` sets STALE precisely when a
+summary embedding exists but evidence embeddings are still owed, so a plain
+"not embedded" anti-join would have permanently deadlocked the MIG-05 evidence
+drain. Termination holds because the cutover restores those rows to READY once
+their evidence lands.
+
+`countMeaningIndexPending(model)` shares the same WHERE clause, replacing the
+old `candidates - summaryIndexed` subtraction in `LoadCorpusCompleteness`, so a
+non-zero pending count now always means a non-empty batch is actually
+selectable.
+
+Verified by `RoomMemoryRepositoryMeaningIndexSelectionIntegrationTest` (7 tests
+against real SQLite: disjoint consecutive batches, drain convergence, STALE
+stays selectable, fresh-before-evidence-gap ordering, model change re-owes the
+corpus, count/select agreement, blank summaries excluded). No schema change;
+the migration test still passes.
+
+**Does not fix the tap count.** 995 memories at 25 per tap is still ~40 taps.
+That is the missing drain driver, tracked as E1/E2 below, and it must not be
+automated before **D-9**.
+
+### D-9 — One unusable asset aborts the whole assembly drain (**P0 blocker for automation**)
+
+`RunPendingAssetMemoryAssembly.kt:26-33` returns `FailedSafely` for the entire
+drain on `NoUsableEvidence`, `AssetMissing`, `RevisionConflict`, or
+`FailedSafely`. Nothing is persisted for that asset, so `findNextPendingAsset`
+returns the same asset on the next run. Today the user is the circuit breaker —
+they notice and stop tapping. Under an auto-continuing worker this becomes a hot
+loop that burns battery forever on one bad asset.
+
+Terminal per-asset outcomes must be recorded so the cursor advances; only
+genuine infrastructure faults should abort a drain. **Prerequisite for E1/E2.**
+
 ---
 
 ## 3. The earlier "holes" — are they in the Ask Model?
@@ -465,10 +512,36 @@ pick it up by ID. Batch letters map to the stages above.
 | A4 | Nine doc-drift corrections (§4) | Docs | **done** |
 | A5 | `CONTINUE.md` "Current truth" table; archive diary to `docs/archive/` | Docs | open |
 | A6 | **Founder:** accept Ask Model v1 + v1.1 | Decision | open |
+| A7 | Meaning index must select unindexed work, not the newest page (**D-8**) | Code | **done** |
+| A8 | Terminal per-asset outcomes must advance the assembly cursor (**D-9**) | Code | open |
 
 > **A2 note:** `CanonicalRecallMeaningTest.searchByMeaning_wires_anchor_ranking_for_explicit_time_query`
 > passes today *because of* D-2 — its fixtures do not contain "notes". Fixing D-2
 > will turn it red. Fix the fixture with it; do not weaken the gate.
+
+### Batch I — Indexing drains (runs after A7/A8, before Batch C)
+
+Assembly and meaning indexing are the only two pipelines with no WorkManager
+driver, so they are the only two the user has to hand-crank. Discovery, EXIF,
+photo OCR, screenshot OCR, PDF discovery, PDF extract, and OneNote already run
+the `Worker` + `Scheduler` + `DecisionMapper` trio that re-enqueues itself while
+work remains. `RunPendingAssetMemoryAssembly` already returns `hasMore`; nothing
+listens to it.
+
+| # | Task | Kind | Status |
+|---|---|---|---|
+| I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | open |
+| I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | open |
+| I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | open |
+| I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open |
+
+> **I4 rationale:** a count cap cannot bound work whose per-item cost varies by
+> two orders of magnitude. One observed tap indexed 25 memories but 49 PDF
+> pages; a 300-page PDF and a one-line screenshot are both "1". Time budgets are
+> already an idiom here — see `PdfExtractionWriteBudgets.MAX_PERSIST_ELAPSED_MS`.
+
+> **Hard ordering:** I2 and I3 must not land before **D-9 (A8)**. An
+> auto-continuing worker over the current abort-on-bad-asset drain is a hot loop.
 
 ### Batch B — Register the unmodelled
 

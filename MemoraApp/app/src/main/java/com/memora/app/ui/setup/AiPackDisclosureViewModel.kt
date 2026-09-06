@@ -149,9 +149,20 @@ class AiPackDisclosureViewModel @Inject constructor(
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             val limit = MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP
-            val (readyTotal, summaries) = withContext(Dispatchers.IO) {
-                memoryRepository.countMeaningIndexCandidates() to
-                    memoryRepository.listMeaningIndexSummaries(limit = limit)
+            // Candidate selection is per model identity: a different model owes
+            // vectors for the whole corpus again.
+            val model = when (val availability = embeddingEngine.availability()) {
+                is CapabilityAvailability.Available -> availability.model
+                is CapabilityAvailability.Unavailable -> {
+                    mutableUiState.value = withContext(Dispatchers.IO) {
+                        buildStateWithCorpus(feedbackMessage = availability.reason)
+                    }
+                    return@launch
+                }
+            }
+            val (pendingTotal, summaries) = withContext(Dispatchers.IO) {
+                memoryRepository.countMeaningIndexPending(model) to
+                    memoryRepository.listMeaningIndexSummaries(model = model, limit = limit)
             }
             if (summaries.isEmpty()) {
                 mutableUiState.value = withContext(Dispatchers.IO) {
@@ -159,7 +170,7 @@ class AiPackDisclosureViewModel @Inject constructor(
                 }
                 return@launch
             }
-            val remainingAfterBatch = (readyTotal - summaries.size).coerceAtLeast(0)
+            val remainingAfterBatch = (pendingTotal - summaries.size).coerceAtLeast(0)
             val candidates = summaries.map { summary ->
                 MemoryEmbeddingCandidate(
                     revisionId = summary.revisionId,

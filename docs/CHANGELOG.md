@@ -2,6 +2,53 @@
 
 ## Unreleased
 
+### A7 / D-8 — meaning index selects unindexed work, not the newest page (2026-09-06)
+
+- **Date:** 2026-09-06
+- **Found on device.** With 25 memories indexed and 970 pending, tapping
+  **Build meaning index** reported `indexed 0, skipped 25` every time and the
+  count never moved. Both components were behaving as written:
+  `MemoryDao.listMeaningIndexSummaries` ordered by
+  `updated_at_epoch_millis DESC LIMIT :limit` with no reference to
+  `memory_embeddings`, so it re-offered the same newest page on every tap, and
+  `IndexMemoryEmbeddings` correctly skipped each one as unchanged. The other 970
+  memories were unreachable no matter how many times the user tapped. Because
+  the same batch also drives PDF page, OCR, and note evidence indexing, OCR
+  evidence for every untouched screenshot was unreachable too — which would have
+  silently invalidated the P0 device checklist.
+- **Fixed** by selecting against the index rather than the clock: a `LEFT JOIN`
+  on `memory_embeddings` scoped to the active `ModelVersionIdentity`, admitting a
+  revision when it has **no summary embedding** or is
+  `STALE_REINDEX_REQUIRED`. Never-indexed rows sort first so a drain covers the
+  corpus before revisiting evidence gaps.
+- **The STALE arm is load-bearing, not defensive.**
+  `ApplyMig05EvidenceSearchCutover` sets `STALE_REINDEX_REQUIRED` precisely when
+  a summary embedding exists but evidence embeddings are still owed. A plain
+  "not embedded" anti-join — the obvious fix — would have permanently excluded
+  exactly those rows and deadlocked the MIG-05 evidence drain. Termination still
+  holds because the cutover restores them to READY once evidence lands.
+- **Count and selection can no longer disagree.**
+  `countMeaningIndexPending(model)` shares the WHERE clause and replaces the
+  `candidates - summaryIndexed` subtraction in `LoadCorpusCompleteness`. That
+  subtraction could over- or under-state pending whenever embeddings existed for
+  non-current revisions. A non-zero pending count now means a non-empty batch is
+  genuinely selectable.
+- **Verification:** `RoomMemoryRepositoryMeaningIndexSelectionIntegrationTest`
+  — 7 tests against real SQLite covering disjoint consecutive batches, drain
+  convergence, STALE staying selectable, fresh-before-evidence-gap ordering, a
+  model-identity change re-owing the corpus, count/select agreement, and blank
+  summaries excluded. Full `data.local` instrumented suite **38/38** on
+  Medium_Phone(AVD) API 36, including `MemoraDatabaseMigrationTest` —
+  queries only, no schema change. `:app:testDebugUnitTest` green.
+- **Scope, stated plainly.** This makes the corpus reachable; it does **not**
+  reduce the tap count. 995 memories at 25 per tap is still ~40 taps. That is a
+  missing WorkManager drain driver, registered as Batch I, and it is blocked on
+  **D-9** — `RunPendingAssetMemoryAssembly` currently aborts an entire drain on
+  one unusable asset without advancing the cursor, which under an
+  auto-continuing worker becomes a hot loop.
+- **Architecture:** meaning-index construction, not a Find path. Canonical
+  Recall remains the sole Find boundary; Live/Dual **N = 0** unchanged.
+
 ### A4 — doc truth drift cleared (2026-09-05)
 
 - **Date:** 2026-09-05

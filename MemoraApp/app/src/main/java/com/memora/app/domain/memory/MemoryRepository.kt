@@ -5,6 +5,7 @@ import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.intelligence.ModelVersionIdentity
 
 /**
  * Revision-safe persistence for Asset Memories.
@@ -34,10 +35,26 @@ interface MemoryRepository {
     suspend fun listCurrentReadySummaries(limit: Int): List<MemoryEmbeddingSummary>
 
     /**
-     * Summary rows for meaning-index taps: current-fingerprint READY and
-     * [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions.
+     * Meaning-index work still owed for [model]: candidates that have no summary
+     * embedding yet, plus [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions
+     * that still owe evidence embeddings.
+     *
+     * Shares its selection rule with [listMeaningIndexSummaries], so a non-zero
+     * count always means a non-empty batch is available.
      */
-    suspend fun listMeaningIndexSummaries(limit: Int): List<MemoryEmbeddingSummary>
+    suspend fun countMeaningIndexPending(model: ModelVersionIdentity): Int
+
+    /**
+     * Next meaning-index batch for [model]: current-fingerprint READY revisions
+     * without a summary embedding, plus
+     * [MemoryIntegrityState.STALE_REINDEX_REQUIRED] revisions still owing
+     * evidence embeddings. Already-indexed revisions are excluded so repeated
+     * drains advance instead of re-selecting the same rows.
+     */
+    suspend fun listMeaningIndexSummaries(
+        model: ModelVersionIdentity,
+        limit: Int,
+    ): List<MemoryEmbeddingSummary>
 
     /** Current-fingerprint READY revision ids (cutover gap selection). */
     suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId>

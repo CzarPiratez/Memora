@@ -6,6 +6,7 @@ import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.memory.Memory
 import com.memora.app.domain.memory.MemoryAssemblySchemaVersion
 import com.memora.app.domain.memory.MemoryEmbeddingSummary
@@ -87,10 +88,22 @@ class RoomMemoryRepository(
         }
     }
 
-    override suspend fun listMeaningIndexSummaries(limit: Int): List<MemoryEmbeddingSummary> {
+    override suspend fun countMeaningIndexPending(model: ModelVersionIdentity): Int =
+        database().memoryDao().countMeaningIndexPending(
+            assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            modelId = model.modelId,
+            modelVersion = model.version,
+        )
+
+    override suspend fun listMeaningIndexSummaries(
+        model: ModelVersionIdentity,
+        limit: Int,
+    ): List<MemoryEmbeddingSummary> {
         require(limit > 0)
         return database().memoryDao().listMeaningIndexSummaries(
             assemblySchemaVersion = AssembleAssetMemoryFromExtractionFacts.ASSEMBLY_SCHEMA.value,
+            modelId = model.modelId,
+            modelVersion = model.version,
             limit = limit,
         ).map { row ->
             MemoryEmbeddingSummary(

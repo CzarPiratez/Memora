@@ -26,7 +26,7 @@ class LoadCorpusCompletenessTest {
     private val model = ModelVersionIdentity("test-embedder", "1")
 
     @Test
-    fun pending_meaning_index_is_candidates_minus_summary_indexed() = runBlocking {
+    fun pending_meaning_index_reports_selectable_work_not_a_subtraction() = runBlocking {
         val summaryStore = InMemoryMemoryEmbeddingStore()
         summaryStore.upsert(
             MemoryEmbeddingRecord(
@@ -39,7 +39,9 @@ class LoadCorpusCompletenessTest {
             ),
         )
         val snapshot = loadCorpusCompleteness(
-            memoryRepository = FakeMemoryRepository(ready = 5, candidates = 8),
+            // 8 candidates against 1 stored vector: subtracting the two totals
+            // would claim 7 pending. The index knows only 3 are selectable.
+            memoryRepository = FakeMemoryRepository(ready = 5, candidates = 8, pending = 3),
             factSource = FakeFactSource(pendingAssembly = 2),
             embeddingEngine = FixedAvailableEngine(model),
             summaryStore = summaryStore,
@@ -50,8 +52,19 @@ class LoadCorpusCompletenessTest {
         assertEquals(2, snapshot.counts.memoriesPendingAssembly)
         assertEquals(1, snapshot.counts.meaningSummaryIndexed)
         assertEquals(0, snapshot.counts.meaningEvidenceIndexed)
-        assertEquals(7, snapshot.counts.meaningIndexPending)
+        assertEquals(3, snapshot.counts.meaningIndexPending)
         assertNull(snapshot.blocked)
+    }
+
+    @Test
+    fun pending_falls_back_to_candidate_count_when_no_model_is_installed() = runBlocking {
+        val snapshot = loadCorpusCompleteness(
+            memoryRepository = FakeMemoryRepository(ready = 5, candidates = 8, pending = 3),
+            factSource = FakeFactSource(pendingAssembly = 2),
+        )()
+
+        assertEquals(0, snapshot.counts.meaningSummaryIndexed)
+        assertEquals(8, snapshot.counts.meaningIndexPending)
     }
 
     @Test
@@ -156,10 +169,13 @@ class LoadCorpusCompletenessTest {
     private class FakeMemoryRepository(
         private val ready: Int,
         private val candidates: Int = ready,
+        private val pending: Int = candidates,
     ) : MemoryRepository {
         override suspend fun countCurrentReady(): Int = ready
 
         override suspend fun countMeaningIndexCandidates(): Int = candidates
+
+        override suspend fun countMeaningIndexPending(model: ModelVersionIdentity): Int = pending
 
         override suspend fun find(
             assetIdentity: com.memora.app.domain.asset.AssetIdentity,
@@ -173,8 +189,10 @@ class LoadCorpusCompletenessTest {
         override suspend fun listCurrentReadySummaries(limit: Int) =
             emptyList<com.memora.app.domain.memory.MemoryEmbeddingSummary>()
 
-        override suspend fun listMeaningIndexSummaries(limit: Int) =
-            emptyList<com.memora.app.domain.memory.MemoryEmbeddingSummary>()
+        override suspend fun listMeaningIndexSummaries(
+            model: ModelVersionIdentity,
+            limit: Int,
+        ) = emptyList<com.memora.app.domain.memory.MemoryEmbeddingSummary>()
 
         override suspend fun listCurrentReadyRevisionIds() =
             emptySet<com.memora.app.domain.memory.MemoryRevisionId>()

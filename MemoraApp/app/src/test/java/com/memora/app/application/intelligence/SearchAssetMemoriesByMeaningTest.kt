@@ -472,8 +472,14 @@ class SearchAssetMemoriesByMeaningTest {
         override suspend fun listCurrentReadySummaries(limit: Int) =
             emptyList<MemoryEmbeddingSummary>()
 
-        override suspend fun listMeaningIndexSummaries(limit: Int) =
-            emptyList<MemoryEmbeddingSummary>()
+        override suspend fun countMeaningIndexPending(
+            model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+        ): Int = lookups.size
+
+        override suspend fun listMeaningIndexSummaries(
+            model: com.memora.app.domain.intelligence.ModelVersionIdentity,
+            limit: Int,
+        ) = emptyList<MemoryEmbeddingSummary>()
 
         override suspend fun listCurrentReadyRevisionIds(): Set<MemoryRevisionId> =
             readyRevisionIds

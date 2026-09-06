@@ -97,6 +97,46 @@ interface MemoryDao {
         limit: Int,
     ): List<MemorySummaryRow>
 
+    /**
+     * Counts meaning-index work still owed for one model identity.
+     *
+     * Shares its WHERE clause with [listMeaningIndexSummaries] so the pending
+     * count and the selected batch can never disagree.
+     */
+    @Query(
+        """
+        SELECT COUNT(*) FROM memories AS m
+        INNER JOIN assets AS a
+          ON a.source_id = m.source_id
+         AND a.source_asset_key = m.source_asset_key
+         AND a.fingerprint = m.fingerprint
+        LEFT JOIN memory_embeddings AS e
+          ON e.revision_id = m.revision_id
+         AND e.model_id = :modelId
+         AND e.model_version = :modelVersion
+        WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
+          AND m.assembly_schema_version = :assemblySchemaVersion
+          AND m.summary_text != ''
+          AND (e.revision_id IS NULL OR m.integrity_state = 'STALE_REINDEX_REQUIRED')
+        """,
+    )
+    suspend fun countMeaningIndexPending(
+        assemblySchemaVersion: String,
+        modelId: String,
+        modelVersion: String,
+    ): Int
+
+    /**
+     * Next meaning-index batch for one model identity.
+     *
+     * Selects a revision when it has no summary embedding for this model, or
+     * when it is STALE_REINDEX_REQUIRED — that state means the summary is
+     * already embedded but evidence embeddings are still owed (MIG-05), so it
+     * must stay selectable until the cutover restores it to READY.
+     *
+     * Never-indexed revisions sort first so a drain makes visible progress
+     * across the whole corpus before it revisits evidence gaps.
+     */
     @Query(
         """
         SELECT
@@ -108,15 +148,22 @@ interface MemoryDao {
           ON a.source_id = m.source_id
          AND a.source_asset_key = m.source_asset_key
          AND a.fingerprint = m.fingerprint
+        LEFT JOIN memory_embeddings AS e
+          ON e.revision_id = m.revision_id
+         AND e.model_id = :modelId
+         AND e.model_version = :modelVersion
         WHERE m.integrity_state IN ('READY', 'STALE_REINDEX_REQUIRED')
           AND m.assembly_schema_version = :assemblySchemaVersion
           AND m.summary_text != ''
-        ORDER BY m.updated_at_epoch_millis DESC
+          AND (e.revision_id IS NULL OR m.integrity_state = 'STALE_REINDEX_REQUIRED')
+        ORDER BY (e.revision_id IS NULL) DESC, m.updated_at_epoch_millis DESC
         LIMIT :limit
         """,
     )
     suspend fun listMeaningIndexSummaries(
         assemblySchemaVersion: String,
+        modelId: String,
+        modelVersion: String,
         limit: Int,
     ): List<MemorySummaryRow>
 

@@ -46,8 +46,11 @@ class LoadCorpusCompleteness @Inject constructor(
             0 to 0
         }
 
+        // Asks the index for the work it would actually select, rather than
+        // subtracting two independently-counted totals, so "pending" can never
+        // claim work that a Build drain would not pick up.
         val meaningIndexPending = if (model != null) {
-            (meaningIndexCandidates - summaryIndexed).coerceAtLeast(0)
+            memoryRepository.countMeaningIndexPending(model)
         } else {
             meaningIndexCandidates.coerceAtLeast(0)
         }
