@@ -492,12 +492,12 @@ class AnchorAwareMeaningRecallRankingTest {
         )
     }
 
-    /** No named word anywhere is still an honest empty, never a partial claim. */
+    /** A weak cosine neighbour with no named word is still an honest empty. */
     @Test
-    fun apply_returns_empty_when_no_hit_carries_any_named_word() = runBlocking {
+    fun apply_returns_empty_when_no_hit_clears_the_meaning_only_floor() = runBlocking {
         val outcome = MeaningSearchOutcome.Matches(
             query = "swimming schedule",
-            hits = listOf(hit(MemoryRevisionId("rev-bus"), 0.9f, summaryText = "Bus rules")),
+            hits = listOf(hit(MemoryRevisionId("rev-bus"), 0.18f, summaryText = "Bus rules")),
             limitReached = false,
             model = model,
         )
@@ -510,6 +510,91 @@ class AnchorAwareMeaningRecallRankingTest {
 
         assertTrue(ranked.hits.isEmpty())
         assertEquals(RecallPrecision.Exact, ranked.precision)
+    }
+
+    /**
+     * Zero-overlap paraphrase: `kids water lessons` must still reach a PDF that
+     * says `swimming timetable`, and must not pretend those words were found.
+     */
+    @Test
+    fun apply_keeps_a_high_cosine_neighbour_as_meaning_only() = runBlocking {
+        val timetable = MemoryRevisionId("rev-timetable")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "kids water lessons",
+            hits = listOf(
+                hit(
+                    timetable,
+                    0.58f,
+                    label = "Grade-2-Swimming-TT-2026.pdf",
+                    summaryText = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "kids water lessons",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(timetable), ranked.hits.map { it.revisionId })
+        assertEquals(RecallPrecision.MeaningOnly, ranked.precision)
+    }
+
+    /** A one-word miss is "this word is not in any file", not a paraphrase. */
+    @Test
+    fun apply_one_named_word_with_zero_overlap_stays_empty() = runBlocking {
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "silky",
+            hits = listOf(hit(MemoryRevisionId("rev-fashion"), 0.91f, summaryText = "spring catalogue")),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "silky",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertTrue(ranked.hits.isEmpty())
+        assertEquals(RecallPrecision.Exact, ranked.precision)
+    }
+
+    /**
+     * `pool timetable` against a file that says `swimming timetable` is Partial,
+     * not MeaningOnly — one named word hit is still a lexical tier.
+     */
+    @Test
+    fun apply_pool_timetable_against_swimming_timetable_is_partial() = runBlocking {
+        val timetable = MemoryRevisionId("rev-tt")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "pool timetable",
+            hits = listOf(
+                hit(
+                    timetable,
+                    0.4f,
+                    label = "Grade-2-Swimming-TT-2026.pdf",
+                    summaryText = "Grade 2 Swimming Timetable 2026 PERIOD TIME",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "pool timetable",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(timetable), ranked.hits.map { it.revisionId })
+        assertEquals(
+            RecallPrecision.Partial(matched = listOf("timetable"), missing = listOf("pool")),
+            ranked.precision,
+        )
     }
 
     /**

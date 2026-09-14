@@ -85,6 +85,16 @@ class MeaningSearchCopyTest {
     }
 
     @Test
+    fun meaning_only_copy_names_the_miss_and_does_not_claim_a_synonym() {
+        val body = MeaningSearchCopy.meaningOnlyBody("kids water lessons")
+        assertTrue(body.contains("\"kids\", \"water\" and \"lessons\""))
+        assertTrue(body.contains("closest by meaning"))
+        assertTrue(body.contains("not because they contain those words"))
+        assertFalse(body.contains("AVAILABLE"))
+        assertFalse(body.lowercase().contains("means"))
+    }
+
+    @Test
     fun why_names_the_words_in_this_file_and_does_not_repeat_the_card() {
         val why = MeaningSearchCopy.whyThisResult(
             hit = sampleHit(com.memora.app.domain.asset.AssetType.NOTE),

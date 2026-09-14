@@ -367,14 +367,14 @@ sealed interface MeaningSearchOutcome {
          * Which of the named words this list's evidence actually contains.
          * Candidate generation never demotes a list, so it always reports
          * [RecallPrecision.Exact]; the tier is decided by the precision stage
-         * inside Canonical Recall (defect D-12).
+         * inside Canonical Recall (defect D-12, meaning-only tier).
          */
         val precision: RecallPrecision = RecallPrecision.Exact,
     ) : MeaningSearchOutcome {
         init {
             require(query.isNotBlank())
             require(hits.isNotEmpty() || precision == RecallPrecision.Exact) {
-                "An empty list cannot be a partial match."
+                "An empty list cannot be a partial or meaning-only match."
             }
         }
     }

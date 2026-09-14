@@ -36,4 +36,16 @@ sealed interface RecallPrecision {
             require(missing.isNotEmpty()) { "Partial precision requires a missing word." }
         }
     }
+
+    /**
+     * No saved Memory carried any of the named words. The list is the strongest
+     * on-device meaning neighbours that still cleared a floor — not a claim that
+     * those words appear, and not a synonym net (`pool` is never asserted to
+     * mean `swimming`).
+     *
+     * A one-word miss stays empty: that is "this word is not in any file", not
+     * a paraphrase. Meaning-only requires at least two named words so a missed
+     * `silky` cannot surface fashion-adjacent junk.
+     */
+    data object MeaningOnly : RecallPrecision
 }

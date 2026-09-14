@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Meaning-only tier for zero-overlap paraphrase (2026-09-15)
+
+- **Date:** 2026-09-15
+- **Why it existed.** D-12/D-15 let a partial word hit through. When **no**
+  named word appeared in any stored excerpt, ranking still emptied the list,
+  so `kids water lessons` could not reach a swimming-timetable PDF. Embeddings
+  were ordering results they were not allowed to find.
+- **Fixed.** `RecallPrecision.MeaningOnly` keeps a short high-cosine band
+  (floor 0.32, gap 0.12, cap 3) when the cue named at least two content words
+  and none of them appear. The banner leads with the miss and says these files
+  are closest by meaning, not because they contain those words. A one-word miss
+  stays empty. Exact and Partial still win first. Not a synonym net.
+- **Ask Model.** **P-MEANING-ONLY** added. Live/Dual **N = 0**. Not AVAILABLE.
+- **Verification:** `:app:testDebugUnitTest` **842 tests, 0 failures**. Device:
+  `kids water lessons` and `pool timetable` on the A15.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_ONLY_TIER.md`.
+
 ### The opened original is the screen (2026-09-15)
 
 - **Date:** 2026-09-15

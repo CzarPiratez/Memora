@@ -224,6 +224,12 @@ Find never answers. Ask never silently replaces Find. Same cue parse should feed
 
 Lexical/precision is **any stored excerpt for that Asset**, not only the cosine-winning snippet. Filename may assist; it is not enough alone (Product Contract).
 
+### P-MEANING-ONLY (zero-overlap paraphrase)
+
+When **two or more** named content words appear in the cue and **none** of them appear in any stored excerpt, Canonical Recall may keep a **short, high-cosine band** of neighbours (`RecallPrecision.MeaningOnly`). The banner must say the words were not found and that the files are closest by meaning — never that `pool` means `swimming`, never a synonym net (`silky` ↛ `smooth`). A **one-word** miss stays empty: that is “this word is not in any file”, which keyword Find already answers.
+
+Anti-cases: a weak cosine neighbour must stay empty; an Exact or Partial lexical tier must win over MeaningOnly; do not market AVAILABLE from this tier.
+
 ### P-INCOMPLETE INDEX
 
 “No match” ≠ “not indexed yet” when we can tell (I15).
@@ -334,5 +340,6 @@ Not AVAILABLE. Not “understands photos of family.” Not multilingual AVAILABL
 
 | Date | Change |
 |---|---|
+| 2026-09-15 | **P-MEANING-ONLY:** zero-overlap paraphrase is a short high-cosine band with an honest miss banner; one-word miss stays empty; not a synonym net |
 | 2026-09-04 | **v1.1 amendment** (accept with v1): D16 device/corpus scope; §5b result and system classes R1–R8; one-box decision registered at §2 and wave W1.5; anti-case-as-test in §11. Source: `PROGRAM_STATE_AND_SEQUENCE_V1.md` §3 — eight scenario-bar rows mapped to no class, which the model’s own process rule calls a model defect |
 | 2026-09-04 | v1: dimensions, shape classes, jobs, policies, §7 fixture, Ask impact, waves W0–W5 |

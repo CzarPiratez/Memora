@@ -132,6 +132,11 @@ object AnchorAwareMeaningRecallRanking {
      * says `swimming timetable`, and must say plainly that nothing contained
      * `schedule`. UNFYND does not claim the two words mean the same thing.
      *
+     * When no named word appears anywhere, a two-or-more-word cue may still keep
+     * a short high-cosine band as [RecallPrecision.MeaningOnly] — the remaining
+     * hole after D-12/D-15. A one-word miss stays empty. This is not a synonym
+     * net: the banner must say the words were not found.
+     *
      * A time cue must not disable precision: `recent files with silky` still has
      * to contain `silky`, while `notes in 2024` requires `notes` and leaves
      * `2024` to the TIME anchor stage (bar T10). [MeaningRecallCue.contentTokens]
@@ -157,7 +162,12 @@ object AnchorAwareMeaningRecallRanking {
         // so one banner can describe the whole list truthfully.
         val deepest = scored.maxOf { it.second.size }
         if (deepest == 0) {
-            return outcome.copy(hits = emptyList(), precision = RecallPrecision.Exact)
+            val admitted = MeaningOnlyRecallPolicy.select(outcome.hits, required.size)
+            return if (admitted.isEmpty()) {
+                outcome.copy(hits = emptyList(), precision = RecallPrecision.Exact)
+            } else {
+                outcome.copy(hits = admitted, precision = RecallPrecision.MeaningOnly)
+            }
         }
         val matched = scored.first { it.second.size == deepest }.second
         return outcome.copy(

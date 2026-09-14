@@ -4,7 +4,14 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-14
+**Updated:** 2026-09-15
+
+**Meaning-only tier (2026-09-15).** When a two-or-more-word cue has **zero**
+named words in any stored excerpt, Canonical Recall may keep a short
+high-cosine band as `RecallPrecision.MeaningOnly`, with a banner that says
+those words were not found. Exact and Partial still win first. A one-word miss
+stays empty. Not a synonym net; not AVAILABLE. Change control:
+`docs/CHANGE_CONTROL_MEANING_ONLY_TIER.md`.
 
 **The opened original is the screen (2026-09-15).** The Open preview is now
 full-bleed on a near-black canvas. Back, Share and info are icons in
@@ -90,18 +97,16 @@ fell through to the web URL. See `CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`
 (done) → thumbnails (done) → zoom (done) → share (done) → open full file
 (done). Wipe and rebuild the index on device before filming so I3 actually
 runs. Check Why, I3, thumbnails, zoom, share, and Open full file together on
-the phone. Do not film paraphrase queries (`pool timetable`).
+the phone. `pool timetable` is Partial when the file says timetable; true
+zero-overlap (`kids water lessons`) is the meaning-only tier (landed
+2026-09-15, device gate open).
 Live/Dual **N = 0**.
 
-**Next action:** founder device pass on the A15. Welcome reads **UNFYND** /
-**Your privacy first, on-device AI** — confirmed on device 2026-09-14. Still to
-prove on a phone: (1) the new full-bleed preview — icons legible over a white
-PDF page, chrome fades and returns, **Open** pill reachable, info shows the
-filename with no hash; (2) pinch a large PDF page and a large photo repeatedly
-— no crash, no blank preview; (3) Open original note opens the **OneNote app**,
-not the browser; (4) Open opens the real reader and **Back returns to UNFYND**;
-(5) Share still works; (6) TalkBack zoom actions on the image. I4 measured
-per-item cost stays open.
+**Next action:** founder device pass of meaning-only on the A15. In Find by
+meaning, try `kids water lessons` (expect the swimming-timetable PDF under an
+honest miss banner) and `pool timetable` (expect Partial: has timetable, not
+pool). Then remaining Open / Share / OneNote checks from the viewer slice.
+I4 measured per-item cost stays open.
 
 ---
 
@@ -159,8 +164,8 @@ Build started `AssetMemoryAssemblyWorker` (SUCCESS ~40 ms, no reschedule).
 Card stayed on the 1001 readiness line. No crash. This library has no
 pending assembly, so Stop was not on screen.
 
-Still **open**: I4 measured time budget, **D-13** (J7 / P-TYPE), and a
-meaning-only tier for zero-overlap paraphrase. All in
+Still **open**: I4 measured time budget, **D-13** (J7 / P-TYPE). Meaning-only
+zero-overlap paraphrase landed 2026-09-15 (device gate). All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
 
 **I3 landed:** About Build enqueues `MeaningIndexWorker`. On an A15 whose

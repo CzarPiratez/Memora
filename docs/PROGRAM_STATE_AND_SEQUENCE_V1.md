@@ -309,9 +309,11 @@ Deeper coverage claims seats first; remaining seats stay cosine neighbours;
 the pool is still returned in cosine order. No second lexical derivation, no
 new Find path, no ranking in candidate generation. Live/Dual **N = 0**.
 
-Zero-overlap paraphrase (`kids water lessons` against a file that says
-neither word) is still an honest empty. That is the meaning-only tier, not
-this defect.
+**Meaning-only tier (2026-09-15):** zero-overlap paraphrase
+(`kids water lessons` against a file that says neither word) is no longer an
+honest empty when two-or-more named words are present and a neighbour clears
+a cosine floor. Exact and Partial still win first. One-word miss stays empty.
+Ask Model **P-MEANING-ONLY**. Live/Dual **N = 0**.
 
 ### D-13 — `notes` is only ever a content word (**P1, open — J7 / P-TYPE**)
 

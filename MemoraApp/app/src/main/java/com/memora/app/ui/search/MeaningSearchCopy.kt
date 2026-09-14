@@ -98,6 +98,20 @@ object MeaningSearchCopy {
             "Nothing saved says ${quoteWords(missing)}."
     }
 
+    /**
+     * Zero-overlap paraphrase (meaning-only tier). Must lead with the miss so
+     * a cosine neighbour is never mistaken for a word hit, and must not claim
+     * two words mean the same thing.
+     */
+    fun meaningOnlyBody(query: String): String {
+        require(query.isNotBlank())
+        val named = MeaningRecallCue.contentTokens(query)
+        require(named.isNotEmpty())
+        return "Nothing saved on this phone mentions ${quoteWords(named)}. " +
+            "These are the closest by meaning on this phone — not because they " +
+            "contain those words."
+    }
+
     /** `a` · `a and b` · `a, b and c` — always quoted, always the person's own words. */
     private fun quoteWords(words: List<String>): String {
         val quoted = words.map { "\"$it\"" }
