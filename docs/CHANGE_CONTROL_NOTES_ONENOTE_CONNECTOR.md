@@ -295,3 +295,38 @@ UI Extract OneNote page text
 - **Emulator smoke (user):** Open original note opened the page in browser
   (`onedrive.live.com`) — expected without OneNote app on emulator; real phones
   with OneNote prefer the app deep link (**accepted** 2026-08-02).
+
+### Defect N7-D1 — the app deep link never ran on a real phone (2026-09-14)
+
+The N7 record above claimed real phones prefer the OneNote app. They did not.
+The founder's phone has OneNote installed and every Open original note still
+landed in the browser.
+
+- **Root cause.** `AndroidExternalUrlLauncher` gated the `onenote:` deep link
+  behind `PackageManager.resolveActivity`. Android 11+ package-visibility
+  filtering returns null for another app's custom scheme unless the caller
+  declares it in a manifest `<queries>` element, and this app declares none.
+  The gate therefore failed on every modern device *whether or not OneNote was
+  installed*, the web URL was tried next, it succeeded, and the "last resort"
+  client attempt below it was unreachable. A second, smaller fault: the intent
+  added `CATEGORY_BROWSABLE` to the app scheme, which a deep-link activity has
+  no reason to declare.
+- **Fix.** `OneNoteOpenTargetPolicy` orders the targets — client link first,
+  then web — and the launcher *attempts* them in order. Package visibility
+  does not restrict `startActivity` for an implicit intent, so an installed
+  OneNote now opens and a device without it throws, is caught, and falls
+  through to the browser exactly as before. `BROWSABLE` is added only for
+  `http`/`https`.
+- **Unchanged.** Still `links`-only (never `contentUrl` / `Asset.location`),
+  still vaulted `ensureSession`, still offline search, same honest
+  Opening / SourceUnavailable / CouldNotOpen feedback.
+- **Automated:** `OneNoteOpenTargetPolicyTest` (order, blank/missing links,
+  duplicate pair, BROWSABLE rule). Full `:app:testDebugUnitTest`
+  **822 tests, 0 failures** (2026-09-14).
+- **Device gate (open):** founder taps Open original note on the phone with
+  OneNote installed and the OneNote app opens the page. A JVM test cannot
+  prove this; the emulator has no OneNote and will still show the browser,
+  which remains correct behavior.
+- **Not done here:** no manifest `<queries>` entry. Nothing needs to *query*
+  OneNote now. Declaring one becomes necessary only if UNFYND wants to say
+  "OneNote is not installed" before the tap.

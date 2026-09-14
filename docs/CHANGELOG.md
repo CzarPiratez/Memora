@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### OneNote opens the app, not the browser (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Open original note always landed in the browser on the
+  founder's phone even with OneNote installed. The launcher asked
+  `resolveActivity` whether anything could handle the `onenote:` link, and
+  Android 11+ package-visibility filtering answers null for another app's
+  scheme unless the caller declares it in `<queries>`. The app declares none,
+  so the deep link was skipped on every modern device.
+- **Fixed.** `OneNoteOpenTargetPolicy` puts the OneNote app link first and the
+  launcher attempts it rather than querying for it. Package visibility does
+  not restrict starting an implicit intent, so an installed OneNote opens; a
+  phone without it throws, is caught, and the web URL runs as before.
+  `CATEGORY_BROWSABLE` is now added only to `http`/`https`.
+- **Unchanged.** Graph `links` only, never `contentUrl` or `Asset.location`.
+  Search stays offline.
+- **Verification:** `OneNoteOpenTargetPolicyTest`. `:app:testDebugUnitTest`
+  **822 tests, 0 failures**. Device gate open — the emulator has no OneNote.
+
 ### Zoom hardening — no recycled bitmap, no OOM crash, honest failure (2026-09-14)
 
 - **Date:** 2026-09-14

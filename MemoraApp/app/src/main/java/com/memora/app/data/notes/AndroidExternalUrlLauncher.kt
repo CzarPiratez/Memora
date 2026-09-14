@@ -2,9 +2,9 @@ package com.memora.app.data.notes
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import com.memora.app.application.notes.ExternalUrlLauncher
+import com.memora.app.application.notes.OneNoteOpenTargetPolicy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,8 +12,10 @@ import javax.inject.Singleton
 /**
  * Opens OneNote/browser URLs via ACTION_VIEW. Does not use Graph contentUrl.
  *
- * On a phone with OneNote installed, the `onenote:` client link is preferred so
- * the native app opens. Emulators without OneNote fall back to the web URL.
+ * The `onenote:` client link is attempted first so the native app opens. It is
+ * not queried first: Android 11+ package visibility hides an installed OneNote
+ * from `resolveActivity` unless declared in `<queries>`, which sent every tap
+ * to the browser. A deep link nothing can handle throws, and the web URL runs.
  */
 @Singleton
 class AndroidExternalUrlLauncher @Inject constructor(
@@ -21,33 +23,9 @@ class AndroidExternalUrlLauncher @Inject constructor(
 ) : ExternalUrlLauncher {
     override fun launch(url: String): Boolean = startView(url)
 
-    override fun launchOneNoteOriginal(webUrl: String?, clientUrl: String?): Boolean {
-        val client = clientUrl?.trim()?.takeIf { it.isNotEmpty() }
-        val web = webUrl?.trim()?.takeIf { it.isNotEmpty() }
-        if (client != null && canResolve(client) && startView(client)) {
-            return true
-        }
-        if (web != null && startView(web)) {
-            return true
-        }
-        // Last resort: try the client link even if resolve was uncertain.
-        if (client != null && startView(client)) {
-            return true
-        }
-        return false
-    }
-
-    private fun canResolve(url: String): Boolean {
-        val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return false
-        if (uri.scheme.isNullOrBlank()) return false
-        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-            addCategory(Intent.CATEGORY_BROWSABLE)
-        }
-        return context.packageManager.resolveActivity(
-            intent,
-            PackageManager.MATCH_DEFAULT_ONLY,
-        ) != null
-    }
+    override fun launchOneNoteOriginal(webUrl: String?, clientUrl: String?): Boolean =
+        OneNoteOpenTargetPolicy.orderedTargets(webUrl = webUrl, clientUrl = clientUrl)
+            .any { startView(it) }
 
     private fun startView(url: String): Boolean {
         val trimmed = url.trim()
@@ -55,7 +33,9 @@ class AndroidExternalUrlLauncher @Inject constructor(
         val uri = runCatching { Uri.parse(trimmed) }.getOrNull() ?: return false
         if (uri.scheme.isNullOrBlank()) return false
         val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-            addCategory(Intent.CATEGORY_BROWSABLE)
+            if (OneNoteOpenTargetPolicy.needsBrowsableCategory(uri.scheme)) {
+                addCategory(Intent.CATEGORY_BROWSABLE)
+            }
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         return try {
