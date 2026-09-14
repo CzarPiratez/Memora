@@ -4,6 +4,32 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
+**Updated:** 2026-09-14
+
+**Uniform Why presentation landed (2026-09-14).** Every Find card — PDF,
+photo, screenshot, note; keyword and meaning — expands the same
+`WhyDisclosure` panel from one `WhyPresentation` (relevance, optional cited
+line, how-found). Keyword Why no longer repeats the filename, page, or
+highlighted excerpt the card already shows. Meaning Why still quotes the
+justifying stored line because that card does not dump OCR. Path is named
+in consumer words (ADR-024). Shape-contract tests cover every `AssetType`.
+Change control: `docs/CHANGE_CONTROL_UNIFORM_WHY_PRESENTATION.md`.
+
+**Demo-prep sequence (founder, 2026-09-14):** uniform Why (this) → **I3**
+(meaning-index worker, because a from-scratch rebuild is planned before
+filming) → thumbnails → zoom → share. Do not film paraphrase queries
+(`pool timetable`). Live/Dual **N = 0**.
+
+**Next action:** I3 — meaning-index worker trio + Stop (must call
+`RunPendingMeaningIndex`). Fold the wall-clock budget into that slice so a
+count cap of 25 does not become a 60-node WorkManager chain. Four-outcome
+mapper: Continue / CompletedDrain / StopAndReport (`EngineUnavailable`) /
+RetryableFailure. Do not raise `MAX_MEMORIES_PER_TAP`.
+
+---
+
+**Previous checkpoint**
+
 **Updated:** 2026-09-07
 
 **Meaning Find recall — D-10 and D-11 landed (2026-09-06).** The physical-phone

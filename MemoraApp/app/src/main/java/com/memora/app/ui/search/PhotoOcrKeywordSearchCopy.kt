@@ -27,7 +27,7 @@ object PhotoOcrKeywordSearchCopy {
             "and Memory assembly in photo setup first."
     const val SEARCH_COULD_NOT_FINISH_BODY = "Search could not finish. Try again in a moment."
     const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
-    const val HIDE_WHY_LABEL = "Hide explanation"
+    const val HIDE_WHY_LABEL = CanonicalRecallWhyCopy.HIDE_WHY_LABEL
     const val OPEN_ORIGINAL_LABEL = "Open original"
     const val OPENING_BODY = "Opening a read-only preview of that photo…"
     const val SOURCE_UNAVAILABLE_BODY =

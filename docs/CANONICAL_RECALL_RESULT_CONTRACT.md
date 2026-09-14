@@ -11,7 +11,7 @@ recall pipeline; explainability); ADR-049 (Canonical Recall naming); ADR-024
 result + Why exit boxes); Grounding Architecture §6–7 (labeled candidates;
 Evidence Package hints — **do not implement Grounded Answers here**).
 
-**Updated:** 2026-08-31
+**Updated:** 2026-09-14
 
 This file does **not** authorize MIG-06+. It freezes a minimal shared hit/Why
 shape so MIG-06/07 do not invent four Explain dialects.
@@ -65,10 +65,14 @@ matched (ADR-024).
 
 Same Why shape for **all asset types** after cutover. Logical requirements:
 
-1. **Cite stored evidence** — Why must reference `evidenceId`(s) and/or
-   `EvidenceLocator` plus the excerpt (or equivalent stored span) that
-   justified the hit. Never invent facts, pages, or phrases not present in
-   stored evidence / authorized extracts already on device.
+1. **Cite stored evidence** — The **hit as a whole** must surface the stored
+   excerpt (or equivalent span) that justified the result. Never invent facts,
+   pages, or phrases not present in stored evidence / authorized extracts
+   already on device. Why itself quotes that span **only when the result card
+   does not already show it** (U5 / defect D-17): keyword cards render the
+   matching excerpt, so Why does not repeat it; meaning cards do not dump OCR,
+   so Why quotes the justifying line. Do not print the file name or page in
+   Why when those already sit on the card.
 2. **Surface `retrievalPath` honestly** — Keyword hits must be presented as
    keyword (or `KEYWORD`); meaning hits as meaning (or `MEANING`). No silent
    keyword-as-meaning (ADR-024).
@@ -78,6 +82,11 @@ Same Why shape for **all asset types** after cutover. Logical requirements:
    anchor-stage Why detail later; this contract forbids false confirmation now.
 4. **One dialect** — PDF, photo, screenshot, and note Finds share this Why
    shape after cutover; do not keep four asset-specific Explain constitutions.
+   App presentation: one `WhyPresentation` (relevance, optional cited line,
+   how-found) assembled by `CanonicalRecallWhyCopy` and rendered by one
+   `WhyDisclosure` on every Find card. Keyword and meaning share the slots;
+   they must not grow a second visual treatment. Hidden-word honesty for a
+   partial meaning list stays on the result-list banner, not on every card.
 
 Why is a presentation of the shared result’s evidence + path labels. It is
 **not** Grounded Answers claim prose.

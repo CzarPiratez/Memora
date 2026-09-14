@@ -7,8 +7,8 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.UnfyndSelfCapture
 
 /**
- * Meaning-Find Why — what a person actually asks: why is *this file*
- * relevant to what I was trying to remember?
+ * Meaning-Find language for Why — what a person actually asks: why is *this
+ * file* relevant to what I was trying to remember?
  *
  * Not a word inventory. "Has swimming. Does not have schedule." is an audit
  * of the lexical gate; it is not an explanation (defect D-17 follow-on).
@@ -17,6 +17,10 @@ import com.memora.app.domain.intelligence.UnfyndSelfCapture
  *
  * Missing-word honesty stays on the result-list banner, not on every card.
  * The justifying line lives here because the card no longer dumps OCR.
+ *
+ * This object supplies the *words* for the meaning path only.
+ * [CanonicalRecallWhyCopy] is the single assembler for both paths, so the two
+ * dialects cannot drift into two shapes again.
  */
 object MeaningWhy {
     data class Explanation(
@@ -32,14 +36,36 @@ object MeaningWhy {
         }
     }
 
-    fun explain(hit: MeaningSearchHit, query: String): Explanation {
+    fun explain(hit: MeaningSearchHit, query: String): Explanation =
+        explain(
+            label = hit.label,
+            haystack = hit.lexicalHaystack(),
+            summaryText = hit.summaryText,
+            query = query,
+        )
+
+    /**
+     * Same explanation from any stored text, so a ranked hit (whole-Memory
+     * haystack) and a shared Canonical Recall result (one excerpt) cannot
+     * produce two different Why dialects.
+     */
+    fun explain(
+        label: String,
+        haystack: String,
+        summaryText: String,
+        query: String,
+    ): Explanation {
         val named = MeaningRecallCue.contentTokens(query)
-        val matched = MeaningEvidenceLexicalFilter.prepare(named)
-            .matchingTokens(hit.lexicalHaystack())
+        val matched = MeaningEvidenceLexicalFilter.prepare(named).matchingTokens(haystack)
+        val selfCapture = UnfyndSelfCapture.matches(label, haystack)
         return Explanation(
             asked = askedPhrase(query),
-            fileIs = fileIs(hit),
-            citedLine = justifyingLine(hit, matched),
+            fileIs = fileIs(label = label, haystack = haystack, summaryText = summaryText),
+            citedLine = if (selfCapture) {
+                null
+            } else {
+                justifyingLine(haystack = haystack, summaryText = summaryText, matched = matched)
+            },
             matched = matched,
             missing = named - matched.toSet(),
         )
@@ -48,6 +74,7 @@ object MeaningWhy {
     fun relevanceText(asked: String, fileIs: String): String =
         "You asked about $asked. This file is $fileIs."
 
+    /** Explanation-only spoken form. Provenance lives on [CanonicalRecallWhyCopy]. */
     fun plainText(explanation: Explanation): String = buildList {
         add(relevanceText(explanation.asked, explanation.fileIs))
         explanation.citedLine?.let { add("\"$it\"") }
@@ -65,18 +92,11 @@ object MeaningWhy {
         return article + phrase
     }
 
-    fun fileIs(hit: MeaningSearchHit): String {
-        if (UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())) {
+    fun fileIs(label: String, haystack: String, summaryText: String): String {
+        if (UnfyndSelfCapture.matches(label, haystack)) {
             return UnfyndSelfCapture.FILE_IS
         }
-        return humanizeFilename(hit.label) ?: firstReadableClause(hit.summaryText)
-    }
-
-    fun fileIs(label: String, excerpt: String): String {
-        if (UnfyndSelfCapture.matches(label, excerpt)) {
-            return UnfyndSelfCapture.FILE_IS
-        }
-        return humanizeFilename(label) ?: firstReadableClause(excerpt)
+        return humanizeFilename(label) ?: firstReadableClause(summaryText)
     }
 
     internal fun humanizeFilename(label: String): String? {
@@ -98,15 +118,16 @@ object MeaningWhy {
         return cut.joinToString(" ").trimEnd('.', ',', ';', ':')
     }
 
-    private fun justifyingLine(hit: MeaningSearchHit, matched: List<String>): String? {
-        if (UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())) {
-            return null
-        }
+    private fun justifyingLine(
+        haystack: String,
+        summaryText: String,
+        matched: List<String>,
+    ): String? {
         val word = matched.firstOrNull()
         if (word != null) {
-            windowAround(hit.lexicalHaystack(), word)?.let { return it }
+            windowAround(haystack, word)?.let { return it }
         }
-        val clause = firstReadableClause(hit.summaryText)
+        val clause = firstReadableClause(summaryText)
         return clause.takeIf { it != "a saved file" }
     }
 

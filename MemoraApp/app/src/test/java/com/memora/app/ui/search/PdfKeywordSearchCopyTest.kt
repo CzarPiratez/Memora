@@ -59,7 +59,7 @@ class PdfKeywordSearchCopyTest {
         assertTrue(copy.contains("exact words"))
         assertFalse(copy.contains("not meaning-based"))
         assertTrue(copy.contains("results for \"meet mira\""))
-        assertTrue(copy.contains("memora-persist-fixture.pdf"))
+        assertTrue(copy.contains("memora-open-2page.pdf"))
         assertFalse(copy.contains("sqlcipher"))
         assertFalse(copy.contains("binder"))
         assertFalse(copy.contains("embedding"))
@@ -71,7 +71,7 @@ class PdfKeywordSearchCopyTest {
     }
 
     @Test
-    fun why_this_result_cites_query_document_page_and_excerpt() {
+    fun why_this_result_names_the_query_without_repeating_the_card() {
         val why = PdfKeywordSearchCopy.whyThisResultBody(
             query = "meet mira",
             recall = CanonicalRecallTestFixtures.keywordRecall(
@@ -81,11 +81,12 @@ class PdfKeywordSearchCopyTest {
             ),
         )
         assertTrue(why.contains("meet mira"))
-        assertTrue(why.contains("memora-persist-fixture.pdf"))
-        assertTrue(why.contains("Café memory: meet Mira at 10:30…"))
-        assertTrue(why.contains("Page 1"))
+        assertFalse(why.contains("memora-persist-fixture.pdf"))
+        assertFalse(why.contains("Café memory: meet Mira at 10:30…"))
+        assertFalse(why.contains("Page 1"))
         assertTrue(why.contains("exact words"))
         assertTrue(why.contains("evidence saved on this phone"))
+        assertTrue(why.contains("Those words are in this file's saved text"))
     }
 
     @Test(expected = IllegalArgumentException::class)

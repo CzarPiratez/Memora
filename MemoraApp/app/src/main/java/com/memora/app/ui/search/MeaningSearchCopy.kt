@@ -123,7 +123,7 @@ object MeaningSearchCopy {
     }
 
     fun whyThisResult(hit: MeaningSearchHit, query: String): String =
-        MeaningWhy.plainText(MeaningWhy.explain(hit, query))
+        CanonicalRecallWhyCopy.whyThisResult(hit, query)
 
     fun friendlyHitLabel(label: String): String =
         CanonicalRecallWhyCopy.friendlyDisplayLabel(label)

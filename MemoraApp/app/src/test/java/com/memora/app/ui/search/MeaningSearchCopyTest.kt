@@ -84,6 +84,7 @@ class MeaningSearchCopyTest {
         )
         assertTrue(why.contains("You asked about a hotel."))
         assertTrue(why.contains("This file is"))
+        assertTrue(why.contains("Found by meaning"))
         assertFalse(why.contains("Why this result?"))
         assertFalse(why.contains("Has \"hotel\""))
     }

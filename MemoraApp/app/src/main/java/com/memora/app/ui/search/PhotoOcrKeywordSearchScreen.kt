@@ -148,13 +148,12 @@ private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: (
             Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
                 Text(PhotoOcrKeywordSearchCopy.OPEN_ORIGINAL_LABEL)
             }
-            OutlinedButton(onClick = { why = !why }, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    if (why) PhotoOcrKeywordSearchCopy.HIDE_WHY_LABEL
-                    else PhotoOcrKeywordSearchCopy.WHY_THIS_RESULT_LABEL,
-                )
-            }
-            if (why) Text(PhotoOcrKeywordSearchCopy.whyThisResultBody(hit = hit, query = query))
+            Spacer(Modifier.height(8.dp))
+            WhyDisclosure(
+                expanded = why,
+                onExpandedChange = { why = it },
+                presentation = { CanonicalRecallWhyCopy.present(hit.recall, query) },
+            )
         }
     }
 }

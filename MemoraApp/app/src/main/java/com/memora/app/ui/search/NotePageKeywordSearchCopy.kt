@@ -72,7 +72,7 @@ object NotePageKeywordSearchCopy {
 
     const val RESULTS_HINT =
         "Matches show the page title and a short excerpt from saved note Memory evidence. " +
-            "Open Why this result? to see the matching evidence."
+            "Open Why this result? to see why this file matched."
 
     const val MAX_LISTED_MATCHES = 20
 
@@ -102,7 +102,7 @@ object NotePageKeywordSearchCopy {
 
     const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
-    const val HIDE_WHY_LABEL = "Hide explanation"
+    const val HIDE_WHY_LABEL = CanonicalRecallWhyCopy.HIDE_WHY_LABEL
 
     const val OPEN_ORIGINAL_NOTE_LABEL = "Open original note"
 

@@ -360,29 +360,11 @@ private fun ScreenshotOcrKeywordHitCard(
                 Text(ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL_SCREENSHOT_LABEL)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { whyExpanded = !whyExpanded },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    if (whyExpanded) {
-                        ScreenshotOcrKeywordSearchCopy.HIDE_WHY_LABEL
-                    } else {
-                        ScreenshotOcrKeywordSearchCopy.WHY_THIS_RESULT_LABEL
-                    },
-                )
-            }
-            if (whyExpanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = ScreenshotOcrKeywordSearchCopy.whyThisResultBody(
-                        hit = hit,
-                        query = query,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
+            WhyDisclosure(
+                expanded = whyExpanded,
+                onExpandedChange = { whyExpanded = it },
+                presentation = { CanonicalRecallWhyCopy.present(hit.recall, query) },
+            )
         }
     }
 }

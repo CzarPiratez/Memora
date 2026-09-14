@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Uniform Why — one dialect, one panel (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Keyword Why repeated the query, type, filename, page,
+  and the excerpt the card already highlighted. Meaning Why was a different
+  sentence shape, sometimes with a different visual treatment. On a phone
+  that is a trust defect: the same question produced four different answers.
+- **Fixed.** One `WhyPresentation` (relevance, optional cited line,
+  how-found) assembled by `CanonicalRecallWhyCopy`, rendered by one
+  `WhyDisclosure` on every Find card. Keyword leaves the cited line empty
+  (U5 / D-17). Meaning quotes the stored justifying span. Path labelled in
+  consumer words (ADR-024 / F-03). Contract §3.1 / §3.4 updated.
+- **Not I3, not thumbnails, not zoom, not share.** Find quality unchanged.
+- **Verification:** `WhyPresentationShapeContractTest` (every `AssetType` ×
+  both paths); `CanonicalRecallWhyCopyTest`; per-screen copy tests updated.
+  `:app:testDebugUnitTest` **761 tests, 0 failures**.
+
 ### Class A pack revision 2026-09-07 — public Core repo hygiene
 
 - **Date:** 2026-09-07

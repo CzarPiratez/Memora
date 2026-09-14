@@ -1,12 +1,12 @@
 package com.memora.app.ui.search
 
-import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.application.memory.CanonicalRecallResult
 
 /**
  * Plain-language copy for interim keyword search over saved PDF text.
  *
  * Must not claim meaning-based Memory recall, AI understanding, or cloud search.
+ * Why lives in [CanonicalRecallWhyCopy] — one dialect for every hit.
  */
 object PdfKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved PDF text"
@@ -87,7 +87,7 @@ object PdfKeywordSearchCopy {
 
     const val RESULTS_HINT =
         "Matches show the page and a short excerpt from the saved text. " +
-            "Open Why this result? to see the matching evidence."
+            "Open Why this result? to see why this file matched."
 
     /** Hard display cap for interim keyword search; must match search support. */
     const val MAX_LISTED_MATCHES = 20
@@ -122,20 +122,14 @@ object PdfKeywordSearchCopy {
         return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
-    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
-
-    const val HIDE_WHY_LABEL = "Hide explanation"
-
     const val BACK_LABEL = "Back"
 
-    fun pageLabel(pageNumber: Int): String = "Page $pageNumber"
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
-    /** Unified Canonical Recall Why dialect (`CANONICAL_RECALL_RESULT_CONTRACT.md`). */
     fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
         CanonicalRecallWhyCopy.whyThisResult(recall, query)
 
-    fun whyThisResultBody(hit: PdfKeywordSearchHit, query: String): String =
-        whyThisResultBody(query, hit.recall)
+    fun pageLabel(pageNumber: Int): String = "Page $pageNumber"
 
     const val OPEN_ORIGINAL_PDF_LABEL = "Open original PDF"
 

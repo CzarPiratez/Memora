@@ -18,7 +18,10 @@ class ScreenshotOcrKeywordSearchCopyTest {
             ),
         )
         assertEquals(true, why.contains("exact words"))
-        assertEquals(true, why.contains("Matched screenshot:"))
+        assertEquals(true, why.contains("You asked about \"note\""))
+        assertEquals(true, why.contains("That word is in this file's saved text"))
+        assertEquals(false, why.contains("Matched screenshot:"))
+        assertEquals(false, why.contains("Screenshot_memora_note.png"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Ordinary photos"))
         assertEquals(true, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
         assertEquals(false, ScreenshotOcrKeywordSearchCopy.SCOPE_BODY.contains("PHOTO OCR"))

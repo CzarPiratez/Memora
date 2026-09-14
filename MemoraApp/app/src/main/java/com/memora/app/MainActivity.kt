@@ -63,6 +63,7 @@ import com.memora.app.ui.privacy.ClearDerivedDataViewModel
 import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
 import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
 import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
+import com.memora.app.ui.search.CanonicalRecallWhyCopy
 import com.memora.app.ui.search.PdfKeywordSearchCopy
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
 import com.memora.app.ui.search.PdfKeywordSearchPhase
@@ -141,6 +142,7 @@ import android.graphics.Bitmap
 import com.memora.app.application.documents.PdfKeywordSearchHit
 import com.memora.app.ui.search.PdfOpenFeedbackUi
 import com.memora.app.ui.search.PdfOriginalPreviewUi
+import com.memora.app.ui.search.WhyDisclosure
 import androidx.activity.compose.BackHandler
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -1352,29 +1354,13 @@ fun PdfKeywordSearchScreen(
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedButton(
-                                onClick = { whyExpanded = !whyExpanded },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(
-                                    if (whyExpanded) {
-                                        PdfKeywordSearchCopy.HIDE_WHY_LABEL
-                                    } else {
-                                        PdfKeywordSearchCopy.WHY_THIS_RESULT_LABEL
-                                    },
-                                )
-                            }
-                            if (whyExpanded) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = PdfKeywordSearchCopy.whyThisResultBody(
-                                        hit = hit,
-                                        query = phase.query,
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
-                            }
+                            WhyDisclosure(
+                                expanded = whyExpanded,
+                                onExpandedChange = { whyExpanded = it },
+                                presentation = {
+                                    CanonicalRecallWhyCopy.present(hit.recall, phase.query)
+                                },
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))

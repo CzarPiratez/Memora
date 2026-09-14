@@ -20,7 +20,11 @@ class PhotoOcrKeywordSearchCopyTest {
             ),
         )
         assertTrue(why.contains("exact words"))
-        assertTrue(why.contains("Matched photo:"))
+        assertTrue(why.contains("You asked about \"total\""))
+        assertTrue(why.contains("That word is in this file's saved text"))
+        assertFalse(why.contains("Matched photo:"))
+        assertFalse(why.contains("receipt.jpg"))
+        assertFalse(why.contains("…Total 42…"))
         assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Screenshots are not included"))
         assertTrue(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("Memory evidence"))
         assertFalse(PhotoOcrKeywordSearchCopy.SCOPE_BODY.contains("SCREENSHOT OCR"))

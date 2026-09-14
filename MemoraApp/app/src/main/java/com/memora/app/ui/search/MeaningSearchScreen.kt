@@ -1,18 +1,12 @@
 package com.memora.app.ui.search
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,7 +19,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,17 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.domain.intelligence.RecallPrecision
@@ -240,13 +228,7 @@ private fun MeaningHitCard(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )
-            TextButton(onClick = { showWhy = !showWhy }) {
-                Text(if (showWhy) "Hide why" else "Why this result?")
-            }
-            if (showWhy) {
-                MeaningWhyPanel(explanation = MeaningWhy.explain(hit, query))
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            Spacer(modifier = Modifier.height(12.dp))
             Button(
                 onClick = { onOpenOriginal(hit) },
                 enabled = canOpen,
@@ -254,63 +236,12 @@ private fun MeaningHitCard(
             ) {
                 Text(MeaningSearchCopy.OPEN_ORIGINAL_LABEL)
             }
-        }
-    }
-}
-
-/**
- * Why is a coloured panel: what they asked, what this file is, and the
- * stored line that supports that. Not a word inventory.
- */
-@Composable
-private fun MeaningWhyPanel(explanation: MeaningWhy.Explanation) {
-    val colors = MaterialTheme.colorScheme
-    val spoken = MeaningWhy.plainText(explanation)
-    Surface(
-        color = colors.primaryContainer,
-        contentColor = colors.onPrimaryContainer,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = spoken },
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .clip(RoundedCornerShape(12.dp)),
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(colors.primary),
+            Spacer(modifier = Modifier.height(8.dp))
+            WhyDisclosure(
+                expanded = showWhy,
+                onExpandedChange = { showWhy = it },
+                presentation = { CanonicalRecallWhyCopy.present(hit, query) },
             )
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = buildAnnotatedString {
-                        append("You asked about ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(explanation.asked)
-                        }
-                        append(". This file is ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(explanation.fileIs)
-                        }
-                        append(".")
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                val cited = explanation.citedLine
-                if (cited != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "\"$cited\"",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onPrimaryContainer.copy(alpha = 0.82f),
-                    )
-                }
-            }
         }
     }
 }

@@ -296,29 +296,11 @@ private fun NotePageKeywordHitCard(
                 Text(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_LABEL)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { whyExpanded = !whyExpanded },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    if (whyExpanded) {
-                        NotePageKeywordSearchCopy.HIDE_WHY_LABEL
-                    } else {
-                        NotePageKeywordSearchCopy.WHY_THIS_RESULT_LABEL
-                    },
-                )
-            }
-            if (whyExpanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = NotePageKeywordSearchCopy.whyThisResultBody(
-                        hit = hit,
-                        query = query,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
+            WhyDisclosure(
+                expanded = whyExpanded,
+                onExpandedChange = { whyExpanded = it },
+                presentation = { CanonicalRecallWhyCopy.present(hit.recall, query) },
+            )
         }
     }
 }

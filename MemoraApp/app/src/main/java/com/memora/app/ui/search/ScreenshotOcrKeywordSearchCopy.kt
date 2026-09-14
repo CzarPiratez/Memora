@@ -1,12 +1,12 @@
 package com.memora.app.ui.search
 
-import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.memory.CanonicalRecallResult
 
 /**
  * Plain-language copy for interim keyword search over screenshot Memory evidence.
  *
  * Must not claim meaning-based Memory recall, AI understanding, PHOTO OCR, or cloud.
+ * Why lives in [CanonicalRecallWhyCopy] — one dialect for every hit.
  */
 object ScreenshotOcrKeywordSearchCopy {
     const val SCREEN_TITLE = "Find saved screenshot text"
@@ -71,7 +71,7 @@ object ScreenshotOcrKeywordSearchCopy {
 
     const val RESULTS_HINT =
         "Matches show the screenshot name and a short excerpt from saved Memory evidence. " +
-            "Open Why this result? to see the matching evidence. " +
+            "Open Why this result? to see why this file matched. " +
             "Open original shows a read-only preview inside UNFYND."
 
     const val MAX_LISTED_MATCHES = 20
@@ -136,15 +136,10 @@ object ScreenshotOcrKeywordSearchCopy {
         return forLine + countLine + capLine + " " + RESULTS_HINT
     }
 
-    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
-
-    const val HIDE_WHY_LABEL = "Hide explanation"
-
     const val BACK_LABEL = "Back"
+
+    const val WHY_THIS_RESULT_LABEL = CanonicalRecallWhyCopy.WHY_THIS_RESULT_LABEL
 
     fun whyThisResultBody(query: String, recall: CanonicalRecallResult): String =
         CanonicalRecallWhyCopy.whyThisResult(recall, query)
-
-    fun whyThisResultBody(hit: ScreenshotOcrKeywordSearchHit, query: String): String =
-        whyThisResultBody(query, hit.recall)
 }
