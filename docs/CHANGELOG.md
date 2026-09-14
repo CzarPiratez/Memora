@@ -14,8 +14,18 @@
   and none of them appear. The banner leads with the miss and says these files
   are closest by meaning, not because they contain those words. A one-word miss
   stays empty. Exact and Partial still win first. Not a synonym net.
+- **Hardened before the device gate.** The floor was being read off the
+  *boosted* score: a TIME word such as `recent` is dropped by the precision
+  gate but still rewarded by the token boost, so a file that only said `recent`
+  arrived `+0.35` over a floor its cosine never earned — and then told Why "a
+  word you typed helped" underneath a banner saying no word was found.
+  `MeaningSearchHit` now carries raw `cosine`, the policy reads only that, and
+  admission strips the assist. Why also quotes no line when nothing the person
+  named is in the text, and `MeaningOnly` carries the missing words instead of
+  the banner re-deriving them. `MIN_COSINE = 0.32` remains a judgement, not a
+  measurement.
 - **Ask Model.** **P-MEANING-ONLY** added. Live/Dual **N = 0**. Not AVAILABLE.
-- **Verification:** `:app:testDebugUnitTest` **842 tests, 0 failures**. Device:
+- **Verification:** `:app:testDebugUnitTest` **851 tests, 0 failures**. Device:
   `kids water lessons` and `pool timetable` on the A15.
 - **Change control:** `docs/CHANGE_CONTROL_MEANING_ONLY_TIER.md`.
 

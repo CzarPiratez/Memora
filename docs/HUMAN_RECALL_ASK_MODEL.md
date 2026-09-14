@@ -228,6 +228,8 @@ Lexical/precision is **any stored excerpt for that Asset**, not only the cosine-
 
 When **two or more** named content words appear in the cue and **none** of them appear in any stored excerpt, Canonical Recall may keep a **short, high-cosine band** of neighbours (`RecallPrecision.MeaningOnly`). The banner must say the words were not found and that the files are closest by meaning — never that `pool` means `swimming`, never a synonym net (`silky` ↛ `smooth`). A **one-word** miss stays empty: that is “this word is not in any file”, which keyword Find already answers.
 
+On this tier the card must stay silent about words. No named word is in the file by construction, so Why may not claim a typed word helped find it and may not quote a stored line as the evidence that matched — the quote would argue against the banner one screen below it (the D-17 shape). Admission is judged on the similarity the model measured, never on a score a hybrid assist lifted: a TIME word such as `recent` is a constraint the gate drops, so a file that merely contains it has not earned a seat here.
+
 Anti-cases: a weak cosine neighbour must stay empty; an Exact or Partial lexical tier must win over MeaningOnly; do not market AVAILABLE from this tier.
 
 ### P-INCOMPLETE INDEX

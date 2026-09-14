@@ -118,15 +118,23 @@ object MeaningWhy {
         return cut.joinToString(" ").trimEnd('.', ',', ';', ':')
     }
 
+    /**
+     * The stored line that justifies the hit — or nothing.
+     *
+     * When none of the named words is in this text, no stored line justifies it;
+     * the hit is there on similarity alone (`RecallPrecision.MeaningOnly`).
+     * Quoting the file's opening clause anyway puts an unrelated sentence in the
+     * evidence slot, directly under a banner that just said those words were not
+     * found. That is the D-17 shape: the card quietly arguing against the
+     * banner. The relevance line still says what the file is.
+     */
     private fun justifyingLine(
         haystack: String,
         summaryText: String,
         matched: List<String>,
     ): String? {
-        val word = matched.firstOrNull()
-        if (word != null) {
-            windowAround(haystack, word)?.let { return it }
-        }
+        val word = matched.firstOrNull() ?: return null
+        windowAround(haystack, word)?.let { return it }
         val clause = firstReadableClause(summaryText)
         return clause.takeIf { it != "a saved file" }
     }

@@ -72,6 +72,9 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] weak cosine neighbour stays empty
   - [x] Exact still wins over Partial; Partial still wins over MeaningOnly
   - [x] copy does not claim a synonym or AVAILABLE
+  - [x] the floor is judged on similarity alone — a token boost cannot buy a
+        seat, and no assist survives admission into rank or Why
+  - [x] the banner names the words the gate required, not a second derivation
   - [ ] Device: `kids water lessons` and `pool timetable` on the A15 against
         the swimming-timetable PDF
 - **Holistic scenarios (before implement):**
@@ -82,7 +85,7 @@ ESCAPE-HATCH AFTER CHANGE: no
   - User: `silky` and nothing has silky — empty, not fashion-adjacent junk
   - User: two-word cue, only unrelated weak neighbours — empty
   - User: Why on a meaning-only card — Found by meaning; does not say the
-    cue words appear
+    cue words appear, and quotes no line as the evidence that matched
   - Anti: `schedule` is never asserted to mean `timetable`
   - Anti: `silky` ↛ `smooth`
   - Technical: candidate gen still cosine-only (L7); ranking still inside
@@ -108,8 +111,8 @@ ESCAPE-HATCH AFTER CHANGE: no
   `MeaningSearchCopy.meaningOnlyBody`; `MeaningSearchScreen` banner;
   `MeaningSearchOutcome.Matches` invariant; Ask Model P-MEANING-ONLY;
   PROGRAM_STATE D-15 note; tests.
-- **Automated verification and result:** `:app:testDebugUnitTest` **842 tests,
-  0 failures**.
+- **Automated verification and result:** `:app:testDebugUnitTest` **851 tests,
+  0 failures** (after hardening, below).
 - **Emulator/manual verification:** founder A15 — `kids water lessons` and
   `pool timetable` against the swimming-timetable PDF.
 - **Failure/recovery:** below-floor → existing NoMatches copy. Engine
@@ -118,3 +121,40 @@ ESCAPE-HATCH AFTER CHANGE: no
   neighbour above 0.32 can still appear, with honesty. Floor is
   device-tunable. Not AVAILABLE.
 - **Git commit:** after unit suite.
+
+## Hardening — self-review before device gate (2026-09-15)
+
+Three defects and one weakness found reviewing this slice against the charter
+bar. All fixed in tree; the tier is otherwise unchanged.
+
+1. **The floor was reading a boosted score, not similarity.** `applyTokenBoost`
+   runs before the precision tier and derives its tokens from the whole query,
+   while the tier derives them from `MeaningRecallCue.contentTokens`, which
+   drops the words a TIME constraint owns. So `recent water lessons` against a
+   file that merely says `recent` arrived carrying `+0.35` — enough to clear a
+   0.32 floor that `water` and `lessons` never earned. `MeaningSearchHit` now
+   carries `cosine` (similarity as the model measured it, untouched by later
+   stages) and `MeaningOnlyRecallPolicy` reads only that.
+2. **The card could contradict the banner.** Admitting a boosted hit left
+   `evidenceTokenBoosted` set, so Why said "helped by a word you typed"
+   underneath a banner saying none of those words were found — the D-17 shape.
+   Admission now strips the assist from both rank and Why, because on this tier
+   no named word is in the file by construction.
+3. **Why quoted a line that justified nothing.** With no matched word,
+   `MeaningWhy.justifyingLine` fell back to the file's opening clause and put
+   it in the evidence slot. It now returns null when nothing the person named
+   is in the text; the relevance line still says what the file is.
+4. **The banner re-derived the missing words at the UI layer.** `MeaningOnly`
+   is now `MeaningOnly(missing)` like `Partial`, so the banner names the words
+   the gate actually required. Equal in practice today, but a second derivation
+   of "what was named" is exactly how D-10 happened.
+
+**Still not measured:** `MIN_COSINE = 0.32` is a judgement, not a measurement.
+It has no scored set behind it and is the first thing to revisit if the tier is
+wrong on device. Recorded as an open item, not claimed as calibrated.
+
+- **Tests added:** boosted score cannot clear the floor; admission strips the
+  assist; band gap is measured on cosine; end-to-end time-word cases in
+  `AnchorAwareMeaningRecallRankingTest`; banner/card coherence in
+  `MeaningOnlyBannerAndCardTest` (banner words, no assist claim, no quote,
+  and a Partial control that still quotes).

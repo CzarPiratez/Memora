@@ -8,10 +8,15 @@
 
 **Meaning-only tier (2026-09-15).** When a two-or-more-word cue has **zero**
 named words in any stored excerpt, Canonical Recall may keep a short
-high-cosine band as `RecallPrecision.MeaningOnly`, with a banner that says
-those words were not found. Exact and Partial still win first. A one-word miss
-stays empty. Not a synonym net; not AVAILABLE. Change control:
-`docs/CHANGE_CONTROL_MEANING_ONLY_TIER.md`.
+high-cosine band as `RecallPrecision.MeaningOnly(missing)`, with a banner that
+says those words were not found. Exact and Partial still win first. A one-word
+miss stays empty. Not a synonym net; not AVAILABLE. The floor reads the raw
+`cosine` the model measured, never the boosted `score`, and admission strips
+the word assist — otherwise a TIME word like `recent` bought a seat and the
+card claimed a typed word helped while the banner said none was found. Why
+quotes no line when nothing the person named is in the text. `MIN_COSINE = 0.32`
+is **not measured** — revisit it first if the tier is wrong on device. Change
+control: `docs/CHANGE_CONTROL_MEANING_ONLY_TIER.md`.
 
 **The opened original is the screen (2026-09-15).** The Open preview is now
 full-bleed on a near-black canvas. Back, Share and info are icons in

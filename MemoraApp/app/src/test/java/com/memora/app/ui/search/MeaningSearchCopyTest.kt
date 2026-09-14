@@ -86,7 +86,7 @@ class MeaningSearchCopyTest {
 
     @Test
     fun meaning_only_copy_names_the_miss_and_does_not_claim_a_synonym() {
-        val body = MeaningSearchCopy.meaningOnlyBody("kids water lessons")
+        val body = MeaningSearchCopy.meaningOnlyBody(listOf("kids", "water", "lessons"))
         assertTrue(body.contains("\"kids\", \"water\" and \"lessons\""))
         assertTrue(body.contains("closest by meaning"))
         assertTrue(body.contains("not because they contain those words"))

@@ -184,7 +184,7 @@ fun MeaningSearchScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 } else if (precision is RecallPrecision.MeaningOnly) {
-                    PhaseBody(MeaningSearchCopy.meaningOnlyBody(phase.query))
+                    PhaseBody(MeaningSearchCopy.meaningOnlyBody(precision.missing))
                     Spacer(modifier = Modifier.height(12.dp))
                 } else if (phase.limitReached) {
                     PhaseBody(MeaningSearchCopy.limitReachedBody())

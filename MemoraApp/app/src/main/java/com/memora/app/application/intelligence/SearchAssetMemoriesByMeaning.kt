@@ -309,11 +309,23 @@ data class MeaningSearchHit(
      * evidence excerpt + label). Empty means fall back to the ranked snippet.
      */
     val precisionText: String = "",
+    /**
+     * Similarity as the embedding model measured it, before any later stage
+     * adjusted [score].
+     *
+     * [score] is a working rank value: token boost adds to it, anchors adjust
+     * it. A gate that must reason about *meaning* rather than rank has to read
+     * this instead — the meaning-only floor was being cleared by a
+     * [com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost] the cue's
+     * named words never earned.
+     */
+    val cosine: Float = score,
 ) {
     init {
         require(label.isNotBlank())
         require(summaryText.isNotBlank())
         require(score.isFinite())
+        require(cosine.isFinite())
         require(citedPdfPageNumber == null || citedPdfPageNumber > 0)
         require(rankedPdfPageNumber == null || rankedPdfPageNumber > 0)
     }

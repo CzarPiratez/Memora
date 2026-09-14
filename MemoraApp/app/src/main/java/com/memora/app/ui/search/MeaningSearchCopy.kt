@@ -102,12 +102,14 @@ object MeaningSearchCopy {
      * Zero-overlap paraphrase (meaning-only tier). Must lead with the miss so
      * a cosine neighbour is never mistaken for a word hit, and must not claim
      * two words mean the same thing.
+     *
+     * [missing] comes from [com.memora.app.domain.intelligence.RecallPrecision.MeaningOnly],
+     * not from re-reading the query here: the banner has to name the same words
+     * the gate actually required.
      */
-    fun meaningOnlyBody(query: String): String {
-        require(query.isNotBlank())
-        val named = MeaningRecallCue.contentTokens(query)
-        require(named.isNotEmpty())
-        return "Nothing saved on this phone mentions ${quoteWords(named)}. " +
+    fun meaningOnlyBody(missing: List<String>): String {
+        require(missing.isNotEmpty()) { "Meaning-only copy needs the words that were not found." }
+        return "Nothing saved on this phone mentions ${quoteWords(missing)}. " +
             "These are the closest by meaning on this phone — not because they " +
             "contain those words."
     }

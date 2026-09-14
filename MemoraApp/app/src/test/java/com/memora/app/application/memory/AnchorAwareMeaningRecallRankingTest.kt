@@ -540,7 +540,78 @@ class AnchorAwareMeaningRecallRankingTest {
         ) as MeaningSearchOutcome.Matches
 
         assertEquals(listOf(timetable), ranked.hits.map { it.revisionId })
-        assertEquals(RecallPrecision.MeaningOnly, ranked.precision)
+        assertEquals(
+            RecallPrecision.MeaningOnly(missing = listOf("kids", "water", "lessons")),
+            ranked.precision,
+        )
+    }
+
+    /**
+     * A TIME word is a constraint, not content: the precision gate drops it from
+     * the required words while the token boost still rewards a file that happens
+     * to contain it. `0.18 + 0.35` then cleared a meaning floor that the cue's
+     * real words — `water`, `lessons` — never came close to earning.
+     */
+    @Test
+    fun apply_does_not_admit_a_neighbour_boosted_only_by_a_time_word() = runBlocking {
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "recent water lessons",
+            hits = listOf(
+                hit(
+                    MemoryRevisionId("rev-bus"),
+                    0.18f,
+                    label = "bus-rules.pdf",
+                    summaryText = "Recent bus rules for parents",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "recent water lessons",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertTrue(ranked.hits.isEmpty())
+        assertEquals(RecallPrecision.Exact, ranked.precision)
+    }
+
+    /**
+     * Same shape, strong neighbour: it is admitted, but the assist it picked up
+     * from the TIME word must not survive — nothing the person named is in that
+     * file, so Why cannot go on to say a typed word helped find it.
+     */
+    @Test
+    fun apply_strips_the_time_word_assist_from_an_admitted_meaning_only_hit() = runBlocking {
+        val timetable = MemoryRevisionId("rev-timetable")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "recent kids water lessons",
+            hits = listOf(
+                hit(
+                    timetable,
+                    0.58f,
+                    label = "Grade-2-Swimming-TT-2026.pdf",
+                    summaryText = "Grade 2 Swimming Timetable 2026, recent revision",
+                ),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "recent kids water lessons",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(
+            RecallPrecision.MeaningOnly(missing = listOf("kids", "water", "lessons")),
+            ranked.precision,
+        )
+        assertFalse(ranked.hits.single().evidenceTokenBoosted)
+        assertEquals(0.58f, ranked.hits.single().score, 0.0001f)
     }
 
     /** A one-word miss is "this word is not in any file", not a paraphrase. */

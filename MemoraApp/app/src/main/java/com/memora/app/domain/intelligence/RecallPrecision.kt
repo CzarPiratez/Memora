@@ -43,9 +43,29 @@ sealed interface RecallPrecision {
      * those words appear, and not a synonym net (`pool` is never asserted to
      * mean `swimming`).
      *
+     * [missing] is every word the person named, carried on the tier for the same
+     * reason [Partial.missing] is: the banner has to name the miss, and a second
+     * derivation of "what was named" at the UI layer is how the query vector and
+     * the precision gate drifted apart in defect D-10.
+     *
      * A one-word miss stays empty: that is "this word is not in any file", not
      * a paraphrase. Meaning-only requires at least two named words so a missed
      * `silky` cannot surface fashion-adjacent junk.
      */
-    data object MeaningOnly : RecallPrecision
+    data class MeaningOnly(val missing: List<String>) : RecallPrecision {
+        init {
+            require(missing.size >= MIN_NAMED_WORDS) {
+                "Meaning-only needs at least $MIN_NAMED_WORDS named words; a one-word " +
+                    "miss is 'this word is not in any file', not a paraphrase."
+            }
+            require(missing.none { it.isBlank() }) {
+                "Meaning-only cannot report a blank word as missing."
+            }
+        }
+
+        companion object {
+            /** @see MeaningOnly for why one word is not enough. */
+            const val MIN_NAMED_WORDS = 2
+        }
+    }
 }

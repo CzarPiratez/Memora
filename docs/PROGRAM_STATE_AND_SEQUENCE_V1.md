@@ -315,6 +315,14 @@ honest empty when two-or-more named words are present and a neighbour clears
 a cosine floor. Exact and Partial still win first. One-word miss stays empty.
 Ask Model **P-MEANING-ONLY**. Live/Dual **N = 0**.
 
+The floor reads the raw `cosine` the model measured, never the working `score`:
+token boost runs first and derives its tokens from the whole query, so a TIME
+word the precision gate drops (`recent`) was lifting unrelated files over the
+floor and then telling Why a typed word had helped. Admission strips the assist.
+`MIN_COSINE = 0.32` is a judgement and **not measured** — no scored set stands
+behind it, and it is the first thing to revisit when this tier is wrong on
+device.
+
 ### D-13 — `notes` is only ever a content word (**P1, open — J7 / P-TYPE**)
 
 `notes in 2026` returned screenshots containing the string "Note:" rather than
