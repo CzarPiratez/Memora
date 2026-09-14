@@ -13,4 +13,7 @@ object OriginalPreviewZoomCopy {
             "on this phone for a sharper picture; it does not upload it."
     const val SHARPENING_BODY =
         "Reading a sharper view from the original on this phone…"
+    const val COULD_NOT_SHARPEN_BODY =
+        "UNFYND could not read a sharper view from the original on this phone. " +
+            "The picture below has not changed."
 }

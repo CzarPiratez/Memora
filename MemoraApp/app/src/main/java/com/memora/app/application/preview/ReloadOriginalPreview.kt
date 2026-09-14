@@ -119,6 +119,10 @@ class ReloadOriginalPreview(
             throw cancelled
         } catch (_: Exception) {
             OriginalPreviewReloadResult.Unavailable
+        } catch (_: OutOfMemoryError) {
+            // A 2048 px ARGB decode is ~16 MB. A phone that cannot spare it must
+            // keep the preview it already has, not lose the whole screen.
+            OriginalPreviewReloadResult.Unavailable
         }
     }
 

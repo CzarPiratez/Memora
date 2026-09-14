@@ -13,6 +13,7 @@ class OriginalPreviewZoomCopyTest {
             OriginalPreviewZoomCopy.FIT_LABEL,
             OriginalPreviewZoomCopy.HINT_BODY,
             OriginalPreviewZoomCopy.SHARPENING_BODY,
+            OriginalPreviewZoomCopy.COULD_NOT_SHARPEN_BODY,
         ).joinToString("\n").lowercase()
         assertTrue(copy.contains("zoom in"))
         assertTrue(copy.contains("on this phone"))
@@ -22,5 +23,14 @@ class OriginalPreviewZoomCopyTest {
         assertFalse(copy.contains("openai"))
         assertFalse(copy.contains("confidence"))
         assertFalse(copy.contains("available"))
+    }
+
+    @Test
+    fun a_failed_sharper_read_says_the_picture_did_not_change() {
+        val body = OriginalPreviewZoomCopy.COULD_NOT_SHARPEN_BODY.lowercase()
+        assertTrue(body.contains("could not"))
+        assertTrue(body.contains("has not changed"))
+        assertFalse(body.contains("error"))
+        assertFalse(body.contains("failed"))
     }
 }

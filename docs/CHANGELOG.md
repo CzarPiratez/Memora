@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Zoom hardening — no recycled bitmap, no OOM crash, honest failure (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Review of the zoom slice found three real defects. The
+  preview recycled its bitmap when a sharper read replaced it, which Compose
+  can still be drawing; a 2048 px decode can raise `OutOfMemoryError`, which
+  is an `Error` and was caught nowhere in the app; and a failed sharper read
+  cleared the spinner without telling anyone.
+- **Fixed.** The preview never recycles — it holds an `ImageBitmap` built off
+  the composition and lets the last one be collected. `ReloadOriginalPreview`
+  treats `OutOfMemoryError` as Unavailable, so a phone that cannot spare the
+  memory keeps the preview it already has. A failed sharper read now says so
+  in a polite live region and states the picture has not changed.
+- **No behavior added.** Same zoom, same decode budget, same Open path.
+- **Verification:** `ReloadOriginalPreviewTest` out-of-memory case and
+  `OriginalPreviewZoomCopyTest` honesty case. `:app:testDebugUnitTest`
+  **818 tests, 0 failures**.
+
 ### Open-original share sheet — stored URI, not Act (2026-09-14)
 
 - **Date:** 2026-09-14

@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -50,8 +50,10 @@ import com.memora.app.application.preview.PreviewZoomPolicy
 import com.memora.app.application.share.ShareOriginalOutcome
 import com.memora.app.application.share.ShareOriginalRequest
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 fun interface OriginalPreviewReloader {
     suspend fun reload(
@@ -258,32 +260,46 @@ private fun ZoomableOriginalImage(
     val initialPixels = remember(initialWidthPx, initialHeightPx, initialArgb8888) {
         PreviewPixels(initialWidthPx, initialHeightPx, initialArgb8888)
     }
+    val initialImage = remember(initialPixels) { initialPixels.toImageBitmapOrNull() }
     var scale by remember(reloadRequest) { mutableFloatStateOf(PreviewZoomPolicy.MIN_SCALE) }
     var offset by remember(reloadRequest) { mutableStateOf(Offset.Zero) }
     var viewport by remember { mutableStateOf(IntSize.Zero) }
-    var pixels by remember(initialPixels) { mutableStateOf(initialPixels) }
-    var sharpening by remember { mutableStateOf(false) }
+    var image by remember(initialImage) { mutableStateOf(initialImage) }
+    var sharpening by remember(reloadRequest) { mutableStateOf(false) }
+    var couldNotSharpen by remember(reloadRequest) { mutableStateOf(false) }
     val targetEdge = PreviewZoomPolicy.renderEdgePx(scale, initialEdgePx)
 
-    LaunchedEffect(reloadRequest, targetEdge, initialPixels) {
+    LaunchedEffect(reloadRequest, targetEdge, initialImage) {
         if (!PreviewZoomPolicy.needsReload(targetEdge, initialEdgePx)) {
-            pixels = initialPixels
+            image = initialImage
             sharpening = false
+            couldNotSharpen = false
             return@LaunchedEffect
         }
         sharpening = true
         delay(PreviewZoomPolicy.RERENDER_DEBOUNCE_MS)
-        when (val loaded = reloader.reload(reloadRequest, targetEdge)) {
-            is OriginalPreviewReloadResult.Ready -> {
-                pixels = PreviewPixels(loaded.widthPx, loaded.heightPx, loaded.argb8888)
+        // Decoding and the ARGB copy both happen off the composition so a phone
+        // that cannot spare the memory degrades to honest copy, not a crash.
+        val sharper = when (val loaded = reloader.reload(reloadRequest, targetEdge)) {
+            is OriginalPreviewReloadResult.Ready -> withContext(Dispatchers.Default) {
+                PreviewPixels(loaded.widthPx, loaded.heightPx, loaded.argb8888)
+                    .toImageBitmapOrNull()
             }
-            OriginalPreviewReloadResult.Unavailable -> Unit
+            OriginalPreviewReloadResult.Unavailable -> null
+        }
+        if (sharper == null) {
+            couldNotSharpen = true
+        } else {
+            image = sharper
+            couldNotSharpen = false
         }
         sharpening = false
     }
 
-    val fittedHeight = if (pixels.widthPx > 0 && viewport.width > 0) {
-        viewport.width.toFloat() * pixels.heightPx.toFloat() / pixels.widthPx.toFloat()
+    val imageWidthPx = image?.width ?: 0
+    val imageHeightPx = image?.height ?: 0
+    val fittedHeight = if (imageWidthPx > 0 && viewport.width > 0) {
+        viewport.width.toFloat() * imageHeightPx.toFloat() / imageWidthPx.toFloat()
     } else {
         0f
     }
@@ -343,6 +359,16 @@ private fun ZoomableOriginalImage(
                     liveRegion = LiveRegionMode.Polite
                 },
             )
+        } else if (couldNotSharpen) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = OriginalPreviewZoomCopy.COULD_NOT_SHARPEN_BODY,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics {
+                    liveRegion = LiveRegionMode.Polite
+                },
+            )
         }
         Spacer(modifier = Modifier.height(8.dp))
         Box(
@@ -354,15 +380,17 @@ private fun ZoomableOriginalImage(
                 .pointerInput(reloadRequest) {
                     detectTransformGestures { _, pan, zoom, _ ->
                         scale = PreviewZoomPolicy.clampScale(scale * zoom)
+                        val currentWidthPx = image?.width ?: 0
+                        val currentHeightPx = image?.height ?: 0
                         val (x, y) = PreviewZoomPolicy.constrainOffset(
                             offsetX = offset.x + pan.x,
                             offsetY = offset.y + pan.y,
                             scale = scale,
                             viewportWidthPx = size.width.toFloat(),
                             viewportHeightPx = size.height.toFloat(),
-                            fittedHeightPx = if (pixels.widthPx > 0) {
-                                size.width.toFloat() * pixels.heightPx.toFloat() /
-                                    pixels.widthPx.toFloat()
+                            fittedHeightPx = if (currentWidthPx > 0) {
+                                size.width.toFloat() * currentHeightPx.toFloat() /
+                                    currentWidthPx.toFloat()
                             } else {
                                 0f
                             },
@@ -382,43 +410,36 @@ private fun ZoomableOriginalImage(
                 },
             contentAlignment = Alignment.Center,
         ) {
-            PreviewBitmapImage(
-                pixels = pixels,
-                contentDescription = contentDescription,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        translationX = offset.x
-                        translationY = offset.y
-                    },
-            )
+            image?.let { shown ->
+                Image(
+                    bitmap = shown,
+                    contentDescription = contentDescription,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationX = offset.x
+                            translationY = offset.y
+                        },
+                )
+            }
         }
     }
 }
 
-@Composable
-private fun PreviewBitmapImage(
-    pixels: PreviewPixels,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
-    val bitmap = remember(pixels) {
-        Bitmap.createBitmap(
-            pixels.argb8888,
-            pixels.widthPx,
-            pixels.heightPx,
-            Bitmap.Config.ARGB_8888,
-        )
+/**
+ * Never recycles: Compose may still be drawing the previous frame when a sharper
+ * read swaps the image. Returns null instead of throwing when the phone cannot
+ * spare the ARGB copy.
+ */
+private fun PreviewPixels.toImageBitmapOrNull(): ImageBitmap? =
+    if (widthPx <= 0 || heightPx <= 0 || argb8888.size != widthPx * heightPx) {
+        null
+    } else {
+        runCatching {
+            Bitmap.createBitmap(argb8888, widthPx, heightPx, Bitmap.Config.ARGB_8888)
+                .asImageBitmap()
+        }.getOrNull()
     }
-    DisposableEffect(bitmap) {
-        onDispose { bitmap.recycle() }
-    }
-    Image(
-        bitmap = bitmap.asImageBitmap(),
-        contentDescription = contentDescription,
-        modifier = modifier,
-        contentScale = ContentScale.FillWidth,
-    )
-}

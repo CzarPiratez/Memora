@@ -101,3 +101,34 @@ input.
   (`CHANGE_CONTROL_OPEN_ORIGINAL_SHARE`). First paint is still sampled;
   sharpness arrives after pinch / Zoom in.
 - **Git commit:** pending local checkpoint (not pushed).
+
+## Defect fixes after review (2026-09-14)
+
+Found by code review of this slice before the next one started. No feature
+change, no new decode budget, no new Find path.
+
+- **Z-1 recycled bitmap.** `PreviewBitmapImage` recycled its `Bitmap` in an
+  `onDispose` when a sharper read replaced it. Compose can still be drawing
+  the previous frame, which is the `Canvas: trying to use a recycled bitmap`
+  crash class — and most likely on the exact gesture this slice exists for.
+  The preview now holds an `ImageBitmap` and never recycles;
+  `FindResultThumbnail` already worked this way, so the two paths agree again.
+- **Z-2 `OutOfMemoryError`.** A 2048 px ARGB reload is ~16 MB of `IntArray`
+  plus ~16 MB of `Bitmap` while the previous buffer is still live.
+  `OutOfMemoryError` is an `Error`, so the existing `catch (Exception)` in
+  `ReloadOriginalPreview` could not see it and no other code in the app
+  handled it. It is now caught at that one decode boundary and mapped to
+  `Unavailable`. The `Bitmap` allocation also moved off the composition into
+  the reload coroutine so the same failure is recoverable there.
+- **Z-3 silent failure.** `Unavailable` cleared the spinner and left a blurry
+  picture with no explanation, while Share already had honest error copy.
+  `OriginalPreviewZoomCopy.COULD_NOT_SHARPEN_BODY` now states that UNFYND
+  could not read a sharper view on this phone and that the picture has not
+  changed, as a polite live region.
+
+- **Verification:** `ReloadOriginalPreviewTest.out_of_memory_keeps_the_preview_instead_of_crashing`,
+  `OriginalPreviewZoomCopyTest.a_failed_sharper_read_says_the_picture_did_not_change`.
+  Full `:app:testDebugUnitTest` **818 tests, 0 failures** (2026-09-14).
+- **Still open:** founder device pass. Z-1 and Z-2 are crash classes that a
+  unit suite cannot prove absent; the device pass should pinch a large PDF
+  page and a large photo repeatedly.

@@ -39,6 +39,29 @@ class ReloadOriginalPreviewTest {
     }
 
     @Test
+    fun out_of_memory_keeps_the_preview_instead_of_crashing() = runTest {
+        val reload = ReloadOriginalPreview(
+            openPdf = { _, _, _, _, _, _ -> throw OutOfMemoryError("2048 px ARGB") },
+            openPhoto = { _, _, _, _ -> throw OutOfMemoryError("2048 px ARGB") },
+            openScreenshot = { _, _, _, _ -> ScreenshotPreviewRenderResult.CouldNotOpen },
+        )
+        assertEquals(
+            OriginalPreviewReloadResult.Unavailable,
+            reload(
+                OriginalPreviewReloadRequest.Pdf("s", "k", 1, "pool.pdf"),
+                maxEdgePx = 2048,
+            ),
+        )
+        assertEquals(
+            OriginalPreviewReloadResult.Unavailable,
+            reload(
+                OriginalPreviewReloadRequest.Photo("s", "k", "receipt.jpg"),
+                maxEdgePx = 2048,
+            ),
+        )
+    }
+
+    @Test
     fun failed_open_is_unavailable_not_an_exception() = runTest {
         val reload = ReloadOriginalPreview(
             openPdf = { _, _, _, _, _, _ -> PdfPagePreviewRenderResult.SourceUnavailable },
