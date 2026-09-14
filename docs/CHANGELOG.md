@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Find result thumbnails — matched page, memory-only (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Find cards were filename + excerpt + Why + Open. On a
+  phone that is a recognition defect: the person cannot see the photo or the
+  PDF page that matched until they tap Open.
+- **Fixed.** One 128 px read-only thumbnail on every product Find card.
+  PDFs render the cited/matched page. Photos/screenshots use
+  `loadThumbnail` (API 29+) or sampled decode. Notes show an honest glyph.
+  Process-lifetime LRU only; clear-index evicts it. Ranking unchanged.
+- **Not zoom, not share.** Open still uses the 960 px buffer. Not AVAILABLE.
+- **Verification:** policy, cache, loader, scale, and copy unit tests.
+  `:app:testDebugUnitTest` **800 tests, 0 failures**.
+
 ### I3 — meaning-index Build runs in WorkManager with Stop (2026-09-14)
 
 - **Date:** 2026-09-14

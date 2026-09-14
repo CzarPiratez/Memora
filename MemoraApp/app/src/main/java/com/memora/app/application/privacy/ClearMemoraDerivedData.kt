@@ -1,6 +1,7 @@
 package com.memora.app.application.privacy
 
 import androidx.work.WorkManager
+import com.memora.app.application.find.FindThumbnailCache
 import com.memora.app.application.notes.OneNoteInteractiveAuth
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.domain.privacy.UserConfirmedDerivedDataClearer
@@ -28,6 +29,7 @@ class ClearMemoraDerivedData @Inject constructor(
     private val workManager: WorkManager,
     private val notesProviderTokenVault: NotesProviderTokenVault,
     private val oneNoteAuth: OneNoteInteractiveAuth,
+    private val findThumbnailCache: FindThumbnailCache,
 ) {
     operator fun invoke(): ClearMemoraDerivedDataResult = try {
         workManager.cancelAllWorkByTag(DefaultSafPdfDiscoveryWorkScheduler.TAG_SAF_PDF_DISCOVERY)
@@ -55,6 +57,7 @@ class ClearMemoraDerivedData @Inject constructor(
             oneNoteAuth.disconnect()
         }
         notesProviderTokenVault.clearSession()
+        findThumbnailCache.clear()
         derivedDataClearer.clear()
         ClearMemoraDerivedDataResult.Cleared(APPROVED_REBUILD_MESSAGE)
     } catch (_: Exception) {

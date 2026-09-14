@@ -46,7 +46,7 @@ expressible with the fields below. Field names are logical — not Kotlin.
 | `evidenceId`(s) and/or `EvidenceLocator` | Yes for Why | What Why cites; must resolve to stored evidence / locator. |
 | `retrievalPath` | Yes | At least `KEYWORD` \| `MEANING` (extensible later: e.g. `ANCHOR_FILTER`). Opaque enum/label for honesty — not marketing confidence. |
 | Score / rank signal | Optional | Opaque ranking signal for ordering; **do not invent user-facing confidence**. |
-| Open-original hints | When locator supports | E.g. PDF page from `PdfPageEvidenceLocator`; must not invent a page not cited by stored locator/evidence. |
+| Open-original hints | When locator supports | E.g. PDF page from `PdfPageEvidenceLocator`; must not invent a page not cited by stored locator/evidence. Find cards may show a read-only thumbnail of that same original (matched page when known); the thumbnail is presentation, not a ranking input, and a missing preview must not drop the hit. |
 
 ### Path label vocabulary (v1 minimum)
 

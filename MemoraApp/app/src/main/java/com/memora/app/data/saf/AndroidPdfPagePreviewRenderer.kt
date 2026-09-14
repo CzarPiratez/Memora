@@ -8,8 +8,8 @@ import com.memora.app.application.documents.PdfPagePreviewRenderResult
 import com.memora.app.application.documents.PdfPagePreviewRenderer
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.memora.app.application.documents.PdfPreviewScale
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -24,6 +24,7 @@ class AndroidPdfPagePreviewRenderer @Inject constructor() : PdfPagePreviewRender
         descriptor: ParcelFileDescriptor,
         pageNumber: Int,
         documentLabel: String,
+        maxEdgePx: Int,
     ): PdfPagePreviewRenderResult {
         if (pageNumber <= 0) return PdfPagePreviewRenderResult.CouldNotOpen
 
@@ -34,7 +35,7 @@ class AndroidPdfPagePreviewRenderer @Inject constructor() : PdfPagePreviewRender
                     return PdfPagePreviewRenderResult.CouldNotOpen
                 }
                 renderer.openPage(pageNumber - 1).use { page ->
-                    val scale = previewScale(page.width, page.height)
+                    val scale = PdfPreviewScale.scale(page.width, page.height, maxEdgePx)
                     val width = max(1, (page.width * scale).roundToInt())
                     val height = max(1, (page.height * scale).roundToInt())
                     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -60,15 +61,4 @@ class AndroidPdfPagePreviewRenderer @Inject constructor() : PdfPagePreviewRender
         }
     }
 
-    private fun previewScale(pageWidthPt: Int, pageHeightPt: Int): Float {
-        val w = max(1, pageWidthPt).toFloat()
-        val h = max(1, pageHeightPt).toFloat()
-        val widthScale = MAX_EDGE_PX / w
-        val heightScale = MAX_EDGE_PX / h
-        return min(widthScale, heightScale).coerceAtMost(2.5f)
-    }
-
-    private companion object {
-        const val MAX_EDGE_PX = 1440f
-    }
 }

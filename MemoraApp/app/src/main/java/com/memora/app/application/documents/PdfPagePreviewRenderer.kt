@@ -13,6 +13,7 @@ interface PdfPagePreviewRenderer {
         descriptor: ParcelFileDescriptor,
         pageNumber: Int,
         documentLabel: String,
+        maxEdgePx: Int = PdfPreviewScale.OPEN_MAX_EDGE_PX,
     ): PdfPagePreviewRenderResult
 }
 

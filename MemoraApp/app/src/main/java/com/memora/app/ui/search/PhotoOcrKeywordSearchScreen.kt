@@ -4,11 +4,13 @@ import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.memora.app.application.find.FindThumbnailRequest
 import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 
 @Composable
@@ -143,8 +146,14 @@ private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: (
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text(hit.label, fontWeight = FontWeight.SemiBold)
-            Text(hit.excerpt)
+            Row {
+                FindResultThumbnail(request = FindThumbnailRequest.fromRecall(hit.recall))
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(hit.label, fontWeight = FontWeight.SemiBold)
+                    Text(hit.excerpt)
+                }
+            }
             Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
                 Text(PhotoOcrKeywordSearchCopy.OPEN_ORIGINAL_LABEL)
             }

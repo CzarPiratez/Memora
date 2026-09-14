@@ -1,14 +1,12 @@
 package com.memora.app.application.images
 
-import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.ParcelFileDescriptor
-import android.provider.MediaStore
 import android.util.Log
+import com.memora.app.application.find.MediaStoreImageUriResolver
 import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.discovery.ImageLibraryDiscoverySource
 import com.memora.app.domain.asset.AssetRepository
@@ -36,6 +34,7 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val assetRepository: AssetRepository,
     private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
+    private val uriResolver: MediaStoreImageUriResolver,
 ) {
     suspend operator fun invoke(
         sourceId: String,
@@ -72,7 +71,7 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
         }
 
         val displayName = asset.displayName?.takeIf { it.isNotBlank() } ?: screenshotLabel
-        val candidates = candidateUris(storedUri = storedUri, displayName = displayName)
+        val candidates = uriResolver.candidates(storedUri = storedUri, displayName = displayName)
         Log.i(TAG, "Open trying ${candidates.size} URI candidate(s) for $displayName")
 
         var sawSecurity = false
@@ -98,60 +97,6 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
             sawHardFailure -> ScreenshotPreviewRenderResult.CouldNotOpen
             else -> ScreenshotPreviewRenderResult.SourceUnavailable
         }
-    }
-
-    private fun candidateUris(storedUri: Uri, displayName: String): List<Uri> {
-        val ordered = LinkedHashSet<Uri>()
-        ordered.add(storedUri)
-        val mediaId = storedUri.lastPathSegment?.toLongOrNull()
-        if (mediaId != null) {
-            ordered.add(
-                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaId),
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ordered.add(
-                    ContentUris.withAppendedId(
-                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
-                        mediaId,
-                    ),
-                )
-                ordered.add(
-                    ContentUris.withAppendedId(
-                        MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
-                        mediaId,
-                    ),
-                )
-            }
-        }
-        resolveCurrentUriByDisplayName(displayName)?.let { ordered.add(it) }
-        return ordered.toList()
-    }
-
-    private fun resolveCurrentUriByDisplayName(displayName: String): Uri? {
-        val resolver = context.applicationContext.contentResolver
-        val projection = arrayOf(MediaStore.Images.Media._ID)
-        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
-        val args = arrayOf(displayName)
-        val bases = buildList {
-            add(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                add(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL))
-                add(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY))
-            }
-        }
-        for (base in bases) {
-            val uri = try {
-                resolver.query(base, projection, selection, args, null)?.use { cursor ->
-                    if (!cursor.moveToFirst()) return@use null
-                    ContentUris.withAppendedId(base, cursor.getLong(0))
-                }
-            } catch (error: Exception) {
-                Log.w(TAG, "Display-name query failed on $base: ${error.javaClass.simpleName}")
-                null
-            }
-            if (uri != null) return uri
-        }
-        return null
     }
 
     private fun decodeScaledPreview(

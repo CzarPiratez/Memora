@@ -6,6 +6,13 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-14
 
+**Find result thumbnails landed (2026-09-14).** Every Find card — PDF, photo,
+screenshot, note; keyword and meaning — shows a 128 px read-only preview of
+the original. PDFs render the matched/cited page, not the cover. Notes show
+an honest “Note” glyph (no local page image). Cache is process-lifetime LRU
+only; clear-index evicts it. Ranking still uses stored evidence. Change
+control: `docs/CHANGE_CONTROL_FIND_RESULT_THUMBNAILS.md`.
+
 **I3 meaning-index worker landed (2026-09-14).** About **Build meaning index**
 enqueues unique work `meaning-index-drain`. The worker is the only
 auto-continue over `RunPendingMeaningIndex`. One tap drains the queue in
@@ -26,15 +33,15 @@ in consumer words (ADR-024). Shape-contract tests cover every `AssetType`.
 Change control: `docs/CHANGE_CONTROL_UNIFORM_WHY_PRESENTATION.md`.
 
 **Demo-prep sequence (founder, 2026-09-14):** uniform Why (done) → I3
-(done) → **thumbnails** → zoom → share. Wipe and rebuild the index on
-device before filming so I3 actually runs. Do not film paraphrase queries
-(`pool timetable`). Live/Dual **N = 0**.
+(done) → thumbnails (done) → **zoom** → share. Wipe and rebuild the index
+on device before filming so I3 actually runs. Check Why, I3, and thumbnails
+together on the phone. Do not film paraphrase queries (`pool timetable`).
+Live/Dual **N = 0**.
 
-**Next action:** thumbnails on Find result cards (`ContentResolver.loadThumbnail`
-/ PdfRenderer of the matched page; memory-only LRU; no plaintext disk
-cache). Then pinch-zoom with a sharp re-render of the opened original.
-Then share via stored URI (narrow Act-shaped handoff; record in
-`DECISIONS.md`). I4 measured per-item cost stays open.
+**Next action:** pinch-zoom with a sharp re-render of the opened original
+(do not only scale the 960 px Open buffer). Then share via stored URI
+(narrow Act-shaped handoff; record in `DECISIONS.md`). I4 measured
+per-item cost stays open.
 
 ---
 
@@ -107,7 +114,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 786 tests, 0 failures (2026-09-14).
+**Tree state:** unit suite **green** — 800 tests, 0 failures (2026-09-14).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),

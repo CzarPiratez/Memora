@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.WorkManager
+import com.memora.app.application.find.MemoryFindThumbnailCache
 import com.memora.app.data.local.AssetEntity
 import com.memora.app.data.local.DiscoveryCheckpointEntity
 import com.memora.app.data.local.DocumentTreeApprovalEntity
@@ -43,6 +44,7 @@ class ClearMemoraDerivedDataIntegrationTest {
             WorkManager.getInstance(context),
             com.memora.app.data.notes.KeystoreNotesProviderTokenVault(context),
             com.memora.app.application.notes.NoOpOneNoteInteractiveAuth(),
+            MemoryFindThumbnailCache(),
         )
     }
 

@@ -15,12 +15,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -63,6 +66,11 @@ import com.memora.app.ui.privacy.ClearDerivedDataViewModel
 import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
 import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
 import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
+import com.memora.app.application.find.FindThumbnailRequest
+import com.memora.app.ui.search.FindResultThumbnail
+import com.memora.app.ui.search.FindThumbnailLoader
+import com.memora.app.ui.search.FindThumbnailViewModel
+import com.memora.app.ui.search.LocalFindThumbnailLoader
 import com.memora.app.ui.search.CanonicalRecallWhyCopy
 import com.memora.app.ui.search.PdfKeywordSearchCopy
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
@@ -162,6 +170,7 @@ class MainActivity : ComponentActivity() {
     private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
     private val aiPackDisclosureViewModel: AiPackDisclosureViewModel by viewModels()
     private val meaningSearchViewModel: MeaningSearchViewModel by viewModels()
+    private val findThumbnailViewModel: FindThumbnailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,6 +192,11 @@ class MainActivity : ComponentActivity() {
             val meaningSearchUiState by meaningSearchViewModel.uiState.collectAsState()
 
             UnfyndTheme {
+                CompositionLocalProvider(
+                    LocalFindThumbnailLoader provides FindThumbnailLoader { request ->
+                        findThumbnailViewModel.load(request)
+                    },
+                ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     UnfyndApp(
                         databaseAvailabilityUiState = databaseAvailabilityUiState,
@@ -314,6 +328,7 @@ class MainActivity : ComponentActivity() {
                         onMeaningPreviewClosed = meaningSearchViewModel::onOriginalPreviewClosed,
                         modifier = Modifier.padding(innerPadding),
                     )
+                }
                 }
             }
         }
@@ -1325,17 +1340,25 @@ fun PdfKeywordSearchScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = hit.label,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = PdfKeywordSearchCopy.pageLabel(hit.pageNumber),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
+                            Row {
+                                FindResultThumbnail(
+                                    request = FindThumbnailRequest.fromRecall(hit.recall),
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = hit.label,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = PdfKeywordSearchCopy.pageLabel(hit.pageNumber),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = PdfKeywordSearchHighlight.annotatedExcerpt(
