@@ -237,7 +237,7 @@ slice can claim them. They do **not** expand MF-1.1.
 | **G2** | Summarize / compare | “summarize this PDF” · “compare two CVs” | Grounded Answers | Cards only | Blocked |
 | **G3** | Timeline / “what happened last week?” | prose about a week | Grounded Answers (`TIMELINE` reserved) | May still do **I8** file retrieval if they asked for files | Blocked |
 | **G4** | Verify yes/no | “is silky in the spelling list?” | Borderline: Why on Find vs early GA | Honest Why citing the line; no fake yes/no chip | OPEN |
-| **ACT1** | Do | open / share / remind | Act | Open original is already Find-adjacent; not a new search path | Deferred |
+| **ACT1** | Do | open / share / remind | Act | Open original + stored-URI share sheet landed (ADR-053). Remind / agentic still deferred | Share landed; remind deferred |
 
 ---
 

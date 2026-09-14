@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +47,11 @@ import androidx.compose.ui.unit.dp
 import com.memora.app.application.preview.OriginalPreviewReloadRequest
 import com.memora.app.application.preview.OriginalPreviewReloadResult
 import com.memora.app.application.preview.PreviewZoomPolicy
+import com.memora.app.application.share.ShareOriginalOutcome
+import com.memora.app.application.share.ShareOriginalRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 fun interface OriginalPreviewReloader {
     suspend fun reload(
@@ -57,6 +62,32 @@ fun interface OriginalPreviewReloader {
 
 val LocalOriginalPreviewReloader = compositionLocalOf<OriginalPreviewReloader> {
     OriginalPreviewReloader { _, _ -> OriginalPreviewReloadResult.Unavailable }
+}
+
+fun interface OriginalShareLauncher {
+    suspend fun share(request: ShareOriginalRequest): ShareOriginalOutcome
+}
+
+val LocalOriginalShareLauncher = compositionLocalOf<OriginalShareLauncher> {
+    OriginalShareLauncher { ShareOriginalOutcome.CouldNotShare }
+}
+
+fun OriginalPreviewReloadRequest.toShareRequest(): ShareOriginalRequest = when (this) {
+    is OriginalPreviewReloadRequest.Pdf -> ShareOriginalRequest.Pdf(
+        sourceId = sourceId,
+        sourceAssetKey = sourceAssetKey,
+        label = documentLabel,
+    )
+    is OriginalPreviewReloadRequest.Photo -> ShareOriginalRequest.Photo(
+        sourceId = sourceId,
+        sourceAssetKey = sourceAssetKey,
+        label = photoLabel,
+    )
+    is OriginalPreviewReloadRequest.Screenshot -> ShareOriginalRequest.Screenshot(
+        sourceId = sourceId,
+        sourceAssetKey = sourceAssetKey,
+        label = screenshotLabel,
+    )
 }
 
 private data class PreviewPixels(
@@ -96,6 +127,12 @@ fun OriginalPreviewScaffold(
     modifier: Modifier = Modifier,
     caption: String? = null,
 ) {
+    val shareLauncher = LocalOriginalShareLauncher.current
+    val shareScope = rememberCoroutineScope()
+    var sharing by remember(reloadRequest) { mutableStateOf(false) }
+    var shareOutcome by remember(reloadRequest) {
+        mutableStateOf<ShareOriginalOutcome?>(null)
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -103,8 +140,35 @@ fun OriginalPreviewScaffold(
             .padding(horizontal = 32.dp)
             .padding(top = 24.dp, bottom = 16.dp),
     ) {
-        Button(onClick = onClose) {
-            Text(closeLabel)
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = onClose,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(closeLabel)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(
+                onClick = {
+                    shareScope.launch {
+                        sharing = true
+                        shareOutcome = null
+                        try {
+                            shareOutcome = shareLauncher.share(reloadRequest.toShareRequest())
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            shareOutcome = ShareOriginalOutcome.CouldNotShare
+                        } finally {
+                            sharing = false
+                        }
+                    }
+                },
+                enabled = !sharing,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(ShareOriginalCopy.SHARE_LABEL)
+            }
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -138,6 +202,33 @@ fun OriginalPreviewScaffold(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = ShareOriginalCopy.HINT_BODY,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        when (shareOutcome) {
+            ShareOriginalOutcome.SourceUnavailable -> {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = ShareOriginalCopy.SOURCE_UNAVAILABLE_BODY,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
+            ShareOriginalOutcome.CouldNotShare -> {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = ShareOriginalCopy.COULD_NOT_SHARE_BODY,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
+            ShareOriginalOutcome.Presented, null -> Unit
+        }
         Spacer(modifier = Modifier.height(12.dp))
         ZoomableOriginalImage(
             reloadRequest = reloadRequest,

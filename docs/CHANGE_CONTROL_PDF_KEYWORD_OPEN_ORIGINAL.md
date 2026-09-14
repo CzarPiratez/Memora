@@ -31,7 +31,8 @@ UI → ViewModel → `OpenPersistedPdfForViewing` → AssetRepository + SAF brok
 
 Preview is a rendered page image, not a full PDF reader (no annotations in this
 slice). Pinch-zoom with on-device re-render landed separately:
-`docs/CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`. Share is still a later slice.
+`docs/CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`. Share of the stored URI
+landed separately: `docs/CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`.
 Folder grant must still be valid.
 
 ## Acceptance record

@@ -1943,3 +1943,54 @@ engineering tabs were for verified checkpoints (A-01, M4), not consumer onboardi
   onboarding change control.
 - Registry / CONTINUE / changelog record ADR-052.
 
+## ADR-053: User-tapped share of a stored original URI is Open-adjacent, not Act
+
+**Status:** Accepted  
+**Date:** 2026-09-14
+
+**Decision:** A person tapping **Share** on an already-opened original, which
+opens the Android share sheet with a **read-only grant** of the stored content
+URI (PDF: the same tree-document URI Open would read; photo/screenshot: a
+readable MediaStore candidate), is the same class of work as **Open original**.
+It is **not** Act.
+
+ADR-043 still stands: Act / agentic tools that act on the user's behalf,
+reminders, mutation of originals, and multi-step life tasks remain out of
+current architecture until a later ADR **and** a product-contract change.
+
+**Binding interpretation:**
+
+1. **Who initiates.** Only an explicit user tap. UNFYND never shares in the
+   background and never chooses the destination app.
+2. **What is handed off.** The original the person already owns, via a content
+   URI this app already had a grant to read. For a PDF that is the **whole
+   file**, not the cited page. Notes have no local file URI in this slice;
+   Open still goes to OneNote.
+3. **What is granted.** `FLAG_GRANT_READ_URI_PERMISSION` only. No write grant.
+   No copy of the original into UNFYND durable storage. No upload.
+4. **What this is not.** Not Act product. Not AVAILABLE. Not a second Find
+   path. Not `ACTION_VIEW` as a hidden editor. Not FileProvider cache of user
+   pixels (rejected for this slice; stored URI only).
+5. **Honest failure.** If the URI cannot be read or no target can accept it,
+   say so. Do not silently copy the file to make share work.
+
+**Out of scope / non-claims:**
+
+- Reminders, agents, chat, mutation of originals
+- Sharing a OneNote page as a local file
+- Claiming Act or marketing AVAILABLE
+- Rewriting hashed Product Contract / Freeze blobs
+
+**Reason:** J17 / ACT1 asked for “open it, share” as Act-shaped jobs. Open
+already existed. A share sheet of a stored URI lets the person hand *their*
+file to *their* app without building an agent. Recording the boundary prevents
+two failures: treating this as permission to implement Act, and refusing a
+read-only handoff because the noun “share” appears in the Act row.
+
+**Consequences:**
+
+- Implementation under `CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`
+- Registry / CONTINUE / changelog record ADR-053
+- HUMAN_RECALL J17 and MEANING_FIND ACT1: share sheet landed; remind remains out
+
+

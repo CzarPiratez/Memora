@@ -97,6 +97,11 @@ conversational memory or an untracked desktop file.
     `AiPackDisclosure` engineering flow. Device tier (`RecallRankDevicePolicy`)
     decides rerank auto-install. Not silent; not bundled in APK. Does not ship UI
     from this ADR alone.
+14. **Share sheet of a stored original URI (ADR-053):** A user tap on Share that
+    opens the Android chooser with a read-only grant of the stored content URI
+    is Open-adjacent, not Act. ADR-043 still bars agentic Act, reminders, and
+    mutation. Notes have no local file share in this slice. Implementation:
+    `CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`.
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.

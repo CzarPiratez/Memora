@@ -41,7 +41,7 @@ It must not feel like a query language. It must not invent people, dates, or cap
 | **Find** | The original(s) | Memory cards + Why | Invent facts, names, dates, captions |
 | **Keyword Find** (until one box) | Exact string | Evidence hits | Pretend to be meaning |
 | **Grounded Answers** | A claim from evidence | StructuredAnswer + citations | Run until Find can retrieve the right Memories; first GA slice is PDF text until a later spec |
-| **Act** | Do something | Open / later share | Pretend search “did” it |
+| **Act** | Do something | Open / share sheet of stored URI (ADR-053); remind later | Pretend search “did” it |
 
 “Show me the photo…” is **Find**. “What did we do last Saturday?” as prose is **Ask**. Find may still **retrieve files** for that window (time-bound Find) without writing the essay.
 
@@ -142,7 +142,7 @@ New informal English is **classified into S\*** or a new **S-class in this docum
 | **J14** | Summarize / compare | summarize this PDF | **Ask** | Cards only |
 | **J15** | Timeline prose | what did we do last Saturday | **Ask TIMELINE** | Find may still do J8 |
 | **J16** | Capability | can you search WhatsApp | Honest meta | Open |
-| **J17** | Act | open it, share | Act | Open original exists |
+| **J17** | Act | open it, share | Act | Open original + share sheet (ADR-053); remind out |
 
 ---
 

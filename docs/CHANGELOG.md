@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Open-original share sheet — stored URI, not Act (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Open could show the original but could not hand it to
+  another app the person already uses. Stretching “Act” to mean that tap
+  would have been a constitution lie; skipping share would have been a
+  demo lie.
+- **Fixed.** Share on the PDF / photo / screenshot preview opens the
+  Android chooser with a **read-only** grant of the stored content URI
+  (ADR-053). PDFs use the canonical tree-document URI Open would read.
+  Photos/screenshots walk Open’s URI candidates. Notes still open in
+  OneNote. Ranking unchanged.
+- **Not Act.** No reminders, no mutation, no upload, no FileProvider cache
+  of user pixels. Not AVAILABLE.
+- **Verification:** prepare-share and copy unit tests.
+  `:app:testDebugUnitTest` **816 tests, 0 failures**.
+
 ### Open-original pinch-zoom — re-render from the file (2026-09-14)
 
 - **Date:** 2026-09-14

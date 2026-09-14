@@ -97,6 +97,7 @@ input.
 - **Failure/recovery:** reload Unavailable keeps last pixels; Opening path
   unchanged; clear-index still drops the preview.
 - **Known limitation:** not a full PDF reader (no annotations, no page
-  swipe). Decode cap 2048 px. Share is the next demo-prep slice. First paint
-  is still sampled; sharpness arrives after pinch / Zoom in.
+  swipe). Decode cap 2048 px. Share is a separate record
+  (`CHANGE_CONTROL_OPEN_ORIGINAL_SHARE`). First paint is still sampled;
+  sharpness arrives after pinch / Zoom in.
 - **Git commit:** pending local checkpoint (not pushed).

@@ -75,6 +75,9 @@ import com.memora.app.ui.search.LocalOriginalPreviewReloader
 import com.memora.app.ui.search.OriginalPreviewReloader
 import com.memora.app.ui.search.OriginalPreviewReloadViewModel
 import com.memora.app.ui.search.OriginalPreviewScaffold
+import com.memora.app.ui.search.LocalOriginalShareLauncher
+import com.memora.app.ui.search.OriginalShareLauncher
+import com.memora.app.ui.search.ShareOriginalViewModel
 import com.memora.app.ui.search.CanonicalRecallWhyCopy
 import com.memora.app.ui.search.PdfKeywordSearchCopy
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
@@ -174,6 +177,7 @@ class MainActivity : ComponentActivity() {
     private val meaningSearchViewModel: MeaningSearchViewModel by viewModels()
     private val findThumbnailViewModel: FindThumbnailViewModel by viewModels()
     private val originalPreviewReloadViewModel: OriginalPreviewReloadViewModel by viewModels()
+    private val shareOriginalViewModel: ShareOriginalViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -201,6 +205,9 @@ class MainActivity : ComponentActivity() {
                     },
                     LocalOriginalPreviewReloader provides OriginalPreviewReloader { request, maxEdgePx ->
                         originalPreviewReloadViewModel.reload(request, maxEdgePx)
+                    },
+                    LocalOriginalShareLauncher provides OriginalShareLauncher { request ->
+                        shareOriginalViewModel.share(request)
                     },
                 ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

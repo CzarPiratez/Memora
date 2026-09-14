@@ -20,6 +20,13 @@ Zoom in / Zoom out / Fit. Failed re-render keeps the last image. Notes still
 open in OneNote. Change control:
 `docs/CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`.
 
+**Open-original share sheet landed (2026-09-14).** Share on the Open preview
+hands a read-only content URI to an app the person chooses (ADR-053: not Act).
+PDF uses the same canonical tree-document URI Open would read. Photos and
+screenshots walk Open’s URI candidates. Notes still have no local file; Open
+goes to OneNote. Change control:
+`docs/CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`.
+
 **I3 meaning-index worker landed (2026-09-14).** About **Build meaning index**
 enqueues unique work `meaning-index-drain`. The worker is the only
 auto-continue over `RunPendingMeaningIndex`. One tap drains the queue in
@@ -40,13 +47,13 @@ in consumer words (ADR-024). Shape-contract tests cover every `AssetType`.
 Change control: `docs/CHANGE_CONTROL_UNIFORM_WHY_PRESENTATION.md`.
 
 **Demo-prep sequence (founder, 2026-09-14):** uniform Why (done) → I3
-(done) → thumbnails (done) → zoom (done) → **share**. Wipe and rebuild the
+(done) → thumbnails (done) → zoom (done) → share (done). Wipe and rebuild the
 index on device before filming so I3 actually runs. Check Why, I3,
-thumbnails, and zoom together on the phone. Do not film paraphrase queries
-(`pool timetable`). Live/Dual **N = 0**.
+thumbnails, zoom, and share together on the phone. Do not film paraphrase
+queries (`pool timetable`). Live/Dual **N = 0**.
 
-**Next action:** share via stored URI (narrow Act-shaped handoff; record in
-`DECISIONS.md`). I4 measured per-item cost stays open.
+**Next action:** founder device pass of the demo-prep stack (Why, I3,
+thumbnails, zoom, share) after install. I4 measured per-item cost stays open.
 
 ---
 
@@ -119,7 +126,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 809 tests, 0 failures (2026-09-14).
+**Tree state:** unit suite **green** — 816 tests, 0 failures (2026-09-14).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),
