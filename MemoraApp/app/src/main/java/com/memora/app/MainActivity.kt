@@ -147,6 +147,7 @@ import com.memora.app.ui.setup.idlePdfFolderIndexingSummary
 import com.memora.app.ui.setup.completedScreenshotOcrExtractSummary
 import com.memora.app.ui.setup.completedPhotoOcrExtractSummary
 import com.memora.app.ui.setup.AssetMemorySetupCopy
+import com.memora.app.ui.setup.WelcomeCopy
 import com.memora.app.ui.setup.AssetMemorySetupState
 import com.memora.app.ui.setup.AssetMemorySetupViewModel
 import com.memora.app.ui.setup.pdfLocalReadingBody
@@ -753,10 +754,12 @@ private fun UnfyndAppReady(
             isShowingPdfKeywordSearch -> {
                 val preview = pdfKeywordSearchUiState.originalPreview
                 if (preview != null) {
+                    // Full-bleed: the preview draws its own dark canvas behind
+                    // the system bars and insets only its floating chrome.
                     PdfOriginalPreviewScreen(
                         preview = preview,
                         onClose = onPdfKeywordPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 } else {
                     PdfKeywordSearchScreen(
@@ -779,7 +782,7 @@ private fun UnfyndAppReady(
                     ScreenshotOriginalPreviewScreen(
                         preview = preview,
                         onClose = onScreenshotOcrKeywordPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 } else {
                     ScreenshotOcrKeywordSearchScreen(
@@ -802,7 +805,7 @@ private fun UnfyndAppReady(
                     PhotoOriginalPreviewScreen(
                         preview = preview,
                         onClose = onPhotoOcrKeywordPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                 } else {
                     PhotoOcrKeywordSearchScreen(
@@ -841,17 +844,17 @@ private fun UnfyndAppReady(
                     is MeaningOriginalPreviewUi.Screenshot -> ScreenshotOriginalPreviewScreen(
                         preview = preview.preview,
                         onClose = onMeaningPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                     is MeaningOriginalPreviewUi.Photo -> PhotoOriginalPreviewScreen(
                         preview = preview.preview,
                         onClose = onMeaningPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                     is MeaningOriginalPreviewUi.Pdf -> PdfOriginalPreviewScreen(
                         preview = preview.preview,
                         onClose = onMeaningPreviewClosed,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxSize(),
                     )
                     null -> MeaningSearchScreen(
                         uiState = meaningSearchUiState,
@@ -1053,19 +1056,14 @@ fun UnfyndWelcomeScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "UNFYND",
+            text = WelcomeCopy.PRODUCT_NAME,
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "What are you trying to remember?",
+            text = WelcomeCopy.TAGLINE,
             style = MaterialTheme.typography.titleMedium,
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Your privacy-first, on-device AI",
-            style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(24.dp))
         Card(
@@ -1076,13 +1074,13 @@ fun UnfyndWelcomeScreen(
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
-                    text = "Your privacy comes first",
+                    text = WelcomeCopy.PRIVACY_CARD_TITLE,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "We will explain and request access before reading anything on your phone.",
+                    text = WelcomeCopy.PRIVACY_CARD_BODY,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -1429,10 +1427,15 @@ fun PdfOriginalPreviewScreen(
         closeLabel = PdfKeywordSearchCopy.CLOSE_PREVIEW_LABEL,
         title = PdfKeywordSearchCopy.PREVIEW_TITLE,
         subtitle = preview.documentLabel,
-        caption = PdfKeywordSearchCopy.previewPageCaption(
-            pageNumber = preview.pageNumber,
-            pageCount = preview.pageCount,
-        ),
+        // A page chip on a one-page document tells nobody anything.
+        caption = if (preview.pageCount > 1) {
+            PdfKeywordSearchCopy.previewPageCaption(
+                pageNumber = preview.pageNumber,
+                pageCount = preview.pageCount,
+            )
+        } else {
+            null
+        },
         scopeBody = PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
         contentDescription = PdfKeywordSearchCopy.previewImageContentDescription(
             documentLabel = preview.documentLabel,

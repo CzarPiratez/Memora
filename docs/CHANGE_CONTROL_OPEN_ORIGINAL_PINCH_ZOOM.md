@@ -33,7 +33,12 @@ viewer, disk cache of user pixels, AVAILABLE, a new Find path, or Live/Dual grow
   over the existing Open use cases; one `OriginalPreviewScaffold` on PDF /
   photo / screenshot preview (keyword + meaning). Notes unchanged.
 - **Acceptance criteria:**
-  - [x] Pinch and Zoom in / Zoom out / Fit buttons (TalkBack)
+  - [x] Pinch and Zoom in / Zoom out / Fit buttons (TalkBack) — **amended
+        2026-09-15:** the visible button row was removed when the preview became
+        full-bleed. The three steps are now TalkBack
+        `CustomAccessibilityAction`s on the image, so the capability this
+        criterion protects is intact with no visible chrome. See
+        `CHANGE_CONTROL_OPEN_ORIGINAL_MINIMAL_VIEWER.md`.
   - [x] Scale above ~1.2 re-renders from the original at a stepped edge ≤ 2048
   - [x] First paint stays the existing Open budget (960 / 1440)
   - [x] Failed re-render keeps the last sharp-enough image; preview stays open

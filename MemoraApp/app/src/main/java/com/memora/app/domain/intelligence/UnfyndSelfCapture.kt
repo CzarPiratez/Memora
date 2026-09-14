@@ -3,10 +3,12 @@ package com.memora.app.domain.intelligence
 /**
  * Pictures of UNFYND itself (Ask Model D16 / defect D-14).
  *
- * A screenshot of Find contains the product chrome — "What are you trying
- * to remember?", "Search by meaning on this phone" — so it matches the cue
- * and outranks the original file. Detection uses those stored phrases plus
- * an UNFYND-labelled filename. Not a filename-only denylist.
+ * A screenshot of Find contains the product chrome — "Search by meaning on
+ * this phone", "Find by meaning", the former Welcome prompt "What are you
+ * trying to remember?" — so it matches the cue and outranks the original file.
+ * Detection uses those stored phrases plus an UNFYND-labelled filename. Not a
+ * filename-only denylist. The retired Welcome prompt stays listed so older
+ * self-captures still demote.
  *
  * Two chrome markers, or one marker plus an UNFYND label, is a self-capture.
  * One stray phrase in a real document is not.
@@ -23,6 +25,7 @@ object UnfyndSelfCapture {
 
     private val CHROME = listOf(
         "what are you trying to remember",
+        "your privacy first, on-device ai",
         "search by meaning on this phone",
         "find by meaning",
         "why this result?",

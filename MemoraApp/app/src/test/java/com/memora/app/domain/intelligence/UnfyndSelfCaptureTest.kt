@@ -26,6 +26,16 @@ class UnfyndSelfCaptureTest {
     }
 
     @Test
+    fun current_welcome_tagline_plus_find_chrome_is_a_self_capture() {
+        assertTrue(
+            UnfyndSelfCapture.matches(
+                label = "Screenshot_20260914.png",
+                text = "Your privacy first, on-device AI Find by meaning",
+            ),
+        )
+    }
+
+    @Test
     fun a_real_timetable_is_not_a_self_capture() {
         assertFalse(
             UnfyndSelfCapture.matches(

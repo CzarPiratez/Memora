@@ -2,6 +2,57 @@
 
 ## Unreleased
 
+### The opened original is the screen (2026-09-15)
+
+- **Date:** 2026-09-15
+- **Why it existed.** The Open preview stacked a header, filename, page
+  caption and three explanatory paragraphs above the picture, so the evidence
+  got about a third of the screen. Two of those paragraphs taught pinch-to-zoom
+  and "Back returns here" — gestures every Android user already knows.
+- **Fixed.** The original is now full-bleed on a near-black canvas. Back,
+  Share and info are 24 dp icons on 48 dp targets in translucent circles over a
+  scrim so they stay legible on a white PDF page; **Open** is one pill at the
+  bottom and the only labelled control. Chrome fades during a gesture and
+  returns on a tap. Zoom is pinch and double-tap; the visible Zoom in / Zoom
+  out / Fit row is gone.
+- **Accessibility kept, not dropped.** Those three zoom steps are now TalkBack
+  `CustomAccessibilityAction`s on the image, because a screen-reader user cannot
+  pinch. `CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md` is amended rather than
+  silently contradicted.
+- **Honesty kept.** The trust line — search used saved text, not a live re-read
+  — plus the handoff and zoom explanations and the screen title moved into
+  **About this preview** behind the info icon, unchanged in wording. Failures
+  still speak and sit outside the fade, so the gesture that caused one cannot
+  hide it.
+- **Two smaller fixes.** The filename now runs through `friendlyDisplayLabel`,
+  so the 40-character storage hash is gone; and a page chip only appears when a
+  document has more than one page.
+- **No new dependency.** Three local vector drawables instead of
+  `material-icons-*`.
+- **System bars follow the canvas.** The first device build showed a dark
+  clock on black and a pale navigation band, because the rest of the app is
+  light. The preview now flips the system-bar icons to light while it is on
+  screen and restores the app's choice on exit.
+- **Verification:** `:app:testDebugUnitTest` **835 tests, 0 failures**;
+  `:app:compileDebugKotlin` succeeded. Device: founder's A15, keyword PDF
+  preview verified 2026-09-15 including system-bar contrast. TalkBack zoom
+  actions, photo/screenshot, Open, Share and OneNote still open.
+- **Change control:** `docs/CHANGE_CONTROL_OPEN_ORIGINAL_MINIMAL_VIEWER.md`.
+
+### Welcome tagline is the privacy promise (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Welcome asked "What are you trying to remember?" before
+  anyone had a file indexed, then repeated a privacy line underneath.
+- **Fixed.** The line under UNFYND is now "Your privacy first, on-device AI".
+  The duplicate body line is gone. The permission card is unchanged. Meaning
+  Find's field label is "A short recall cue" so the retired prompt is not still
+  on that screen. Self-capture still demotes screenshots of the old chrome.
+- **Verification:** `WelcomeCopyTest`, `MeaningSearchCopyTest`,
+  `UnfyndSelfCaptureTest` — **BUILD SUCCESSFUL**. Device: open Welcome after
+  install.
+- **Change control:** `docs/CHANGE_CONTROL_WELCOME_TAGLINE.md`.
+
 ### Open the whole original in another app (2026-09-14)
 
 - **Date:** 2026-09-14

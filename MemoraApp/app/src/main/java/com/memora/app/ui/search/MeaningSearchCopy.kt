@@ -21,7 +21,7 @@ object MeaningSearchCopy {
             "index. Use keyword Find for exact words. Your memories never leave this phone " +
             "for search."
 
-    const val QUERY_LABEL = "What are you trying to remember?"
+    const val QUERY_LABEL = "A short recall cue"
 
     const val SEARCH_LABEL = "Search by meaning on this phone"
 

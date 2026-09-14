@@ -10,6 +10,14 @@ import org.junit.Test
 
 class MeaningSearchCopyTest {
     @Test
+    fun query_label_is_a_recall_cue_not_the_retired_welcome_prompt() {
+        assertFalse(
+            MeaningSearchCopy.QUERY_LABEL.contains("trying to remember", ignoreCase = true),
+        )
+        assertTrue(MeaningSearchCopy.QUERY_LABEL.contains("recall cue", ignoreCase = true))
+    }
+
+    @Test
     fun scope_and_readiness_describe_on_device_meaning_search() {
         val ready = MeaningSearchCopy.readinessBody(
             MeaningSearchReadiness.Ready(

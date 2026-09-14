@@ -27,6 +27,18 @@ class OriginalHandoffCopyTest {
         assertFalse(copy.contains("openai"))
     }
 
+    /**
+     * The hint lives behind the info icon now, so it must still name both
+     * actions by the labels the person actually sees.
+     */
+    @Test
+    fun the_hint_names_the_two_actions_it_explains() {
+        val hint = OriginalHandoffCopy.HINT_BODY
+        assertTrue(hint.contains(OriginalHandoffCopy.OPEN_LABEL))
+        assertTrue(hint.contains(OriginalHandoffCopy.SHARE_LABEL))
+        assertFalse(hint.contains("Open full file"))
+    }
+
     @Test
     fun the_hint_promises_read_only_and_a_way_back() {
         val hint = OriginalHandoffCopy.HINT_BODY.lowercase()

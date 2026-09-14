@@ -6,6 +6,25 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-14
 
+**The opened original is the screen (2026-09-15).** The Open preview is now
+full-bleed on a near-black canvas. Back, Share and info are icons in
+translucent circles over a scrim; **Open** is one pill and the only labelled
+control; chrome fades during a gesture and returns on a tap. Zoom is pinch and
+double-tap — the visible Zoom in / Zoom out / Fit row is gone, and those three
+steps are TalkBack `CustomAccessibilityAction`s instead. The trust line, the
+handoff and zoom explanations and the title moved behind **About this preview**;
+failures stay outside the fade. Filename now uses `friendlyDisplayLabel` (no
+storage hash) and the page chip only appears above one page. No new dependency.
+The screen also flips the system-bar icons to light while it is open, because
+the light app made the clock unreadable on the dark canvas. Keyword PDF preview
+verified on the A15 on 2026-09-15. Change control:
+`docs/CHANGE_CONTROL_OPEN_ORIGINAL_MINIMAL_VIEWER.md`.
+
+**Welcome tagline (2026-09-14).** Welcome no longer asks "What are you trying
+to remember?". The line under UNFYND is **Your privacy first, on-device AI**.
+Meaning Find's field label is "A short recall cue". Change control:
+`docs/CHANGE_CONTROL_WELCOME_TAGLINE.md`.
+
 **Find result thumbnails landed (2026-09-14).** Every Find card — PDF, photo,
 screenshot, note; keyword and meaning — shows a 128 px read-only preview of
 the original. PDFs render the matched/cited page, not the cover. Notes show
@@ -74,11 +93,14 @@ runs. Check Why, I3, thumbnails, zoom, share, and Open full file together on
 the phone. Do not film paraphrase queries (`pool timetable`).
 Live/Dual **N = 0**.
 
-**Next action:** founder device pass of the demo-prep stack after install.
-Four things only a phone can prove: (1) pinch a large PDF page and a large
-photo repeatedly — no crash, no blank preview; (2) Open original note opens
-the **OneNote app**, not the browser; (3) Open full file opens the real
-reader and **Back returns to UNFYND**; (4) Share still works. I4 measured
+**Next action:** founder device pass on the A15. Welcome reads **UNFYND** /
+**Your privacy first, on-device AI** — confirmed on device 2026-09-14. Still to
+prove on a phone: (1) the new full-bleed preview — icons legible over a white
+PDF page, chrome fades and returns, **Open** pill reachable, info shows the
+filename with no hash; (2) pinch a large PDF page and a large photo repeatedly
+— no crash, no blank preview; (3) Open original note opens the **OneNote app**,
+not the browser; (4) Open opens the real reader and **Back returns to UNFYND**;
+(5) Share still works; (6) TalkBack zoom actions on the image. I4 measured
 per-item cost stays open.
 
 ---

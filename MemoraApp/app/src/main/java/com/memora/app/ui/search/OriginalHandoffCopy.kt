@@ -8,10 +8,16 @@ package com.memora.app.ui.search
  */
 object OriginalHandoffCopy {
     const val SHARE_LABEL = "Share"
-    const val OPEN_LABEL = "Open full file"
+
+    /**
+     * One word, and the only text on the preview. No icon reliably reads as
+     * "open this in another app" to someone who is not an engineer, so this
+     * action keeps a label while Back, Share, and info are icons.
+     */
+    const val OPEN_LABEL = "Open"
 
     const val HINT_BODY =
-        "Open full file and Share hand the original on this phone to an app you " +
+        "Open and Share hand the original on this phone to an app you " +
             "choose — the whole file, not only this page. UNFYND hands over a " +
             "read-only view; it does not upload or change the file. Back brings " +
             "you here."
