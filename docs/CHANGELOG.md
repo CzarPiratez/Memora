@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Open-original pinch-zoom — re-render from the file (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Open showed a 960 px (photo/screenshot) or 1440 px
+  (PDF) buffer. Pinch would only have stretched those pixels, so a cited
+  PDF line went blurry the moment someone tried to read it.
+- **Fixed.** One preview chrome for PDF, photo, and screenshot (keyword and
+  meaning). Pinch, double-tap, and Zoom in / Zoom out / Fit. After ~1.2×,
+  UNFYND re-opens the original on this phone at a stepped edge up to
+  2048 px. Failed re-render keeps the last image. Notes still open in
+  OneNote. Ranking unchanged.
+- **Not share, not a PDF reader.** No annotations, no page swipe, no Act.
+  Not AVAILABLE.
+- **Verification:** zoom policy, reload mapping, copy, sample-size, and
+  Open identity unit tests. `:app:testDebugUnitTest` **809 tests, 0 failures**.
+
 ### Find result thumbnails — matched page, memory-only (2026-09-14)
 
 - **Date:** 2026-09-14

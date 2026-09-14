@@ -40,10 +40,12 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
         sourceId: String,
         sourceAssetKey: String,
         screenshotLabel: String,
+        maxEdgePx: Int = MAX_PREVIEW_EDGE_PX,
     ): ScreenshotPreviewRenderResult = withContext(Dispatchers.IO) {
         require(sourceId.isNotBlank()) { "Open original needs a source id." }
         require(sourceAssetKey.isNotBlank()) { "Open original needs a source asset key." }
         require(screenshotLabel.isNotBlank()) { "Open original needs a screenshot label." }
+        require(maxEdgePx > 0) { "Open original needs a positive decode edge." }
 
         if (imageLibraryDiscoverySource.accessScope() == null) {
             Log.w(TAG, "Open blocked: photo access required.")
@@ -78,7 +80,13 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
         var sawHardFailure = false
         for (uri in candidates) {
             try {
-                when (val decoded = decodeScaledPreview(uri = uri, screenshotLabel = screenshotLabel)) {
+                when (
+                    val decoded = decodeScaledPreview(
+                        uri = uri,
+                        screenshotLabel = screenshotLabel,
+                        maxEdgePx = maxEdgePx,
+                    )
+                ) {
                     is ScreenshotPreviewRenderResult.Ready -> return@withContext decoded
                     ScreenshotPreviewRenderResult.SourceUnavailable -> Unit
                     ScreenshotPreviewRenderResult.CouldNotOpen -> sawHardFailure = true
@@ -102,6 +110,7 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
     private fun decodeScaledPreview(
         uri: Uri,
         screenshotLabel: String,
+        maxEdgePx: Int,
     ): ScreenshotPreviewRenderResult {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         if (!decodeInto(uri, bounds)) {
@@ -114,7 +123,7 @@ class OpenPersistedScreenshotForViewing @Inject constructor(
         val sampleSize = computeInSampleSize(
             width = bounds.outWidth,
             height = bounds.outHeight,
-            maxEdgePx = MAX_PREVIEW_EDGE_PX,
+            maxEdgePx = maxEdgePx,
         )
         val decodeOptions = BitmapFactory.Options().apply {
             inSampleSize = sampleSize

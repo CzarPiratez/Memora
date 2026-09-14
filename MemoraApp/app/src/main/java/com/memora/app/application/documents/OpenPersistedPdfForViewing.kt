@@ -31,11 +31,13 @@ class OpenPersistedPdfForViewing @Inject constructor(
         pageNumber: Int,
         documentLabel: String,
         cancellationSignal: CancellationSignal? = null,
+        maxEdgePx: Int = PdfPreviewScale.OPEN_MAX_EDGE_PX,
     ): PdfPagePreviewRenderResult = withContext(Dispatchers.IO) {
         require(pageNumber > 0) { "Open original needs a positive page number." }
         require(sourceId.isNotBlank()) { "Open original needs a source id." }
         require(sourceAssetKey.isNotBlank()) { "Open original needs a source asset key." }
         require(documentLabel.isNotBlank()) { "Open original needs a document label." }
+        require(maxEdgePx > 0) { "Open original needs a positive decode edge." }
 
         val record = assetRepository.find(
             AssetIdentity(SourceId(sourceId), SourceAssetKey(sourceAssetKey)),
@@ -60,6 +62,7 @@ class OpenPersistedPdfForViewing @Inject constructor(
                     descriptor = pfd,
                     pageNumber = pageNumber,
                     documentLabel = documentLabel,
+                    maxEdgePx = maxEdgePx,
                 )
             }
         ) {

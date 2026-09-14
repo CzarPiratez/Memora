@@ -489,6 +489,8 @@ class PdfKeywordSearchViewModelTest {
         val preview = viewModel.uiState.value.originalPreview
         assertEquals(2, preview?.pageNumber)
         assertEquals(2, preview?.pageCount)
+        assertEquals("source-1", preview?.sourceId)
+        assertEquals("asset-1", preview?.sourceAssetKey)
         assertEquals(PdfOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
     }
 

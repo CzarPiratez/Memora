@@ -22,6 +22,7 @@ class OpenPersistedPhotoForViewingTest {
     @Test
     fun sampleSizeCapsLargePhoto() {
         assertEquals(8, OpenPersistedPhotoForViewing.computeInSampleSize(4000, 3000, 960))
+        assertEquals(2, OpenPersistedPhotoForViewing.computeInSampleSize(4000, 3000, 2048))
         assertEquals(1, OpenPersistedPhotoForViewing.computeInSampleSize(800, 600, 960))
     }
 }

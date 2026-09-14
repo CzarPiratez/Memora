@@ -1,8 +1,6 @@
 package com.memora.app.ui.search
 
-import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,8 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -46,6 +42,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.find.FindThumbnailRequest
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
+import com.memora.app.application.preview.OriginalPreviewReloadRequest
+import com.memora.app.application.preview.PreviewZoomPolicy
 
 @Composable
 fun ScreenshotOcrKeywordSearchScreen(
@@ -266,53 +264,26 @@ fun ScreenshotOriginalPreviewScreen(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onClose)
-    val imageBitmap = remember(preview.widthPx, preview.heightPx, preview.screenshotLabel) {
-        Bitmap.createBitmap(
-            preview.argb8888,
-            preview.widthPx,
-            preview.heightPx,
-            Bitmap.Config.ARGB_8888,
-        ).asImageBitmap()
-    }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp)
-            .padding(vertical = 24.dp),
-    ) {
-        Button(onClick = onClose) {
-            Text(ScreenshotOcrKeywordSearchCopy.CLOSE_PREVIEW_LABEL)
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = ScreenshotOcrKeywordSearchCopy.PREVIEW_TITLE,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { heading() },
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = preview.screenshotLabel,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = ScreenshotOcrKeywordSearchCopy.previewImageContentDescription(
-                screenshotLabel = preview.screenshotLabel,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
-        )
-    }
+    OriginalPreviewScaffold(
+        onClose = onClose,
+        closeLabel = ScreenshotOcrKeywordSearchCopy.CLOSE_PREVIEW_LABEL,
+        title = ScreenshotOcrKeywordSearchCopy.PREVIEW_TITLE,
+        subtitle = preview.screenshotLabel,
+        scopeBody = ScreenshotOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+        contentDescription = ScreenshotOcrKeywordSearchCopy.previewImageContentDescription(
+            screenshotLabel = preview.screenshotLabel,
+        ),
+        reloadRequest = OriginalPreviewReloadRequest.Screenshot(
+            sourceId = preview.sourceId,
+            sourceAssetKey = preview.sourceAssetKey,
+            screenshotLabel = preview.screenshotLabel,
+        ),
+        initialEdgePx = PreviewZoomPolicy.IMAGE_INITIAL_EDGE_PX,
+        widthPx = preview.widthPx,
+        heightPx = preview.heightPx,
+        argb8888 = preview.argb8888,
+        modifier = modifier,
+    )
 }
 
 @Composable

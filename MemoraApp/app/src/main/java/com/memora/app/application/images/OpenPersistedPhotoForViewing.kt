@@ -27,8 +27,10 @@ class OpenPersistedPhotoForViewing @Inject constructor(
         sourceId: String,
         sourceAssetKey: String,
         photoLabel: String,
+        maxEdgePx: Int = MAX_PREVIEW_EDGE_PX,
     ): PhotoPreviewRenderResult = withContext(Dispatchers.IO) {
         require(sourceId.isNotBlank() && sourceAssetKey.isNotBlank() && photoLabel.isNotBlank())
+        require(maxEdgePx > 0) { "Open original needs a positive decode edge." }
         if (imageLibraryDiscoverySource.accessScope() == null) {
             return@withContext PhotoPreviewRenderResult.SourceUnavailable
         }
@@ -50,7 +52,7 @@ class OpenPersistedPhotoForViewing @Inject constructor(
                 inSampleSize = computeInSampleSize(
                     bounds.outWidth,
                     bounds.outHeight,
-                    MAX_PREVIEW_EDGE_PX,
+                    maxEdgePx,
                 )
                 inPreferredConfig = Bitmap.Config.ARGB_8888
             }

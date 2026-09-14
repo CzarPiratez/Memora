@@ -29,8 +29,10 @@ UI → ViewModel → `OpenPersistedPdfForViewing` → AssetRepository + SAF brok
 
 ## Known limitation
 
-Preview is a rendered page image, not a full PDF reader (no pinch-zoom suite,
-annotations, or external share in this slice). Folder grant must still be valid.
+Preview is a rendered page image, not a full PDF reader (no annotations in this
+slice). Pinch-zoom with on-device re-render landed separately:
+`docs/CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`. Share is still a later slice.
+Folder grant must still be valid.
 
 ## Acceptance record
 

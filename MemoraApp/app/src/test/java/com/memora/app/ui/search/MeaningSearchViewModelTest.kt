@@ -124,6 +124,7 @@ class MeaningSearchViewModelTest {
             "Screenshot_memora_note.png",
             (preview as MeaningOriginalPreviewUi.Screenshot).preview.screenshotLabel,
         )
+        assertEquals("s", preview.preview.sourceId)
         assertEquals(MeaningOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
     }
 

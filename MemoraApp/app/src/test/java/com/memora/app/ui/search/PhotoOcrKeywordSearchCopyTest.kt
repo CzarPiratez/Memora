@@ -54,5 +54,9 @@ class PhotoOcrKeywordSearchCopyTest {
     @Test
     fun preview_copy_stays_memory_evidence_honest() {
         assertTrue(PhotoOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY.contains("Memory evidence"))
+        assertEquals(
+            "Read-only preview of \"receipt.jpg\".",
+            PhotoOcrKeywordSearchCopy.previewImageContentDescription("receipt.jpg"),
+        )
     }
 }

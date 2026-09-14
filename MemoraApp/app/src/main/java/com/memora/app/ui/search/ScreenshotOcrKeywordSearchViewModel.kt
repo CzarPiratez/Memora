@@ -105,12 +105,16 @@ sealed interface ScreenshotOpenFeedbackUi {
 }
 
 data class ScreenshotOriginalPreviewUi(
+    val sourceId: String,
+    val sourceAssetKey: String,
     val screenshotLabel: String,
     val widthPx: Int,
     val heightPx: Int,
     val argb8888: IntArray,
 ) {
     init {
+        require(sourceId.isNotBlank()) { "Preview UI needs a source id." }
+        require(sourceAssetKey.isNotBlank()) { "Preview UI needs a source asset key." }
         require(screenshotLabel.isNotBlank()) { "Preview UI needs a screenshot label." }
         require(widthPx > 0 && heightPx > 0)
         require(argb8888.size == widthPx * heightPx)
@@ -119,14 +123,18 @@ data class ScreenshotOriginalPreviewUi(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ScreenshotOriginalPreviewUi) return false
-        return screenshotLabel == other.screenshotLabel &&
+        return sourceId == other.sourceId &&
+            sourceAssetKey == other.sourceAssetKey &&
+            screenshotLabel == other.screenshotLabel &&
             widthPx == other.widthPx &&
             heightPx == other.heightPx &&
             argb8888.contentEquals(other.argb8888)
     }
 
     override fun hashCode(): Int {
-        var result = screenshotLabel.hashCode()
+        var result = sourceId.hashCode()
+        result = 31 * result + sourceAssetKey.hashCode()
+        result = 31 * result + screenshotLabel.hashCode()
         result = 31 * result + widthPx
         result = 31 * result + heightPx
         result = 31 * result + argb8888.contentHashCode()
@@ -304,6 +312,8 @@ class ScreenshotOcrKeywordSearchViewModel(
                 is ScreenshotPreviewRenderResult.Ready -> mutableUiState.value.copy(
                     openFeedback = ScreenshotOpenFeedbackUi.None,
                     originalPreview = ScreenshotOriginalPreviewUi(
+                        sourceId = hit.sourceId,
+                        sourceAssetKey = hit.sourceAssetKey,
                         screenshotLabel = outcome.screenshotLabel,
                         widthPx = outcome.widthPx,
                         heightPx = outcome.heightPx,

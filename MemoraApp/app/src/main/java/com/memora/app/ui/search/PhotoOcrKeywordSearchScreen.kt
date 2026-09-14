@@ -1,8 +1,6 @@
 package com.memora.app.ui.search
 
-import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.memora.app.application.find.FindThumbnailRequest
 import com.memora.app.application.images.PhotoOcrKeywordSearchHit
+import com.memora.app.application.preview.OriginalPreviewReloadRequest
+import com.memora.app.application.preview.PreviewZoomPolicy
 
 @Composable
 fun PhotoOcrKeywordSearchScreen(
@@ -180,26 +178,24 @@ fun PhotoOriginalPreviewScreen(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onClose)
-    val image = remember(preview) {
-        Bitmap.createBitmap(
-            preview.argb8888,
-            preview.widthPx,
-            preview.heightPx,
-            Bitmap.Config.ARGB_8888,
-        ).asImageBitmap()
-    }
-    Column(
-        modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState()).padding(24.dp),
-    ) {
-        Button(onClick = onClose) { Text(PhotoOcrKeywordSearchCopy.CLOSE_PREVIEW_LABEL) }
-        Text(PhotoOcrKeywordSearchCopy.PREVIEW_TITLE, style = MaterialTheme.typography.headlineSmall)
-        Text(preview.photoLabel)
-        Text(PhotoOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY)
-        Image(
-            bitmap = image,
-            contentDescription = "Read-only preview of ${preview.photoLabel}",
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
-        )
-    }
+    OriginalPreviewScaffold(
+        onClose = onClose,
+        closeLabel = PhotoOcrKeywordSearchCopy.CLOSE_PREVIEW_LABEL,
+        title = PhotoOcrKeywordSearchCopy.PREVIEW_TITLE,
+        subtitle = preview.photoLabel,
+        scopeBody = PhotoOcrKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+        contentDescription = PhotoOcrKeywordSearchCopy.previewImageContentDescription(
+            preview.photoLabel,
+        ),
+        reloadRequest = OriginalPreviewReloadRequest.Photo(
+            sourceId = preview.sourceId,
+            sourceAssetKey = preview.sourceAssetKey,
+            photoLabel = preview.photoLabel,
+        ),
+        initialEdgePx = PreviewZoomPolicy.IMAGE_INITIAL_EDGE_PX,
+        widthPx = preview.widthPx,
+        heightPx = preview.heightPx,
+        argb8888 = preview.argb8888,
+        modifier = modifier,
+    )
 }

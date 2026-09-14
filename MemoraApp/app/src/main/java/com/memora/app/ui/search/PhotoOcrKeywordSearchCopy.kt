@@ -42,6 +42,11 @@ object PhotoOcrKeywordSearchCopy {
             "Search still used saved Memory evidence on this phone — not a live re-read " +
             "of the image for keywords."
 
+    fun previewImageContentDescription(photoLabel: String): String {
+        require(photoLabel.isNotBlank()) { "Preview image description needs a photo label." }
+        return "Read-only preview of \"$photoLabel\"."
+    }
+
     fun noMatchesBody(query: String) =
         "No photo memory evidence on this phone matched \"$query\"."
 

@@ -122,6 +122,7 @@ class ScreenshotOcrKeywordSearchViewModelTest {
         val preview = viewModel.uiState.value.originalPreview
         assertEquals("Screenshot_memora_note.png", preview?.screenshotLabel)
         assertEquals(2, preview?.widthPx)
+        assertEquals("android-media-store-images", preview?.sourceId)
         assertEquals(ScreenshotOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
     }
 

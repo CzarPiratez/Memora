@@ -100,7 +100,7 @@ size, and never a ranking input.
   together.
 - **Failure/recovery:** missing grant / missing file → glyph; hit stays;
   failures not cached.
-- **Known limitation:** zoom still pinches the 960 px Open buffer (next slice).
-  Lists are not lazy; decode concurrency is the backstop. No foreground
-  prefetch beyond visible composition.
+- **Known limitation:** lists are not lazy; decode concurrency is the backstop.
+  No foreground prefetch beyond visible composition. Open pinch-zoom is a
+  separate record (`CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM`).
 - **Git commit:** pending local checkpoint (not pushed).

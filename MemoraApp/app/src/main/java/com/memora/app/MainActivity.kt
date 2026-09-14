@@ -71,6 +71,10 @@ import com.memora.app.ui.search.FindResultThumbnail
 import com.memora.app.ui.search.FindThumbnailLoader
 import com.memora.app.ui.search.FindThumbnailViewModel
 import com.memora.app.ui.search.LocalFindThumbnailLoader
+import com.memora.app.ui.search.LocalOriginalPreviewReloader
+import com.memora.app.ui.search.OriginalPreviewReloader
+import com.memora.app.ui.search.OriginalPreviewReloadViewModel
+import com.memora.app.ui.search.OriginalPreviewScaffold
 import com.memora.app.ui.search.CanonicalRecallWhyCopy
 import com.memora.app.ui.search.PdfKeywordSearchCopy
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
@@ -143,11 +147,9 @@ import com.memora.app.ui.setup.AssetMemorySetupViewModel
 import com.memora.app.ui.setup.pdfLocalReadingBody
 import com.memora.app.ui.theme.UnfyndTheme
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import android.graphics.Bitmap
 import com.memora.app.application.documents.PdfKeywordSearchHit
+import com.memora.app.application.preview.OriginalPreviewReloadRequest
+import com.memora.app.application.preview.PreviewZoomPolicy
 import com.memora.app.ui.search.PdfOpenFeedbackUi
 import com.memora.app.ui.search.PdfOriginalPreviewUi
 import com.memora.app.ui.search.WhyDisclosure
@@ -171,6 +173,7 @@ class MainActivity : ComponentActivity() {
     private val aiPackDisclosureViewModel: AiPackDisclosureViewModel by viewModels()
     private val meaningSearchViewModel: MeaningSearchViewModel by viewModels()
     private val findThumbnailViewModel: FindThumbnailViewModel by viewModels()
+    private val originalPreviewReloadViewModel: OriginalPreviewReloadViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -195,6 +198,9 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalFindThumbnailLoader provides FindThumbnailLoader { request ->
                         findThumbnailViewModel.load(request)
+                    },
+                    LocalOriginalPreviewReloader provides OriginalPreviewReloader { request, maxEdgePx ->
+                        originalPreviewReloadViewModel.reload(request, maxEdgePx)
                     },
                 ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -1406,64 +1412,33 @@ fun PdfOriginalPreviewScreen(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onClose)
-    val imageBitmap = remember(preview) {
-        Bitmap.createBitmap(
-            preview.argb8888,
-            preview.widthPx,
-            preview.heightPx,
-            Bitmap.Config.ARGB_8888,
-        ).asImageBitmap()
-    }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp)
-            .padding(vertical = 24.dp),
-    ) {
-        Button(onClick = onClose) {
-            Text(PdfKeywordSearchCopy.CLOSE_PREVIEW_LABEL)
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = PdfKeywordSearchCopy.PREVIEW_TITLE,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { heading() },
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = preview.documentLabel,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = PdfKeywordSearchCopy.previewPageCaption(
-                pageNumber = preview.pageNumber,
-                pageCount = preview.pageCount,
-            ),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = PdfKeywordSearchCopy.previewImageContentDescription(
-                documentLabel = preview.documentLabel,
-                pageNumber = preview.pageNumber,
-                pageCount = preview.pageCount,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
-        )
-    }
+    OriginalPreviewScaffold(
+        onClose = onClose,
+        closeLabel = PdfKeywordSearchCopy.CLOSE_PREVIEW_LABEL,
+        title = PdfKeywordSearchCopy.PREVIEW_TITLE,
+        subtitle = preview.documentLabel,
+        caption = PdfKeywordSearchCopy.previewPageCaption(
+            pageNumber = preview.pageNumber,
+            pageCount = preview.pageCount,
+        ),
+        scopeBody = PdfKeywordSearchCopy.PREVIEW_SCOPE_BODY,
+        contentDescription = PdfKeywordSearchCopy.previewImageContentDescription(
+            documentLabel = preview.documentLabel,
+            pageNumber = preview.pageNumber,
+            pageCount = preview.pageCount,
+        ),
+        reloadRequest = OriginalPreviewReloadRequest.Pdf(
+            sourceId = preview.sourceId,
+            sourceAssetKey = preview.sourceAssetKey,
+            pageNumber = preview.pageNumber,
+            documentLabel = preview.documentLabel,
+        ),
+        initialEdgePx = PreviewZoomPolicy.PDF_INITIAL_EDGE_PX,
+        widthPx = preview.widthPx,
+        heightPx = preview.heightPx,
+        argb8888 = preview.argb8888,
+        modifier = modifier,
+    )
 }
 
 /** Spinner + status as one polite TalkBack announcement (sighted layout unchanged). */

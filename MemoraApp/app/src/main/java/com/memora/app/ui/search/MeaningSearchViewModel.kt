@@ -320,6 +320,8 @@ class MeaningSearchViewModel(
                     openFeedback = MeaningOpenFeedbackUi.None,
                     originalPreview = MeaningOriginalPreviewUi.Screenshot(
                         ScreenshotOriginalPreviewUi(
+                            sourceId = hit.sourceId.value,
+                            sourceAssetKey = hit.sourceAssetKey.value,
                             screenshotLabel = outcome.label,
                             widthPx = outcome.widthPx,
                             heightPx = outcome.heightPx,
@@ -331,6 +333,8 @@ class MeaningSearchViewModel(
                     openFeedback = MeaningOpenFeedbackUi.None,
                     originalPreview = MeaningOriginalPreviewUi.Photo(
                         PhotoOriginalPreviewUi(
+                            sourceId = hit.sourceId.value,
+                            sourceAssetKey = hit.sourceAssetKey.value,
                             photoLabel = outcome.label,
                             widthPx = outcome.widthPx,
                             heightPx = outcome.heightPx,
@@ -342,6 +346,8 @@ class MeaningSearchViewModel(
                     openFeedback = MeaningOpenFeedbackUi.None,
                     originalPreview = MeaningOriginalPreviewUi.Pdf(
                         PdfOriginalPreviewUi(
+                            sourceId = hit.sourceId.value,
+                            sourceAssetKey = hit.sourceAssetKey.value,
                             documentLabel = outcome.label,
                             pageNumber = outcome.pageNumber,
                             pageCount = outcome.pageCount,

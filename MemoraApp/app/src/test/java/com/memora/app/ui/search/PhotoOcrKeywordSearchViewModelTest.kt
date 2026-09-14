@@ -56,6 +56,8 @@ class PhotoOcrKeywordSearchViewModelTest {
         viewModel.onOpenOriginalPhoto(hit)
         advanceUntilIdle()
         assertEquals("receipt.jpg", viewModel.uiState.value.originalPreview?.photoLabel)
+        assertEquals("media", viewModel.uiState.value.originalPreview?.sourceId)
+        assertEquals("photo-1", viewModel.uiState.value.originalPreview?.sourceAssetKey)
     }
 
     @Test

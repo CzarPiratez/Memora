@@ -110,6 +110,8 @@ sealed interface PdfOpenFeedbackUi {
 }
 
 data class PdfOriginalPreviewUi(
+    val sourceId: String,
+    val sourceAssetKey: String,
     val documentLabel: String,
     val pageNumber: Int,
     val pageCount: Int,
@@ -118,6 +120,8 @@ data class PdfOriginalPreviewUi(
     val argb8888: IntArray,
 ) {
     init {
+        require(sourceId.isNotBlank()) { "Preview UI needs a source id." }
+        require(sourceAssetKey.isNotBlank()) { "Preview UI needs a source asset key." }
         require(documentLabel.isNotBlank()) { "Preview UI needs a document label." }
         require(pageNumber > 0 && pageCount > 0 && pageNumber <= pageCount)
         require(widthPx > 0 && heightPx > 0)
@@ -127,7 +131,9 @@ data class PdfOriginalPreviewUi(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PdfOriginalPreviewUi) return false
-        return documentLabel == other.documentLabel &&
+        return sourceId == other.sourceId &&
+            sourceAssetKey == other.sourceAssetKey &&
+            documentLabel == other.documentLabel &&
             pageNumber == other.pageNumber &&
             pageCount == other.pageCount &&
             widthPx == other.widthPx &&
@@ -136,7 +142,9 @@ data class PdfOriginalPreviewUi(
     }
 
     override fun hashCode(): Int {
-        var result = documentLabel.hashCode()
+        var result = sourceId.hashCode()
+        result = 31 * result + sourceAssetKey.hashCode()
+        result = 31 * result + documentLabel.hashCode()
         result = 31 * result + pageNumber
         result = 31 * result + pageCount
         result = 31 * result + widthPx
@@ -330,6 +338,8 @@ class PdfKeywordSearchViewModel(
                 is PdfPagePreviewRenderResult.Ready -> mutableUiState.value.copy(
                     openFeedback = PdfOpenFeedbackUi.None,
                     originalPreview = PdfOriginalPreviewUi(
+                        sourceId = hit.sourceId,
+                        sourceAssetKey = hit.sourceAssetKey,
                         documentLabel = outcome.documentLabel,
                         pageNumber = outcome.pageNumber,
                         pageCount = outcome.pageCount,

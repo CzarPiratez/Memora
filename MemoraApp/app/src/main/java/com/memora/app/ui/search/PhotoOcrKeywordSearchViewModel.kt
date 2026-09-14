@@ -58,11 +58,42 @@ sealed interface PhotoOpenFeedbackUi {
 }
 
 data class PhotoOriginalPreviewUi(
+    val sourceId: String,
+    val sourceAssetKey: String,
     val photoLabel: String,
     val widthPx: Int,
     val heightPx: Int,
     val argb8888: IntArray,
-)
+) {
+    init {
+        require(sourceId.isNotBlank()) { "Preview UI needs a source id." }
+        require(sourceAssetKey.isNotBlank()) { "Preview UI needs a source asset key." }
+        require(photoLabel.isNotBlank()) { "Preview UI needs a photo label." }
+        require(widthPx > 0 && heightPx > 0)
+        require(argb8888.size == widthPx * heightPx)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PhotoOriginalPreviewUi) return false
+        return sourceId == other.sourceId &&
+            sourceAssetKey == other.sourceAssetKey &&
+            photoLabel == other.photoLabel &&
+            widthPx == other.widthPx &&
+            heightPx == other.heightPx &&
+            argb8888.contentEquals(other.argb8888)
+    }
+
+    override fun hashCode(): Int {
+        var result = sourceId.hashCode()
+        result = 31 * result + sourceAssetKey.hashCode()
+        result = 31 * result + photoLabel.hashCode()
+        result = 31 * result + widthPx
+        result = 31 * result + heightPx
+        result = 31 * result + argb8888.contentHashCode()
+        return result
+    }
+}
 
 /**
  * Photo keyword Find via [CanonicalRecall] (KEYWORD path; AssetType.PHOTO).
@@ -164,10 +195,12 @@ class PhotoOcrKeywordSearchViewModel(
                 is PhotoPreviewRenderResult.Ready -> mutableState.value.copy(
                     openFeedback = PhotoOpenFeedbackUi.None,
                     originalPreview = PhotoOriginalPreviewUi(
-                        result.photoLabel,
-                        result.widthPx,
-                        result.heightPx,
-                        result.argb8888,
+                        sourceId = hit.sourceId,
+                        sourceAssetKey = hit.sourceAssetKey,
+                        photoLabel = result.photoLabel,
+                        widthPx = result.widthPx,
+                        heightPx = result.heightPx,
+                        argb8888 = result.argb8888,
                     ),
                 )
                 PhotoPreviewRenderResult.SourceUnavailable -> mutableState.value.copy(

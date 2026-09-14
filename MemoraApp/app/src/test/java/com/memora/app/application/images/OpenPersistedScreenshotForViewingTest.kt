@@ -39,5 +39,9 @@ class OpenPersistedScreenshotForViewingTest {
             1,
             OpenPersistedScreenshotForViewing.computeInSampleSize(800, 600, 960),
         )
+        assertEquals(
+            2,
+            OpenPersistedScreenshotForViewing.computeInSampleSize(1080, 2400, 2048),
+        )
     }
 }
