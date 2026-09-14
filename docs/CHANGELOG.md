@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### I3 — meaning-index Build runs in WorkManager with Stop (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** `RunPendingMeaningIndex` already returned `hasMore`
+  after I1/I1b, but About still ran one 25-memory batch on the ViewModel
+  with no Stop and no auto-continue. A from-scratch rebuild before the
+  investor demo would have been dozens of taps.
+- **Fixed.** One global unique work (`meaning-index-drain`) calls only that
+  use case, looping batches until empty or a 4-minute wall-clock budget,
+  then re-enqueues. `EngineUnavailable` / `SelectionDisagreed` stop and
+  report; they never Continue or retry. About shows progress and Stop.
+  Cancelled / stopped work is not Failed. Clear-index cancels the tag.
+- **Not I4.** The 4-minute budget is a safety cap under WorkManager’s
+  ~10 minute ceiling, not a measured per-item SLA. Count cap stays 25.
+  Not AVAILABLE. Find quality unchanged.
+- **Verification:** drain budget/session, decision mapper, work observation,
+  and copy unit tests. `:app:testDebugUnitTest` **786 tests, 0 failures**.
+
 ### Uniform Why — one dialect, one panel (2026-09-14)
 
 - **Date:** 2026-09-14

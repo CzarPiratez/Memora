@@ -32,9 +32,10 @@ class AiPackDisclosureCopyTest {
         assertTrue(AiPackDisclosureCopy.SCOPE_BODY.contains("Universal Sentence Encoder"))
         assertTrue(AiPackDisclosureCopy.SIZE_BODY.contains("rebuild the meaning index"))
         assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("25"))
-        assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("tap Build again"))
+        assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("Stop"))
+        assertFalse(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("tap Build again"))
         assertTrue(AiPackDisclosureCopy.NETWORK_BODY.contains("model bytes only"))
-        assertTrue(AiPackDisclosureCopy.remainingBatchHint(12).contains("12 READY left"))
+        assertTrue(AiPackDisclosureCopy.remainingBatchHint(12).contains("12 READY still waiting"))
         assertFalse(all.contains("available now"))
         assertFalse(all.contains("uploads your memories"))
     }
@@ -90,7 +91,19 @@ class AiPackDisclosureCopyTest {
         val lastBatch = AiPackDisclosureCopy.indexDrainFeedback(
             completed(remainingPending = 0, hasMore = false),
         )
-        assertFalse(lastBatch.contains("tap Build again"))
+        assertFalse(lastBatch.contains("still waiting"))
+    }
+
+    @Test
+    fun drain_progress_and_stop_copy_are_honest() {
+        assertTrue(AiPackDisclosureCopy.indexingProgress(0, 0).contains("Preparing"))
+        assertTrue(AiPackDisclosureCopy.indexingProgress(25, 100).contains("25"))
+        assertTrue(AiPackDisclosureCopy.indexingProgress(25, 100).contains("100"))
+        assertTrue(AiPackDisclosureCopy.indexStopped(12).contains("Stopped"))
+        assertTrue(AiPackDisclosureCopy.indexStopped(12).contains("12"))
+        assertTrue(AiPackDisclosureCopy.indexDrainComplete(40, 0).contains("40"))
+        assertFalse(AiPackDisclosureCopy.indexDrainComplete(40, 0).contains("still waiting"))
+        assertEquals("Stop", AiPackDisclosureCopy.STOP_INDEX_LABEL)
     }
 
     @Test

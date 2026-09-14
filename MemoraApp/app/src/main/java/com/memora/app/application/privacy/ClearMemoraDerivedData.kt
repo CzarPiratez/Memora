@@ -5,6 +5,7 @@ import com.memora.app.application.notes.OneNoteInteractiveAuth
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.domain.privacy.UserConfirmedDerivedDataClearer
 import com.memora.app.work.DefaultAssetMemoryAssemblyWorkScheduler
+import com.memora.app.work.DefaultMeaningIndexWorkScheduler
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
@@ -46,6 +47,9 @@ class ClearMemoraDerivedData @Inject constructor(
         )
         workManager.cancelAllWorkByTag(
             DefaultAssetMemoryAssemblyWorkScheduler.TAG_ASSET_MEMORY_ASSEMBLY,
+        )
+        workManager.cancelAllWorkByTag(
+            DefaultMeaningIndexWorkScheduler.TAG_MEANING_INDEX,
         )
         runBlocking {
             oneNoteAuth.disconnect()

@@ -672,20 +672,18 @@ pick it up by ID. Batch letters map to the stages above.
 
 ### Batch I — Indexing drains (runs after A7/A8, before Batch C)
 
-Assembly and meaning indexing are the only two pipelines with no WorkManager
-driver, so they are the only two the user has to hand-crank. Discovery, EXIF,
-photo OCR, screenshot OCR, PDF discovery, PDF extract, and OneNote already run
-the `Worker` + `Scheduler` + `DecisionMapper` trio that re-enqueues itself while
-work remains. `RunPendingAssetMemoryAssembly` already returns `hasMore`; nothing
-listens to it.
+I1–I3 are done: both remaining hand-crank drains now run the
+`Worker` + `Scheduler` + `DecisionMapper` trio. I3 loops `RunPendingMeaningIndex`
+inside one worker under a 4-minute wall-clock budget (I4-lite), then
+re-enqueues. I4’s *measured* per-item cost is still open.
 
 | # | Task | Kind | Status |
 |---|---|---|---|
 | I1 | Lift meaning-index orchestration out of `AiPackDisclosureViewModel` into an application use case returning `hasMore` (also clears a standing UI→application boundary violation) | Code | **done** |
 | I1b | Meaning-index pending/select includes leftover embeddable PDF / OCR / note evidence (not only missing summaries / STALE) | Code | **done** |
 | I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | **done** |
-| I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | open |
-| I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open |
+| I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | **done** |
+| I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open (I3 landed I4-lite: 4-minute worker budget, not measured) |
 
 > **I4 rationale:** a count cap cannot bound work whose per-item cost varies by
 > two orders of magnitude. One observed tap indexed 25 memories but 49 PDF

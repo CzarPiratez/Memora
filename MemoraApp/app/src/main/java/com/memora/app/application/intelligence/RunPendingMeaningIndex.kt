@@ -14,8 +14,9 @@ import javax.inject.Inject
  * Selects the next batch (missing summaries, STALE MIG-05 gaps, or READY
  * leftover embeddable evidence), indexes summaries then evidence (PDF pages,
  * OCR, notes), applies the MIG-05 evidence cutover, and reports whether more
- * work remains. UI and a future I3 worker must both call this — not a second
- * indexing path. Does not schedule WorkManager (I3). Does not change Find.
+ * work remains. [com.memora.app.work.MeaningIndexWorker] is the drain owner
+ * that calls this — not a second indexing path. Does not schedule WorkManager.
+ * Does not change Find.
  */
 class RunPendingMeaningIndex @Inject constructor(
     private val embeddingEngine: EmbeddingEngine,

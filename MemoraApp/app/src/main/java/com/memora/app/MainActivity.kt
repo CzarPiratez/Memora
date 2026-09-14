@@ -301,6 +301,8 @@ class MainActivity : ComponentActivity() {
                             aiPackDisclosureViewModel::onDownloadModelRequested,
                         onAiPackDisclosureBuildIndex =
                             aiPackDisclosureViewModel::onBuildIndexRequested,
+                        onAiPackDisclosureStopIndex =
+                            aiPackDisclosureViewModel::onStopIndexRequested,
                         onMeaningQueryChanged = meaningSearchViewModel::onQueryChanged,
                         onMeaningSearch = meaningSearchViewModel::onSearch,
                         onMeaningSearchScreenVisible = meaningSearchViewModel::onScreenVisible,
@@ -395,6 +397,7 @@ fun UnfyndApp(
     onAiPackDisclosureActivate: () -> Unit,
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
+    onAiPackDisclosureStopIndex: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
@@ -490,6 +493,7 @@ fun UnfyndApp(
             onAiPackDisclosureActivate = onAiPackDisclosureActivate,
             onAiPackDisclosureDownloadModel = onAiPackDisclosureDownloadModel,
             onAiPackDisclosureBuildIndex = onAiPackDisclosureBuildIndex,
+            onAiPackDisclosureStopIndex = onAiPackDisclosureStopIndex,
             onMeaningQueryChanged = onMeaningQueryChanged,
             onMeaningSearch = onMeaningSearch,
             onMeaningSearchScreenVisible = onMeaningSearchScreenVisible,
@@ -579,6 +583,7 @@ private fun UnfyndAppReady(
     onAiPackDisclosureActivate: () -> Unit,
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
+    onAiPackDisclosureStopIndex: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
@@ -679,6 +684,7 @@ private fun UnfyndAppReady(
                     onActivate = onAiPackDisclosureActivate,
                     onDownloadModel = onAiPackDisclosureDownloadModel,
                     onBuildIndex = onAiPackDisclosureBuildIndex,
+                    onStopIndex = onAiPackDisclosureStopIndex,
                     onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )

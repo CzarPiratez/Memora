@@ -6,6 +6,16 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-14
 
+**I3 meaning-index worker landed (2026-09-14).** About **Build meaning index**
+enqueues unique work `meaning-index-drain`. The worker is the only
+auto-continue over `RunPendingMeaningIndex`. One tap drains the queue in
+4-minute worker invocations (I4-lite), then re-enqueues. Cap stays 25
+memories per batch. `EngineUnavailable` / `SelectionDisagreed` stop and
+report; they do not retry. The About card shows indexed-so-far, remaining,
+and Stop. Back stays enabled while indexing. Clear-index cancels tag
+`meaning-index`. Change control:
+`docs/CHANGE_CONTROL_I3_MEANING_INDEX_WORKER.md`.
+
 **Uniform Why presentation landed (2026-09-14).** Every Find card — PDF,
 photo, screenshot, note; keyword and meaning — expands the same
 `WhyDisclosure` panel from one `WhyPresentation` (relevance, optional cited
@@ -15,16 +25,16 @@ justifying stored line because that card does not dump OCR. Path is named
 in consumer words (ADR-024). Shape-contract tests cover every `AssetType`.
 Change control: `docs/CHANGE_CONTROL_UNIFORM_WHY_PRESENTATION.md`.
 
-**Demo-prep sequence (founder, 2026-09-14):** uniform Why (this) → **I3**
-(meaning-index worker, because a from-scratch rebuild is planned before
-filming) → thumbnails → zoom → share. Do not film paraphrase queries
+**Demo-prep sequence (founder, 2026-09-14):** uniform Why (done) → I3
+(done) → **thumbnails** → zoom → share. Wipe and rebuild the index on
+device before filming so I3 actually runs. Do not film paraphrase queries
 (`pool timetable`). Live/Dual **N = 0**.
 
-**Next action:** I3 — meaning-index worker trio + Stop (must call
-`RunPendingMeaningIndex`). Fold the wall-clock budget into that slice so a
-count cap of 25 does not become a 60-node WorkManager chain. Four-outcome
-mapper: Continue / CompletedDrain / StopAndReport (`EngineUnavailable`) /
-RetryableFailure. Do not raise `MAX_MEMORIES_PER_TAP`.
+**Next action:** thumbnails on Find result cards (`ContentResolver.loadThumbnail`
+/ PdfRenderer of the matched page; memory-only LRU; no plaintext disk
+cache). Then pinch-zoom with a sharp re-render of the opened original.
+Then share via stored URI (narrow Act-shaped handoff; record in
+`DECISIONS.md`). I4 measured per-item cost stays open.
 
 ---
 
@@ -82,13 +92,13 @@ Build started `AssetMemoryAssemblyWorker` (SUCCESS ~40 ms, no reschedule).
 Card stayed on the 1001 readiness line. No crash. This library has no
 pending assembly, so Stop was not on screen.
 
-Still **open**: I3 meaning-index worker, I4 time budget, **D-13** (J7 /
-P-TYPE), and a meaning-only tier for zero-overlap paraphrase. All in
+Still **open**: I4 measured time budget, **D-13** (J7 / P-TYPE), and a
+meaning-only tier for zero-overlap paraphrase. All in
 `PROGRAM_STATE_AND_SEQUENCE_V1.md` §2 / §8b.
 
-**Next action:** I3 — meaning-index worker trio + Stop (must call
-`RunPendingMeaningIndex`). On this A15 the meaning queue is empty, so I3
-will idle until new embeddable evidence appears. I4 stays last in Batch I.
+**I3 landed:** About Build enqueues `MeaningIndexWorker`. On an A15 whose
+meaning queue is already empty, the worker will complete in one short job
+until a from-scratch rebuild creates pending work. I4 stays last in Batch I.
 
 **Program state + sequence audit (2026-09-04):**
 `docs/PROGRAM_STATE_AND_SEQUENCE_V1.md` — code-verified state, 7 named defects,
@@ -97,7 +107,7 @@ additions, stages 0–5 to MVP exit and beyond, and the numbered execution backl
 in **§8b** (A1…H5). **Read Stage 0 before any Find code.** Awaiting founder
 acceptance on the model; **A1–A4 are done**, A5–A6 remain.
 
-**Tree state:** unit suite **green** — 756 tests, 0 failures (2026-09-07).
+**Tree state:** unit suite **green** — 786 tests, 0 failures (2026-09-14).
 Stage 0 code is complete: **D-1** (stale trimming fixture), **D-2 / T10** (a TIME
 cue no longer disables lexical precision — `recent files with silky` requires
 `silky` again, `notes in 2024` requires `notes` but never the literal `2024`),

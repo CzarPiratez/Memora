@@ -14,6 +14,8 @@ import com.memora.app.application.notes.PendingOneNotePageExtractor
 import com.memora.app.application.notes.RunPendingOneNotePageExtract
 import com.memora.app.work.AssetMemoryAssemblyWorkScheduler
 import com.memora.app.work.DefaultAssetMemoryAssemblyWorkScheduler
+import com.memora.app.work.DefaultMeaningIndexWorkScheduler
+import com.memora.app.work.MeaningIndexWorkScheduler
 import com.memora.app.work.DefaultMediaStoreDiscoveryWorkScheduler
 import com.memora.app.work.DefaultMediaStoreImageExifExtractWorkScheduler
 import com.memora.app.work.DefaultMediaStorePhotoOcrExtractWorkScheduler
@@ -125,4 +127,10 @@ abstract class SafPdfDiscoveryWorkSchedulerModule {
     abstract fun bindAssetMemoryAssemblyWorkScheduler(
         impl: DefaultAssetMemoryAssemblyWorkScheduler,
     ): AssetMemoryAssemblyWorkScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindMeaningIndexWorkScheduler(
+        impl: DefaultMeaningIndexWorkScheduler,
+    ): MeaningIndexWorkScheduler
 }

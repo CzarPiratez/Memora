@@ -68,9 +68,8 @@ object AiPackDisclosureCopy {
 
     val STATUS_MODEL_READY: String =
         "Meaning model is installed on this phone. Build a meaning index from saved " +
-            "Asset Memories (up to ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} " +
-            "memories per tap — tap again if more remain), then use Find by meaning " +
-            "on Welcome for candidate recall."
+            "Asset Memories (one tap continues until nothing is waiting), then use " +
+            "Find by meaning on Welcome for candidate recall."
 
     const val STATUS_VERIFYING =
         "Pack verification is in progress. Meaning search stays off until verification finishes."
@@ -85,10 +84,11 @@ object AiPackDisclosureCopy {
     const val INDEX_BATCH_TITLE = "Building the meaning index"
 
     val INDEX_BATCH_BODY: String =
-        "Each Build indexes up to ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} " +
-            "READY memories this tap, plus PDF pages for those PDFs and OCR evidence " +
-            "for photos/screenshots (capped per asset). If more READY memories remain, " +
-            "tap Build again. This is not a permanent library ceiling."
+        "One tap builds the meaning index until nothing is waiting. Work runs in " +
+            "batches of ${MeaningIndexBatchLimits.MAX_MEMORIES_PER_TAP} memories, " +
+            "plus PDF pages and OCR or note evidence for those memories. You can Stop " +
+            "and continue later. This is not a permanent library ceiling and not a " +
+            "measured AVAILABLE claim."
 
     const val ACKNOWLEDGE_LABEL = "I understand these details"
 
@@ -97,6 +97,8 @@ object AiPackDisclosureCopy {
     const val DOWNLOAD_MODEL_LABEL = "Download on-device meaning model"
 
     const val BUILD_INDEX_LABEL = "Build meaning index from memories"
+
+    const val STOP_INDEX_LABEL = "Stop"
 
     const val BACK_LABEL = "Back"
 
@@ -127,6 +129,10 @@ object AiPackDisclosureCopy {
         "No memories are waiting for a meaning-index batch. " +
             "If none are saved yet, build Asset Memory first."
 
+    const val FEEDBACK_INDEX_FAILED =
+        "UNFYND could not finish the meaning index. You can try Build again. " +
+            "Your original files are unchanged."
+
     const val FEEDBACK_INDEX_SELECTION_DISAGREED_SUFFIX =
         "That is a queue mismatch, not an empty library. Try Build again."
 
@@ -156,7 +162,39 @@ object AiPackDisclosureCopy {
     }
 
     fun remainingBatchHint(remaining: Int): String =
-        "$remaining READY left — tap Build again for the next batch."
+        "$remaining READY still waiting. Tap Build to continue."
+
+    fun indexingProgress(indexedSoFar: Int, remainingPending: Int): String {
+        val indexed = indexedSoFar.coerceAtLeast(0)
+        val remaining = remainingPending.coerceAtLeast(0)
+        return when {
+            indexed <= 0 && remaining <= 0 -> PROGRESS_PREPARING
+            remaining > 0 ->
+                "Indexed $indexed memories. About $remaining still waiting…"
+            else -> "Indexed $indexed memories. Finishing this pass…"
+        }
+    }
+
+    fun indexStopped(remainingPending: Int): String {
+        val remaining = remainingPending.coerceAtLeast(0)
+        return if (remaining > 0) {
+            "Stopped. $remaining memories still waiting. Tap Build to continue."
+        } else {
+            "Stopped. Tap Build if more memories still need a meaning index."
+        }
+    }
+
+    fun indexDrainComplete(indexedMemories: Int, remainingPending: Int): String {
+        val indexed = indexedMemories.coerceAtLeast(0)
+        val remaining = remainingPending.coerceAtLeast(0)
+        val remainingHint = if (remaining > 0) {
+            " ${remainingBatchHint(remaining)}"
+        } else {
+            ""
+        }
+        return "Meaning index updated. Indexed $indexed memories in this pass.$remainingHint " +
+            "Use Find by meaning on Welcome next."
+    }
 
     fun indexSelectionDisagreed(pendingCount: Int): String {
         require(pendingCount > 0)

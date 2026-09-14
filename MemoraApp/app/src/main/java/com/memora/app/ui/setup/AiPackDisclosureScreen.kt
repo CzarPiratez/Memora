@@ -30,6 +30,7 @@ fun AiPackDisclosureScreen(
     onActivate: () -> Unit,
     onDownloadModel: () -> Unit,
     onBuildIndex: () -> Unit,
+    onStopIndex: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -85,7 +86,7 @@ fun AiPackDisclosureScreen(
                 color = MaterialTheme.colorScheme.primary,
             )
         }
-        if (uiState.isBusy) {
+        if (uiState.isBusy || uiState.isIndexing) {
             Spacer(modifier = Modifier.height(16.dp))
             CircularProgressIndicator()
             uiState.progressFeedback?.let { progress ->
@@ -101,7 +102,7 @@ fun AiPackDisclosureScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onAcknowledge,
-                enabled = !uiState.isBusy,
+                enabled = !uiState.blockOtherActions,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.ACKNOWLEDGE_LABEL)
@@ -111,17 +112,26 @@ fun AiPackDisclosureScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onDownloadModel,
-                enabled = !uiState.isBusy,
+                enabled = !uiState.blockOtherActions,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.DOWNLOAD_MODEL_LABEL)
+            }
+        }
+        if (uiState.showStopIndex) {
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                onClick = onStopIndex,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(AiPackDisclosureCopy.STOP_INDEX_LABEL)
             }
         }
         if (uiState.showBuildIndex) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onBuildIndex,
-                enabled = !uiState.isBusy,
+                enabled = !uiState.blockOtherActions,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.BUILD_INDEX_LABEL)
@@ -131,7 +141,7 @@ fun AiPackDisclosureScreen(
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedButton(
                 onClick = onActivate,
-                enabled = !uiState.isBusy,
+                enabled = !uiState.blockOtherActions,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.ACTIVATE_LABEL)
