@@ -1992,5 +1992,65 @@ read-only handoff because the noun “share” appears in the Act row.
 - Implementation under `CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`
 - Registry / CONTINUE / changelog record ADR-053
 - HUMAN_RECALL J17 and MEANING_FIND ACT1: share sheet landed; remind remains out
+- **ADR-054** extends this same boundary to `ACTION_VIEW`. Point 4 above
+  rejects ACTION_VIEW **as a hidden editor**, not a user-tapped read-only
+  viewer; read ADR-054 with this record.
+
+## ADR-054: Opening a stored original in another app is the same handoff, not Act
+
+**Status:** Accepted
+**Date:** 2026-09-14
+
+**Decision:** A person tapping **Open full file** on an already-opened
+original, which starts `ACTION_VIEW` with a **read-only grant** of the same
+stored content URI the share sheet would hand out, is the same Open-adjacent
+class as ADR-053. It is **not** Act.
+
+ADR-043 still stands. ADR-053's non-claims apply here unchanged.
+
+**Why this needed its own record.** ADR-053 point 4 reads "Not `ACTION_VIEW` as
+a hidden editor." That rejected UNFYND *silently* routing the original into an
+editing app. It was never a ban on the verb. A person who taps a button asking
+to read their own PDF in their own reader is doing what ADR-053 point 1 already
+licenses — explicit, user-initiated, read-only. Recording that distinction
+stops a future reader from either banning the feature on a keyword or using the
+verb to smuggle in mutation.
+
+**Binding interpretation:**
+
+1. **Who initiates.** Only an explicit user tap on an original already opened
+   from a Find hit. Never automatic, never on indexing, never on a card.
+2. **What is handed off.** The same URI `PrepareOriginalHandoff` resolves for
+   the share sheet — for a PDF the whole file, not the cited page.
+3. **What is granted.** `FLAG_GRANT_READ_URI_PERMISSION` only, for that one
+   intent. No write grant, no `ACTION_EDIT`, no persisted grant to the other
+   app, no copy into UNFYND storage, no upload.
+4. **No chooser is forced.** The person's existing default reader opens, which
+   is the behaviour they already expect for their own files. Android shows the
+   picker itself when they have no default.
+5. **The way back is part of the promise.** The viewer starts in UNFYND's task
+   when an Activity is on screen, so Back returns to the preview. UNFYND says
+   so in the copy and must not ship a handoff that strands the person.
+6. **Honest failure.** No installed reader is its own outcome and is stated as
+   such — UNFYND must not imply the file is broken when the phone simply has
+   no app for the type.
+7. **The in-app preview stays.** Open still shows the page that justified the
+   hit. Evidence is the product; the full file is the escape hatch, not a
+   replacement.
+
+**Out of scope / non-claims:**
+
+- `ACTION_EDIT`, write grants, or anything that can change the original
+- Opening a OneNote page as a local file (no local file exists)
+- Claiming Act or marketing AVAILABLE
+- Replacing the evidence preview with a third-party viewer
+
+**Consequences:**
+
+- Implementation under `CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`
+- Share and Open share one resolver, `application/handoff`
+- Registry / CONTINUE / changelog record ADR-054
+- HUMAN_RECALL J17 and MEANING_FIND ACT1: open-in-another-app landed alongside
+  the share sheet; remind remains out
 
 

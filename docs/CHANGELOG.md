@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Open the whole original in another app (2026-09-14)
+
+- **Date:** 2026-09-14
+- **Why it existed.** Open showed the page that justified the hit. That is the
+  right evidence, but it is not the file — people want to scroll their PDF in
+  their reader, use it normally, and come back.
+- **Fixed.** **Open full file** on the PDF / photo / screenshot preview starts
+  `ACTION_VIEW` with a read-only grant of the same stored URI Share hands out
+  (ADR-054, extending ADR-053). No chooser is forced, so the person's default
+  reader opens. The viewer starts inside UNFYND's task, so Back returns to the
+  preview. The in-app cited-page preview is unchanged and still the default.
+- **Honest failure.** "No app on this phone opens this kind of file yet" is a
+  separate message from source-unreachable and could-not-open, because the
+  person can fix it and their file is not at fault.
+- **Not Act.** Read grant only, one intent, no `ACTION_EDIT`, no write grant,
+  no copy into UNFYND storage, no upload. Notes have no local file and still
+  open in OneNote. Not AVAILABLE.
+- **Naming.** Share and Open need the same resolved URI, so the resolver is
+  now `application/handoff/PrepareOriginalHandoff` rather than a class called
+  `PrepareShareOriginal`. Rename and package move only; share behaviour
+  unchanged.
+- **Verification:** `OpenOriginalInAnotherAppTest`, `PrepareOriginalHandoffTest`,
+  `OriginalHandoffCopyTest`. `:app:testDebugUnitTest` **828 tests, 0 failures**;
+  `:app:assembleDebug` succeeded. Device gate open.
+
 ### OneNote opens the app, not the browser (2026-09-14)
 
 - **Date:** 2026-09-14

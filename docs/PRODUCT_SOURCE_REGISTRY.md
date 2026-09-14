@@ -102,6 +102,14 @@ conversational memory or an untracked desktop file.
     is Open-adjacent, not Act. ADR-043 still bars agentic Act, reminders, and
     mutation. Notes have no local file share in this slice. Implementation:
     `CHANGE_CONTROL_OPEN_ORIGINAL_SHARE.md`.
+15. **Open the whole original in another app (ADR-054):** A user tap on Open
+    full file that starts `ACTION_VIEW` with a read-only grant of the same
+    stored URI is the same Open-adjacent handoff as ADR-053, not Act. ADR-053
+    point 4 bars `ACTION_VIEW` **as a hidden editor**, not a user-tapped
+    read-only viewer. No write grant, no `ACTION_EDIT`, no copy, no upload.
+    Notes have no local file. Implementation:
+    `CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`.
+
 ## Governed internal amendments
 
 The following repository-owned amendments are accepted product-direction decisions.

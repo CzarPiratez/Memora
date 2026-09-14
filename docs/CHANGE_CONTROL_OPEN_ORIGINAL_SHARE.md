@@ -92,3 +92,27 @@ Open-class read-only display/handoff after a tap, never a ranking input.
 - **Known limitation:** not Act. Notes have no local file share. Some apps may
   refuse a SAF URI; no cache-copy fallback in this slice. Decode/zoom unchanged.
 - **Git commit:** pending local checkpoint (not pushed).
+
+## Superseded names (2026-09-14, same day)
+
+The Open-in-another-app slice (ADR-054,
+`CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`) needs the identical resolved
+URI, so the resolver was renamed away from "share". Share behaviour is
+unchanged; only names and the package moved.
+
+| Was | Is |
+|---|---|
+| `application.share` | `application.handoff` |
+| `PrepareShareOriginal` | `PrepareOriginalHandoff` |
+| `ShareOriginalRequest` | `OriginalHandoffRequest` |
+| `PreparedShareOriginal` | `PreparedOriginalHandoff` |
+| `ShareOriginalMime` | `OriginalHandoffMime` |
+| `ShareImageUriCandidates` | `HandoffImageUriCandidates` |
+| `ShareablePdfUriAccess` / `ShareablePdfUri` | `HandoffPdfUriAccess` / `HandoffPdfUri` |
+| `ShareOriginalModule` | `OriginalHandoffModule` |
+| `ShareOriginalViewModel` | `OriginalHandoffViewModel` (also does Open) |
+| `ShareOriginalCopy` | `OriginalHandoffCopy` (one hint covers both) |
+| `PrepareShareOriginalTest` | `PrepareOriginalHandoffTest` |
+
+`ShareOriginalChooser`, `ShareOriginalOutcome`, and `AndroidShareOriginalChooser`
+keep their names — those are share-sheet specific.

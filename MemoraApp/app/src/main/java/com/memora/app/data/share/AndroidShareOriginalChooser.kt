@@ -4,7 +4,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.memora.app.application.share.ShareOriginalChooser
+import com.memora.app.application.handoff.ShareOriginalChooser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

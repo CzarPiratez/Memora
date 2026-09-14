@@ -1,4 +1,4 @@
-package com.memora.app.application.share
+package com.memora.app.application.handoff
 
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetFingerprint
@@ -22,13 +22,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class PrepareShareOriginalTest {
+class PrepareOriginalHandoffTest {
     @Test
     fun photo_without_library_access_is_unavailable() = runTest {
         val result = useCase(access = null)(
-            ShareOriginalRequest.Photo("media", "p1", "receipt.jpg"),
+            OriginalHandoffRequest.Photo("media", "p1", "receipt.jpg"),
         )
-        assertEquals(PreparedShareOriginal.SourceUnavailable, result)
+        assertEquals(PreparedOriginalHandoff.SourceUnavailable, result)
     }
 
     @Test
@@ -40,43 +40,43 @@ class PrepareShareOriginalTest {
             candidates = listOf(stored, live),
             readable = setOf(live),
         )(
-            ShareOriginalRequest.Screenshot("media", "p1", "shot.png"),
+            OriginalHandoffRequest.Screenshot("media", "p1", "shot.png"),
         )
-        val ready = result as PreparedShareOriginal.Ready
+        val ready = result as PreparedOriginalHandoff.Ready
         assertEquals(live, ready.uri)
-        assertEquals(ShareOriginalMime.SCREENSHOT_FALLBACK, ready.mimeType)
+        assertEquals(OriginalHandoffMime.SCREENSHOT_FALLBACK, ready.mimeType)
     }
 
     @Test
     fun pdf_ready_uses_canonical_uri_not_asset_location() = runTest {
         val result = useCase(
             asset = pdfAsset("content://untrusted/document/old"),
-            pdfUri = ShareablePdfUri.Ready("content://tree/document/canonical"),
+            pdfUri = HandoffPdfUri.Ready("content://tree/document/canonical"),
         )(
-            ShareOriginalRequest.Pdf("saf", "doc-1", "pool.pdf"),
+            OriginalHandoffRequest.Pdf("saf", "doc-1", "pool.pdf"),
         )
-        val ready = result as PreparedShareOriginal.Ready
+        val ready = result as PreparedOriginalHandoff.Ready
         assertEquals("content://tree/document/canonical", ready.uri)
-        assertEquals(ShareOriginalMime.PDF, ready.mimeType)
+        assertEquals(OriginalHandoffMime.PDF, ready.mimeType)
         assertEquals("pool.pdf", ready.label)
     }
 
     @Test
     fun missing_asset_is_unavailable() = runTest {
         val result = useCase(asset = null)(
-            ShareOriginalRequest.Photo("media", "missing", "gone.jpg"),
+            OriginalHandoffRequest.Photo("media", "missing", "gone.jpg"),
         )
-        assertEquals(PreparedShareOriginal.SourceUnavailable, result)
+        assertEquals(PreparedOriginalHandoff.SourceUnavailable, result)
     }
 
     @Test
-    fun type_mismatch_cannot_share() = runTest {
+    fun type_mismatch_cannot_hand_off() = runTest {
         val result = useCase(
             asset = imageAsset(AssetType.PHOTO, "content://media/1"),
         )(
-            ShareOriginalRequest.Screenshot("media", "p1", "shot.png"),
+            OriginalHandoffRequest.Screenshot("media", "p1", "shot.png"),
         )
-        assertEquals(PreparedShareOriginal.CouldNotShare, result)
+        assertEquals(PreparedOriginalHandoff.CouldNotHandOff, result)
     }
 
     private fun useCase(
@@ -84,16 +84,16 @@ class PrepareShareOriginalTest {
         access: ImageLibraryAccessScope? = ImageLibraryAccessScope.FULL_LIBRARY,
         candidates: List<String> = listOf("content://media/1"),
         readable: Set<String> = setOf("content://media/1"),
-        pdfUri: ShareablePdfUri = ShareablePdfUri.CouldNotShare,
-    ) = PrepareShareOriginal(
+        pdfUri: HandoffPdfUri = HandoffPdfUri.CouldNotHandOff,
+    ) = PrepareOriginalHandoff(
         assetRepository = OneAssetRepository(asset),
         imageLibraryDiscoverySource = FakeImages(access),
-        uriCandidates = ShareImageUriCandidates { _, _ -> candidates },
+        uriCandidates = HandoffImageUriCandidates { _, _ -> candidates },
         readable = object : ReadableContentUri {
             override fun canRead(uri: String) = uri in readable
             override fun mimeType(uri: String, fallback: String) = fallback
         },
-        pdfUriAccess = object : ShareablePdfUriAccess {
+        pdfUriAccess = object : HandoffPdfUriAccess {
             override suspend fun resolve(sourceId: String, sourceAssetKey: String) = pdfUri
         },
     )

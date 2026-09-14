@@ -2,7 +2,7 @@ package com.memora.app.data.mediastore
 
 import android.content.Context
 import android.net.Uri
-import com.memora.app.application.share.ReadableContentUri
+import com.memora.app.application.handoff.ReadableContentUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

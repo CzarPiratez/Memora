@@ -46,14 +46,40 @@ justifying stored line because that card does not dump OCR. Path is named
 in consumer words (ADR-024). Shape-contract tests cover every `AssetType`.
 Change control: `docs/CHANGE_CONTROL_UNIFORM_WHY_PRESENTATION.md`.
 
-**Demo-prep sequence (founder, 2026-09-14):** uniform Why (done) → I3
-(done) → thumbnails (done) → zoom (done) → share (done). Wipe and rebuild the
-index on device before filming so I3 actually runs. Check Why, I3,
-thumbnails, zoom, and share together on the phone. Do not film paraphrase
-queries (`pool timetable`). Live/Dual **N = 0**.
+**Open the whole original in another app landed (2026-09-14).** **Open full
+file** on the PDF / photo / screenshot preview starts `ACTION_VIEW` with a
+read-only grant of the same stored URI Share uses (ADR-054, extending
+ADR-053). The person's default reader opens — no forced chooser — inside
+UNFYND's task, so Back returns to the preview. The cited-page preview is
+unchanged and still the evidence. "No app on this phone opens this kind of
+file" is its own message. Notes have no local file and still open in OneNote.
+Share and Open now share one resolver, `application/handoff`. Change control:
+`docs/CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`.
 
-**Next action:** founder device pass of the demo-prep stack (Why, I3,
-thumbnails, zoom, share) after install. I4 measured per-item cost stays open.
+**Review fixes on the same day's work (2026-09-14).** Code review of the zoom
+and share slices found three real defects, all fixed before the next slice:
+the preview recycled a bitmap Compose could still be drawing (crash class); a
+2048 px decode could raise `OutOfMemoryError`, which is an `Error` and was
+caught nowhere in the app; and a failed sharper read said nothing. Separately,
+**OneNote now opens the app, not the browser** — the launcher gated the
+`onenote:` deep link behind `resolveActivity`, which Android 11+ package
+visibility answers null for without a `<queries>` declaration, so every tap
+fell through to the web URL. See `CHANGE_CONTROL_OPEN_ORIGINAL_PINCH_ZOOM.md`
+§Defect fixes and `CHANGE_CONTROL_NOTES_ONENOTE_CONNECTOR.md` §N7-D1.
+
+**Demo-prep sequence (founder, 2026-09-14):** uniform Why (done) → I3
+(done) → thumbnails (done) → zoom (done) → share (done) → open full file
+(done). Wipe and rebuild the index on device before filming so I3 actually
+runs. Check Why, I3, thumbnails, zoom, share, and Open full file together on
+the phone. Do not film paraphrase queries (`pool timetable`).
+Live/Dual **N = 0**.
+
+**Next action:** founder device pass of the demo-prep stack after install.
+Four things only a phone can prove: (1) pinch a large PDF page and a large
+photo repeatedly — no crash, no blank preview; (2) Open original note opens
+the **OneNote app**, not the browser; (3) Open full file opens the real
+reader and **Back returns to UNFYND**; (4) Share still works. I4 measured
+per-item cost stays open.
 
 ---
 

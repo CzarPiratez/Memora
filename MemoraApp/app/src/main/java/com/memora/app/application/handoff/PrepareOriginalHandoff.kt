@@ -1,4 +1,4 @@
-package com.memora.app.application.share
+package com.memora.app.application.handoff
 
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetIdentity
@@ -14,83 +14,86 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Resolves a read-only content URI for a user-tapped share sheet.
+ * Resolves a read-only content URI for a user-tapped handoff.
  *
- * Search is unchanged. UNFYND does not copy, upload, or edit the original.
- * Notes have no local file in this slice.
+ * Shared by the share sheet and Open in another app: both need the same stored
+ * URI the Open preview already read. Search is unchanged. UNFYND does not copy,
+ * upload, or edit the original. Notes have no local file in this slice.
  */
 @Singleton
-class PrepareShareOriginal @Inject constructor(
+class PrepareOriginalHandoff @Inject constructor(
     private val assetRepository: AssetRepository,
     private val imageLibraryDiscoverySource: ImageLibraryDiscoverySource,
-    private val uriCandidates: ShareImageUriCandidates,
+    private val uriCandidates: HandoffImageUriCandidates,
     private val readable: ReadableContentUri,
-    private val pdfUriAccess: ShareablePdfUriAccess,
+    private val pdfUriAccess: HandoffPdfUriAccess,
 ) {
-    suspend operator fun invoke(request: ShareOriginalRequest): PreparedShareOriginal =
+    suspend operator fun invoke(request: OriginalHandoffRequest): PreparedOriginalHandoff =
         withContext(Dispatchers.IO) {
             try {
                 when (request) {
-                    is ShareOriginalRequest.Pdf -> preparePdf(request)
-                    is ShareOriginalRequest.Photo -> prepareImage(
+                    is OriginalHandoffRequest.Pdf -> preparePdf(request)
+                    is OriginalHandoffRequest.Photo -> prepareImage(
                         request = request,
                         expectedType = AssetType.PHOTO,
-                        mimeFallback = ShareOriginalMime.PHOTO_FALLBACK,
+                        mimeFallback = OriginalHandoffMime.PHOTO_FALLBACK,
                     )
-                    is ShareOriginalRequest.Screenshot -> prepareImage(
+                    is OriginalHandoffRequest.Screenshot -> prepareImage(
                         request = request,
                         expectedType = AssetType.SCREENSHOT,
-                        mimeFallback = ShareOriginalMime.SCREENSHOT_FALLBACK,
+                        mimeFallback = OriginalHandoffMime.SCREENSHOT_FALLBACK,
                     )
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                PreparedShareOriginal.CouldNotShare
+                PreparedOriginalHandoff.CouldNotHandOff
             }
         }
 
-    private suspend fun preparePdf(request: ShareOriginalRequest.Pdf): PreparedShareOriginal {
+    private suspend fun preparePdf(
+        request: OriginalHandoffRequest.Pdf,
+    ): PreparedOriginalHandoff {
         val asset = findAsset(request.sourceId, request.sourceAssetKey)
-            ?: return PreparedShareOriginal.SourceUnavailable
-        if (asset.type != AssetType.PDF) return PreparedShareOriginal.CouldNotShare
+            ?: return PreparedOriginalHandoff.SourceUnavailable
+        if (asset.type != AssetType.PDF) return PreparedOriginalHandoff.CouldNotHandOff
         return when (
             val resolved = pdfUriAccess.resolve(request.sourceId, request.sourceAssetKey)
         ) {
-            is ShareablePdfUri.Ready -> PreparedShareOriginal.Ready(
+            is HandoffPdfUri.Ready -> PreparedOriginalHandoff.Ready(
                 uri = resolved.uri,
-                mimeType = ShareOriginalMime.PDF,
+                mimeType = OriginalHandoffMime.PDF,
                 label = request.label,
             )
-            ShareablePdfUri.SourceUnavailable -> PreparedShareOriginal.SourceUnavailable
-            ShareablePdfUri.CouldNotShare -> PreparedShareOriginal.CouldNotShare
+            HandoffPdfUri.SourceUnavailable -> PreparedOriginalHandoff.SourceUnavailable
+            HandoffPdfUri.CouldNotHandOff -> PreparedOriginalHandoff.CouldNotHandOff
         }
     }
 
     private suspend fun prepareImage(
-        request: ShareOriginalRequest,
+        request: OriginalHandoffRequest,
         expectedType: AssetType,
         mimeFallback: String,
-    ): PreparedShareOriginal {
+    ): PreparedOriginalHandoff {
         if (imageLibraryDiscoverySource.accessScope() == null) {
-            return PreparedShareOriginal.SourceUnavailable
+            return PreparedOriginalHandoff.SourceUnavailable
         }
         val asset = findAsset(request.sourceId, request.sourceAssetKey)
-            ?: return PreparedShareOriginal.SourceUnavailable
-        if (asset.type != expectedType) return PreparedShareOriginal.CouldNotShare
+            ?: return PreparedOriginalHandoff.SourceUnavailable
+        if (asset.type != expectedType) return PreparedOriginalHandoff.CouldNotHandOff
         val storedUri = asset.location.value.trim()
-        if (storedUri.isEmpty()) return PreparedShareOriginal.CouldNotShare
+        if (storedUri.isEmpty()) return PreparedOriginalHandoff.CouldNotHandOff
         val displayName = asset.displayName?.takeIf { it.isNotBlank() } ?: request.label
         val candidates = uriCandidates.candidates(storedUri = storedUri, displayName = displayName)
         for (uri in candidates) {
             if (uri.isBlank() || !readable.canRead(uri)) continue
-            return PreparedShareOriginal.Ready(
+            return PreparedOriginalHandoff.Ready(
                 uri = uri,
                 mimeType = readable.mimeType(uri, mimeFallback),
                 label = request.label,
             )
         }
-        return PreparedShareOriginal.SourceUnavailable
+        return PreparedOriginalHandoff.SourceUnavailable
     }
 
     private suspend fun findAsset(sourceId: String, sourceAssetKey: String): Asset? =

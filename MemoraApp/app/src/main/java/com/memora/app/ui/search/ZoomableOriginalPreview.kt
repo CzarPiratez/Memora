@@ -47,8 +47,9 @@ import androidx.compose.ui.unit.dp
 import com.memora.app.application.preview.OriginalPreviewReloadRequest
 import com.memora.app.application.preview.OriginalPreviewReloadResult
 import com.memora.app.application.preview.PreviewZoomPolicy
-import com.memora.app.application.share.ShareOriginalOutcome
-import com.memora.app.application.share.ShareOriginalRequest
+import com.memora.app.application.handoff.OpenOriginalOutcome
+import com.memora.app.application.handoff.OriginalHandoffRequest
+import com.memora.app.application.handoff.ShareOriginalOutcome
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -67,25 +68,33 @@ val LocalOriginalPreviewReloader = compositionLocalOf<OriginalPreviewReloader> {
 }
 
 fun interface OriginalShareLauncher {
-    suspend fun share(request: ShareOriginalRequest): ShareOriginalOutcome
+    suspend fun share(request: OriginalHandoffRequest): ShareOriginalOutcome
 }
 
 val LocalOriginalShareLauncher = compositionLocalOf<OriginalShareLauncher> {
     OriginalShareLauncher { ShareOriginalOutcome.CouldNotShare }
 }
 
-fun OriginalPreviewReloadRequest.toShareRequest(): ShareOriginalRequest = when (this) {
-    is OriginalPreviewReloadRequest.Pdf -> ShareOriginalRequest.Pdf(
+fun interface OriginalOpenLauncher {
+    suspend fun open(request: OriginalHandoffRequest): OpenOriginalOutcome
+}
+
+val LocalOriginalOpenLauncher = compositionLocalOf<OriginalOpenLauncher> {
+    OriginalOpenLauncher { OpenOriginalOutcome.CouldNotOpen }
+}
+
+fun OriginalPreviewReloadRequest.toHandoffRequest(): OriginalHandoffRequest = when (this) {
+    is OriginalPreviewReloadRequest.Pdf -> OriginalHandoffRequest.Pdf(
         sourceId = sourceId,
         sourceAssetKey = sourceAssetKey,
         label = documentLabel,
     )
-    is OriginalPreviewReloadRequest.Photo -> ShareOriginalRequest.Photo(
+    is OriginalPreviewReloadRequest.Photo -> OriginalHandoffRequest.Photo(
         sourceId = sourceId,
         sourceAssetKey = sourceAssetKey,
         label = photoLabel,
     )
-    is OriginalPreviewReloadRequest.Screenshot -> ShareOriginalRequest.Screenshot(
+    is OriginalPreviewReloadRequest.Screenshot -> OriginalHandoffRequest.Screenshot(
         sourceId = sourceId,
         sourceAssetKey = sourceAssetKey,
         label = screenshotLabel,
@@ -130,10 +139,14 @@ fun OriginalPreviewScaffold(
     caption: String? = null,
 ) {
     val shareLauncher = LocalOriginalShareLauncher.current
-    val shareScope = rememberCoroutineScope()
-    var sharing by remember(reloadRequest) { mutableStateOf(false) }
+    val openLauncher = LocalOriginalOpenLauncher.current
+    val handoffScope = rememberCoroutineScope()
+    var handingOff by remember(reloadRequest) { mutableStateOf(false) }
     var shareOutcome by remember(reloadRequest) {
         mutableStateOf<ShareOriginalOutcome?>(null)
+    }
+    var openOutcome by remember(reloadRequest) {
+        mutableStateOf<OpenOriginalOutcome?>(null)
     }
     Column(
         modifier = modifier
@@ -152,24 +165,25 @@ fun OriginalPreviewScaffold(
             Spacer(modifier = Modifier.width(8.dp))
             OutlinedButton(
                 onClick = {
-                    shareScope.launch {
-                        sharing = true
+                    handoffScope.launch {
+                        handingOff = true
                         shareOutcome = null
+                        openOutcome = null
                         try {
-                            shareOutcome = shareLauncher.share(reloadRequest.toShareRequest())
+                            shareOutcome = shareLauncher.share(reloadRequest.toHandoffRequest())
                         } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (_: Exception) {
                             shareOutcome = ShareOriginalOutcome.CouldNotShare
                         } finally {
-                            sharing = false
+                            handingOff = false
                         }
                     }
                 },
-                enabled = !sharing,
+                enabled = !handingOff,
                 modifier = Modifier.weight(1f),
             ) {
-                Text(ShareOriginalCopy.SHARE_LABEL)
+                Text(OriginalHandoffCopy.SHARE_LABEL)
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -198,39 +212,42 @@ fun OriginalPreviewScaffold(
             text = scopeBody,
             style = MaterialTheme.typography.bodyMedium,
         )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = {
+                handoffScope.launch {
+                    handingOff = true
+                    shareOutcome = null
+                    openOutcome = null
+                    try {
+                        openOutcome = openLauncher.open(reloadRequest.toHandoffRequest())
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        openOutcome = OpenOriginalOutcome.CouldNotOpen
+                    } finally {
+                        handingOff = false
+                    }
+                }
+            },
+            enabled = !handingOff,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(OriginalHandoffCopy.OPEN_LABEL)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = OriginalHandoffCopy.HINT_BODY,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = OriginalPreviewZoomCopy.HINT_BODY,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = ShareOriginalCopy.HINT_BODY,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        when (shareOutcome) {
-            ShareOriginalOutcome.SourceUnavailable -> {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = ShareOriginalCopy.SOURCE_UNAVAILABLE_BODY,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                )
-            }
-            ShareOriginalOutcome.CouldNotShare -> {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = ShareOriginalCopy.COULD_NOT_SHARE_BODY,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                )
-            }
-            ShareOriginalOutcome.Presented, null -> Unit
-        }
+        HandoffFeedback(shareOutcome = shareOutcome, openOutcome = openOutcome)
         Spacer(modifier = Modifier.height(12.dp))
         ZoomableOriginalImage(
             reloadRequest = reloadRequest,
@@ -244,6 +261,33 @@ fun OriginalPreviewScaffold(
                 .fillMaxWidth(),
         )
     }
+}
+
+/** One place for both handoff results, so only the last tap speaks. */
+@Composable
+private fun HandoffFeedback(
+    shareOutcome: ShareOriginalOutcome?,
+    openOutcome: OpenOriginalOutcome?,
+) {
+    val message = when {
+        openOutcome == OpenOriginalOutcome.NoAppAvailable -> OriginalHandoffCopy.NO_APP_BODY
+        openOutcome == OpenOriginalOutcome.SourceUnavailable ->
+            OriginalHandoffCopy.SOURCE_UNAVAILABLE_BODY
+        openOutcome == OpenOriginalOutcome.CouldNotOpen ->
+            OriginalHandoffCopy.COULD_NOT_OPEN_BODY
+        shareOutcome == ShareOriginalOutcome.SourceUnavailable ->
+            OriginalHandoffCopy.SOURCE_UNAVAILABLE_BODY
+        shareOutcome == ShareOriginalOutcome.CouldNotShare ->
+            OriginalHandoffCopy.COULD_NOT_SHARE_BODY
+        else -> null
+    } ?: return
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = message,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+    )
 }
 
 @Composable
