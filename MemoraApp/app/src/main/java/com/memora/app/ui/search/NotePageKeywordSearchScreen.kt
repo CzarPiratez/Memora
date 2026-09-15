@@ -100,8 +100,7 @@ fun NotePageKeywordSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(NotePageKeywordSearchCopy.QUERY_LABEL) },
             singleLine = true,
-            enabled = uiState.phase !is NotePageKeywordSearchPhase.Searching &&
-                uiState.openFeedback !is NotePageOpenFeedbackUi.Opening,
+            enabled = uiState.phase !is NotePageKeywordSearchPhase.Searching,
             trailingIcon = {
                 if (uiState.canClearQuery) {
                     TextButton(onClick = onQueryCleared) {
@@ -194,55 +193,17 @@ fun NotePageKeywordSearchScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
-                when (val feedback = uiState.openFeedback) {
-                    NotePageOpenFeedbackUi.None -> Unit
-                    NotePageOpenFeedbackUi.Opening -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics(mergeDescendants = true) {
-                                    liveRegion = LiveRegionMode.Polite
-                                    contentDescription =
-                                        NotePageKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            CircularProgressIndicator(modifier = Modifier.clearAndSetSemantics { })
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = NotePageKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-                    NotePageOpenFeedbackUi.SourceUnavailable,
-                    NotePageOpenFeedbackUi.CouldNotOpen,
-                    -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = if (feedback is NotePageOpenFeedbackUi.SourceUnavailable) {
-                                NotePageKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY
-                            } else {
-                                NotePageKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                        )
-                        TextButton(onClick = onDismissOpenFeedback) {
-                            Text(NotePageKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
-                        }
-                    }
-                }
+                // Open progress and open failures render on the card that was
+                // tapped; see FindOpenOriginalButton.
                 Spacer(modifier = Modifier.height(12.dp))
                 phase.hits.forEachIndexed { index, hit ->
                     NotePageKeywordHitCard(
                         hit = hit,
                         query = phase.query,
                         index = index,
-                        openEnabled = uiState.openFeedback !is NotePageOpenFeedbackUi.Opening,
+                        openState = uiState.openStateFor(hit.openTarget()),
                         onOpenOriginal = { onOpenOriginalNote(hit) },
+                        onDismissOpenFeedback = onDismissOpenFeedback,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -256,8 +217,9 @@ private fun NotePageKeywordHitCard(
     hit: NotePageKeywordSearchHit,
     query: String,
     index: Int,
-    openEnabled: Boolean,
+    openState: FindCardOpenState,
     onOpenOriginal: () -> Unit,
+    onDismissOpenFeedback: () -> Unit,
 ) {
     var whyExpanded by remember(query, index, hit.sourceId, hit.sourceAssetKey) {
         mutableStateOf(false)
@@ -297,13 +259,12 @@ private fun NotePageKeywordHitCard(
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = onOpenOriginal,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = openEnabled,
-            ) {
-                Text(NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_LABEL)
-            }
+            FindOpenOriginalButton(
+                copy = NotePageKeywordSearchCopy.OPEN_ORIGINAL,
+                state = openState,
+                onOpen = onOpenOriginal,
+                onDismissFailure = onDismissOpenFeedback,
+            )
             Spacer(modifier = Modifier.height(8.dp))
             WhyDisclosure(
                 expanded = whyExpanded,

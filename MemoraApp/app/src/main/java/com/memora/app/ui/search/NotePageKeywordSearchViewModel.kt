@@ -30,18 +30,39 @@ data class NotePageKeywordSearchUiState(
     val readiness: NotePageKeywordSearchReadinessUi = NotePageKeywordSearchReadinessUi.Loading,
     val openFeedback: NotePageOpenFeedbackUi = NotePageOpenFeedbackUi.None,
 ) {
+    /**
+     * An open in flight no longer locks the screen. Opening a note waits on
+     * Microsoft Graph, and freezing the search box for that long because
+     * someone tapped a result is not a state the person asked for. Starting a
+     * search abandons the open instead.
+     */
     val canSubmitSearch: Boolean
-        get() = phase !is NotePageKeywordSearchPhase.Searching &&
-            query.isNotBlank() &&
-            openFeedback !is NotePageOpenFeedbackUi.Opening
+        get() = phase !is NotePageKeywordSearchPhase.Searching && query.isNotBlank()
 
     val canClearQuery: Boolean
-        get() = query.isNotBlank() &&
-            phase !is NotePageKeywordSearchPhase.Searching &&
-            openFeedback !is NotePageOpenFeedbackUi.Opening
+        get() = query.isNotBlank() && phase !is NotePageKeywordSearchPhase.Searching
 
     val canCancelSearch: Boolean
         get() = phase is NotePageKeywordSearchPhase.Searching
+
+    /** What [target]'s own card should show. Every other card stays idle. */
+    fun openStateFor(target: FindOpenTarget): FindCardOpenState = when (openFeedback) {
+        NotePageOpenFeedbackUi.None -> FindCardOpenState.IDLE
+        is NotePageOpenFeedbackUi.Opening ->
+            if (openFeedback.target == target) FindCardOpenState.OPENING else FindCardOpenState.IDLE
+        is NotePageOpenFeedbackUi.SourceUnavailable ->
+            if (openFeedback.target == target) {
+                FindCardOpenState.SOURCE_UNAVAILABLE
+            } else {
+                FindCardOpenState.IDLE
+            }
+        is NotePageOpenFeedbackUi.CouldNotOpen ->
+            if (openFeedback.target == target) {
+                FindCardOpenState.COULD_NOT_OPEN
+            } else {
+                FindCardOpenState.IDLE
+            }
+    }
 }
 
 sealed interface NotePageKeywordSearchReadinessUi {
@@ -54,15 +75,26 @@ sealed interface NotePageKeywordSearchReadinessUi {
     ) : NotePageKeywordSearchReadinessUi
 }
 
+/**
+ * Open-original feedback, always attached to the card it came from.
+ *
+ * @see FindOpenTarget for why the screen-level flag was wrong.
+ */
 sealed interface NotePageOpenFeedbackUi {
     data object None : NotePageOpenFeedbackUi
 
-    data object Opening : NotePageOpenFeedbackUi
+    data class Opening(val target: FindOpenTarget) : NotePageOpenFeedbackUi
 
-    data object SourceUnavailable : NotePageOpenFeedbackUi
+    data class SourceUnavailable(val target: FindOpenTarget) : NotePageOpenFeedbackUi
 
-    data object CouldNotOpen : NotePageOpenFeedbackUi
+    data class CouldNotOpen(val target: FindOpenTarget) : NotePageOpenFeedbackUi
 }
+
+/** The card identity for a note keyword hit. */
+fun NotePageKeywordSearchHit.openTarget(): FindOpenTarget = FindOpenTarget(
+    sourceId = sourceId,
+    sourceAssetKey = sourceAssetKey,
+)
 
 sealed interface NotePageKeywordSearchPhase {
     data object Idle : NotePageKeywordSearchPhase
@@ -149,6 +181,7 @@ class NotePageKeywordSearchViewModel(
     private val readinessGeneration = AtomicInteger(0)
     private val openGeneration = AtomicInteger(0)
     private var searchJob: Job? = null
+    private var openJob: Job? = null
 
     init {
         refreshReadiness()
@@ -176,8 +209,14 @@ class NotePageKeywordSearchViewModel(
     }
 
     fun onSearch() {
-        if (mutableUiState.value.openFeedback is NotePageOpenFeedbackUi.Opening) return
         val query = mutableUiState.value.query
+
+        // A new search replaces the list the open belonged to, so abandon it
+        // rather than leaving a Graph call running against a card that is gone.
+        openGeneration.incrementAndGet()
+        openJob?.cancel()
+        openJob = null
+
         val generation = searchGeneration.incrementAndGet()
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
@@ -243,12 +282,19 @@ class NotePageKeywordSearchViewModel(
         }
     }
 
+    /**
+     * A tap while another open is in flight supersedes it rather than being
+     * swallowed. Ignoring the second tap reads as a dead button — a note open
+     * can sit on Graph for seconds, and during that window the person has
+     * clearly told us they want a different page.
+     */
     fun onOpenOriginalNote(hit: NotePageKeywordSearchHit) {
-        if (mutableUiState.value.openFeedback is NotePageOpenFeedbackUi.Opening) return
+        val target = hit.openTarget()
         val generation = openGeneration.incrementAndGet()
-        viewModelScope.launch {
+        openJob?.cancel()
+        openJob = viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
-                openFeedback = NotePageOpenFeedbackUi.Opening,
+                openFeedback = NotePageOpenFeedbackUi.Opening(target),
             )
             val outcome = try {
                 openPersistedNotePage(hit.sourceId, hit.sourceAssetKey)
@@ -257,7 +303,7 @@ class NotePageKeywordSearchViewModel(
             } catch (_: Exception) {
                 if (generation != openGeneration.get()) return@launch
                 mutableUiState.value = mutableUiState.value.copy(
-                    openFeedback = NotePageOpenFeedbackUi.CouldNotOpen,
+                    openFeedback = NotePageOpenFeedbackUi.CouldNotOpen(target),
                 )
                 return@launch
             }
@@ -273,17 +319,17 @@ class NotePageKeywordSearchViewModel(
                         openFeedback = if (launched) {
                             NotePageOpenFeedbackUi.None
                         } else {
-                            NotePageOpenFeedbackUi.CouldNotOpen
+                            NotePageOpenFeedbackUi.CouldNotOpen(target)
                         },
                     )
                 }
                 OpenPersistedNotePageResult.SourceUnavailable ->
                     mutableUiState.value.copy(
-                        openFeedback = NotePageOpenFeedbackUi.SourceUnavailable,
+                        openFeedback = NotePageOpenFeedbackUi.SourceUnavailable(target),
                     )
                 OpenPersistedNotePageResult.CouldNotOpen ->
                     mutableUiState.value.copy(
-                        openFeedback = NotePageOpenFeedbackUi.CouldNotOpen,
+                        openFeedback = NotePageOpenFeedbackUi.CouldNotOpen(target),
                     )
             }
         }
@@ -299,6 +345,8 @@ class NotePageKeywordSearchViewModel(
         openGeneration.incrementAndGet()
         searchJob?.cancel()
         searchJob = null
+        openJob?.cancel()
+        openJob = null
         mutableUiState.value = mutableUiState.value.copy(
             query = "",
             phase = NotePageKeywordSearchPhase.Idle,

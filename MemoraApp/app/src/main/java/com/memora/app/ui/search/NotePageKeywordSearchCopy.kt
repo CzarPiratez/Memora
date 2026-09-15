@@ -115,6 +115,9 @@ object NotePageKeywordSearchCopy {
     const val OPEN_FEEDBACK_OPENING_BODY =
         "Opening that page in OneNote or your browser…"
 
+    /** Sits inside the button, so it has to be short. */
+    const val OPENING_LABEL = "Opening…"
+
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
         "UNFYND could not open that original note because the Microsoft OneNote connection " +
             "needs to be renewed. Open Notes indexing, tap Connect OneNote, finish sign-in " +
@@ -126,6 +129,16 @@ object NotePageKeywordSearchCopy {
             "Keyword search still uses Memory evidence saved on this phone."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
+    /** Everything one result card needs to run and report its own open. */
+    val OPEN_ORIGINAL = FindOpenOriginalCopy(
+        openLabel = OPEN_ORIGINAL_NOTE_LABEL,
+        openingLabel = OPENING_LABEL,
+        openingAnnouncement = OPEN_FEEDBACK_OPENING_BODY,
+        sourceUnavailableBody = OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY,
+        couldNotOpenBody = OPEN_FEEDBACK_COULD_NOT_OPEN_BODY,
+        dismissLabel = DISMISS_OPEN_FEEDBACK_LABEL,
+    )
 
     const val BACK_LABEL = "Back"
 

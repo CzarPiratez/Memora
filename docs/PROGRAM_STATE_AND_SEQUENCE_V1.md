@@ -351,6 +351,39 @@ the matching word is not already on the card.
 
 Ask Model **P-EVIDENCE** / **P-ANSWER**; scenario bar U5. Live/Dual **N = 0**.
 
+### D-18 — Open-original feedback belonged to the screen, not the card (**P1, fixed**)
+
+**FIXED 2026-09-15.** Found on device opening a OneNote result: *"when I click
+one 'Open original', all the tabs seem to have been clicked… it stays on the
+results page for a while, while all the 'Open original' tabs are grey. There is
+no spinner."*
+
+Both symptoms came from one shape. `openFeedback` was a single screen-level
+value, so `Opening` disabled the Open button on **every** card at once, and the
+progress indicator rendered above the search box — off-screen for anyone who had
+scrolled far enough to reach a result. The failure states rendered up there too,
+which is worse: the tap looked like it did nothing, and the reason was
+somewhere the person could not see. A note open waits on Microsoft Graph, so
+that silent window lasts seconds rather than a frame.
+
+**Fixed** by attaching feedback to the card it came from (`FindOpenTarget`,
+keyed on the `sourceId|sourceAssetKey` the result list is already deduplicated
+by). One card shows a spinner inside its own button; every other card stays
+live. Failures render in the card that failed, with Dismiss. A second tap
+supersedes the open in flight — swallowing it read as a dead button — and
+searching no longer freezes the query box for the length of a Graph call.
+Applies to meaning Find and note keyword Find.
+
+Live/Dual **N = 0**; no retrieval, ranking, or Why change.
+
+**Still open:** the Graph round trip itself. `OpenPersistedNotePageInOneNote`
+calls `ensureSession()` and then `getPageLinks` on **every** tap; the page
+`links` are not persisted at index time. On a cold process with a stale token
+that is MSAL init + a silent refresh + a Graph request before anything can
+launch. The wait is now honest and visible, but it is still a wait, and Open
+original still needs a network. **Not measured on device** — instrument before
+choosing the fix. See I5 below.
+
 ### D-14 — UNFYND's own screenshots compete as corpus (**P0, fixed — D16**)
 
 **FIXED 2026-09-06.** Found on device: `Screenshot_20260904_124145_UNFYND.png`
@@ -694,6 +727,17 @@ re-enqueues. I4’s *measured* per-item cost is still open.
 | I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | **done** |
 | I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | **done** |
 | I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open (I3 landed I4-lite: 4-minute worker budget, not measured) |
+| I5 | Persist OneNote page `links` at index time so Open original does not call Graph on every tap (**D-18** remainder) | Code + Measurement | open |
+
+> **I5 rationale:** Graph exposes `links` on the page resource, and
+> `OneNotePagesDiscoverySource.sectionPagesUrl` already runs a `$select` against
+> the same resource — so the open targets can be read during discovery for **no
+> extra request**. Persisting them turns a per-tap network round trip into a
+> local lookup and lets Open original work offline, which is the behaviour a
+> local-first product should have. Graph stays as the fallback for pages indexed
+> before this lands. **Measure first:** the split between MSAL init, a silent
+> token refresh, and the Graph request has not been observed on device, and the
+> fix should be chosen against a number, not this paragraph.
 
 > **I4 rationale:** a count cap cannot bound work whose per-item cost varies by
 > two orders of magnitude. One observed tap indexed 25 memories but 49 PDF

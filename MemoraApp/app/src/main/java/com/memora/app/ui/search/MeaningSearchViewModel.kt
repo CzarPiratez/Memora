@@ -31,21 +31,39 @@ data class MeaningSearchUiState(
     val openFeedback: MeaningOpenFeedbackUi = MeaningOpenFeedbackUi.None,
     val originalPreview: MeaningOriginalPreviewUi? = null,
 ) {
+    /**
+     * An open in flight no longer locks the screen. Opening a note waits on
+     * Microsoft Graph, and freezing the search box for that long because
+     * someone tapped a result is not a state the person asked for. Starting a
+     * search abandons the open instead.
+     */
     val canSubmitSearch: Boolean
-        get() = phase !is MeaningSearchPhase.Searching &&
-            query.isNotBlank() &&
-            openFeedback !is MeaningOpenFeedbackUi.Opening
+        get() = phase !is MeaningSearchPhase.Searching && query.isNotBlank()
 
     val canClearQuery: Boolean
-        get() = query.isNotBlank() &&
-            phase !is MeaningSearchPhase.Searching &&
-            openFeedback !is MeaningOpenFeedbackUi.Opening
+        get() = query.isNotBlank() && phase !is MeaningSearchPhase.Searching
 
     val canCancelSearch: Boolean
         get() = phase is MeaningSearchPhase.Searching
 
-    val canOpenOriginal: Boolean
-        get() = openFeedback !is MeaningOpenFeedbackUi.Opening
+    /** What [target]'s own card should show. Every other card stays idle. */
+    fun openStateFor(target: FindOpenTarget): FindCardOpenState = when (openFeedback) {
+        MeaningOpenFeedbackUi.None -> FindCardOpenState.IDLE
+        is MeaningOpenFeedbackUi.Opening ->
+            if (openFeedback.target == target) FindCardOpenState.OPENING else FindCardOpenState.IDLE
+        is MeaningOpenFeedbackUi.SourceUnavailable ->
+            if (openFeedback.target == target) {
+                FindCardOpenState.SOURCE_UNAVAILABLE
+            } else {
+                FindCardOpenState.IDLE
+            }
+        is MeaningOpenFeedbackUi.CouldNotOpen ->
+            if (openFeedback.target == target) {
+                FindCardOpenState.COULD_NOT_OPEN
+            } else {
+                FindCardOpenState.IDLE
+            }
+    }
 }
 
 sealed interface MeaningSearchReadinessUi {
@@ -66,15 +84,26 @@ sealed interface MeaningSearchReadinessUi {
     }
 }
 
+/**
+ * Open-original feedback, always attached to the card it came from.
+ *
+ * @see FindOpenTarget for why the screen-level flag was wrong.
+ */
 sealed interface MeaningOpenFeedbackUi {
     data object None : MeaningOpenFeedbackUi
 
-    data object Opening : MeaningOpenFeedbackUi
+    data class Opening(val target: FindOpenTarget) : MeaningOpenFeedbackUi
 
-    data object SourceUnavailable : MeaningOpenFeedbackUi
+    data class SourceUnavailable(val target: FindOpenTarget) : MeaningOpenFeedbackUi
 
-    data object CouldNotOpen : MeaningOpenFeedbackUi
+    data class CouldNotOpen(val target: FindOpenTarget) : MeaningOpenFeedbackUi
 }
+
+/** The card identity for a meaning hit. */
+fun MeaningSearchHit.openTarget(): FindOpenTarget = FindOpenTarget(
+    sourceId = sourceId.value,
+    sourceAssetKey = sourceAssetKey.value,
+)
 
 sealed interface MeaningOriginalPreviewUi {
     data class Screenshot(val preview: ScreenshotOriginalPreviewUi) : MeaningOriginalPreviewUi
@@ -161,6 +190,7 @@ class MeaningSearchViewModel(
     private val searchGeneration = AtomicInteger(0)
     private val openGeneration = AtomicInteger(0)
     private var searchJob: Job? = null
+    private var openJob: Job? = null
 
     fun onScreenVisible() {
         viewModelScope.launch {
@@ -219,7 +249,12 @@ class MeaningSearchViewModel(
             return
         }
         if (mutableUiState.value.phase is MeaningSearchPhase.Searching) return
-        if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
+
+        // A new search replaces the list the open belonged to, so abandon it
+        // rather than leaving a Graph call running against a card that is gone.
+        openGeneration.incrementAndGet()
+        openJob?.cancel()
+        openJob = null
 
         val generation = searchGeneration.incrementAndGet()
         searchJob?.cancel()
@@ -290,12 +325,19 @@ class MeaningSearchViewModel(
         }
     }
 
+    /**
+     * A tap while another open is in flight supersedes it rather than being
+     * swallowed. Ignoring the second tap reads as a dead button — a note open
+     * can sit on Graph for seconds, and during that window the person has
+     * clearly told us they want a different file.
+     */
     fun onOpenOriginal(hit: MeaningSearchHit) {
-        if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
+        val target = hit.openTarget()
         val generation = openGeneration.incrementAndGet()
-        viewModelScope.launch {
+        openJob?.cancel()
+        openJob = viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
-                openFeedback = MeaningOpenFeedbackUi.Opening,
+                openFeedback = MeaningOpenFeedbackUi.Opening(target),
                 originalPreview = null,
             )
             val cue = when (val phase = mutableUiState.value.phase) {
@@ -309,7 +351,7 @@ class MeaningSearchViewModel(
             } catch (_: Exception) {
                 if (generation != openGeneration.get()) return@launch
                 mutableUiState.value = mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen,
+                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen(target),
                     originalPreview = null,
                 )
                 return@launch
@@ -367,17 +409,17 @@ class MeaningSearchViewModel(
                         openFeedback = if (launched) {
                             MeaningOpenFeedbackUi.None
                         } else {
-                            MeaningOpenFeedbackUi.CouldNotOpen
+                            MeaningOpenFeedbackUi.CouldNotOpen(target)
                         },
                         originalPreview = null,
                     )
                 }
                 MeaningOpenOriginalResult.SourceUnavailable -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.SourceUnavailable,
+                    openFeedback = MeaningOpenFeedbackUi.SourceUnavailable(target),
                     originalPreview = null,
                 )
                 MeaningOpenOriginalResult.CouldNotOpen -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen,
+                    openFeedback = MeaningOpenFeedbackUi.CouldNotOpen(target),
                     originalPreview = null,
                 )
             }
@@ -391,6 +433,8 @@ class MeaningSearchViewModel(
 
     fun onOriginalPreviewClosed() {
         openGeneration.incrementAndGet()
+        openJob?.cancel()
+        openJob = null
         mutableUiState.value = mutableUiState.value.copy(
             originalPreview = null,
             openFeedback = MeaningOpenFeedbackUi.None,

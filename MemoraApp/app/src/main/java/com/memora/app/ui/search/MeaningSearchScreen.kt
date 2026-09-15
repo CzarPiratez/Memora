@@ -98,8 +98,7 @@ fun MeaningSearchScreen(
             modifier = Modifier.fillMaxWidth(),
             label = { Text(MeaningSearchCopy.QUERY_LABEL) },
             singleLine = true,
-            enabled = uiState.phase !is MeaningSearchPhase.Searching &&
-                uiState.openFeedback !is MeaningOpenFeedbackUi.Opening,
+            enabled = uiState.phase !is MeaningSearchPhase.Searching,
             trailingIcon = {
                 if (uiState.canClearQuery) {
                     TextButton(onClick = onQueryCleared) {
@@ -131,29 +130,8 @@ fun MeaningSearchScreen(
                 Text(MeaningSearchCopy.CANCEL_SEARCH_LABEL)
             }
         }
-        when (val feedback = uiState.openFeedback) {
-            MeaningOpenFeedbackUi.None -> Unit
-            MeaningOpenFeedbackUi.Opening -> {
-                Spacer(modifier = Modifier.height(12.dp))
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                Spacer(modifier = Modifier.height(8.dp))
-                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_OPENING_BODY)
-            }
-            MeaningOpenFeedbackUi.SourceUnavailable -> {
-                Spacer(modifier = Modifier.height(12.dp))
-                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY)
-                TextButton(onClick = onDismissOpenFeedback) {
-                    Text(MeaningSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
-                }
-            }
-            MeaningOpenFeedbackUi.CouldNotOpen -> {
-                Spacer(modifier = Modifier.height(12.dp))
-                PhaseBody(MeaningSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY)
-                TextButton(onClick = onDismissOpenFeedback) {
-                    Text(MeaningSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
-                }
-            }
-        }
+        // Open progress and open failures render on the card that was tapped;
+        // see FindOpenOriginalButton.
         Spacer(modifier = Modifier.height(20.dp))
         when (val phase = uiState.phase) {
             MeaningSearchPhase.Idle -> Unit
@@ -194,8 +172,9 @@ fun MeaningSearchScreen(
                     MeaningHitCard(
                         hit = hit,
                         query = phase.query,
-                        canOpen = uiState.canOpenOriginal,
+                        openState = uiState.openStateFor(hit.openTarget()),
                         onOpenOriginal = onOpenOriginal,
+                        onDismissOpenFeedback = onDismissOpenFeedback,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -217,8 +196,9 @@ private fun PhaseBody(text: String) {
 private fun MeaningHitCard(
     hit: MeaningSearchHit,
     query: String,
-    canOpen: Boolean,
+    openState: FindCardOpenState,
     onOpenOriginal: (MeaningSearchHit) -> Unit,
+    onDismissOpenFeedback: () -> Unit,
 ) {
     var showWhy by remember(hit.revisionId.value, query) { mutableStateOf(false) }
     Card(
@@ -241,13 +221,12 @@ private fun MeaningHitCard(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = { onOpenOriginal(hit) },
-                enabled = canOpen,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(MeaningSearchCopy.OPEN_ORIGINAL_LABEL)
-            }
+            FindOpenOriginalButton(
+                copy = MeaningSearchCopy.OPEN_ORIGINAL,
+                state = openState,
+                onOpen = { onOpenOriginal(hit) },
+                onDismissFailure = onDismissOpenFeedback,
+            )
             Spacer(modifier = Modifier.height(8.dp))
             WhyDisclosure(
                 expanded = showWhy,

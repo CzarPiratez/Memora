@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Open-original feedback belongs to the card you tapped (2026-09-15)
+
+- **Date:** 2026-09-15
+- **Why it existed.** Found on device opening a OneNote result: tapping one
+  "Open original" appeared to tap all of them, the list then sat there greyed
+  out for seconds, and there was no spinner. All of that was one screen-level
+  `openFeedback` value. `Opening` disabled every card's button at once, and the
+  progress indicator rendered above the search box — off-screen for anyone who
+  had scrolled to a result. Failures rendered up there too, so a tap that
+  failed looked like a tap that did nothing.
+- **Fixed.** `FindOpenTarget` keys feedback to one card, on the
+  `sourceId|sourceAssetKey` the result list is already deduplicated by. The
+  tapped card shows a spinner inside its own button; every other card stays
+  live. Failures render in the card that failed, with Dismiss, as a polite live
+  region. A second tap supersedes the open in flight and cancels its job —
+  swallowing it read as a dead button for the length of a Graph call. Starting
+  a search abandons the open rather than the reverse: an open no longer freezes
+  the query box. Meaning Find and note keyword Find; `FindOpenOriginalButton`
+  is shared so the two surfaces cannot drift.
+- **Not fixed here.** The Graph round trip on every tap. `links` are still
+  fetched live instead of persisted at index time, so Open original still costs
+  a network request and still cannot work offline. Backlog **I5**; measure the
+  MSAL / Graph split on device before choosing the fix.
+- **Defect:** D-18. Live/Dual **N = 0**; no retrieval, ranking, or Why change.
+- **Verification:** `:app:testDebugUnitTest` green, including new ViewModel
+  tests for attribution, supersede, and abandoning on search.
+
 ### Meaning-only tier for zero-overlap paraphrase (2026-09-15)
 
 - **Date:** 2026-09-15

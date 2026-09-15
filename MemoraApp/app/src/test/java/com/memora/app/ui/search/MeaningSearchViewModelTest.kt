@@ -12,6 +12,7 @@ import com.memora.app.domain.memory.CorpusCompletenessCounts
 import com.memora.app.domain.memory.CorpusCompletenessSnapshot
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -204,6 +205,100 @@ class MeaningSearchViewModelTest {
         assertEquals(MeaningSearchReadinessUi.CouldNotLoad, viewModel.uiState.value.readiness)
     }
 
+    /**
+     * The reported defect: one screen-level flag meant tapping one result greyed
+     * out every Open button, so the list looked like it had all been tapped
+     * while a OneNote open waited on Graph.
+     */
+    @Test
+    fun opening_belongs_to_the_tapped_card_and_leaves_the_others_live() = runTest {
+        val graph = CompletableDeferred<MeaningOpenOriginalResult>()
+        val viewModel = viewModel(open = { _, _ -> graph.await() }) { noteMatches() }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onOpenOriginal(sampleHit(AssetType.NOTE, key = "k1"))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(MeaningOpenFeedbackUi.Opening(target("k1")), state.openFeedback)
+        assertEquals(FindCardOpenState.OPENING, state.openStateFor(target("k1")))
+        assertEquals(FindCardOpenState.IDLE, state.openStateFor(target("k2")))
+        // A Graph round trip is no reason to freeze the search box.
+        assertTrue(state.canSubmitSearch)
+
+        graph.complete(MeaningOpenOriginalResult.CouldNotOpen)
+        advanceUntilIdle()
+        assertEquals(
+            MeaningOpenFeedbackUi.CouldNotOpen(target("k1")),
+            viewModel.uiState.value.openFeedback,
+        )
+        assertEquals(
+            FindCardOpenState.IDLE,
+            viewModel.uiState.value.openStateFor(target("k2")),
+        )
+    }
+
+    /**
+     * Ignoring the second tap while Graph is still answering reads as a dead
+     * button for the seconds that call takes.
+     */
+    @Test
+    fun a_second_tap_supersedes_the_open_in_flight() = runTest {
+        val firstGraph = CompletableDeferred<MeaningOpenOriginalResult>()
+        val opened = mutableListOf<String>()
+        val viewModel = viewModel(
+            open = { hit, _ ->
+                opened += hit.sourceAssetKey.value
+                if (hit.sourceAssetKey.value == "k1") {
+                    firstGraph.await()
+                } else {
+                    MeaningOpenOriginalResult.SourceUnavailable
+                }
+            },
+        ) { noteMatches() }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onOpenOriginal(sampleHit(AssetType.NOTE, key = "k1"))
+        advanceUntilIdle()
+        viewModel.onOpenOriginal(sampleHit(AssetType.NOTE, key = "k2"))
+        advanceUntilIdle()
+
+        assertEquals(listOf("k1", "k2"), opened)
+        assertEquals(
+            MeaningOpenFeedbackUi.SourceUnavailable(target("k2")),
+            viewModel.uiState.value.openFeedback,
+        )
+
+        // The abandoned call must not repaint the card it no longer owns.
+        firstGraph.complete(MeaningOpenOriginalResult.CouldNotOpen)
+        advanceUntilIdle()
+        assertEquals(
+            MeaningOpenFeedbackUi.SourceUnavailable(target("k2")),
+            viewModel.uiState.value.openFeedback,
+        )
+    }
+
+    private fun noteMatches() = MeaningSearchOutcome.Matches(
+        query = "note",
+        hits = listOf(
+            sampleHit(AssetType.NOTE, key = "k1"),
+            sampleHit(AssetType.NOTE, key = "k2"),
+        ),
+        limitReached = false,
+        model = model,
+    )
+
+    private fun target(sourceAssetKey: String) = FindOpenTarget(
+        sourceId = "s",
+        sourceAssetKey = sourceAssetKey,
+    )
+
     private fun viewModel(
         readiness: suspend () -> MeaningSearchReadiness = {
             MeaningSearchReadiness.Ready(
@@ -236,11 +331,14 @@ class MeaningSearchViewModelTest {
         minSearchingVisibleMs = minSearchingVisibleMs,
     ).also { it.onScreenVisible() }
 
-    private fun sampleHit(type: AssetType = AssetType.SCREENSHOT) = MeaningSearchHit(
+    private fun sampleHit(
+        type: AssetType = AssetType.SCREENSHOT,
+        key: String = "k",
+    ) = MeaningSearchHit(
         revisionId = MemoryRevisionId("r1"),
         memoryId = MemoryId("m1"),
         sourceId = SourceId("s"),
-        sourceAssetKey = SourceAssetKey("k"),
+        sourceAssetKey = SourceAssetKey(key),
         assetType = type,
         label = "Screenshot_memora_note.png",
         summaryText = "Screenshot note",
