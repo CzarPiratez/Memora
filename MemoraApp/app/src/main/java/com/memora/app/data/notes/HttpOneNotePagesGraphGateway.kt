@@ -1,5 +1,6 @@
 package com.memora.app.data.notes
 
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -130,13 +131,16 @@ class HttpOneNotePagesGraphGateway(
                 "$encodedId?\$select=links"
         }
 
-        fun parsePageLinksResponse(json: String): OneNotePageLinks {
-            val root = JsonParser.parseString(json).asJsonObject
-            val links = root.getAsJsonObject("links")
+        fun parsePageLinksResponse(json: String): OneNotePageLinks =
+            parseLinks(JsonParser.parseString(json).asJsonObject) ?: OneNotePageLinks(null, null)
+
+        /** `links` has the same shape on a single page and on a list item. */
+        private fun parseLinks(page: JsonObject?): OneNotePageLinks? {
+            val links = page?.getAsJsonObject("links") ?: return null
             return OneNotePageLinks(
-                oneNoteWebUrl = links?.getAsJsonObject("oneNoteWebUrl")
+                oneNoteWebUrl = links.getAsJsonObject("oneNoteWebUrl")
                     ?.get("href")?.asString?.takeIf { it.isNotBlank() },
-                oneNoteClientUrl = links?.getAsJsonObject("oneNoteClientUrl")
+                oneNoteClientUrl = links.getAsJsonObject("oneNoteClientUrl")
                     ?.get("href")?.asString?.takeIf { it.isNotBlank() },
             )
         }
@@ -175,6 +179,7 @@ class HttpOneNotePagesGraphGateway(
                                     ?.takeIf { it.isNotBlank() },
                                 lastModifiedDateTime = item.get("lastModifiedDateTime")?.asString
                                     ?.takeIf { it.isNotBlank() },
+                                links = parseLinks(item)?.takeIf(OneNotePageLinks::hasAnyUrl),
                             ),
                         )
                     }

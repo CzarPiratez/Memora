@@ -16,6 +16,8 @@ import com.memora.app.domain.discovery.DiscoveryPage
 import com.memora.app.domain.discovery.DiscoveryRequest
 import com.memora.app.domain.discovery.DiscoveryResult
 import com.memora.app.domain.discovery.SourceAccessState
+import com.memora.app.domain.notes.NotePageOpenTarget
+import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import com.memora.app.domain.notes.NotesProviderSession
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import java.time.Instant
@@ -29,6 +31,13 @@ import java.time.format.DateTimeParseException
 class OneNotePagesDiscoverySource(
     private val tokenVault: NotesProviderTokenVault,
     private val graphGateway: OneNotePagesGraphGateway,
+    /**
+     * Where each listed page opens. Graph hands these over with the page
+     * summary, and an `Asset` is deliberately source-neutral and has nowhere to
+     * carry a OneNote deep link, so the provider adapter that learned them is
+     * the one that records them (I5).
+     */
+    private val openTargetRepository: NotePageOpenTargetRepository? = null,
     private val clock: () -> Instant = { Instant.now() },
 ) : AssetDiscoverySource {
     override val capability: SourceCapability = SourceCapability(
@@ -137,6 +146,7 @@ class OneNotePagesDiscoverySource(
                 )
                 is OneNotePagesGraphResult.Ok -> {
                     val assets = pages.response.pages.mapNotNull { toAsset(it) }
+                    rememberOpenTargets(pages.response.pages)
                     val pageNext = pages.response.nextLink
                     val nextState = when {
                         !pageNext.isNullOrBlank() -> state.copy(pagesNextUrl = pageNext)
@@ -193,6 +203,31 @@ class OneNotePagesDiscoverySource(
         ),
     )
 
+    /**
+     * Discovery's job is to return Assets, so a failure to record an open target
+     * must not fail the page. The cost of losing one is a slow Open original
+     * that heals itself through the Graph fallback — not a broken scan.
+     */
+    private suspend fun rememberOpenTargets(pages: List<OneNotePageSummary>) {
+        val repository = openTargetRepository ?: return
+        for (page in pages) {
+            val links = page.links?.takeIf(OneNotePageLinks::hasAnyUrl) ?: continue
+            val id = page.id.trim().ifEmpty { continue }
+            try {
+                repository.save(
+                    NotePageOpenTarget(
+                        sourceId = SOURCE_ID.value,
+                        sourceAssetKey = id,
+                        clientUrl = links.clientUrlOrNull,
+                        webUrl = links.webUrlOrNull,
+                    ),
+                )
+            } catch (_: Exception) {
+                // Keep listing; Open original falls back to Graph for this page.
+            }
+        }
+    }
+
     private fun toAsset(page: OneNotePageSummary): Asset? {
         val id = page.id.trim()
         if (id.isEmpty()) return null
@@ -246,9 +281,12 @@ class OneNotePagesDiscoverySource(
                 DiscoveryRequest.MIN_BATCH_SIZE,
                 DiscoveryRequest.MAX_BATCH_SIZE,
             )
+            // `links` rides along on the page resource we already select, so the
+            // open targets cost nothing here and save Open original a 6–7s Graph
+            // round trip on every single tap (I5).
             return "$GRAPH_SECTIONS_BASE/$sectionId/pages" +
                 "?\$top=$top" +
-                "&\$select=id,title,createdDateTime,lastModifiedDateTime,contentUrl" +
+                "&\$select=id,title,createdDateTime,lastModifiedDateTime,contentUrl,links" +
                 "&\$orderby=createdDateTime"
         }
 

@@ -7,6 +7,7 @@ import com.memora.app.data.local.RoomAiPackInstallLedger
 import com.memora.app.data.local.RoomAssetMemoryAssemblyOutcomeStore
 import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomAssetRepository
+import com.memora.app.data.local.RoomNotePageOpenTargetRepository
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
@@ -22,6 +23,7 @@ import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.MemoraUserConfirmedDerivedDataClearer
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryPageStore
 import com.memora.app.domain.discovery.DocumentTreeApprovalRepository
@@ -63,6 +65,13 @@ object PersistenceModule {
     @Singleton
     fun provideAssetRepository(handle: MemoraDatabaseHandle): AssetRepository =
         RoomAssetRepository(assetDao = { handle.database().assetDao() })
+
+    @Provides
+    @Singleton
+    fun provideNotePageOpenTargetRepository(
+        handle: MemoraDatabaseHandle,
+    ): NotePageOpenTargetRepository =
+        RoomNotePageOpenTargetRepository(dao = { handle.database().notePageOpenTargetDao() })
 
     @Provides
     @Singleton

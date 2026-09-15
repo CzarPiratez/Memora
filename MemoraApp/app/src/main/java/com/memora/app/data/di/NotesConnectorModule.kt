@@ -17,6 +17,7 @@ import com.memora.app.data.notes.OneNotePagesDiscoverySource
 import com.memora.app.data.notes.OneNotePagesGraphGateway
 import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.domain.extraction.NotePageExtractionPersistence
+import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import com.memora.app.domain.notes.NotesProviderTokenVault
 import com.memora.app.domain.notes.OneNoteAuthConfiguration
 import dagger.Binds
@@ -72,9 +73,11 @@ object NotesConnectorModule {
     fun provideOneNotePagesDiscoverySource(
         tokenVault: NotesProviderTokenVault,
         graphGateway: OneNotePagesGraphGateway,
+        openTargetRepository: NotePageOpenTargetRepository,
     ): OneNotePagesDiscoverySource = OneNotePagesDiscoverySource(
         tokenVault = tokenVault,
         graphGateway = graphGateway,
+        openTargetRepository = openTargetRepository,
     )
 
     @Provides

@@ -600,6 +600,32 @@ object MemoraDatabaseMigrations {
         }
     }
 
+    /**
+     * I5: persist where a note page opens, so Open original stops paying a
+     * 6–7s Graph round trip on every tap and works with no network.
+     *
+     * Creating the table empty is deliberate. The rows are derived and
+     * re-fetchable, and `OpenPersistedNotePageInOneNote` writes one whenever it
+     * falls back to Graph, so an already-indexed corpus heals on first use
+     * rather than needing a re-index.
+     */
+    val MIGRATION_16_17: Migration = object : Migration(16, 17) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `note_page_open_targets` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `client_url` TEXT,
+                    `web_url` TEXT,
+                    `updated_at_epoch_millis` INTEGER NOT NULL,
+                    PRIMARY KEY(`source_id`, `source_asset_key`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -616,5 +642,6 @@ object MemoraDatabaseMigrations {
         MIGRATION_13_14,
         MIGRATION_14_15,
         MIGRATION_15_16,
+        MIGRATION_16_17,
     )
 }

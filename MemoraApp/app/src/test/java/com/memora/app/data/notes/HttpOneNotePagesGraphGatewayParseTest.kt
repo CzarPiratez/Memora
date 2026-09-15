@@ -33,6 +33,47 @@ class HttpOneNotePagesGraphGatewayParseTest {
         )
     }
 
+    /**
+     * I5: the same `links` object Graph returns for a single page also comes
+     * back on a list item, so discovery can learn where every page opens
+     * without a second request.
+     */
+    @Test
+    fun parsesTheOpenLinksCarriedOnAListedPage() {
+        val json = """
+            {
+              "value": [
+                {
+                  "id": "page-1",
+                  "title": "Meeting notes",
+                  "links": {
+                    "oneNoteClientUrl": { "href": "onenote:https://example/client" },
+                    "oneNoteWebUrl": { "href": "https://example/web" }
+                  }
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val links = HttpOneNotePagesGraphGateway.parseListResponse(json).pages.single().links
+        assertEquals("https://example/web", links?.webUrlOrNull)
+        assertEquals("onenote:https://example/client", links?.clientUrlOrNull)
+    }
+
+    /** An older cursor, or a request that did not select `links`, has none. */
+    @Test
+    fun aListedPageWithoutLinksHasNoOpenTarget() {
+        val json = """{"value":[{"id":"page-1","title":"Meeting notes"}]}"""
+        assertNull(HttpOneNotePagesGraphGateway.parseListResponse(json).pages.single().links)
+    }
+
+    /** Graph can return the object with neither href; that opens nothing. */
+    @Test
+    fun aLinksObjectWithNoHrefIsNotAnOpenTarget() {
+        val json = """{"value":[{"id":"page-1","links":{}}]}"""
+        assertNull(HttpOneNotePagesGraphGateway.parseListResponse(json).pages.single().links)
+    }
+
     @Test
     fun emptyValueMeansNoPagesAndNoNextLink() {
         val parsed = HttpOneNotePagesGraphGateway.parseListResponse("""{"value":[]}""")

@@ -16,6 +16,8 @@ import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.IndexingState
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.notes.NotePageOpenTarget
+import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import com.memora.app.domain.notes.NotesProviderSession
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
@@ -35,6 +37,7 @@ class OpenPersistedNotePageInOneNoteTest {
                     oneNoteClientUrl = "onenote:https://onenote.example/client",
                 ),
             ),
+            openTargetRepository = FakeOpenTargets(),
         )
 
         val result = useCase("microsoft.onenote", "page-1")
@@ -58,6 +61,7 @@ class OpenPersistedNotePageInOneNoteTest {
                     oneNoteClientUrl = null,
                 ),
             ),
+            openTargetRepository = FakeOpenTargets(),
         )
         assertEquals(
             OpenPersistedNotePageResult.SourceUnavailable,
@@ -73,6 +77,7 @@ class OpenPersistedNotePageInOneNoteTest {
             graphGateway = FakeGateway(
                 links = OneNotePageLinks(oneNoteWebUrl = null, oneNoteClientUrl = null),
             ),
+            openTargetRepository = FakeOpenTargets(),
         )
         assertEquals(
             OpenPersistedNotePageResult.CouldNotOpen,
@@ -86,6 +91,7 @@ class OpenPersistedNotePageInOneNoteTest {
             assetRepository = FakeAssetRepository(noteAsset()),
             oneNoteAuth = FakeAuth(session = sampleSession()),
             graphGateway = FakeGateway(unauthorized = true),
+            openTargetRepository = FakeOpenTargets(),
         )
         assertEquals(
             OpenPersistedNotePageResult.SourceUnavailable,
@@ -107,6 +113,7 @@ class OpenPersistedNotePageInOneNoteTest {
             assetRepository = FakeAssetRepository(noteAsset()),
             oneNoteAuth = auth,
             graphGateway = gateway,
+            openTargetRepository = FakeOpenTargets(),
         )
         assertEquals(
             OpenPersistedNotePageResult.Ready(
@@ -117,6 +124,89 @@ class OpenPersistedNotePageInOneNoteTest {
         )
         assertEquals(1, auth.forceRefreshCalls)
         assertEquals(2, gateway.getPageLinksCalls)
+    }
+
+    /**
+     * The point of I5. Measured before it existed: 6.1–7.0s per tap, all of it
+     * this Graph request, on a warm session and a good connection.
+     */
+    @Test
+    fun aSavedTargetOpensWithoutASessionOrAGraphRequest() = runTest {
+        val auth = FakeAuth(session = null)
+        val gateway = FakeGateway()
+        val useCase = OpenPersistedNotePageInOneNote(
+            assetRepository = FakeAssetRepository(noteAsset()),
+            oneNoteAuth = auth,
+            graphGateway = gateway,
+            openTargetRepository = FakeOpenTargets(
+                NotePageOpenTarget(
+                    sourceId = "microsoft.onenote",
+                    sourceAssetKey = "page-1",
+                    clientUrl = "onenote:https://onenote.example/client",
+                    webUrl = "https://onenote.example/web",
+                ),
+            ),
+        )
+
+        assertEquals(
+            OpenPersistedNotePageResult.Ready(
+                webUrl = "https://onenote.example/web",
+                clientUrl = "onenote:https://onenote.example/client",
+            ),
+            useCase("microsoft.onenote", "page-1"),
+        )
+        // A null session would have been SourceUnavailable had it been consulted.
+        assertEquals(0, gateway.getPageLinksCalls)
+        assertEquals(0, auth.ensureSessionCalls)
+    }
+
+    /** Pages indexed before I5 heal on first use rather than needing a re-index. */
+    @Test
+    fun theGraphFallbackRecordsWhatItLearnedSoTheNextTapIsLocal() = runTest {
+        val openTargets = FakeOpenTargets()
+        val useCase = OpenPersistedNotePageInOneNote(
+            assetRepository = FakeAssetRepository(noteAsset()),
+            oneNoteAuth = FakeAuth(session = sampleSession()),
+            graphGateway = FakeGateway(
+                links = OneNotePageLinks(
+                    oneNoteWebUrl = "https://onenote.example/web",
+                    oneNoteClientUrl = null,
+                ),
+            ),
+            openTargetRepository = openTargets,
+        )
+
+        useCase("microsoft.onenote", "page-1")
+
+        assertEquals(
+            NotePageOpenTarget(
+                sourceId = "microsoft.onenote",
+                sourceAssetKey = "page-1",
+                clientUrl = null,
+                webUrl = "https://onenote.example/web",
+            ),
+            openTargets.find("microsoft.onenote", "page-1"),
+        )
+    }
+
+    /** A page that cannot open must not be recorded as if it could. */
+    @Test
+    fun aFailedOpenIsNotRecorded() = runTest {
+        val openTargets = FakeOpenTargets()
+        val useCase = OpenPersistedNotePageInOneNote(
+            assetRepository = FakeAssetRepository(noteAsset()),
+            oneNoteAuth = FakeAuth(session = sampleSession()),
+            graphGateway = FakeGateway(
+                links = OneNotePageLinks(oneNoteWebUrl = null, oneNoteClientUrl = null),
+            ),
+            openTargetRepository = openTargets,
+        )
+
+        assertEquals(
+            OpenPersistedNotePageResult.CouldNotOpen,
+            useCase("microsoft.onenote", "page-1"),
+        )
+        assertEquals(null, openTargets.find("microsoft.onenote", "page-1"))
     }
 
     private fun noteAsset() = Asset(
@@ -143,14 +233,30 @@ class OpenPersistedNotePageInOneNoteTest {
     ) : OneNoteInteractiveAuth {
         var forceRefreshCalls: Int = 0
             private set
+        var ensureSessionCalls: Int = 0
+            private set
 
         override suspend fun connect(activity: android.app.Activity) =
             error("not used")
         override suspend fun disconnect() = Unit
         override suspend fun restoreAccountLabel(): String? = session?.accountDisplayLabel
         override suspend fun ensureSession(forceRefresh: Boolean): NotesProviderSession? {
+            ensureSessionCalls += 1
             if (forceRefresh) forceRefreshCalls += 1
             return session
+        }
+    }
+
+    private class FakeOpenTargets(
+        vararg saved: NotePageOpenTarget,
+    ) : NotePageOpenTargetRepository {
+        private val rows = saved.associateBy { it.sourceId to it.sourceAssetKey }.toMutableMap()
+
+        override suspend fun find(sourceId: String, sourceAssetKey: String): NotePageOpenTarget? =
+            rows[sourceId to sourceAssetKey]
+
+        override suspend fun save(target: NotePageOpenTarget) {
+            rows[target.sourceId to target.sourceAssetKey] = target
         }
     }
 

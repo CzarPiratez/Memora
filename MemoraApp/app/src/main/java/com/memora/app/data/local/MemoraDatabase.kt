@@ -15,6 +15,7 @@ import androidx.room.RoomDatabase
         ScreenshotOcrExtractionEntity::class,
         PhotoOcrExtractionEntity::class,
         NotePageExtractionEntity::class,
+        NotePageOpenTargetEntity::class,
         MemoryEntity::class,
         MemoryExtractionSchemaEntity::class,
         MemoryEvidenceEntity::class,
@@ -26,7 +27,7 @@ import androidx.room.RoomDatabase
         MemoryEvidenceEmbeddingEntity::class,
         MemoryAssemblySkipEntity::class,
     ],
-    version = 16,
+    version = 17,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -45,6 +46,8 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun photoOcrExtractionDao(): PhotoOcrExtractionDao
 
     abstract fun notePageExtractionDao(): NotePageExtractionDao
+
+    abstract fun notePageOpenTargetDao(): NotePageOpenTargetDao
 
     abstract fun memoryDao(): MemoryDao
 

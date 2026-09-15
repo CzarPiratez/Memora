@@ -789,7 +789,7 @@ re-enqueues. I4’s *measured* per-item cost is still open.
 | I2 | `AssetMemoryAssembly` worker trio + in-app progress and Stop | Code | **done** |
 | I3 | `MeaningIndex` worker trio + in-app progress and Stop | Code | **done** |
 | I4 | Replace count-only batch caps with a wall-clock budget plus a count backstop; derive both from measured per-item cost on device, and record the basis | Code + Measurement | open (I3 landed I4-lite: 4-minute worker budget, not measured) |
-| I5 | Persist OneNote page `links` at index time so Open original does not call Graph on every tap (**D-18** remainder) | Code + Measurement | open |
+| I5 | Persist OneNote page `links` at index time so Open original does not call Graph on every tap (**D-18** remainder) | Code + Measurement | **implemented; on-device behaviour check pending** |
 
 > **I5 rationale:** Graph exposes `links` on the page resource, and
 > `OneNotePagesDiscoverySource.sectionPagesUrl` already runs a `$select` against
@@ -811,11 +811,23 @@ re-enqueues. I4’s *measured* per-item cost is still open.
 > indexed* — write the row opportunistically after a successful Graph fallback,
 > so the existing corpus heals on first use rather than needing a re-index.
 >
-> **Migration is not free here:** the store is SQLCipher-encrypted with manual
-> migrations (`MemoraDatabaseMigrations.ALL`, currently v16), and
-> `MemoraEncryptedDatabaseOpener.copyRows` copies table by table — a new table
-> must be added there too or open targets vanish during the plaintext-to-
-> encrypted migration.
+> **Landed 2026-09-15** as schema **v17** (`note_page_open_targets`):
+> `links` added to the discovery `$select`, parsed per listed page, saved by the
+> provider adapter that learned them, and read before anything else by
+> `OpenPersistedNotePageInOneNote`. Graph stays as the fallback and records what
+> it learns, so a corpus indexed before this heals on first tap.
+>
+> `MemoraEncryptedDatabaseOpener.copyRows` was **checked and deliberately not
+> changed**: its `Snapshot` carries assets, checkpoints and approvals only, and
+> every derived table is rebuilt rather than copied. Open targets are derived
+> and re-fetchable, so they follow that precedent — and the fallback refills
+> them. Clear UNFYND index needs no change either; it deletes the database
+> files outright.
+>
+> **Verified:** unit tests, plus `MemoraDatabaseMigrationTest` green on an A15
+> against real SQLite at v17. **Not yet verified:** the on-device behaviour —
+> that the first tap heals and the second is instant, and that Open original
+> works in airplane mode. Do not claim the latency win until that is observed.
 
 > **I4 rationale:** a count cap cannot bound work whose per-item cost varies by
 > two orders of magnitude. One observed tap indexed 25 memories but 49 PDF

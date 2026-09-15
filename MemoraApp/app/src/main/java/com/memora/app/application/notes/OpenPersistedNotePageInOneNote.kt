@@ -8,6 +8,8 @@ import com.memora.app.domain.asset.AssetRepository
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
 import com.memora.app.domain.asset.SourceId
+import com.memora.app.domain.notes.NotePageOpenTarget
+import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
@@ -17,13 +19,16 @@ import kotlinx.coroutines.withTimeout
 /**
  * Resolves external OneNote/browser URLs for a saved NOTE hit.
  *
- * Uses vaulted Graph session + page `links` only. Never treats Asset.location /
- * contentUrl as a browser URL. Search stays offline; this path may need network.
+ * Prefers the open targets discovery already saved, so the common path needs
+ * neither a session nor a network. Falls back to a Graph `links` lookup for
+ * pages indexed before those were stored, and records what it learns. Never
+ * treats Asset.location / contentUrl as a browser URL.
  */
 class OpenPersistedNotePageInOneNote @Inject constructor(
     private val assetRepository: AssetRepository,
     private val oneNoteAuth: OneNoteInteractiveAuth,
     private val graphGateway: OneNotePagesGraphGateway,
+    private val openTargetRepository: NotePageOpenTargetRepository,
 ) {
     suspend operator fun invoke(
         sourceId: String,
@@ -52,10 +57,19 @@ class OpenPersistedNotePageInOneNote @Inject constructor(
             return OpenPersistedNotePageResult.SourceUnavailable
         }
 
-        // D-18 remainder / backlog I5: every tap pays for a session check and a
-        // Graph request because the page `links` are not persisted at index
-        // time. Time the two halves so the fix is chosen against a number.
-        // Durations and branch only — never a page id, token, or URL.
+        // I5: discovery reads the open targets off the same Graph page resource
+        // it already selects, so the common path is a local row and needs
+        // neither a session nor a network.
+        openTargetRepository.find(sourceId, sourceAssetKey)?.let { target ->
+            return OpenPersistedNotePageResult.Ready(
+                webUrl = target.webUrl,
+                clientUrl = target.clientUrl,
+            )
+        }
+
+        // Fallback for pages indexed before I5, and for a saved link that has
+        // gone stale. Measured at 6.1–7.0s, which is why it is no longer the
+        // path every tap takes.
         val startedAtMs = System.currentTimeMillis()
         var session = oneNoteAuth.ensureSession()
             ?: return OpenPersistedNotePageResult.SourceUnavailable
@@ -64,14 +78,39 @@ class OpenPersistedNotePageInOneNote @Inject constructor(
         val first = fetchLinks(session.accessToken, sourceAssetKey)
         if (first !is OpenPersistedNotePageResult.SourceUnavailable) {
             logTimings(startedAtMs, sessionReadyAtMs, refreshed = false)
-            return first
+            return first.alsoRemember(sourceId, sourceAssetKey)
         }
 
         session = oneNoteAuth.ensureSession(forceRefresh = true)
             ?: return OpenPersistedNotePageResult.SourceUnavailable
-        return fetchLinks(session.accessToken, sourceAssetKey).also {
-            logTimings(startedAtMs, sessionReadyAtMs, refreshed = true)
+        return fetchLinks(session.accessToken, sourceAssetKey)
+            .also { logTimings(startedAtMs, sessionReadyAtMs, refreshed = true) }
+            .alsoRemember(sourceId, sourceAssetKey)
+    }
+
+    /**
+     * Heals a corpus indexed before I5: the first tap pays Graph once, and
+     * every tap after it is local. Never lets a write failure turn an open the
+     * person can already make into an error.
+     */
+    private suspend fun OpenPersistedNotePageResult.alsoRemember(
+        sourceId: String,
+        sourceAssetKey: String,
+    ): OpenPersistedNotePageResult {
+        if (this !is OpenPersistedNotePageResult.Ready) return this
+        try {
+            openTargetRepository.save(
+                NotePageOpenTarget(
+                    sourceId = sourceId,
+                    sourceAssetKey = sourceAssetKey,
+                    clientUrl = clientUrl,
+                    webUrl = webUrl,
+                ),
+            )
+        } catch (_: Exception) {
+            // The open still works; the next tap just pays Graph again.
         }
+        return this
     }
 
     private fun logTimings(startedAtMs: Long, sessionReadyAtMs: Long, refreshed: Boolean) {

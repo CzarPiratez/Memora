@@ -54,6 +54,7 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_13_14,
             MemoraDatabaseMigrations.MIGRATION_14_15,
             MemoraDatabaseMigrations.MIGRATION_15_16,
+            MemoraDatabaseMigrations.MIGRATION_16_17,
         ).build()
 
         try {
@@ -65,8 +66,12 @@ class MemoraDatabaseMigrationTest {
             assertEquals("lake.jpg", preservedAsset?.displayName)
             assertEquals(null, migratedDatabase.discoveryCheckpointDao().find("android-media-store-images"))
             assertTrue(migratedDatabase.documentTreeApprovalDao().findAll().isEmpty())
-            assertEquals(16, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(17, migratedDatabase.openHelper.readableDatabase.version)
             assertTrue(tableExists(migratedDatabase, "memory_assembly_skips"))
+            // I5: created empty on purpose — the rows are derived, and the Graph
+            // fallback writes one per page on first use.
+            assertTrue(tableExists(migratedDatabase, "note_page_open_targets"))
+            assertEquals(0, migratedDatabase.notePageOpenTargetDao().count())
             assertEquals(0, migratedDatabase.aiPackInstallLedgerDao().count())
             assertEquals(
                 0,
@@ -111,10 +116,11 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_13_14,
             MemoraDatabaseMigrations.MIGRATION_14_15,
             MemoraDatabaseMigrations.MIGRATION_15_16,
+            MemoraDatabaseMigrations.MIGRATION_16_17,
         ).build()
 
         try {
-            assertEquals(16, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(17, migratedDatabase.openHelper.readableDatabase.version)
             val evidence = migratedDatabase.memoryDao().findEvidence(LEGACY_REVISION_ID)
             assertEquals(1, evidence.size)
             assertEquals("DIRECT", evidence.single().evidenceClass)
@@ -140,10 +146,11 @@ class MemoraDatabaseMigrationTest {
                 MemoraDatabaseMigrations.MIGRATION_13_14,
             MemoraDatabaseMigrations.MIGRATION_14_15,
             MemoraDatabaseMigrations.MIGRATION_15_16,
+            MemoraDatabaseMigrations.MIGRATION_16_17,
         ).build()
 
             try {
-                assertEquals(16, migratedDatabase.openHelper.readableDatabase.version)
+                assertEquals(17, migratedDatabase.openHelper.readableDatabase.version)
                 assertFalse(tableExists(migratedDatabase, "pdf_page_embeddings"))
                 assertEquals(
                     0,
@@ -171,10 +178,11 @@ class MemoraDatabaseMigrationTest {
         ).addMigrations(
             MemoraDatabaseMigrations.MIGRATION_14_15,
             MemoraDatabaseMigrations.MIGRATION_15_16,
+            MemoraDatabaseMigrations.MIGRATION_16_17,
         ).build()
 
         try {
-            assertEquals(16, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(17, migratedDatabase.openHelper.readableDatabase.version)
             assertFalse(tableExists(migratedDatabase, "pdf_page_embeddings"))
             assertEquals(
                 1,

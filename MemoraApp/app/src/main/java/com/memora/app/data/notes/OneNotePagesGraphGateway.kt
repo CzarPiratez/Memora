@@ -10,6 +10,14 @@ data class OneNotePageSummary(
     val contentUrl: String?,
     val createdDateTime: String?,
     val lastModifiedDateTime: String?,
+    /**
+     * Where this page opens. Graph carries `links` on the same page resource
+     * discovery already `$select`s, so reading it here costs no extra request
+     * and spares Open original a 6–7s round trip per tap (I5).
+     *
+     * Null when a page was listed by a request that did not select `links`.
+     */
+    val links: OneNotePageLinks? = null,
 )
 
 data class OneNotePagesListResponse(
@@ -56,6 +64,9 @@ data class OneNotePageLinks(
 ) {
     val webUrlOrNull: String? = oneNoteWebUrl?.takeIf { it.isNotBlank() }
     val clientUrlOrNull: String? = oneNoteClientUrl?.takeIf { it.isNotBlank() }
+
+    /** Graph can return a `links` object with neither href populated. */
+    fun hasAnyUrl(): Boolean = webUrlOrNull != null || clientUrlOrNull != null
 
     /** Fallback when no package manager is available: web first, then client. */
     fun preferredOpenUrl(): String? = webUrlOrNull ?: clientUrlOrNull
