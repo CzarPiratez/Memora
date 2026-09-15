@@ -378,11 +378,25 @@ Live/Dual **N = 0**; no retrieval, ranking, or Why change.
 
 **Still open:** the Graph round trip itself. `OpenPersistedNotePageInOneNote`
 calls `ensureSession()` and then `getPageLinks` on **every** tap; the page
-`links` are not persisted at index time. On a cold process with a stale token
-that is MSAL init + a silent refresh + a Graph request before anything can
-launch. The wait is now honest and visible, but it is still a wait, and Open
-original still needs a network. **Not measured on device** — instrument before
-choosing the fix. See I5 below.
+`links` are not persisted at index time. The wait is now honest and visible,
+but it is still a wait, and Open original still needs a network. See I5.
+
+**Measured on device (A15, 2026-09-15), three taps on one note:**
+
+| Tap | `ensureSession()` | Graph `getPageLinks` | Total |
+|---|---|---|---|
+| 1st (cold process) | 1855 ms | 6756 ms | 8.6 s |
+| 2nd | 23 ms | 6127 ms | 6.2 s |
+| 3rd | 16 ms | 7016 ms | 7.0 s |
+
+All three took the good branch — `forced refresh false`, so the cached token
+was valid and no silent refresh was involved.
+
+This **overturns the guess written here before measuring**, which blamed MSAL
+init plus a refresh. MSAL costs 1.9 s once per process and 16–23 ms after
+that. The Graph request is the whole cost: 6.1–7.0 s, every tap, consistently,
+on a healthy connection. I5 is therefore worth its migration, and nothing
+about the session path is worth optimising.
 
 ### D-19 — PDF folder scan re-read page one forever (**P0, fixed**)
 
@@ -783,9 +797,25 @@ re-enqueues. I4’s *measured* per-item cost is still open.
 > extra request**. Persisting them turns a per-tap network round trip into a
 > local lookup and lets Open original work offline, which is the behaviour a
 > local-first product should have. Graph stays as the fallback for pages indexed
-> before this lands. **Measure first:** the split between MSAL init, a silent
-> token refresh, and the Graph request has not been observed on device, and the
-> fix should be chosen against a number, not this paragraph.
+> before this lands.
+>
+> **Measured 2026-09-15 (see D-18):** 6.1–7.0 s per tap, all of it the Graph
+> request, on a warm session and a healthy connection. The measurement clears
+> this item to proceed and rules out the session path as a target.
+>
+> **Two design points the measurement does not settle.** (1) *Link durability* —
+> `oneNoteClientUrl` / `oneNoteWebUrl` embed the section, so moving a page
+> between sections can stale a persisted link. Keep Graph as a fallback when a
+> persisted link fails, and rewrite links on re-discovery, which already happens
+> because the fingerprint carries `lastModifiedDateTime`. (2) *Pages already
+> indexed* — write the row opportunistically after a successful Graph fallback,
+> so the existing corpus heals on first use rather than needing a re-index.
+>
+> **Migration is not free here:** the store is SQLCipher-encrypted with manual
+> migrations (`MemoraDatabaseMigrations.ALL`, currently v16), and
+> `MemoraEncryptedDatabaseOpener.copyRows` copies table by table — a new table
+> must be added there too or open targets vanish during the plaintext-to-
+> encrypted migration.
 
 > **I4 rationale:** a count cap cannot bound work whose per-item cost varies by
 > two orders of magnitude. One observed tap indexed 25 memories but 49 PDF
