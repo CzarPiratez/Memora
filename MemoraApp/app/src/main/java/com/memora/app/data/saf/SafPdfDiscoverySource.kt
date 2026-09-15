@@ -68,6 +68,19 @@ class SafPdfDiscoverySource(
                 )
             }
             val nextCheckpoint = checkpoint.advance(currentFolder, metadataPage)
+            // A page that says "there is more" must have moved. The discovery
+            // worker re-enqueues itself on `hasMore`, so a checkpoint that
+            // comes back unchanged is not a slow scan, it is a scan that will
+            // run until the battery is flat — which is exactly what an ignored
+            // provider-side cursor did. Fail loudly instead.
+            if (nextCheckpoint.frames.isNotEmpty() && nextCheckpoint == checkpoint) {
+                return@withContext DiscoveryResult.Failed(
+                    DiscoveryFailure(
+                        code = "SAF_DOCUMENT_CURSOR_STALLED",
+                        message = "UNFYND could not safely continue the approved PDF folder scan. You can retry later.",
+                    )
+                )
+            }
 
             DiscoveryResult.Page(
                 DiscoveryPage(

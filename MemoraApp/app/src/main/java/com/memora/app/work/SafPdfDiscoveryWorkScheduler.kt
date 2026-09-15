@@ -17,6 +17,12 @@ interface SafPdfDiscoveryWorkScheduler {
 
     fun enqueueContinuation(sourceId: SourceId)
 
+    /**
+     * Ends the drain and any continuation queued behind it. Every other drain in
+     * the app has this; without it a self-chaining scan had no way out.
+     */
+    fun cancelDrain(sourceId: SourceId)
+
     fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>>
 }
 
@@ -43,6 +49,10 @@ class DefaultSafPdfDiscoveryWorkScheduler @Inject constructor(
             ExistingWorkPolicy.APPEND_OR_REPLACE,
             pageRequest(sourceId),
         )
+    }
+
+    override fun cancelDrain(sourceId: SourceId) {
+        workManager.cancelUniqueWork(uniqueWorkName(sourceId))
     }
 
     override fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>> =

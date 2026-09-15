@@ -53,6 +53,18 @@ sealed interface PdfFolderIndexingState {
 
     data object IN_PROGRESS : PdfFolderIndexingState
 
+    /**
+     * Work exists but Android is not running it: an unmet constraint, or a
+     * backoff between retries.
+     *
+     * Collapsing this into [IN_PROGRESS] is how a scan that was making no
+     * progress looked exactly like one that was. A person waiting on a spinner
+     * deserves to know the difference, and to be able to stop either.
+     */
+    data class WAITING(val retrying: Boolean) : PdfFolderIndexingState
+
+    data object STOPPED : PdfFolderIndexingState
+
     data class COMPLETED(
         val totalAssetCount: Int,
         val newlyDiscoveredAssetCount: Int,
@@ -69,6 +81,9 @@ sealed interface PdfFolderIndexingState {
     }
 
     data class FAILED(val message: String) : PdfFolderIndexingState
+
+    /** This session has a scan under way, running or merely scheduled. */
+    fun isActive(): Boolean = this is IN_PROGRESS || this is WAITING
 }
 
 /** Presentation boundary for explicitly approving one SAF document tree. */
@@ -171,7 +186,7 @@ class DocumentTreeSetupViewModel @Inject constructor(
         val sourceId = (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)
             ?.sourceId
             ?: return
-        if (mutableUiState.value.indexing == PdfFolderIndexingState.IN_PROGRESS) return
+        if (mutableUiState.value.indexing.isActive()) return
 
         viewModelScope.launch {
             assetCountBeforeIndexing = runCatching {
@@ -183,6 +198,23 @@ class DocumentTreeSetupViewModel @Inject constructor(
             discoveryWorkScheduler.enqueueDrain(sourceId)
             observeDiscoveryWork(sourceId)
         }
+    }
+
+    /**
+     * Ends the scan, including any continuation page already queued behind the
+     * one running. Nothing already listed is discarded; the walk resumes from
+     * its saved checkpoint the next time the person asks.
+     */
+    fun onStopIndexingRequested() {
+        val sourceId = (mutableUiState.value.connection as? DocumentTreeConnectionState.CONNECTED)
+            ?.sourceId
+            ?: return
+        if (!mutableUiState.value.indexing.isActive()) return
+
+        discoveryWorkScheduler.cancelDrain(sourceId)
+        mutableUiState.value = mutableUiState.value.copy(
+            indexing = PdfFolderIndexingState.STOPPED,
+        )
     }
 
     private fun observeDiscoveryWork(sourceId: SourceId) {
@@ -203,44 +235,80 @@ class DocumentTreeSetupViewModel @Inject constructor(
         }
 
         val indexing = mutableUiState.value.indexing
-        val hasActiveWork = infos.any { info ->
-            info.state == WorkInfo.State.RUNNING ||
-                info.state == WorkInfo.State.ENQUEUED ||
-                info.state == WorkInfo.State.BLOCKED
+        val isRunning = infos.any { it.state == WorkInfo.State.RUNNING }
+        val isWaiting = infos.any { info ->
+            info.state == WorkInfo.State.ENQUEUED || info.state == WorkInfo.State.BLOCKED
         }
 
         when {
-            hasActiveWork -> {
+            isRunning -> {
                 mutableUiState.value = mutableUiState.value.copy(
                     indexing = PdfFolderIndexingState.IN_PROGRESS,
                 )
             }
 
+            isWaiting -> {
+                // runAttemptCount > 0 means this page already ran and failed,
+                // so Android is sitting out a backoff rather than queueing.
+                val retrying = infos.any { info ->
+                    (info.state == WorkInfo.State.ENQUEUED || info.state == WorkInfo.State.BLOCKED) &&
+                        info.runAttemptCount > 0
+                }
+                mutableUiState.value = mutableUiState.value.copy(
+                    indexing = PdfFolderIndexingState.WAITING(retrying = retrying),
+                )
+            }
+
+            infos.any { it.state == WorkInfo.State.CANCELLED } &&
+                indexing.isActive() -> {
+                mutableUiState.value = mutableUiState.value.copy(
+                    indexing = PdfFolderIndexingState.STOPPED,
+                )
+            }
+
             infos.any { it.state == WorkInfo.State.FAILED } -> {
                 // Ignore stale finished work from a prior session (e.g. after clear).
-                if (indexing != PdfFolderIndexingState.IN_PROGRESS) return
+                if (!indexing.isActive()) return
 
                 val failed = infos.lastOrNull { it.state == WorkInfo.State.FAILED }
                 val reason = failed?.outputData?.getString(SafPdfDiscoveryWorker.KEY_FAILURE_REASON)
-                if (reason == SafPdfDiscoveryWorker.REASON_ACCESS_STOPPED) {
-                    mutableUiState.value = DocumentTreeSetupUiState(
-                        connection = DocumentTreeConnectionState.FAILED(
-                            "Android no longer allows UNFYND to read this folder. Please choose it again.",
-                        ),
-                    )
-                } else {
-                    mutableUiState.value = mutableUiState.value.copy(
-                        indexing = PdfFolderIndexingState.FAILED(
-                            "UNFYND could not finish reading PDF folder metadata. You can try again.",
-                        ),
-                    )
+                when (reason) {
+                    SafPdfDiscoveryWorker.REASON_ACCESS_STOPPED ->
+                        mutableUiState.value = DocumentTreeSetupUiState(
+                            connection = DocumentTreeConnectionState.FAILED(
+                                "Android no longer allows UNFYND to read this folder. " +
+                                    "Please choose it again.",
+                            ),
+                        )
+
+                    SafPdfDiscoveryWorker.REASON_STOPPED ->
+                        mutableUiState.value = mutableUiState.value.copy(
+                            indexing = PdfFolderIndexingState.STOPPED,
+                        )
+
+                    SafPdfDiscoveryWorker.REASON_GAVE_UP ->
+                        mutableUiState.value = mutableUiState.value.copy(
+                            indexing = PdfFolderIndexingState.FAILED(
+                                "UNFYND retried this folder scan and could not get past the same " +
+                                    "point, so it stopped rather than keep trying. Nothing already " +
+                                    "listed was lost.",
+                            ),
+                        )
+
+                    else ->
+                        mutableUiState.value = mutableUiState.value.copy(
+                            indexing = PdfFolderIndexingState.FAILED(
+                                "UNFYND could not finish reading PDF folder metadata. " +
+                                    "You can try again.",
+                            ),
+                        )
                 }
             }
 
             infos.all { it.state.isFinished } -> {
                 // Ignore stale finished work unless this session started indexing
-                // (or process death resumed into IN_PROGRESS via active work above).
-                if (indexing != PdfFolderIndexingState.IN_PROGRESS) return
+                // (or process death resumed into an active state above).
+                if (!indexing.isActive()) return
 
                 val totalAssets = runCatching {
                     assetRepository.countBySourceAndType(sourceId, AssetType.PDF)

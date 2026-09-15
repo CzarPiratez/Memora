@@ -27,12 +27,14 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DocumentTreeSetupViewModelTest {
     private val dispatcher = StandardTestDispatcher()
+    private val sourceId = SourceId("android-saf-document-tree:restored")
 
     @Before
     fun setUp() {
@@ -128,6 +130,98 @@ class DocumentTreeSetupViewModelTest {
             ),
             viewModel.uiState.value.indexing,
         )
+    }
+
+    /**
+     * Scheduled is not running. Collapsing the two is how a scan that Android
+     * was holding — for an unmet constraint, or a backoff between retries —
+     * looked exactly like one that was making progress.
+     */
+    @Test
+    fun scheduledButNotRunningIsNotReportedAsProgress() = runTest {
+        val scheduler = RecordingScheduler()
+        val viewModel = connectedViewModel(scheduler)
+        viewModel.onIndexRequested()
+        advanceUntilIdle()
+
+        scheduler.emit(listOf(workInfo(WorkInfo.State.ENQUEUED, Data.EMPTY, runAttemptCount = 0)))
+        advanceUntilIdle()
+        assertEquals(
+            PdfFolderIndexingState.WAITING(retrying = false),
+            viewModel.uiState.value.indexing,
+        )
+
+        // Already ran once and did not finish, so this is a backoff, not a queue.
+        scheduler.emit(listOf(workInfo(WorkInfo.State.ENQUEUED, Data.EMPTY, runAttemptCount = 2)))
+        advanceUntilIdle()
+        assertEquals(
+            PdfFolderIndexingState.WAITING(retrying = true),
+            viewModel.uiState.value.indexing,
+        )
+
+        scheduler.emit(listOf(workInfo(WorkInfo.State.RUNNING, Data.EMPTY)))
+        advanceUntilIdle()
+        assertEquals(PdfFolderIndexingState.IN_PROGRESS, viewModel.uiState.value.indexing)
+    }
+
+    /** Every other drain in the app can be stopped; this one could not. */
+    @Test
+    fun stopEndsTheScanAndAnyContinuationQueuedBehindIt() = runTest {
+        val scheduler = RecordingScheduler()
+        val viewModel = connectedViewModel(scheduler)
+        viewModel.onIndexRequested()
+        advanceUntilIdle()
+
+        viewModel.onStopIndexingRequested()
+        advanceUntilIdle()
+
+        assertEquals(listOf(sourceId), scheduler.cancelRequests)
+        assertEquals(PdfFolderIndexingState.STOPPED, viewModel.uiState.value.indexing)
+    }
+
+    /**
+     * Retries are capped now, so the end of them has to say something a person
+     * can act on rather than the generic "try again" that invites the same loop.
+     */
+    @Test
+    fun givingUpAfterRepeatedFailuresSaysSoRatherThanInvitingAnotherLoop() = runTest {
+        val scheduler = RecordingScheduler()
+        val viewModel = connectedViewModel(scheduler)
+        viewModel.onIndexRequested()
+        advanceUntilIdle()
+
+        scheduler.emit(
+            listOf(
+                workInfo(
+                    state = WorkInfo.State.FAILED,
+                    output = Data.Builder()
+                        .putString(
+                            SafPdfDiscoveryWorker.KEY_FAILURE_REASON,
+                            SafPdfDiscoveryWorker.REASON_GAVE_UP,
+                        )
+                        .build(),
+                    runAttemptCount = SafPdfDiscoveryWorker.MAX_RUN_ATTEMPTS,
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        val failed = viewModel.uiState.value.indexing as PdfFolderIndexingState.FAILED
+        assertTrue(failed.message.contains("stopped rather than keep trying"))
+        assertTrue(failed.message.contains("Nothing already listed was lost"))
+    }
+
+    private fun connectedViewModel(
+        scheduler: RecordingScheduler,
+    ): DocumentTreeSetupViewModel {
+        val viewModel = DocumentTreeSetupViewModel(
+            RecordingApprover(),
+            RecordingFinder(sourceId = sourceId),
+            scheduler,
+            RecordingAssetRepository(staticPdfCount = 0),
+        )
+        dispatcher.scheduler.advanceUntilIdle()
+        return viewModel
     }
 
     @Test
@@ -373,14 +467,18 @@ class DocumentTreeSetupViewModelTest {
         )
     }
 
-    private fun workInfo(state: WorkInfo.State, output: Data): WorkInfo =
+    private fun workInfo(
+        state: WorkInfo.State,
+        output: Data,
+        runAttemptCount: Int = 0,
+    ): WorkInfo =
         WorkInfo(
             UUID.randomUUID(),
             state,
             emptySet(),
             output,
             Data.EMPTY,
-            1,
+            runAttemptCount,
             1,
         )
 
@@ -417,6 +515,7 @@ class DocumentTreeSetupViewModelTest {
 
     private class RecordingScheduler : SafPdfDiscoveryWorkScheduler {
         val drainRequests = mutableListOf<SourceId>()
+        val cancelRequests = mutableListOf<SourceId>()
         private val infos = MutableStateFlow<List<WorkInfo>>(emptyList())
 
         override fun enqueueDrain(sourceId: SourceId) {
@@ -424,6 +523,10 @@ class DocumentTreeSetupViewModelTest {
         }
 
         override fun enqueueContinuation(sourceId: SourceId) = Unit
+
+        override fun cancelDrain(sourceId: SourceId) {
+            cancelRequests += sourceId
+        }
 
         override fun observeUniqueWork(sourceId: SourceId): Flow<List<WorkInfo>> = infos
 

@@ -13,9 +13,23 @@ import kotlinx.coroutines.withContext
  * Android implementation of [SafDocumentTreeCatalog].
  *
  * It queries immediate-child metadata for one requested folder through the persisted
- * tree URI. The requested limit is supplied to the provider and enforced again while
- * consuming the cursor, so Memora never exposes an unbounded page even if a provider
- * ignores the optional query hint.
+ * tree URI.
+ *
+ * ## Paging is done here, not by the provider
+ *
+ * The sort, selection and limit passed in [queryArguments] are **hints**.
+ * `DocumentsProvider.query` forwards only the projection to
+ * `queryChildDocuments` unless a provider opts in, and the providers that matter
+ * on a phone — ExternalStorageProvider, Drive, OneDrive — do not. Every one of
+ * them therefore returns the folder's children from the beginning, in whatever
+ * order they like, however many there are.
+ *
+ * The original code already enforced the *limit* here for that reason but
+ * trusted the provider for the *cursor*, so `documentId > afterDocumentId` was
+ * dropped on the floor: page two returned page one again, `hasMore` stayed
+ * true, and the discovery worker re-enqueued itself forever once a folder held
+ * more than one page of children. Order and cursor are now applied on this
+ * side too, so a page is a real page for any provider.
  */
 class ContentResolverSafDocumentTreeCatalog(
     context: Context,
@@ -36,18 +50,32 @@ class ContentResolverSafDocumentTreeCatalog(
             parsedTreeUri,
             parentDocumentId ?: treeDocumentId,
         )
-        val rows = resolver.query(
+        val children = resolver.query(
             childrenUri,
             projection(),
             queryArguments(afterDocumentId, limit + 1),
             null,
         )?.use { cursor ->
-            cursor.readAtMost(limit + 1, parsedTreeUri)
+            cursor.readAtMost(MAX_CHILDREN_PER_FOLDER, parsedTreeUri)
         }.orEmpty()
 
+        // A provider that honoured the hints has already done all three of
+        // these; repeating them is cheap and is the only thing that makes the
+        // page correct on a provider that did not.
+        val remaining = children
+            .distinctBy(SafDocumentMetadata::documentId)
+            .sortedBy(SafDocumentMetadata::documentId)
+            .let { ordered ->
+                if (afterDocumentId == null) {
+                    ordered
+                } else {
+                    ordered.filter { it.documentId > afterDocumentId }
+                }
+            }
+
         SafDocumentTreeMetadataPage(
-            documents = rows.take(limit),
-            hasMore = rows.size > limit,
+            documents = remaining.take(limit),
+            hasMore = remaining.size > limit,
         )
     }
 
@@ -106,5 +134,15 @@ class ContentResolverSafDocumentTreeCatalog(
     private fun Cursor.getLongOrNull(column: String): Long? {
         val index = columnIndex(column)
         return if (isNull(index)) null else getLong(index)
+    }
+
+    private companion object {
+        /**
+         * Ordering and cursoring a page needs the folder's whole child listing,
+         * which is what the provider hands over anyway. This only stops a
+         * pathological folder from being read into memory without bound; a real
+         * one is orders of magnitude below it.
+         */
+        const val MAX_CHILDREN_PER_FOLDER = 20_000
     }
 }

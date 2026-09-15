@@ -44,3 +44,21 @@ internal const val PDF_FOLDER_INDEX_CONTINUE_LABEL = "Continue folder indexing"
 internal const val PDF_FOLDER_INDEXING_IN_PROGRESS_BODY =
     "UNFYND is reading PDF folder metadata on this phone. " +
         "This lists documents only; it does not save PDF text for search yet."
+
+internal const val PDF_FOLDER_INDEX_STOP_LABEL = "Stop"
+
+/**
+ * Android is holding the scan rather than running it. Saying "working" here is
+ * what let a scan wait, or fail and back off, behind the same spinner.
+ */
+internal fun waitingPdfFolderIndexingSummary(retrying: Boolean): String = if (retrying) {
+    "That pass did not finish, so UNFYND is waiting before trying again. " +
+        "Nothing already listed was lost. You can stop and try later."
+} else {
+    "Android has scheduled this scan but is not running it yet — usually battery " +
+        "saver or a busy phone. It will start on its own, or you can stop and try later."
+}
+
+internal const val PDF_FOLDER_INDEXING_STOPPED_BODY =
+    "Folder scan stopped. Everything listed so far is kept, and UNFYND will pick up " +
+        "where it left off when you check again."

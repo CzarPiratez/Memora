@@ -384,6 +384,54 @@ launch. The wait is now honest and visible, but it is still a wait, and Open
 original still needs a network. **Not measured on device** — instrument before
 choosing the fix. See I5 below.
 
+### D-19 — PDF folder scan re-read page one forever (**P0, fixed**)
+
+**FIXED 2026-09-15.** Found on device: *"I added some more PDF files and clicked
+Check for new PDFs. I added only a few files, it is endlessly spinning, been
+over 10 minutes."*
+
+`dumpsys jobscheduler` showed `SafPdfDiscoveryWorker` starting and finishing
+every ~0.55s without pause — job id 8501 to 9592 and still climbing, over a
+thousand runs. Battery fell 97% → 90% at ~620mA while it ran. The folder screen
+sat on 47 PDFs the entire time, because every run listed the same 47.
+
+`ContentResolverSafDocumentTreeCatalog` paged with
+`QUERY_ARG_SQL_SELECTION` (`documentId > afterDocumentId`), sort and limit.
+Those are **hints**: `DocumentsProvider.query` passes only the projection down
+to `queryChildDocuments` unless a provider opts in, and ExternalStorageProvider
+does not. The class had already worked this out for the *limit* — it re-applied
+it while consuming the cursor "even if a provider ignores the optional query
+hint" — but trusted the provider for the *cursor*. So page two was page one:
+`hasMore` stayed true, the checkpoint came back unchanged, and
+`SafPdfDiscoveryWorker` re-enqueued itself on `hasMore`, forever. It needed only
+a folder with more children than one page (50) to start, which is exactly what
+adding a few files did.
+
+**Fixed** in four places, because one bug this expensive was really four
+missing guards:
+
+1. **Order and cursor are applied on our side**, next to the limit that always
+ was. A page is now a real page on any provider.
+2. **A page that reports more must have moved.** `SafPdfDiscoverySource` fails
+ with `SAF_DOCUMENT_CURSOR_STALLED` if the checkpoint comes back unchanged,
+ so no future defect in a provider or a cursor can spend a battery.
+3. **Retries are bounded.** `Result.retry()` was unbounded, and work waiting on
+ backoff is `ENQUEUED`, which the screen drew as progress. Four attempts, then
+ a failure a person can read.
+4. **The scan can be stopped**, and `WAITING` is no longer drawn as
+ `IN_PROGRESS`. Waiting is not working, and a spinner is a promise that
+ something is happening.
+
+**Verified on device (A15).** Before: >1000 runs, one per 0.55s, no end, count
+frozen at 47. After: the scan finishes in two to three runs, no job left
+pending, and the screen reads "This folder list is up to date for now."
+
+Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
+
+**Note for the other drains:** MediaStore, OCR and memory assembly page over
+cursors we control, not over a third-party `DocumentsProvider`, so none of them
+share the root cause. Guard 2 is the one worth generalising, and has not been.
+
 ### D-14 — UNFYND's own screenshots compete as corpus (**P0, fixed — D16**)
 
 **FIXED 2026-09-06.** Found on device: `Screenshot_20260904_124145_UNFYND.png`

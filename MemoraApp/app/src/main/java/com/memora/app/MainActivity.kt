@@ -137,7 +137,10 @@ import com.memora.app.ui.setup.MEDIASTORE_PHOTO_OCR_IN_PROGRESS_BODY
 import com.memora.app.ui.setup.PDF_FOLDER_INDEX_CHECK_FOR_NEW_LABEL
 import com.memora.app.ui.setup.PDF_FOLDER_INDEX_CONTINUE_LABEL
 import com.memora.app.ui.setup.PDF_FOLDER_INDEX_FIRST_INDEX_LABEL
+import com.memora.app.ui.setup.PDF_FOLDER_INDEX_STOP_LABEL
 import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_IN_PROGRESS_BODY
+import com.memora.app.ui.setup.PDF_FOLDER_INDEXING_STOPPED_BODY
+import com.memora.app.ui.setup.waitingPdfFolderIndexingSummary
 import com.memora.app.ui.setup.ScreenshotOcrExtractUiState
 import com.memora.app.ui.setup.PhotoOcrExtractUiState
 import com.memora.app.ui.setup.completedImageExifExtractSummary
@@ -244,6 +247,8 @@ class MainActivity : ComponentActivity() {
                         onDocumentTreeReadAccessFailed =
                             documentTreeSetupViewModel::onPersistableReadAccessFailed,
                         onPdfIndexRequested = documentTreeSetupViewModel::onIndexRequested,
+                        onPdfIndexStopRequested =
+                            documentTreeSetupViewModel::onStopIndexingRequested,
                         onAcknowledgeLocalReadingScope = pdfLocalReadingViewModel::onAcknowledgeScope,
                         onStartLocalReadingStep = pdfLocalReadingViewModel::onStart,
                         onPauseLocalReadingStep = pdfLocalReadingViewModel::onPause,
@@ -379,6 +384,7 @@ fun UnfyndApp(
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
+    onPdfIndexStopRequested: () -> Unit,
     onAcknowledgeLocalReadingScope: () -> Unit,
     onStartLocalReadingStep: () -> Unit,
     onPauseLocalReadingStep: () -> Unit,
@@ -474,6 +480,7 @@ fun UnfyndApp(
             onDocumentTreeReadAccessReceived = onDocumentTreeReadAccessReceived,
             onDocumentTreeReadAccessFailed = onDocumentTreeReadAccessFailed,
             onPdfIndexRequested = onPdfIndexRequested,
+            onPdfIndexStopRequested = onPdfIndexStopRequested,
             onAcknowledgeLocalReadingScope = onAcknowledgeLocalReadingScope,
             onStartLocalReadingStep = onStartLocalReadingStep,
             onPauseLocalReadingStep = onPauseLocalReadingStep,
@@ -565,6 +572,7 @@ private fun UnfyndAppReady(
     onDocumentTreeReadAccessReceived: (String) -> Unit,
     onDocumentTreeReadAccessFailed: () -> Unit,
     onPdfIndexRequested: () -> Unit,
+    onPdfIndexStopRequested: () -> Unit,
     onAcknowledgeLocalReadingScope: () -> Unit,
     onStartLocalReadingStep: () -> Unit,
     onPauseLocalReadingStep: () -> Unit,
@@ -740,6 +748,7 @@ private fun UnfyndAppReady(
                 pdfLocalReadingState = pdfLocalReadingState,
                 onChooseFolder = { documentTreeLauncher.launch(null) },
                 onStartIndexing = onPdfIndexRequested,
+                onStopIndexing = onPdfIndexStopRequested,
                 onAcknowledgeLocalReadingScope = onAcknowledgeLocalReadingScope,
                 onStartLocalReadingStep = onStartLocalReadingStep,
                 onPauseLocalReadingStep = onPauseLocalReadingStep,
@@ -2007,6 +2016,7 @@ fun DocumentTreeSetupScreen(
     pdfLocalReadingState: PdfLocalReadingUiState,
     onChooseFolder: () -> Unit,
     onStartIndexing: () -> Unit,
+    onStopIndexing: () -> Unit,
     onAcknowledgeLocalReadingScope: () -> Unit,
     onStartLocalReadingStep: () -> Unit,
     onPauseLocalReadingStep: () -> Unit,
@@ -2103,6 +2113,7 @@ fun DocumentTreeSetupScreen(
                 PdfFolderIndexingControl(
                     indexing = setupUiState.indexing,
                     onStartIndexing = onStartIndexing,
+                    onStopIndexing = onStopIndexing,
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 PdfLocalReadingRecoveryControl(
@@ -2296,6 +2307,7 @@ private fun PdfLocalReadingRecoveryControl(
 private fun PdfFolderIndexingControl(
     indexing: PdfFolderIndexingState,
     onStartIndexing: () -> Unit,
+    onStopIndexing: () -> Unit,
 ) {
     when (indexing) {
         PdfFolderIndexingState.NOT_STARTED -> Button(
@@ -2337,6 +2349,44 @@ private fun PdfFolderIndexingControl(
                 text = PDF_FOLDER_INDEXING_IN_PROGRESS_BODY,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onStopIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(PDF_FOLDER_INDEX_STOP_LABEL)
+            }
+        }
+
+        // Waiting is not working. No spinner here: a spinner is a promise that
+        // something is happening, and nothing is.
+        is PdfFolderIndexingState.WAITING -> Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = waitingPdfFolderIndexingSummary(indexing.retrying),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onStopIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(PDF_FOLDER_INDEX_STOP_LABEL)
+            }
+        }
+
+        PdfFolderIndexingState.STOPPED -> Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = PDF_FOLDER_INDEXING_STOPPED_BODY,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onStartIndexing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(PDF_FOLDER_INDEX_CHECK_FOR_NEW_LABEL)
+            }
         }
 
         is PdfFolderIndexingState.COMPLETED -> {

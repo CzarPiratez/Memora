@@ -184,6 +184,39 @@ class SafPdfDiscoverySourceTest {
         assertEquals("SAF_DOCUMENT_QUERY_FAILED", (result as DiscoveryResult.Failed).failure.code)
     }
 
+    /**
+     * A DocumentsProvider is free to ignore the selection, sort and limit hints
+     * in a query, and the common ones do. When that happened, page two was page
+     * one again: `hasMore` stayed true, the checkpoint came back unchanged, and
+     * the discovery worker re-enqueued itself on `hasMore` about twice a second
+     * until the battery ran down. [FakeCatalog] ignores `afterDocumentId`
+     * exactly as those providers do.
+     *
+     * A page that claims there is more must have moved.
+     */
+    @Test
+    fun `a provider that ignores the cursor fails instead of scanning forever`() = runTest {
+        val catalog = FakeCatalog(
+            page = SafDocumentTreeMetadataPage(
+                documents = listOf(
+                    document(id = "a", mimeType = "application/pdf", name = "a.pdf"),
+                    document(id = "b", mimeType = "application/pdf", name = "b.pdf"),
+                ),
+                hasMore = true,
+            ),
+        )
+        val source = SafPdfDiscoverySource(approval, FakeAccessValidator(), catalog, fixedClock)
+
+        val first = source.discover(DiscoveryRequest(batchSize = 2)) as DiscoveryResult.Page
+        assertTrue(first.value.hasMore)
+
+        val second = source.discover(
+            DiscoveryRequest(cursor = first.value.checkpoint, batchSize = 2),
+        )
+
+        assertEquals("SAF_DOCUMENT_CURSOR_STALLED", (second as DiscoveryResult.Failed).failure.code)
+    }
+
     @Test
     fun `security loss during metadata query is reported as revoked`() = runTest {
         val source = SafPdfDiscoverySource(
