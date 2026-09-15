@@ -1,5 +1,6 @@
 package com.memora.app.application.notes
 
+import android.util.Log
 import com.memora.app.data.notes.OneNotePageLinksGraphResult
 import com.memora.app.data.notes.OneNotePagesGraphGateway
 import com.memora.app.domain.asset.AssetIdentity
@@ -51,18 +52,35 @@ class OpenPersistedNotePageInOneNote @Inject constructor(
             return OpenPersistedNotePageResult.SourceUnavailable
         }
 
+        // D-18 remainder / backlog I5: every tap pays for a session check and a
+        // Graph request because the page `links` are not persisted at index
+        // time. Time the two halves so the fix is chosen against a number.
+        // Durations and branch only — never a page id, token, or URL.
+        val startedAtMs = System.currentTimeMillis()
         var session = oneNoteAuth.ensureSession()
             ?: return OpenPersistedNotePageResult.SourceUnavailable
+        val sessionReadyAtMs = System.currentTimeMillis()
 
-        return when (val first = fetchLinks(session.accessToken, sourceAssetKey)) {
-            is OpenPersistedNotePageResult.Ready -> first
-            OpenPersistedNotePageResult.CouldNotOpen -> first
-            OpenPersistedNotePageResult.SourceUnavailable -> {
-                session = oneNoteAuth.ensureSession(forceRefresh = true)
-                    ?: return OpenPersistedNotePageResult.SourceUnavailable
-                fetchLinks(session.accessToken, sourceAssetKey)
-            }
+        val first = fetchLinks(session.accessToken, sourceAssetKey)
+        if (first !is OpenPersistedNotePageResult.SourceUnavailable) {
+            logTimings(startedAtMs, sessionReadyAtMs, refreshed = false)
+            return first
         }
+
+        session = oneNoteAuth.ensureSession(forceRefresh = true)
+            ?: return OpenPersistedNotePageResult.SourceUnavailable
+        return fetchLinks(session.accessToken, sourceAssetKey).also {
+            logTimings(startedAtMs, sessionReadyAtMs, refreshed = true)
+        }
+    }
+
+    private fun logTimings(startedAtMs: Long, sessionReadyAtMs: Long, refreshed: Boolean) {
+        Log.d(
+            TAG,
+            "note open: session ${sessionReadyAtMs - startedAtMs}ms, " +
+                "links ${System.currentTimeMillis() - sessionReadyAtMs}ms, " +
+                "forced refresh $refreshed",
+        )
     }
 
     private suspend fun fetchLinks(
@@ -90,6 +108,7 @@ class OpenPersistedNotePageInOneNote @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "OpenNotePage"
         private const val OPEN_TIMEOUT_MS = 25_000L
     }
 }
