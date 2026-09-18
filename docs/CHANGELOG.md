@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### D-20 course correction — drop specimen quotas, page of 20 (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Five-hit retries produced type and cue quotas (Partial seats,
+  modifier-first, PDF forcing). That is not the D-20 plan and does not
+  generalise to a ~1600-file mixed corpus.
+- **Landed.** Quotas removed. Exact still does not replace the list. Trust
+  band uses raw cosine; shown page **20**; candidate pool **60**. Token-count
+  seating and keyword Find unchanged.
+- **Not done.** Phase 0 trace. Encoder. Files outside the pool still cannot
+  appear.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 Phase 1d — document seats when images fill meaning results (2026-09-18)
 
 - **Date:** 2026-09-18

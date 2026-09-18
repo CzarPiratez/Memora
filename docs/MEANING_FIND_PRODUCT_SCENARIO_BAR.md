@@ -17,7 +17,7 @@ Act, synonym nets, cross-lingual-without-tokens, or new Live/Dual rows.
 | Canonical Recall / Live/Dual N = 0 | Architecture **DONE** — sole Find boundary |
 | MIG-07B Slices 1–4 | Structured TIME/TOPIC **filter stage** DONE — not “last week works” |
 | MF-1 | One-cue precision **landed** (U1–U8 / I1 partial); wrappers still leak |
-| Exact / Partial as **the whole list** (D-12 residual) | Exact **no longer** replaces the list (D-20 Phase 1). Pool seating is still token-count-first — probe showed cosine-30 would drop the timetable. Phase 0 trace still open. Not AVAILABLE |
+| Exact / Partial as **the whole list** (D-12 residual) | Exact no longer replaces the list. Type quotas (Partial seats, PDF forcing) **removed** — they were specimen drift. Page is **20**, pool 60, band on **raw cosine**. Token-count pool seating kept. Not AVAILABLE |
 | Product Contract “recall by time / person / place” | TIME/TOPIC **populated**; person/place/object **not**; relative time **not resolved** |
 | Grounded Answers / “what happened last week?” as prose | **Blocked** until readiness gates; Find must not fake answers |
 | Marketing AVAILABLE | **NO** |
@@ -30,9 +30,10 @@ The **ceiling** for how people ask is `HUMAN_RECALL_ASK_MODEL.md`.
 ## North star (user value)
 
 A person asks the way they remember — a word, a phrase, several things in one
-breath, a time window, or a short question — and gets a **short, trustworthy
-list of the right originals**, with a **plain Why** they can understand in
-seconds. Prefer silence or “no solid match” over bluffing.
+breath, a time window, or a short question — and gets a **trustworthy ranked
+list of the right originals** (MVP: up to **20**; later scale with corpus
+size), with a **plain Why** they can understand in seconds. Prefer silence or
+“no solid match” over bluffing. Asset type does not get a reserved seat.
 
 **Wow bar:** Feels like a careful friend who read your files — not “top-10 cosine
 demo,” not a chatbot essay, not a power-user query language the user must learn.

@@ -187,48 +187,34 @@ class CanonicalRecallMeaningTest {
         }
 
     /**
-     * Founder-library shape: Exact cosine is near 1 after boost; the timetable
-     * sits far enough that 0.22 of the Exact top score would drop it. Mixed
-     * seating has to keep it anyway.
+     * MVP page is 20, not 5. Close lexical neighbours must not be truncated
+     * just because more than five survived the band.
      */
     @Test
-    fun searchByMeaning_keeps_a_distant_timetable_when_exact_hits_fill_the_trusted_band() =
-        runBlocking {
-            val exact = MemoryRevisionId("rev-schedule")
-            val timetable = MemoryRevisionId("rev-timetable")
-            val engine = FixedEmbeddingEngine(dimensions = 3)
-            engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
-            val embeddingStore = InMemoryMemoryEmbeddingStore()
-            embeddingStore.upsert(record(exact, 0.90f))
-            embeddingStore.upsert(record(timetable, 0.18f))
-            val recall = recall(
-                embeddingEngine = engine,
-                embeddingStore = embeddingStore,
-                memoryRepository = MeaningLookupRepository(
-                    mapOf(
-                        exact to lookup(exact, "Sched.pdf", "Swimming schedule term 2"),
-                        timetable to lookup(
-                            timetable,
-                            "Grade-2-Swimming-TT-2026.pdf",
-                            "Grade 2 Swimming timetable 2026 PERIOD TIME MON TUE",
-                        ),
-                    ),
-                ),
-            )
-
-            val outcome = recall.searchByMeaning("swimming schedule") as MeaningSearchOutcome.Matches
-
-            assertTrue(outcome.hits.any { it.revisionId == timetable })
-            assertTrue(outcome.hits.any { it.revisionId == exact })
-            assertEquals(
-                RecallPrecision.Partial(
-                    matched = listOf("swimming"),
-                    missing = listOf("schedule"),
-                    exactHitsPresent = true,
-                ),
-                outcome.precision,
+    fun searchByMeaning_does_not_truncate_a_close_band_to_five() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 12).associate { index ->
+            val revision = MemoryRevisionId("rev-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.002f))
+            revision to lookup(
+                revision,
+                "file-$index.pdf",
+                "Swimming schedule notes $index",
             )
         }
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("swimming schedule") as MeaningSearchOutcome.Matches
+
+        assertEquals(12, outcome.hits.size)
+        assertTrue(outcome.hits.size > 5)
+    }
 
     private fun recall(
         embeddingEngine: EmbeddingEngine = UnavailableMeaningEngine(),

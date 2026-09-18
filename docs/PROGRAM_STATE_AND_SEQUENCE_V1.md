@@ -454,34 +454,26 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### D-20 — Exact list-replace and token-seated pool hide retrieved paraphrases (**P0, Phase 1 + 1b delivered**)
+### D-20 — Exact list-replace and token-seated pool hide retrieved paraphrases (**P0, course-corrected**)
 
 **OPEN remainder 2026-09-18.** Found on device after D-12/D-15/MeaningOnly:
-`kids water lessons` and `swimming schedule` still prefer files that contain
-the typed words (including screenshots) over swimming-timetable PDFs.
+meaning lists preferred files that contain the typed words (including
+screenshots) over other originals that are still relevant.
 
-D-12 is still true when **no** Exact competitor exists (Partial can show a
-timetable). D-15 still seats high-coverage files into the 30.
+**Phase 1 kept:** Exact does not replace the list. Mixed banner is honest.
+Token-count pool seating kept (probe).
 
-**Phase 1 delivered (Exact list-replace):** `applyLexicalPrecisionTier` keeps
-Exact and Partial hits together. Mixed banner is honest.
+**1b–1d reversed:** reserved Partial seats, modifier-first, and PDF forcing
+were specimen drift. One relevance order for every asset type.
 
-**Phase 1b delivered (mixed trusted seating):** device re-test showed Phase 1
-was not enough — only both-word files appeared; `Aadhaar` / `passport` worked.
-`MeaningTrustedHitPolicy` 0.22 of the Exact boosted top dropped the timetable.
-Mixed lists now reserve up to two Partial seats and band Exact among Exact
-only.
-
-**Token-count pool seating kept:** founder probe `swimming schedule` gold
-assetRank=380, token30=true, cosine30=false. `kids water lessons` rank 841
-in neither pool (encoder still later).
+**Page / pool:** shown **20**, candidate pool **60**. Trust band on **raw
+cosine**, not boosted score.
 
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.
 
-**Authorized remainder** (`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO`):
-Phase 0 live trace still open; device re-test of mixed seating. Encoder /
-FTS / hybrid / cosine pool seating **not** authorized.
+**Authorized remainder:** Phase 0 trace still open. Encoder / FTS / hybrid /
+cosine pool seating **not** authorized. No more type quotas.
 
 Live/Dual **N = 0**. No new Find path.
 

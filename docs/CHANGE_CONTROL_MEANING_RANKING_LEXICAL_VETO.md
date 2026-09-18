@@ -2,12 +2,11 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
-**Status:** **Probe delivered** (founder A15). **Phase 1 Exact list-replace
-delivered.** **Phase 1b mixed trusted seating delivered.** **Phase 1c
-modifier-first Partial seats delivered.** **Phase 1d document seats
-delivered** (device: swimming screenshots filled the five; keyword Find
-already has the PDFs). Token-count pool seating **kept**. Phase 0 live
-trace not delivered.
+**Status:** **Course correction 2026-09-18.** Probe delivered. Phase 1 Exact
+list-replace delivered. **1b–1d specimen quotas removed** (Partial seats,
+modifier-first, PDF forcing). MVP page **20**, pool **60**, band on **raw
+cosine**. Token-count pool seating **kept**. Phase 0 live trace not
+delivered. Keyword Find frozen.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -115,10 +114,9 @@ ARCHITECTURAL BOUNDARY: Canonical Recall meaning ranking (lexical precision
   tier). Keyword candidate gen unchanged. Pool seating unchanged (D-15).
 CURRENT LEGACY PATH (L# or none): none — Live/Dual N = 0
 TARGET PATH: SearchAssetMemoriesByMeaning (full-index cosine, token-count
-  pool seating) → AnchorAwareMeaningRecallRanking (Exact no longer replaces
-  the list; Partial-only still uses deepest shared set; MeaningOnly only
-  when deepest==0) → MeaningTrustedHitPolicy → Meaning Find UI (honest mixed
-  banner)
+  pool seating, pool 60) → AnchorAwareMeaningRecallRanking (Exact no longer
+  replaces the list; no type quotas) → MeaningTrustedHitPolicy (raw cosine
+  band, page 20) → Meaning Find UI (honest mixed banner)
 WHY THIS CONVERGES: removes a ranking veto inside the sole Find boundary;
   no new generator, no new product Find, no Live/Dual growth
 WHAT OLD PATH WILL EVENTUALLY BE RETIRED: none (keyword Find stays)
@@ -291,6 +289,25 @@ ESCAPE-HATCH AFTER CHANGE: no
   `connectedDebugAndroidTest`.
 - **Known limitation:** if token-count pool 30 contains no PDF, there is
   nothing to swap. Encoder still later.
+- **Git commit:** local; do not push.
+
+## Delivery record — course correction (2026-09-18)
+
+- **Why we drifted.** Five-hit device retries produced cue-specific quotas
+  (Partial seats, modifier-first, PDF forcing). That is not the plan and
+  does not generalise across ~1600 mixed files.
+- **Files/layers:** `MeaningTrustedHitPolicy` is score-order + raw-cosine
+  band + cap 20 only. `CanonicalRecall` default page 20, pool 60. Phase 1
+  Exact+Partial together **kept**. Keyword Find **unchanged**.
+- **Automated verification:** `MeaningTrustedHitPolicyTest` (band, cap 20,
+  boosted score does not set the band, no type reorder);
+  `CanonicalRecallMeaningTest.searchByMeaning_does_not_truncate_a_close_band_to_five`;
+  ranking tests for Exact+Partial together unchanged.
+- **Emulator/manual:** mixed queries across the founder library — not only
+  swimming/passport. Do **not** run `connectedDebugAndroidTest`.
+- **Known limitation:** files outside the token-seated 60 still cannot
+  appear. USE can still rank a screenshot above a PDF; that is ranking, not
+  a quota.
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)

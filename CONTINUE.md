@@ -6,12 +6,13 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 document seats fill the five (2026-09-18).** Meaning still shows at
-most five. Every PDF/note still in the ranked pool now takes a seat before
-pictures of the same words — so four timetable PDFs in that pool all appear.
-Keyword Find remains the full literal list (nine for `timetable`). If a PDF
-never entered the meaning pool of 30, it still cannot appear. Change control:
-`docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+**D-20 course correction (2026-09-18).** Specimen quotas (reserved Partial
+seats, modifier-first, PDF forcing) are **removed**. Back on the original
+plan: Exact does not delete neighbours; token-count pool seating stays;
+keyword Find frozen; one relevance order for every asset type. MVP page is
+**20** (pool 60), trust band on **raw cosine** not boosted score. Cues like
+swimming / timetable / passport are examples, not special cases. Change
+control: `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 
 **D-20 encoder probe (2026-09-18).** Read-only cosine probe over the full USE

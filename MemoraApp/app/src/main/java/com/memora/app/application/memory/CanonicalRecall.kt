@@ -52,7 +52,7 @@ class CanonicalRecall @Inject constructor(
      */
     suspend fun searchByMeaning(
         rawQuery: String,
-        limit: Int = SearchAssetMemoriesByMeaning.DEFAULT_LIMIT,
+        limit: Int = MeaningTrustedHitPolicy.MAX_TRUSTED_HITS,
     ): MeaningSearchOutcome {
         val poolLimit = (limit * CANDIDATE_POOL_MULTIPLIER).coerceAtMost(MAX_CANDIDATE_POOL)
         val outcome = searchAssetMemoriesByMeaning(rawQuery = rawQuery, limit = poolLimit)
@@ -70,7 +70,7 @@ class CanonicalRecall @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit, outcome.query)
+        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit)
         if (trusted.isEmpty()) {
             return outcome.copy(
                 hits = emptyList(),
@@ -99,12 +99,13 @@ class CanonicalRecall @Inject constructor(
 
     companion object {
         /**
-         * Over-fetch cosine candidates so token boost can promote lower-cosine hits
-         * before the final limit is applied.
+         * Over-fetch candidates so later ranking can promote lower-cosine hits
+         * before the shown page ([MeaningTrustedHitPolicy.MAX_TRUSTED_HITS]) is
+         * applied. Must stay larger than that page.
          */
         private const val CANDIDATE_POOL_MULTIPLIER = 3
 
-        private const val MAX_CANDIDATE_POOL = 30
+        private const val MAX_CANDIDATE_POOL = 60
     }
 
     /**
