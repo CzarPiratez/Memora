@@ -2,12 +2,12 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
-**Status:** **Contract freeze 2026-09-18.** Probe delivered. Phase 1 Exact
+**Status:** **Phase 0 delivered 2026-09-18.** Probe delivered. Phase 1 Exact
 list-replace delivered. **1b–1d specimen quotas removed**. Shown page is
 **up to 20** (cap, not a floor; do not grow with corpus size). Pool **60**,
 band on **raw cosine**. `limitReached` means the close band exceeded the
 cap — not that the 60-pool was full. Token-count pool seating **kept**.
-Phase 0 live trace not delivered. Keyword Find frozen.
+Live `MeaningSearchTrace` on debug meaning Find. Keyword Find frozen.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -160,7 +160,7 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] Plan recorded; keyword Find named frozen
   - [x] Probe / Phase 0 / Phase 1 sequenced; encoder and FTS not authorized
   - [x] Probe delivered (code + founder A15 ranks)
-  - [ ] Phase 0 delivered (later ticket)
+  - [x] Phase 0 delivered (later ticket)
   - [x] Phase 1 Exact list-replace delivered (this ticket)
   - [ ] Device re-test on paraphrase **and** exact-token cues after Phase 1
 - **Holistic scenarios (before implement):**
@@ -336,6 +336,29 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Known limitation:** files outside the token-seated 60 still cannot
   appear. USE can still rank a screenshot above a PDF; that is ranking.
   Probe membership stays 30-vs-30.
+- **Git commit:** local; do not push.
+
+## Delivery record — Phase 0 live MeaningSearchTrace (2026-09-18)
+
+- **Why.** Authorized remainder after Phase 1. Device: Exact+Partial together
+  works when some file has every word; when none does, Partial keeps one
+  word's pile (`scan silky`, `wifi password`). Trace names `droppedByTier`
+  without changing that ranking. Exact-replace baseline is already gone.
+- **Files/layers:** `MeaningSearchTrace` on `CanonicalRecall.searchByMeaning`
+  (debug Logcat). Candidate pool counts from `SearchAssetMemoriesByMeaning`.
+  Lexical `droppedByTier` labels from `AnchorAwareMeaningRecallRanking`.
+  About hint only. No ranking policy change. Keyword Find unchanged.
+  Counts and short labels only — no excerpts, no Room, no upload.
+- **Automated verification:** `MeaningSearchTraceTest`;
+  `AnchorAwareMeaningRecallRankingTest.apply_records_dropped_by_tier_when_partial_keeps_one_word_family`;
+  `CanonicalRecallMeaningTest.searchByMeaning_records_pool_counts_and_partial_tier_drops`;
+  About copy test for `MEANING_LIVE_TRACE_HINT`.
+- **Emulator/manual:** debug build; meaning-search `scan silky`,
+  `wifi password`, `when are the swimming classes`, `kids water lessons`;
+  Logcat `MeaningSearchTrace`. Do **not** run `connectedDebugAndroidTest`.
+- **Known limitation:** does not implement I3 grouped piles or encoder.
+  Query text is in debug Logcat on-device only (Ask Model R8: no durable
+  prompt log, no upload).
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)

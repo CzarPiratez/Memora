@@ -505,6 +505,41 @@ class AnchorAwareMeaningRecallRankingTest {
 
         assertEquals(listOf(exact), ranked.hits.map { it.revisionId })
         assertEquals(RecallPrecision.Exact, ranked.precision)
+        assertEquals(1, ranked.debugTrace?.droppedByTier)
+        assertEquals(listOf("Bus.pdf"), ranked.debugTrace?.droppedByTierLabels)
+    }
+
+    /**
+     * Phase 0: when no file has every named word, Partial keeps one word's
+     * pile. The trace must name the dropped family. Ranking is unchanged.
+     */
+    @Test
+    fun apply_records_dropped_by_tier_when_partial_keeps_one_word_family() = runBlocking {
+        val scan = MemoryRevisionId("rev-scan")
+        val silky = MemoryRevisionId("rev-silky")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "scan silky",
+            hits = listOf(
+                hit(scan, 0.9f, label = "Scan.pdf", summaryText = "Document scan of the form"),
+                hit(silky, 0.8f, label = "Silky.pdf", summaryText = "silky spelling list"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "scan silky",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(scan), ranked.hits.map { it.revisionId })
+        assertEquals(
+            RecallPrecision.Partial(matched = listOf("scan"), missing = listOf("silky")),
+            ranked.precision,
+        )
+        assertEquals(1, ranked.debugTrace?.droppedByTier)
+        assertEquals(listOf("Silky.pdf"), ranked.debugTrace?.droppedByTierLabels)
     }
 
     /** Matching more of the person's words is the better partial answer. */

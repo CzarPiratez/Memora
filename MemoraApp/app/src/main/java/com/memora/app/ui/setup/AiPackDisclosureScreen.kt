@@ -146,6 +146,12 @@ fun AiPackDisclosureScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = AiPackDisclosureCopy.MEANING_LIVE_TRACE_HINT,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             OutlinedButton(
                 onClick = onRunEncoderProbe,
                 enabled = !uiState.blockOtherActions,

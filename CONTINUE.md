@@ -6,6 +6,12 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
+**D-20 Phase 0 live trace (2026-09-18).** Debug meaning Find writes one
+Logcat line per search (`MeaningSearchTrace`): tokens, pool counts, tier,
+`droppedByTier` labels. Does not change ranking. About on-device meaning
+search names the tag. Do **not** run connected tests that `clearAll` the
+live DB.
+
 **D-20 contract freeze (2026-09-18).** Specimen quotas (reserved Partial
 seats, modifier-first, PDF forcing) are **removed**. Back on the original
 plan: Exact does not delete neighbours; token-count pool seating stays;

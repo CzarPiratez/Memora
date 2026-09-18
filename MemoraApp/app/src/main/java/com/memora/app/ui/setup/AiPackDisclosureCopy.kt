@@ -108,6 +108,11 @@ object AiPackDisclosureCopy {
         "Diagnostic for D-20. Does not change Find. Writes ranks to Logcat " +
             "(MeaningEncoderProbe). Never uploads your files."
 
+    const val MEANING_LIVE_TRACE_HINT =
+        "Debug meaning Find also writes a live trace to Logcat " +
+            "(MeaningSearchTrace): tokens, pool, tier, droppedByTier. " +
+            "Does not change Find. Never uploads your files."
+
     const val BACK_LABEL = "Back"
 
     const val FEEDBACK_ACKNOWLEDGED =

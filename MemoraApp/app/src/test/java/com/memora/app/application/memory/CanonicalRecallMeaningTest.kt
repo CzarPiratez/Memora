@@ -247,6 +247,35 @@ class CanonicalRecallMeaningTest {
     }
 
     @Test
+    fun searchByMeaning_records_pool_counts_and_partial_tier_drops() = runBlocking {
+        val scan = MemoryRevisionId("rev-scan")
+        val silky = MemoryRevisionId("rev-silky")
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        embeddingStore.upsert(record(scan, 0.90f))
+        embeddingStore.upsert(record(silky, 0.88f))
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(
+                mapOf(
+                    scan to lookup(scan, "Scan.pdf", "Document scan of the form"),
+                    silky to lookup(silky, "Silky.pdf", "silky spelling list"),
+                ),
+            ),
+        )
+
+        val outcome = recall.searchByMeaning("scan silky") as MeaningSearchOutcome.Matches
+
+        assertEquals(listOf(scan), outcome.hits.map { it.revisionId })
+        assertEquals(2, outcome.debugTrace?.vectorsScanned)
+        assertEquals(2, outcome.debugTrace?.admitted)
+        assertEquals(1, outcome.debugTrace?.droppedByTier)
+        assertEquals(listOf("Silky.pdf"), outcome.debugTrace?.droppedByTierLabels)
+    }
+
+    @Test
     fun searchByMeaning_caps_a_wide_band_at_twenty_and_sets_limit_reached() = runBlocking {
         val engine = FixedEmbeddingEngine(dimensions = 3)
         engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))

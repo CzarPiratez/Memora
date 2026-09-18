@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### D-20 Phase 0 — live MeaningSearchTrace (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Measure `droppedByTier` on the live path after Phase 1, without
+  another ranking change. Device already showed Partial keeping one word's
+  pile when no file has every named word.
+- **Landed.** Debug Logcat `MeaningSearchTrace` on
+  `CanonicalRecall.searchByMeaning`. Pool counts + lexical drop labels. About
+  hint. Keyword Find unchanged.
+- **Not done.** I3 grouped piles. Encoder. FTS.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 contract freeze — up to 20, not a floor (2026-09-18)
 
 - **Date:** 2026-09-18

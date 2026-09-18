@@ -2,6 +2,7 @@ package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
+import com.memora.app.application.intelligence.MeaningSearchTrace
 import com.memora.app.domain.intelligence.IdentityRecallRanker
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningEvidenceTokenBoost
@@ -161,11 +162,24 @@ object AnchorAwareMeaningRecallRanking {
         if (deepest == 0) {
             val admitted = MeaningOnlyRecallPolicy.select(outcome.hits, required.size)
             return if (admitted.isEmpty()) {
-                outcome.copy(hits = emptyList(), precision = RecallPrecision.Exact)
+                outcome.copy(
+                    hits = emptyList(),
+                    precision = RecallPrecision.Exact,
+                    debugTrace = MeaningSearchTrace.withTierDrops(
+                        current = outcome.debugTrace,
+                        before = outcome.hits,
+                        after = emptyList(),
+                    ),
+                )
             } else {
                 outcome.copy(
                     hits = admitted,
                     precision = RecallPrecision.MeaningOnly(missing = required),
+                    debugTrace = MeaningSearchTrace.withTierDrops(
+                        current = outcome.debugTrace,
+                        before = outcome.hits,
+                        after = admitted,
+                    ),
                 )
             }
         }
@@ -183,7 +197,15 @@ object AnchorAwareMeaningRecallRanking {
             scored.filter { it.second == matched }
         }
         val hits = keptScored.map { it.first }
-        return outcome.copy(hits = hits, precision = precisionOf(hits, required, cue))
+        return outcome.copy(
+            hits = hits,
+            precision = precisionOf(hits, required, cue),
+            debugTrace = MeaningSearchTrace.withTierDrops(
+                current = outcome.debugTrace,
+                before = outcome.hits,
+                after = hits,
+            ),
+        )
     }
 
     /**

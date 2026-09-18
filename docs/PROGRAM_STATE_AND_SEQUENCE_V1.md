@@ -473,8 +473,9 @@ boosted score. `limitReached` means the close band exceeded the cap.
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.
 
-**Authorized remainder:** Phase 0 trace still open. Encoder / FTS / hybrid /
-cosine pool seating **not** authorized. No more type quotas.
+**Authorized remainder:** Phase 0 live trace **delivered**. Encoder / FTS /
+hybrid / cosine pool seating **not** authorized. No more type quotas. I3
+grouped piles are a **new** change control, not D-20.
 
 Live/Dual **N = 0**. No new Find path.
 

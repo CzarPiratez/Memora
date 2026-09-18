@@ -87,6 +87,13 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 hits = emptyList(),
                 limitReached = false,
                 model = model,
+                debugTrace = MeaningSearchTrace.withPool(
+                    vectorsScanned = summaryIndexed.size + evidenceIndexed.size,
+                    survivedFloor = 0,
+                    assetsAfterCollapse = 0,
+                    admittedHits = emptyList(),
+                    poolTruncated = false,
+                ),
             )
         }
 
@@ -220,6 +227,13 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
             hits = limited,
             limitReached = deduped.size > limited.size,
             model = model,
+            debugTrace = MeaningSearchTrace.withPool(
+                vectorsScanned = summaryIndexed.size + evidenceIndexed.size,
+                survivedFloor = summaryHits.size + evidenceHits.size,
+                assetsAfterCollapse = deduped.size,
+                admittedHits = limited,
+                poolTruncated = deduped.size > limited.size,
+            ),
         )
     }
 
@@ -383,6 +397,11 @@ sealed interface MeaningSearchOutcome {
          * inside Canonical Recall (defect D-12, meaning-only tier).
          */
         val precision: RecallPrecision = RecallPrecision.Exact,
+        /**
+         * Phase 0 live-path counts. Null on keyword-unrelated fixtures.
+         * Never holds excerpts. Does not affect ranking.
+         */
+        val debugTrace: MeaningSearchDebugTrace? = null,
     ) : MeaningSearchOutcome {
         init {
             require(query.isNotBlank())

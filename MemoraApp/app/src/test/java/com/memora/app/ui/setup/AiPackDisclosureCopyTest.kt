@@ -41,6 +41,9 @@ class AiPackDisclosureCopyTest {
         assertTrue(AiPackDisclosureCopy.ENCODER_PROBE_HINT.contains("Does not change Find"))
         assertTrue(AiPackDisclosureCopy.ENCODER_PROBE_HINT.contains("Never uploads"))
         assertFalse(AiPackDisclosureCopy.ENCODER_PROBE_HINT.lowercase().contains("available"))
+        assertTrue(AiPackDisclosureCopy.MEANING_LIVE_TRACE_HINT.contains("MeaningSearchTrace"))
+        assertTrue(AiPackDisclosureCopy.MEANING_LIVE_TRACE_HINT.contains("Does not change Find"))
+        assertTrue(AiPackDisclosureCopy.MEANING_LIVE_TRACE_HINT.contains("Never uploads"))
     }
 
     @Test

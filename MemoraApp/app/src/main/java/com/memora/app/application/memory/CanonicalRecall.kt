@@ -1,6 +1,7 @@
 package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchOutcome
+import com.memora.app.application.intelligence.MeaningSearchTrace
 import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
@@ -9,6 +10,7 @@ import com.memora.app.domain.intelligence.RecallPrecision
 import com.memora.app.domain.intelligence.RecallRanker
 import com.memora.app.domain.memory.MemoryRepository
 import javax.inject.Inject
+import java.util.concurrent.TimeUnit
 
 /**
  * App product-facing retrieval boundary (ADR-049).
@@ -54,6 +56,7 @@ class CanonicalRecall @Inject constructor(
         rawQuery: String,
         limit: Int = MeaningTrustedHitPolicy.MAX_TRUSTED_HITS,
     ): MeaningSearchOutcome {
+        val startedNs = System.nanoTime()
         val poolLimit = (limit * CANDIDATE_POOL_MULTIPLIER).coerceAtMost(MAX_CANDIDATE_POOL)
         val outcome = searchAssetMemoriesByMeaning(rawQuery = rawQuery, limit = poolLimit)
         val ranked = AnchorAwareMeaningRecallRanking.apply(
@@ -62,7 +65,17 @@ class CanonicalRecall @Inject constructor(
             memoryRepository = memoryRepository,
             recallRanker = recallRanker,
         )
-        return trimMeaningMatches(ranked, limit)
+        val trimmed = trimMeaningMatches(ranked, limit)
+        MeaningSearchTrace.emit(
+            MeaningSearchTrace.fromLivePath(
+                rawQuery = rawQuery,
+                candidate = outcome,
+                ranked = ranked,
+                shown = trimmed,
+                latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNs),
+            ),
+        )
+        return trimmed
     }
 
     private fun trimMeaningMatches(
