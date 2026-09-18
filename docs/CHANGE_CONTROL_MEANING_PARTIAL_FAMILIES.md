@@ -191,5 +191,7 @@ ESCAPE-HATCH AFTER CHANGE: no
   `droppedByTier` should count zero-overlap only. Do **not** run
   `connectedDebugAndroidTest`.
 - **Known limitation:** families that never entered the 60 still cannot
-  appear. Not I3 groups. Not encoder.
+  appear. Not I3 groups. Not encoder. Live gold membership for that leak is
+  **D-22** (`CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`), not a seating patch
+  inside this record.
 - **Git commit:** local; do not push.

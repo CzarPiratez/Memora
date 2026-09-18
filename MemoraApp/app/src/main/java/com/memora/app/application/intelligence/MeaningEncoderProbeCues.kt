@@ -5,7 +5,9 @@ package com.memora.app.application.intelligence
  * substring**, not a synonym. Exact-token cues keep the typed word as gold so
  * we can see whether USE ranks that file highly — not whether Find shows it.
  *
- * Probe-only. Does not change product Find.
+ * Probe needles are reused by live [MeaningSearchGoldLocator] (D-22) so
+ * gold membership on Find uses the same label/key match. Still does not
+ * change product ranking.
  */
 object MeaningEncoderProbeCues {
     private val swimmingGold = listOf("timetable", "swimming-tt", "swimming_tt", "swimming tt")

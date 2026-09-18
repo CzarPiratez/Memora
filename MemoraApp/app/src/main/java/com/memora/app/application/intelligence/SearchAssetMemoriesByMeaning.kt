@@ -91,8 +91,10 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                     vectorsScanned = summaryIndexed.size + evidenceIndexed.size,
                     survivedFloor = 0,
                     assetsAfterCollapse = 0,
+                    collapseHits = emptyList(),
                     admittedHits = emptyList(),
                     poolTruncated = false,
+                    rawQuery = rawQuery,
                 ),
             )
         }
@@ -231,8 +233,10 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
                 vectorsScanned = summaryIndexed.size + evidenceIndexed.size,
                 survivedFloor = summaryHits.size + evidenceHits.size,
                 assetsAfterCollapse = deduped.size,
+                collapseHits = deduped,
                 admittedHits = limited,
                 poolTruncated = deduped.size > limited.size,
+                rawQuery = rawQuery,
             ),
         )
     }
@@ -398,8 +402,9 @@ sealed interface MeaningSearchOutcome {
          */
         val precision: RecallPrecision = RecallPrecision.Exact,
         /**
-         * Phase 0 live-path counts. Null on keyword-unrelated fixtures.
-         * Never holds excerpts. Does not affect ranking.
+         * Phase 0 / D-22 live-path counts and gold membership. Null on
+         * keyword-unrelated fixtures. Never holds excerpts. Does not affect
+         * ranking.
          */
         val debugTrace: MeaningSearchDebugTrace? = null,
     ) : MeaningSearchOutcome {

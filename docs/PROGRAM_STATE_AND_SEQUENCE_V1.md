@@ -454,6 +454,19 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-22 — live gold-in-pool measure (**P0, landed measure; seating/ranking gated**)
+
+**LANDED MEASURE 2026-09-18.** Debug `MeaningSearchTrace` reports whether
+probe gold (label/key) is in collapse, in the admitted 60, after the lexical
+tier, and on the shown page. Ranking and D-15 seating **unchanged**.
+
+**Next (after founder `diagnosis=`):** `out_of_pool` → mixed-depth seating
+CC; `in_pool_off_page` → ranking among the 60 without type quotas. Not PDF
+seats. Not encoder/FTS/one-box.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
+Live/Dual **N = 0**.
+
 ### D-21 — Partial one-word family veto when no Exact hit (**P0, landed**)
 
 **LANDED 2026-09-18.** `applyLexicalPrecisionTier` keeps every admitted hit

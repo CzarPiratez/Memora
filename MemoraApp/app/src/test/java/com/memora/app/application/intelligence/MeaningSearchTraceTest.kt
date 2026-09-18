@@ -49,6 +49,12 @@ class MeaningSearchTraceTest {
         assertTrue(line.contains("shown=8"))
         assertTrue(line.contains("capTruncated=false"))
         assertTrue(line.contains("latencyMs=140"))
+        assertTrue(line.contains("gold=-"))
+        assertTrue(line.contains("collapseRank=-"))
+        assertTrue(line.contains("admittedRank=-"))
+        assertTrue(line.contains("rankedRank=-"))
+        assertTrue(line.contains("shownRank=-"))
+        assertTrue(line.contains("diagnosis=no_gold_cue"))
         assertFalse(line.contains("excerpt"))
         assertFalse(line.contains("AVAILABLE"))
     }
@@ -96,7 +102,83 @@ class MeaningSearchTraceTest {
         assertEquals(1, snapshot.droppedByTier)
         assertEquals(listOf("Silky.pdf"), snapshot.droppedByTierLabels)
         assertEquals(1, snapshot.shown)
+        assertEquals(MeaningSearchGoldLocator.DIAGNOSIS_NO_GOLD_CUE, snapshot.goldDiagnosis)
         assertFalse(MeaningSearchTrace.toLogLine(snapshot).contains("spelling list"))
+    }
+
+    @Test
+    fun from_live_path_reports_gold_out_of_the_admitted_pool() {
+        val photo = hit("class", "swimming classes.jpg", cosine = 0.9f)
+        val pdf = hit("tt", "Grade-2-Swimming-TT-2026.pdf", cosine = 0.4f)
+        val candidate = MeaningSearchOutcome.Matches(
+            query = "when are the swimming classes",
+            hits = listOf(photo),
+            limitReached = true,
+            model = model,
+            debugTrace = MeaningSearchTrace.withPool(
+                vectorsScanned = 2,
+                survivedFloor = 2,
+                assetsAfterCollapse = 2,
+                collapseHits = listOf(photo, pdf),
+                admittedHits = listOf(photo),
+                poolTruncated = true,
+                rawQuery = "when are the swimming classes",
+            ),
+        )
+        val snapshot = MeaningSearchTrace.fromLivePath(
+            rawQuery = "when are the swimming classes",
+            candidate = candidate,
+            ranked = candidate,
+            shown = candidate,
+            latencyMs = 9L,
+        )
+        val line = MeaningSearchTrace.toLogLine(snapshot)
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", snapshot.goldLabel)
+        assertEquals("PDF", snapshot.goldAssetType)
+        assertEquals(2, snapshot.goldCollapseRank)
+        assertEquals(null, snapshot.goldAdmittedRank)
+        assertEquals(MeaningSearchGoldLocator.DIAGNOSIS_OUT_OF_POOL, snapshot.goldDiagnosis)
+        assertTrue(line.contains("gold=Grade-2-Swimming-TT-2026.pdf"))
+        assertTrue(line.contains("admittedRank=-"))
+        assertTrue(line.contains("diagnosis=out_of_pool"))
+        assertFalse(line.contains("stored summary"))
+    }
+
+    @Test
+    fun from_live_path_reports_gold_in_the_pool_but_off_the_shown_page() {
+        val pdf = hit("tt", "Grade-2-Swimming-TT-2026.pdf", cosine = 0.41f)
+        val photo = hit("class", "swimming classes.jpg", cosine = 0.88f)
+        val candidate = MeaningSearchOutcome.Matches(
+            query = "when are the swimming classes",
+            hits = listOf(photo, pdf),
+            limitReached = true,
+            model = model,
+            debugTrace = MeaningSearchTrace.withPool(
+                vectorsScanned = 2,
+                survivedFloor = 2,
+                assetsAfterCollapse = 2,
+                collapseHits = listOf(photo, pdf),
+                admittedHits = listOf(photo, pdf),
+                poolTruncated = false,
+                rawQuery = "when are the swimming classes",
+            ),
+        )
+        val ranked = candidate.copy(hits = listOf(photo, pdf))
+        val shown = candidate.copy(hits = listOf(photo), limitReached = true)
+        val snapshot = MeaningSearchTrace.fromLivePath(
+            rawQuery = "when are the swimming classes",
+            candidate = candidate,
+            ranked = ranked,
+            shown = shown,
+            latencyMs = 11L,
+        )
+        assertEquals(2, snapshot.goldAdmittedRank)
+        assertEquals(2, snapshot.goldRankedRank)
+        assertEquals(null, snapshot.goldShownRank)
+        assertEquals(
+            MeaningSearchGoldLocator.DIAGNOSIS_IN_POOL_OFF_PAGE,
+            snapshot.goldDiagnosis,
+        )
     }
 
     @Test
@@ -106,7 +188,12 @@ class MeaningSearchTraceTest {
         assertTrue(label.length <= 40)
     }
 
-    private fun hit(id: String, label: String, summary: String) = MeaningSearchHit(
+    private fun hit(
+        id: String,
+        label: String,
+        summary: String = "stored summary",
+        cosine: Float = 0.8f,
+    ) = MeaningSearchHit(
         revisionId = MemoryRevisionId(id),
         memoryId = MemoryId("m-$id"),
         sourceId = SourceId("s"),
@@ -114,8 +201,8 @@ class MeaningSearchTraceTest {
         assetType = AssetType.PDF,
         label = label,
         summaryText = summary,
-        score = 0.8f,
+        score = cosine,
         model = model,
-        cosine = 0.8f,
+        cosine = cosine,
     )
 }

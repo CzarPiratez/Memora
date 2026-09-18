@@ -6,6 +6,17 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
+**D-22 gold-in-pool measure (2026-09-18).** Landed: debug `MeaningSearchTrace`
+adds gold filename, type, collapse/admitted/ranked/shown ranks, and
+`diagnosis` (`out_of_pool` vs `in_pool_off_page` vs `on_page`). Does **not**
+change ranking or seating. One debug search: `when are the swimming classes`.
+Paste the `gold=` / `diagnosis=` fields. Next ticket is seating **only if**
+out of the 60, or ranking among the 60 **only if** off the page — not PDF
+seats, not keyword-vs-meaning as the product. Change control:
+`docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-21 Partial families (2026-09-18).** Landed: when no file has every named
 word, ranking keeps every admitted hit that still carries a named word.
 Banner: “No file contains every word you used…” — must not say nothing

@@ -283,6 +283,41 @@ class CanonicalRecallMeaningTest {
     }
 
     @Test
+    fun searchByMeaning_records_gold_membership_for_a_registered_cue() = runBlocking {
+        val pdf = MemoryRevisionId("rev-tt")
+        val photo = MemoryRevisionId("rev-class")
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        embeddingStore.upsert(record(photo, 0.90f))
+        embeddingStore.upsert(record(pdf, 0.40f))
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(
+                mapOf(
+                    photo to lookup(photo, "swimming classes.jpg", "class list swimming classes"),
+                    pdf to lookup(
+                        pdf,
+                        "Grade-2-Swimming-TT-2026.pdf",
+                        "weekly swimming timetable",
+                    ),
+                ),
+            ),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes")
+            as MeaningSearchOutcome.Matches
+        val gold = outcome.debugTrace?.gold
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", gold?.goldLabel)
+        assertEquals(AssetType.PDF.name, gold?.goldAssetType)
+        assertEquals(2, gold?.collapseRank)
+        assertEquals(2, gold?.admittedRank)
+        // Shown membership is ranking (trusted band), not this measure ticket.
+    }
+
+    @Test
     fun searchByMeaning_caps_a_wide_band_at_twenty_and_sets_limit_reached() = runBlocking {
         val engine = FixedEmbeddingEngine(dimensions = 3)
         engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))

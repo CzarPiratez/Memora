@@ -110,7 +110,8 @@ object AiPackDisclosureCopy {
 
     const val MEANING_LIVE_TRACE_HINT =
         "Debug meaning Find also writes a live trace to Logcat " +
-            "(MeaningSearchTrace): tokens, pool, tier, droppedByTier. " +
+            "(MeaningSearchTrace): tokens, pool, tier, droppedByTier, " +
+            "gold collapse/admitted/shown ranks. " +
             "Does not change Find. Never uploads your files."
 
     const val BACK_LABEL = "Back"

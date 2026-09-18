@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### D-22 — live gold-in-pool measure (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** After D-21, `when are the swimming classes` still shows no PDF.
+  Phase 0 cannot tell “out of the 60” from “in the 60, off the page.”
+- **Landed.** Debug `MeaningSearchTrace` gold ranks + `diagnosis`. Ranking
+  and seating unchanged. Keyword Find unchanged.
+- **Not done.** Mixed-depth seating. Ranking among the 60. Encoder. FTS.
+  One-box Find.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
+  Live/Dual **N = 0**.
+
 ### D-21 — keep named-word families already in the pool (2026-09-18)
 
 - **Date:** 2026-09-18

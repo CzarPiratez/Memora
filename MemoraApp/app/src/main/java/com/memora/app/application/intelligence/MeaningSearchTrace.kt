@@ -7,8 +7,8 @@ import com.memora.app.domain.intelligence.RecallPrecision
 import java.util.Locale
 
 /**
- * Phase 0 live-path diagnostic for D-20. Counts and short labels only — no
- * stored excerpts, no Room row, no upload.
+ * Phase 0 / D-22 live-path diagnostic. Counts, short labels, and gold
+ * membership only — no stored excerpts, no Room row, no upload.
  *
  * Does not change ranking. [emit] is a no-op in release builds.
  */
@@ -35,6 +35,14 @@ object MeaningSearchTrace {
         val shownTopCosine: Float?,
         val capTruncated: Boolean,
         val latencyMs: Long,
+        val goldLabel: String? = null,
+        val goldAssetType: String? = null,
+        val goldCollapseRank: Int? = null,
+        val goldAdmittedRank: Int? = null,
+        val goldRankedRank: Int? = null,
+        val goldShownRank: Int? = null,
+        val goldCollapseCosine: Float? = null,
+        val goldDiagnosis: String = MeaningSearchGoldLocator.DIAGNOSIS_NO_GOLD_CUE,
     )
 
     fun shortLabel(label: String): String =
@@ -76,6 +84,22 @@ object MeaningSearchTrace {
         append(snapshot.latencyMs)
         append(" outcome=")
         append(snapshot.outcomeKind)
+        append(" gold=")
+        append(snapshot.goldLabel ?: "-")
+        append(" goldType=")
+        append(snapshot.goldAssetType ?: "-")
+        append(" collapseRank=")
+        append(formatRank(snapshot.goldCollapseRank))
+        append(" admittedRank=")
+        append(formatRank(snapshot.goldAdmittedRank))
+        append(" rankedRank=")
+        append(formatRank(snapshot.goldRankedRank))
+        append(" shownRank=")
+        append(formatRank(snapshot.goldShownRank))
+        append(" goldCosine=")
+        append(formatCosine(snapshot.goldCollapseCosine))
+        append(" diagnosis=")
+        append(snapshot.goldDiagnosis)
     }
 
     fun emit(snapshot: Snapshot) {
@@ -94,6 +118,15 @@ object MeaningSearchTrace {
         val pool = (candidate as? MeaningSearchOutcome.Matches)?.debugTrace
         val rankedMatches = ranked as? MeaningSearchOutcome.Matches
         val shownMatches = shown as? MeaningSearchOutcome.Matches
+        val gold = pool?.gold ?: MeaningSearchGoldMembership(registered = false)
+        val rankedRank = MeaningSearchGoldLocator.rankOf(
+            gold.goldAssetIdentity,
+            rankedMatches?.hits.orEmpty(),
+        )
+        val shownRank = MeaningSearchGoldLocator.rankOf(
+            gold.goldAssetIdentity,
+            shownMatches?.hits.orEmpty(),
+        )
         return Snapshot(
             outcomeKind = outcomeKind(shown),
             rawQuery = MeaningRecallCue.displayQuery(rawQuery).ifEmpty { rawQuery.trim() },
@@ -111,6 +144,14 @@ object MeaningSearchTrace {
             shownTopCosine = shownMatches?.hits?.maxOfOrNull { it.cosine },
             capTruncated = shownMatches?.limitReached ?: false,
             latencyMs = latencyMs.coerceAtLeast(0L),
+            goldLabel = gold.goldLabel,
+            goldAssetType = gold.goldAssetType,
+            goldCollapseRank = gold.collapseRank,
+            goldAdmittedRank = gold.admittedRank,
+            goldRankedRank = rankedRank,
+            goldShownRank = shownRank,
+            goldCollapseCosine = gold.collapseCosine,
+            goldDiagnosis = MeaningSearchGoldLocator.diagnosis(gold, rankedRank, shownRank),
         )
     }
 
@@ -120,6 +161,8 @@ object MeaningSearchTrace {
         assetsAfterCollapse: Int,
         admittedHits: List<MeaningSearchHit>,
         poolTruncated: Boolean,
+        collapseHits: List<MeaningSearchHit> = admittedHits,
+        rawQuery: String = "",
     ): MeaningSearchDebugTrace = MeaningSearchDebugTrace(
         vectorsScanned = vectorsScanned,
         survivedFloor = survivedFloor,
@@ -127,6 +170,11 @@ object MeaningSearchTrace {
         admitted = admittedHits.size,
         poolTruncated = poolTruncated,
         admittedTopCosine = admittedHits.maxOfOrNull { it.cosine },
+        gold = MeaningSearchGoldLocator.locate(
+            rawQuery = rawQuery,
+            collapseHits = collapseHits,
+            admittedHits = admittedHits,
+        ),
     )
 
     fun withTierDrops(
@@ -161,6 +209,8 @@ object MeaningSearchTrace {
     private fun formatCosine(value: Float?): String =
         if (value == null) "-" else String.format(Locale.US, "%.3f", value)
 
+    private fun formatRank(value: Int?): String = value?.toString() ?: "-"
+
     private val WHITESPACE = Regex("""\s+""")
 }
 
@@ -176,4 +226,5 @@ data class MeaningSearchDebugTrace(
     val admittedTopCosine: Float? = null,
     val droppedByTier: Int = 0,
     val droppedByTierLabels: List<String> = emptyList(),
+    val gold: MeaningSearchGoldMembership? = null,
 )

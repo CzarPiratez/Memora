@@ -364,6 +364,8 @@ ESCAPE-HATCH AFTER CHANGE: no
   Do **not** run `connectedDebugAndroidTest`.
 - **Known limitation:** `droppedByTier=0` can mean the other family missed
   the 60. One-word Partial veto is D-21, not a D-20 ranking patch.
+  Live gold membership (`collapseRank` / `admittedRank` / `shownRank`) is
+  **D-22**, not this record.
   Query text is in debug Logcat on-device only (Ask Model R8).
 - **Git commit:** local; do not push.
 
