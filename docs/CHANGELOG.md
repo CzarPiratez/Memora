@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### D-20 meaning ranking lexical veto — plan only (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why it existed.** Find by meaning cosine-scans the full USE index, then
+  Exact list-replace and token-count pool seating discard paraphrases
+  (`swimming schedule` vs timetable PDFs). D-12/D-15 did not cover an Exact
+  competitor on a large library.
+- **Recorded, not coded.** Sequence: device probe (three ranks) → Phase 0
+  live trace → Phase 1 cosine seating and stop deleting neighbours. Keyword
+  Find frozen. FTS, encoder swap, hybrid, schema, AVAILABLE not authorized.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### Open-original feedback belongs to the card you tapped (2026-09-15)
 
 - **Date:** 2026-09-15
