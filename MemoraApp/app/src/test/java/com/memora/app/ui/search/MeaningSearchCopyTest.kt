@@ -101,6 +101,18 @@ class MeaningSearchCopyTest {
     }
 
     @Test
+    fun mixed_named_word_families_copy_does_not_claim_nothing_saved_says_a_present_word() {
+        val body = MeaningSearchCopy.partialMatchBody(
+            matched = listOf("scan", "silky"),
+            missing = listOf("scan", "silky"),
+            mixedNamedWordFamilies = true,
+        )
+        assertTrue(body.contains("No file contains every word you used"))
+        assertTrue(body.contains("These mention \"scan\" and \"silky\""))
+        assertFalse(body.contains("Nothing saved says"))
+    }
+
+    @Test
     fun exact_results_copy_names_the_count_and_does_not_pad_to_twenty() {
         val thin = MeaningSearchCopy.exactResultsBody(matchCount = 4, limitReached = false)
         assertTrue(thin.contains("4 close matches"))

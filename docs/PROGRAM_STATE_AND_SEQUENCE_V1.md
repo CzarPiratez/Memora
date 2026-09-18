@@ -454,19 +454,14 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### D-21 — Partial one-word family veto when no Exact hit (**P0, authorized**)
+### D-21 — Partial one-word family veto when no Exact hit (**P0, landed**)
 
-**OPEN 2026-09-18.** Phase 0 on the founder A15: when no file in the token-60
-has every named word, `applyLexicalPrecisionTier` keeps one matched-word
-set and deletes the rest (`wifi password` droppedByTier=48, shown=11;
-`Kids water classes` droppedByTier=58, shown=2). Not MeaningOnly. Not a
-keyword Find bug.
+**LANDED 2026-09-18.** `applyLexicalPrecisionTier` keeps every admitted hit
+that carries a named word, whether or not Exact exists.
+`refineAfterTrustedTrim` does not re-subset to one family. Mixed-family
+banner must not claim a present word is missing from the library.
 
-**Not I3.** One ranked list; keep every admitted hit that still carries a
-named word. Banner stays honest Partial.
-
-**Not encoder / FTS / bigger pool.** Files that never entered the 60 stay
-unshown (`silky scan` droppedByTier=0).
+**Not I3.** One ranked list. **Not encoder / FTS / bigger pool.**
 
 Change control: `docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`.
 Live/Dual **N = 0**.

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### D-21 — keep named-word families already in the pool (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Phase 0: one named-word pile deleted the others already in the 60
+  (`wifi password` droppedByTier=48).
+- **Landed.** Lexical keep is every ≥1-token hit, with or without Exact.
+  Trim cannot re-subset. Mixed-family banner. Keyword Find unchanged.
+- **Not done.** I3 grouped piles. Encoder. FTS. Raising the pool.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`.
+  Live/Dual **N = 0**.
+
 ### D-21 — Partial one-word family veto (authorized, not implemented) (2026-09-18)
 
 - **Date:** 2026-09-18
@@ -22,8 +33,7 @@
 - **Landed.** Debug Logcat `MeaningSearchTrace` on
   `CanonicalRecall.searchByMeaning`. Pool counts + lexical drop labels. About
   hint. Keyword Find unchanged.
-- **Not done.** Ranking keep for the other named-word family in the 60
-  (D-21). Encoder. FTS.
+- **Not done.** Encoder. FTS. Raising the pool. I3 grouped piles.
 - **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
   Live/Dual **N = 0**.
 

@@ -126,13 +126,10 @@ object AnchorAwareMeaningRecallRanking {
     /**
      * Lexical precision as a **tier**, not a veto (defects D-12 and D-20).
      *
-     * Coverage still describes the list and still boosts a hit, but an Exact
-     * neighbour must not delete a Partial one: on device, `swimming schedule`
-     * already seated the timetable in the token-count pool, then this gate
-     * replaced the list with files that contained both words. When no hit
-     * carries every named word, the list still falls to the deepest shared
-     * Partial set and reports the miss. UNFYND does not claim `schedule`
-     * means `timetable`.
+     * Coverage still describes the list and still boosts a hit, but it is not a
+     * subset: Exact must not delete Partial (D-20), and one named-word family
+     * must not delete another that is already in the admitted pool (D-21).
+     * UNFYND does not claim `schedule` means `timetable`.
      *
      * When no named word appears anywhere, a two-or-more-word cue may still keep
      * a short high-cosine band as [RecallPrecision.MeaningOnly] — the remaining
@@ -184,19 +181,10 @@ object AnchorAwareMeaningRecallRanking {
             }
         }
 
-        val hasExact = scored.any { it.second.size == required.size }
-        val keptScored = if (hasExact) {
-            // D-20: keep every hit that carries at least one named word. Exact
-            // files still rank by boosted score; they no longer own the list.
-            scored.filter { it.second.isNotEmpty() }
-        } else {
-            // Prefer the tier that satisfies most of the words the person used,
-            // then let the highest-ranked hit at that depth define which words
-            // those are, so one banner can describe the whole list truthfully.
-            val matched = scored.first { it.second.size == deepest }.second
-            scored.filter { it.second == matched }
-        }
-        val hits = keptScored.map { it.first }
+        // D-20 / D-21: keep every hit that carries at least one named word.
+        // Coverage is a boost and a banner, not a subset — whether or not an
+        // Exact file exists. Zero-overlap neighbours still drop.
+        val hits = scored.filter { it.second.isNotEmpty() }.map { it.first }
         return outcome.copy(
             hits = hits,
             precision = precisionOf(hits, required, cue),
@@ -209,10 +197,9 @@ object AnchorAwareMeaningRecallRanking {
     }
 
     /**
-     * Trusted-hit trim can drop Exact rows and leave mixed Partial depths.
-     * Re-describe — and if no Exact hit remains, restore the deepest shared
-     * Partial subset so the banner cannot say a word is missing from the
-     * library when a remaining file still has it.
+     * Trusted-hit trim can drop Exact rows and leave mixed Partial families.
+     * Re-describe the remaining page. Do not subset back to one word family
+     * (D-21): a cosine band must not undo named-word keep.
      */
     internal fun refineAfterTrustedTrim(
         hits: List<MeaningSearchHit>,
@@ -234,13 +221,7 @@ object AnchorAwareMeaningRecallRanking {
                 emptyList<MeaningSearchHit>() to RecallPrecision.Exact
             }
         }
-        val hasExact = scored.any { it.second.size == required.size }
-        val retained = if (hasExact) {
-            hits
-        } else {
-            val matched = scored.first { it.second.size == deepest }.second
-            scored.filter { it.second == matched }.map { it.first }
-        }
+        val retained = scored.filter { it.second.isNotEmpty() }.map { it.first }
         return retained to precisionOf(retained, required, cue)
     }
 
@@ -260,17 +241,23 @@ object AnchorAwareMeaningRecallRanking {
             }
         }
         if (tokenLists.all { it.size == required.size }) return RecallPrecision.Exact
-        val intersection = tokenLists.map { it.toSet() }.reduce { a, b -> a intersect b }
-        val union = tokenLists.map { it.toSet() }.reduce { a, b -> a union b }
+        val tokenSets = tokenLists.map { it.toSet() }
+        val intersection = tokenSets.reduce { a, b -> a intersect b }
+        val union = tokenSets.reduce { a, b -> a union b }
         val matched = required.filter { it in intersection }.ifEmpty {
             required.filter { it in union }
         }
-        val missing = required.filter { it !in intersection }
+        val missingFromAll = required.filter { it !in union }
+        val missing = missingFromAll.ifEmpty {
+            required.filter { it !in intersection }
+        }
         if (matched.isEmpty() || missing.isEmpty()) return RecallPrecision.Exact
+        val exactHitsPresent = tokenLists.any { it.size == required.size }
         return RecallPrecision.Partial(
             matched = matched,
             missing = missing,
-            exactHitsPresent = tokenLists.any { it.size == required.size },
+            exactHitsPresent = exactHitsPresent,
+            mixedNamedWordFamilies = missingFromAll.isEmpty() && !exactHitsPresent,
         )
     }
 

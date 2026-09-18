@@ -6,13 +6,12 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-21 Partial families (2026-09-18).** Authorized, **not implemented.**
-When no file in the 60 has every named word, ranking still keeps one word's
-pile and deletes the other named-word files already in that pool. Phase 0
-measured it (`wifi password` droppedByTier=48; `Kids water classes` 58).
-D-20 Phase 1 stop gate **met** for `swimming timetable` / passport / silky
-wrappers. Next code ticket is D-21 keep-any-named-word — not I3, encoder,
-FTS, or a bigger pool. Change control:
+**D-21 Partial families (2026-09-18).** Landed: when no file has every named
+word, ranking keeps every admitted hit that still carries a named word.
+Banner: “No file contains every word you used…” — must not say nothing
+saved says a word a remaining card has. Not I3, encoder, FTS, or a bigger
+pool. Re-test `wifi password` / `scan silky`; `passport` and `swimming
+timetable` must not regress. Change control:
 `docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 

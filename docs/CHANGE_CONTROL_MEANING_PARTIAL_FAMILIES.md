@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan; ranking code is a **later** Agent ticket
-**Status:** **Authorized, not implemented.** D-20 Phase 1 / Phase 0 measured.
-Keyword Find frozen.
+**Status:** **Delivered in tree 2026-09-18.** Ranking keep rule landed.
+Keyword Find frozen. Device re-test of `wifi password` / `scan silky` open.
 **Ask Model:** **P-AND vs P-LIST** (keep named-word neighbours already in the
 admitted pool); **P-EVIDENCE**; honesty banners may remain; they must not
 delete neighbours
@@ -127,7 +127,7 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Acceptance criteria (this docs slice):**
   - [x] D-20 stop gate recorded from founder traces
   - [x] D-21 keep rule named; I3 / encoder / FTS / quotas / pool raise out
-  - [ ] Ranking code delivered (later ticket)
+  - [x] Ranking code delivered (later ticket)
 - **Holistic scenarios (before implement):**
   - User: `wifi password` with no file that has both — password **and**
     wifi-named files that made the 60 can appear; banner says what is missing
@@ -171,4 +171,25 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Emulator/manual:** n/a this slice. Ranking code is the next ticket.
 - **Known limitation:** files outside the token-seated 60 still cannot
   appear after D-21.
+- **Git commit:** local; do not push.
+
+## Delivery record — keep named-word families (2026-09-18)
+
+- **Files/layers:** `applyLexicalPrecisionTier` and `refineAfterTrustedTrim`
+  keep every ≥1-token hit; `RecallPrecision.Partial.mixedNamedWordFamilies`;
+  mixed banner copy. Keyword Find unchanged. Pool 60 / page 20 unchanged.
+- **Automated verification:**
+  `apply_keeps_both_named_word_families_when_no_file_has_every_word`;
+  `apply_keeps_a_shallower_named_word_neighbour_beside_a_deeper_partial`;
+  `refineAfterTrustedTrim_does_not_drop_the_other_named_word_family`;
+  `CanonicalRecallMeaningTest.searchByMeaning_records_pool_counts_and_partial_tier_drops`;
+  D-20 Exact+Partial tests unchanged; MeaningOnly / zero-overlap tests
+  unchanged; mixed-family copy test.
+- **Emulator/manual:** founder debug meaning `wifi password`, `scan silky`,
+  `when are the swimming classes`; confirm `passport` / `silky` /
+  `swimming timetable` do not regress. Logcat `MeaningSearchTrace`
+  `droppedByTier` should count zero-overlap only. Do **not** run
+  `connectedDebugAndroidTest`.
+- **Known limitation:** families that never entered the 60 still cannot
+  appear. Not I3 groups. Not encoder.
 - **Git commit:** local; do not push.

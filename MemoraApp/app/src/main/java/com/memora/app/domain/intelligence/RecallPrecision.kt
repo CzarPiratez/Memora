@@ -30,11 +30,17 @@ sealed interface RecallPrecision {
      * When [exactHitsPresent] is true, some files *did* contain every named word
      * and a neighbour that only matched some of them was kept (defect D-20). The
      * banner must not then say nothing saved contains a word an Exact hit has.
+     *
+     * When [mixedNamedWordFamilies] is true, no remaining file has every named
+     * word, but every named word in [matched] still appears on some remaining
+     * hit (defect D-21). The banner must not say nothing saved contains those
+     * words.
      */
     data class Partial(
         val matched: List<String>,
         val missing: List<String>,
         val exactHitsPresent: Boolean = false,
+        val mixedNamedWordFamilies: Boolean = false,
     ) : RecallPrecision {
         init {
             require(matched.isNotEmpty()) { "Partial precision requires a matched word." }

@@ -510,11 +510,11 @@ class AnchorAwareMeaningRecallRankingTest {
     }
 
     /**
-     * Phase 0: when no file has every named word, Partial keeps one word's
-     * pile. The trace must name the dropped family. Ranking is unchanged.
+     * Phase 0 / D-21: when no file has every named word, both named-word
+     * families already in the pool stay. Zero-overlap is still dropped.
      */
     @Test
-    fun apply_records_dropped_by_tier_when_partial_keeps_one_word_family() = runBlocking {
+    fun apply_keeps_both_named_word_families_when_no_file_has_every_word() = runBlocking {
         val scan = MemoryRevisionId("rev-scan")
         val silky = MemoryRevisionId("rev-silky")
         val outcome = MeaningSearchOutcome.Matches(
@@ -533,18 +533,25 @@ class AnchorAwareMeaningRecallRankingTest {
             memoryRepository = FakeAnchorRepository(),
         ) as MeaningSearchOutcome.Matches
 
-        assertEquals(listOf(scan), ranked.hits.map { it.revisionId })
+        assertEquals(setOf(scan, silky), ranked.hits.map { it.revisionId }.toSet())
         assertEquals(
-            RecallPrecision.Partial(matched = listOf("scan"), missing = listOf("silky")),
+            RecallPrecision.Partial(
+                matched = listOf("scan", "silky"),
+                missing = listOf("scan", "silky"),
+                mixedNamedWordFamilies = true,
+            ),
             ranked.precision,
         )
-        assertEquals(1, ranked.debugTrace?.droppedByTier)
-        assertEquals(listOf("Silky.pdf"), ranked.debugTrace?.droppedByTierLabels)
+        assertEquals(0, ranked.debugTrace?.droppedByTier)
+        assertTrue(ranked.debugTrace?.droppedByTierLabels.orEmpty().isEmpty())
     }
 
-    /** Matching more of the person's words is the better partial answer. */
+    /**
+     * D-21: more named words still boost rank, but a shallower neighbour that
+     * carries a named word must stay on the list.
+     */
     @Test
-    fun apply_prefers_the_tier_that_matches_more_of_the_named_words() = runBlocking {
+    fun apply_keeps_a_shallower_named_word_neighbour_beside_a_deeper_partial() = runBlocking {
         val deeper = MemoryRevisionId("rev-deeper")
         val shallower = MemoryRevisionId("rev-shallower")
         val outcome = MeaningSearchOutcome.Matches(
@@ -563,13 +570,48 @@ class AnchorAwareMeaningRecallRankingTest {
             memoryRepository = FakeAnchorRepository(),
         ) as MeaningSearchOutcome.Matches
 
-        assertEquals(listOf(deeper), ranked.hits.map { it.revisionId })
+        assertEquals(setOf(deeper, shallower), ranked.hits.map { it.revisionId }.toSet())
         assertEquals(
             RecallPrecision.Partial(
-                matched = listOf("grade", "swimming"),
+                matched = listOf("swimming"),
                 missing = listOf("schedule"),
             ),
             ranked.precision,
+        )
+        assertEquals(shallower, ranked.hits.first().revisionId)
+    }
+
+    @Test
+    fun refineAfterTrustedTrim_does_not_drop_the_other_named_word_family() {
+        val scan = hit(
+            MemoryRevisionId("rev-scan"),
+            0.9f,
+            label = "Scan.pdf",
+            summaryText = "Document scan of the form",
+        )
+        val silky = hit(
+            MemoryRevisionId("rev-silky"),
+            0.8f,
+            label = "Silky.pdf",
+            summaryText = "silky spelling list",
+        )
+
+        val (retained, precision) = AnchorAwareMeaningRecallRanking.refineAfterTrustedTrim(
+            hits = listOf(scan, silky),
+            rawQuery = "scan silky",
+        )
+
+        assertEquals(
+            setOf(scan.revisionId, silky.revisionId),
+            retained.map { it.revisionId }.toSet(),
+        )
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("scan", "silky"),
+                missing = listOf("scan", "silky"),
+                mixedNamedWordFamilies = true,
+            ),
+            precision,
         )
     }
 

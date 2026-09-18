@@ -268,11 +268,18 @@ class CanonicalRecallMeaningTest {
 
         val outcome = recall.searchByMeaning("scan silky") as MeaningSearchOutcome.Matches
 
-        assertEquals(listOf(scan), outcome.hits.map { it.revisionId })
+        assertEquals(setOf(scan, silky), outcome.hits.map { it.revisionId }.toSet())
         assertEquals(2, outcome.debugTrace?.vectorsScanned)
         assertEquals(2, outcome.debugTrace?.admitted)
-        assertEquals(1, outcome.debugTrace?.droppedByTier)
-        assertEquals(listOf("Silky.pdf"), outcome.debugTrace?.droppedByTierLabels)
+        assertEquals(0, outcome.debugTrace?.droppedByTier)
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("scan", "silky"),
+                missing = listOf("scan", "silky"),
+                mixedNamedWordFamilies = true,
+            ),
+            outcome.precision,
+        )
     }
 
     @Test

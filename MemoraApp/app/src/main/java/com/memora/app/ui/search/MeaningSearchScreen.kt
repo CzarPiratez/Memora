@@ -159,6 +159,7 @@ fun MeaningSearchScreen(
                             matched = precision.matched,
                             missing = precision.missing,
                             exactHitsPresent = precision.exactHitsPresent,
+                            mixedNamedWordFamilies = precision.mixedNamedWordFamilies,
                         ),
                     )
                     Spacer(modifier = Modifier.height(12.dp))
