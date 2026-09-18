@@ -2,12 +2,12 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
-**Status:** **Phase 0 delivered 2026-09-18.** Probe delivered. Phase 1 Exact
-list-replace delivered. **1b–1d specimen quotas removed**. Shown page is
-**up to 20** (cap, not a floor; do not grow with corpus size). Pool **60**,
-band on **raw cosine**. `limitReached` means the close band exceeded the
-cap — not that the 60-pool was full. Token-count pool seating **kept**.
-Live `MeaningSearchTrace` on debug meaning Find. Keyword Find frozen.
+**Status:** **Ranking sequence stopped 2026-09-18.** Probe, Phase 1 Exact
+list-replace, contract freeze (up to 20 / pool 60 / raw cosine), and Phase 0
+live trace are delivered. **1b–1d specimen quotas removed.** Founder traces
+met the Phase 1 stop gate for Exact-neighbour + exact-token. Residual
+one-word Partial veto is **D-21**, not this record:
+`docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`. Keyword Find frozen.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -162,7 +162,7 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] Probe delivered (code + founder A15 ranks)
   - [x] Phase 0 delivered (later ticket)
   - [x] Phase 1 Exact list-replace delivered (this ticket)
-  - [ ] Device re-test on paraphrase **and** exact-token cues after Phase 1
+  - [x] Device re-test on paraphrase **and** exact-token cues after Phase 1
 - **Holistic scenarios (before implement):**
   - User: `swimming schedule` — timetable PDF still listed when a screenshot
     contains both words
@@ -353,12 +353,18 @@ ESCAPE-HATCH AFTER CHANGE: no
   `AnchorAwareMeaningRecallRankingTest.apply_records_dropped_by_tier_when_partial_keeps_one_word_family`;
   `CanonicalRecallMeaningTest.searchByMeaning_records_pool_counts_and_partial_tier_drops`;
   About copy test for `MEANING_LIVE_TRACE_HINT`.
-- **Emulator/manual:** debug build; meaning-search `scan silky`,
-  `wifi password`, `when are the swimming classes`, `kids water lessons`;
-  Logcat `MeaningSearchTrace`. Do **not** run `connectedDebugAndroidTest`.
-- **Known limitation:** does not implement I3 grouped piles or encoder.
-  Query text is in debug Logcat on-device only (Ask Model R8: no durable
-  prompt log, no upload).
+- **Emulator/manual:** founder A15 debug Logcat `MeaningSearchTrace`
+  (2026-09-18). All four cues `scanned=3030 floor=3030 collapse=1603
+  admitted=60 poolTruncated=true`.
+  `silky scan`: Partial, droppedByTier=0, shown=18 capTruncated;
+  `wifi password`: Partial, droppedByTier=48, shown=11;
+  `when are the swimming classes`: Partial, droppedByTier=26, shown=20
+  capTruncated (first dropped labels UNFYND screenshots);
+  `Kids water classes`: Partial (not MeaningOnly), droppedByTier=58, shown=2.
+  Do **not** run `connectedDebugAndroidTest`.
+- **Known limitation:** `droppedByTier=0` can mean the other family missed
+  the 60. One-word Partial veto is D-21, not a D-20 ranking patch.
+  Query text is in debug Logcat on-device only (Ask Model R8).
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)

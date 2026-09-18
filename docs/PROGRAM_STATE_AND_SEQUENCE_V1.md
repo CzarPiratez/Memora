@@ -454,14 +454,33 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-21 — Partial one-word family veto when no Exact hit (**P0, authorized**)
+
+**OPEN 2026-09-18.** Phase 0 on the founder A15: when no file in the token-60
+has every named word, `applyLexicalPrecisionTier` keeps one matched-word
+set and deletes the rest (`wifi password` droppedByTier=48, shown=11;
+`Kids water classes` droppedByTier=58, shown=2). Not MeaningOnly. Not a
+keyword Find bug.
+
+**Not I3.** One ranked list; keep every admitted hit that still carries a
+named word. Banner stays honest Partial.
+
+**Not encoder / FTS / bigger pool.** Files that never entered the 60 stay
+unshown (`silky scan` droppedByTier=0).
+
+Change control: `docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`.
+Live/Dual **N = 0**.
+
 ### D-20 — Exact list-replace and token-seated pool hide retrieved paraphrases (**P0, course-corrected**)
 
-**OPEN remainder 2026-09-18.** Found on device after D-12/D-15/MeaningOnly:
-meaning lists preferred files that contain the typed words (including
-screenshots) over other originals that are still relevant.
+**OPEN remainder 2026-09-18 — ranking sequence stopped.** Found on device
+after D-12/D-15/MeaningOnly: meaning lists preferred files that contain the
+typed words (including screenshots) over other originals that are still
+relevant.
 
 **Phase 1 kept:** Exact does not replace the list. Mixed banner is honest.
-Token-count pool seating kept (probe).
+Token-count pool seating kept (probe). Founder re-test: `swimming timetable`
+/ `swimming schedule` / `passport` / `silky` wrappers **passed**.
 
 **1b–1d reversed:** reserved Partial seats, modifier-first, and PDF forcing
 were specimen drift. One relevance order for every asset type.
@@ -473,9 +492,9 @@ boosted score. `limitReached` means the close band exceeded the cap.
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.
 
-**Authorized remainder:** Phase 0 live trace **delivered**. Encoder / FTS /
-hybrid / cosine pool seating **not** authorized. No more type quotas. I3
-grouped piles are a **new** change control, not D-20.
+**Authorized remainder:** none inside D-20. Phase 0 traces recorded. Encoder
+/ FTS / hybrid / cosine pool seating **not** authorized. Residual one-word
+Partial veto is **D-21**.
 
 Live/Dual **N = 0**. No new Find path.
 

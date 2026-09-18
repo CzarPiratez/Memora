@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### D-21 — Partial one-word family veto (authorized, not implemented) (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** D-20 Phase 1 met its stop gate. Phase 0 traces show a different
+  veto: when no Exact hit exists, one named-word pile deletes the others
+  already in the 60.
+- **Landed.** Decision plan only.
+- **Not done.** Ranking keep rule. I3 grouped piles. Encoder. FTS.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 Phase 0 — live MeaningSearchTrace (2026-09-18)
 
 - **Date:** 2026-09-18
@@ -11,7 +22,8 @@
 - **Landed.** Debug Logcat `MeaningSearchTrace` on
   `CanonicalRecall.searchByMeaning`. Pool counts + lexical drop labels. About
   hint. Keyword Find unchanged.
-- **Not done.** I3 grouped piles. Encoder. FTS.
+- **Not done.** Ranking keep for the other named-word family in the 60
+  (D-21). Encoder. FTS.
 - **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
   Live/Dual **N = 0**.
 

@@ -17,7 +17,7 @@ Act, synonym nets, cross-lingual-without-tokens, or new Live/Dual rows.
 | Canonical Recall / Live/Dual N = 0 | Architecture **DONE** — sole Find boundary |
 | MIG-07B Slices 1–4 | Structured TIME/TOPIC **filter stage** DONE — not “last week works” |
 | MF-1 | One-cue precision **landed** (U1–U8 / I1 partial); wrappers still leak |
-| Exact / Partial as **the whole list** (D-12 residual) | Exact no longer replaces the list. Type quotas (Partial seats, PDF forcing) **removed** — they were specimen drift. Page is **up to 20** (cap, not a floor), pool 60, band on **raw cosine**. Token-count pool seating kept. Not AVAILABLE |
+| Exact / Partial as **the whole list** (D-12 residual) | Exact no longer replaces the list. Type quotas **removed**. When no Exact hit exists, one named-word pile can still delete the others in the 60 (**D-21** authorized, not implemented). Page **up to 20**, pool 60, raw-cosine band. Not AVAILABLE |
 | Product Contract “recall by time / person / place” | TIME/TOPIC **populated**; person/place/object **not**; relative time **not resolved** |
 | Grounded Answers / “what happened last week?” as prose | **Blocked** until readiness gates; Find must not fake answers |
 | Marketing AVAILABLE | **NO** |
@@ -146,7 +146,7 @@ reason to stay in MF-1.x.
 | ID | Intent | Example | Owner | Pass | Fail | Status |
 |---|---|---|---|---|---|---|
 | **I1** | One thing, many phrasings | `silky` · `which file has silky` · `show me files with silky` · `I need the silky spelling list` | Find | Generator + 8-row device checklist in **P0 phase exit** | Empty for wrappers while bare token works | **P0** — JVM generator green; close after checklist 1–8, then **stop MF-1.x** |
-| **I2** | Same-file multi-attribute | `CV with Škoda` · `scan silky` | Find | Hits whose **same** evidence/asset supports **all** content cues | Split into two unrelated files; partial-token junk | **PARTIAL** (token AND exists; `with` not distinguished from list glue) |
+| **I2** | Same-file multi-attribute | `CV with Škoda` · `scan silky` | Find | Hits whose **same** evidence/asset supports **all** content cues | Split into two unrelated files; partial-token junk | **PARTIAL** (token AND exists; when no same-file Exact, D-21 may keep both 1-word families from the 60 — not I3 groups) |
 | **I3** | Several things → several files | `passport and id` · `cv…, lamborghini… or beetle…` | Find | **Grouped** short piles per cue; not default AND-in-one-file | Empty because AND required one file to contain all; one undifferentiated mash | **OPEN** |
 | **I4** | Hedge / or-family (same thing) | `silk or silky` | Find | Either spelling is enough for that one pile | Treat as two unrelated products; or require both | **OPEN** |
 | **I5** | Weak / filler / no cue | `show me files` · `that important thing` | Find | Honest empty / ask to narrow | Soft top-N bluff | **PARTIAL** (U6 empty; filler-only still under-specified) |
