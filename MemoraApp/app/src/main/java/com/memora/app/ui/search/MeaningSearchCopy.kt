@@ -87,13 +87,22 @@ object MeaningSearchCopy {
     }
 
     /**
-     * Shown when no saved Memory carried every word the person used (D-12). It
+     * Shown when the list is not a complete lexical match (D-12 / D-20). It
      * must lead with what is *missing*, so a partial list is never mistaken for
-     * a complete one.
+     * a complete one. When some files did contain every named word, it must not
+     * then claim nothing saved says a word those files contain.
      */
-    fun partialMatchBody(matched: List<String>, missing: List<String>): String {
+    fun partialMatchBody(
+        matched: List<String>,
+        missing: List<String>,
+        exactHitsPresent: Boolean = false,
+    ): String {
         require(matched.isNotEmpty())
         require(missing.isNotEmpty())
+        if (exactHitsPresent) {
+            return "Some files contain every word you used. " +
+                "Others mention ${quoteWords(matched)} but not ${quoteWords(missing)}."
+        }
         return "Closest files mention ${quoteWords(matched)}. " +
             "Nothing saved says ${quoteWords(missing)}."
     }

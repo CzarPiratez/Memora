@@ -17,7 +17,7 @@ Act, synonym nets, cross-lingual-without-tokens, or new Live/Dual rows.
 | Canonical Recall / Live/Dual N = 0 | Architecture **DONE** — sole Find boundary |
 | MIG-07B Slices 1–4 | Structured TIME/TOPIC **filter stage** DONE — not “last week works” |
 | MF-1 | One-cue precision **landed** (U1–U8 / I1 partial); wrappers still leak |
-| Exact / Partial as **the whole list** (D-12 residual) | **Not** the north star. When any Exact hit exists, ranking **replaces** the list; pool seating is token-count-first (D-20). Plan: `CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO` — probe → trace → stop the veto. Not AVAILABLE |
+| Exact / Partial as **the whole list** (D-12 residual) | Exact **no longer** replaces the list (D-20 Phase 1). Pool seating is still token-count-first — probe showed cosine-30 would drop the timetable. Phase 0 trace still open. Not AVAILABLE |
 | Product Contract “recall by time / person / place” | TIME/TOPIC **populated**; person/place/object **not**; relative time **not resolved** |
 | Grounded Answers / “what happened last week?” as prose | **Blocked** until readiness gates; Find must not fake answers |
 | Marketing AVAILABLE | **NO** |

@@ -78,10 +78,22 @@ class CanonicalRecall @Inject constructor(
                 precision = RecallPrecision.Exact,
             )
         }
-        val truncated = trusted.size < outcome.hits.size
-        return outcome.copy(
+        val (refined, precision) = AnchorAwareMeaningRecallRanking.refineAfterTrustedTrim(
             hits = trusted,
+            rawQuery = outcome.query,
+        )
+        if (refined.isEmpty()) {
+            return outcome.copy(
+                hits = emptyList(),
+                limitReached = false,
+                precision = RecallPrecision.Exact,
+            )
+        }
+        val truncated = refined.size < outcome.hits.size
+        return outcome.copy(
+            hits = refined,
             limitReached = truncated || outcome.limitReached,
+            precision = precision,
         )
     }
 

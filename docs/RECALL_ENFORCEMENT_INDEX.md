@@ -72,7 +72,7 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | MIG-07 note cutover | [`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
 | Meaning Find intent / scenario bar | [`MEANING_FIND_PRODUCT_SCENARIO_BAR.md`](MEANING_FIND_PRODUCT_SCENARIO_BAR.md) |
-| D-20 meaning ranking lexical veto (plan) | [`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`](CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md) — probe → Phase 0 → Phase 1; keyword Find frozen |
+| D-20 meaning ranking lexical veto | [`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`](CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md) — probe done; Phase 1 Exact list-replace removed; token seating kept; Phase 0 trace open; keyword Find frozen |
 | Human recall language (ceiling) | [`HUMAN_RECALL_ASK_MODEL.md`](HUMAN_RECALL_ASK_MODEL.md) — required before further NL Find code |
 
 Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B

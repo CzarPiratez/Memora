@@ -17,6 +17,7 @@ import com.memora.app.domain.intelligence.MemoryEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.ModelVersionIdentity
+import com.memora.app.domain.intelligence.RecallPrecision
 import com.memora.app.domain.memory.MemoryAnchor
 import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
@@ -140,6 +141,50 @@ class CanonicalRecallMeaningTest {
         assertEquals(1, outcome.hits.size)
         assertEquals(revMatch, outcome.hits.single().revisionId)
     }
+
+    /**
+     * D-20: Exact must not delete a Partial neighbour, and that neighbour must
+     * still be on the list *after* [MeaningTrustedHitPolicy] trim. Cosines are
+     * close so the 0.22 band is not the thing under test; token-count pool
+     * seating is unchanged.
+     */
+    @Test
+    fun searchByMeaning_keeps_a_timetable_neighbour_after_trusted_trim_when_an_exact_hit_exists() =
+        runBlocking {
+            val exact = MemoryRevisionId("rev-schedule")
+            val timetable = MemoryRevisionId("rev-timetable")
+            val engine = FixedEmbeddingEngine(dimensions = 3)
+            engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+            val embeddingStore = InMemoryMemoryEmbeddingStore()
+            embeddingStore.upsert(record(exact, 0.90f))
+            embeddingStore.upsert(record(timetable, 0.88f))
+            val recall = recall(
+                embeddingEngine = engine,
+                embeddingStore = embeddingStore,
+                memoryRepository = MeaningLookupRepository(
+                    mapOf(
+                        exact to lookup(exact, "Sched.pdf", "Swimming schedule term 2"),
+                        timetable to lookup(
+                            timetable,
+                            "Grade-2-Swimming-TT-2026.pdf",
+                            "Grade 2 Swimming timetable 2026 PERIOD TIME MON TUE",
+                        ),
+                    ),
+                ),
+            )
+
+            val outcome = recall.searchByMeaning("swimming schedule") as MeaningSearchOutcome.Matches
+
+            assertEquals(setOf(exact, timetable), outcome.hits.map { it.revisionId }.toSet())
+            assertEquals(
+                RecallPrecision.Partial(
+                    matched = listOf("swimming"),
+                    missing = listOf("schedule"),
+                    exactHitsPresent = true,
+                ),
+                outcome.precision,
+            )
+        }
 
     private fun recall(
         embeddingEngine: EmbeddingEngine = UnavailableMeaningEngine(),

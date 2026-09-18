@@ -1,15 +1,15 @@
 # Change control — Meaning ranking lexical veto (D-20)
 
 **Date:** 2026-09-18
-**Type:** Decision plan + authorized next slices (docs first; code not in this
-record)
-**Status:** **Authorized plan.** Probe and Phase 0/1 are not delivered until
-their own delivery records.
+**Type:** Decision plan + authorized slices
+**Status:** **Probe delivered** (founder A15). **Phase 1 Exact list-replace
+delivered.** Token-count pool seating **kept** (probe). Phase 0 live trace
+not delivered. Device re-test of on-screen `swimming schedule` still open.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
 hybrid/RRF product wire, ANN, one-box Find, keyword Find changes, schema
-migration, `fallbackToDestructiveMigration`
+migration, `fallbackToDestructiveMigration`, cosine-only pool seating
 
 ## Why this exists
 
@@ -26,10 +26,13 @@ That is **not** “demo kNN of 30 vectors.” Retrieval has already run. Two
    seats by named-token **count** first, cosine inside a depth (D-15). A
    timetable that only has `swimming` loses to 30 files that have
    `swimming` **and** `schedule`.
-2. **`applyLexicalPrecisionTier`:** if any remaining hit is Exact (every named
-   word in `lexicalHaystack()`), that set **replaces the list**. Combined with
-   `MeaningEvidenceTokenBoost` (`+0.35`) and `MeaningTrustedHitPolicy`
-   (0.22 of top **boosted** score, max 5), Exact competitors bury paraphrase.
+2. **`applyLexicalPrecisionTier` (Phase 1 — delivered):** if any remaining hit
+   was Exact, that set **used to replace the list**. That gate is gone: Exact
+   and Partial sit together; MeaningOnly still only runs when deepest is 0.
+   Combined with `MeaningEvidenceTokenBoost` (`+0.35`) and
+   `MeaningTrustedHitPolicy` (0.22 of top **boosted** score, max 5), a distant
+   neighbour can still miss the trusted band — that is measured on device next,
+   not retuned in this slice.
 
 `MeaningOnly` only runs when **zero** named words hit **any** remaining
 candidate. On a mixed library that is almost never true.
@@ -55,7 +58,7 @@ how that capability is exposed.
 |---|---|---|
 | **Probe** | On-device diagnostic: ~20 gold cues; three ranks (best gold **chunk** full cosine; gold **asset** after collapse; in vs out of token-seated 30 vs cosine-seated 30). Reuse `MeaningRecallCue.embedText` + existing stores. | Production ranking change; JVM script against a PC copy of SQLCipher without MediaPipe |
 | **Phase 0** | Debug / opt-in `MeaningSearchTrace` on the **live** path (raw query, content tokens, vectors scanned, survived floor, assets after collapse, admitted, tier, `droppedByTier`, shown, top raw cosine, latency). Land **before** deleting the tier so `droppedByTier` has a baseline. | Ranking policy change in the same commit |
-| **Phase 1** | Seat the pool by **cosine**, not token count. Stop Exact/Partial/MeaningOnly from **deleting** rows. Coverage remains a **boost**, not a subset. Invert `apply_prefers_the_exact_tier_and_drops_partial_hits`. Survival test must pass **after** trusted trim. Banners may still describe mix. | IDF, `RankFeatures`, FTS, encoder, hybrid, ANN, schema, keyword ViewModels, `SearchMemoryEvidence`, raising the pool in the same change, retuning `+0.35` / `0.22` unless the survival test cannot pass (then band on **raw cosine** only) |
+| **Phase 1** | Stop Exact from **deleting** Partial neighbours. Coverage remains a boost and a banner, not a subset when any Exact hit exists. `apply_keeps_a_partial_hit_when_an_exact_hit_exists`. Survival test must pass **after** trusted trim. Mixed banner must not claim nothing saved says a word an Exact hit has. **Keep** D-15 token-count pool seating — probe showed cosine-30 would drop the timetable. | Cosine-only `selectCandidatePool`; IDF, `RankFeatures`, FTS, encoder, hybrid, ANN, schema, keyword ViewModels, `SearchMemoryEvidence`, raising the pool, retuning `+0.35` / `0.22` unless the survival test cannot pass (then band on **raw cosine** only) |
 
 ### Out (not authorized here)
 
@@ -104,14 +107,16 @@ Do not modify:
 ## Convergence block
 
 ```
-ARCHITECTURAL BOUNDARY: Canonical Recall meaning ranking + meaning candidate
-  admission (pool seating). Keyword candidate gen unchanged.
+ARCHITECTURAL BOUNDARY: Canonical Recall meaning ranking (lexical precision
+  tier). Keyword candidate gen unchanged. Pool seating unchanged (D-15).
 CURRENT LEGACY PATH (L# or none): none — Live/Dual N = 0
-TARGET PATH: SearchAssetMemoriesByMeaning (full-index cosine, cosine-seated
-  pool) → AnchorAwareMeaningRecallRanking (coverage as boost, not subset) →
-  MeaningTrustedHitPolicy → Meaning Find UI
-WHY THIS CONVERGES: removes a ranking/admission veto inside the sole Find
-  boundary; no new generator, no new product Find, no Live/Dual growth
+TARGET PATH: SearchAssetMemoriesByMeaning (full-index cosine, token-count
+  pool seating) → AnchorAwareMeaningRecallRanking (Exact no longer replaces
+  the list; Partial-only still uses deepest shared set; MeaningOnly only
+  when deepest==0) → MeaningTrustedHitPolicy → Meaning Find UI (honest mixed
+  banner)
+WHY THIS CONVERGES: removes a ranking veto inside the sole Find boundary;
+  no new generator, no new product Find, no Live/Dual growth
 WHAT OLD PATH WILL EVENTUALLY BE RETIRED: none (keyword Find stays)
 EXTENDS LEGACY? no
 LEGACY SURFACE DELTA: unchanged — Live/Dual N = 0
@@ -139,15 +144,15 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Open ADRs:** none new. Not Act. Not AVAILABLE. Not FC-02 product-complete.
 - **Privacy:** on-device only; probe and trace must not upload corpus text.
   Trace is debug / opt-in.
-- **Smallest safe change (this commit):** documentation of D-20 and the
-  sequence. Next code: probe **or** Phase 0, not mixed with ranking.
+- **Smallest safe change (this commit):** stop Exact list-replace; keep
+  token-count seating; honest mixed banner; survival after trusted trim.
 - **Acceptance criteria (this docs slice):**
   - [x] Plan recorded; keyword Find named frozen
   - [x] Probe / Phase 0 / Phase 1 sequenced; encoder and FTS not authorized
-  - [ ] Probe delivered (later ticket)
+  - [x] Probe delivered (code + founder A15 ranks)
   - [ ] Phase 0 delivered (later ticket)
-  - [ ] Phase 1 delivered (later ticket)
-  - [ ] Device measure on paraphrase **and** exact-token cues
+  - [x] Phase 1 Exact list-replace delivered (this ticket)
+  - [ ] Device re-test on paraphrase **and** exact-token cues after Phase 1
 - **Holistic scenarios (before implement):**
   - User: `swimming schedule` — timetable PDF still listed when a screenshot
     contains both words
@@ -162,10 +167,11 @@ ESCAPE-HATCH AFTER CHANGE: no
   - Anti: synonym net (`schedule` means `timetable`)
   - Anti: FTS on encrypted DB this slice
   - Technical: Live/Dual N = 0; no second Find path
-  - Edge: pool size ≤ 30 → `selectCandidatePool` is already a no-op; cosine
-    seating still required for larger libraries
+  - Edge: pool size ≤ 30 → `selectCandidatePool` is already a no-op. Cosine
+    seating is **not** this slice: founder probe showed it would drop gold.
   - Edge: trusted band can re-drop a neighbour after the tier is gone;
-    survival test is after trim
+    survival test is after trim (`+0.35` / `0.22` unchanged unless that test
+    cannot pass)
 
 ## Alternatives considered
 
@@ -177,18 +183,66 @@ ESCAPE-HATCH AFTER CHANGE: no
   needs corpus DF.
 - **Skip the probe** — rejected. One on-device rank of gold chunks answers
   Phase 1 vs encoder before writing ranking code.
-- **Raise pool to 200 instead of cosine seating** — rejected as the *fix*.
-  It masks D-15 seating; seating by cosine is the explicit change.
+- **Raise pool to 200 instead of cosine seating** — rejected as the *fix* in
+  the original plan. After the probe, cosine seating itself is rejected for
+  this library: gold was in token-30 and out of cosine-30.
+- **Seat Phase 1 by cosine (original plan)** — rejected after founder probe
+  (`swimming schedule` assetRank=380, token30=true, cosine30=false). Keep
+  D-15 token-count seating.
 - **In-memory BM25 on dense top-K this week** — deferred. Right way to
   *earn* hybrid without SQLCipher FTS; not before measure.
 - **Change keyword AND to OR** — forbidden. Literal Find is a different job.
 
-## Delivery record (this commit)
+## Delivery record — probe (2026-09-18)
+
+- **Files/layers:** `ProbeMeaningEncoderRanks` (read-only; no MIG-05 cutover);
+  `MeaningEncoderProbeCues`; debug-only button on About on-device meaning
+  search (`BuildConfig.DEBUG`); Logcat tag `MeaningEncoderProbe`. Does **not**
+  change `searchByMeaning`, keyword Find, or schema.
+- **Automated verification:** `:app:testDebugUnitTest` for
+  `ProbeMeaningEncoderRanksTest` + copy tests (run with this slice).
+- **Emulator/manual:** founder A15 — About → Run encoder probe; filter
+  Logcat `MeaningEncoderProbe`. Do **not** run `connectedDebugAndroidTest`
+  that clears the live DB.
+- **Device result:** scanned=3030 (1603 summaries + 1427 evidence);
+  floor/collapse=1603 assets. `swimming schedule` gold assetRank=380,
+  token30=true, cosine30=false. `kids water lessons` rank 841, in neither
+  pool. Top cosine hits were UNFYND screenshots, logos, photos.
+- **Known limitation:** gold is a filename/key substring (`timetable`,
+  `passport`, …). If the real file uses another name, `matched=false` and
+  `top=` still shows what USE retrieved.
+- **Git commit:** local when asked; do not push.
+
+## Delivery record — Phase 1 Exact list-replace (2026-09-18)
+
+- **Files/layers:** `AnchorAwareMeaningRecallRanking.applyLexicalPrecisionTier`
+  (Exact + Partial together; Partial-only deepest set unchanged; MeaningOnly
+  only when deepest==0); `refineAfterTrustedTrim` after
+  `MeaningTrustedHitPolicy`; `RecallPrecision.Partial.exactHitsPresent`;
+  `MeaningSearchCopy.partialMatchBody` mixed banner. `selectCandidatePool`
+  **unchanged**. Keyword Find **unchanged**.
+- **Automated verification:**
+  `AnchorAwareMeaningRecallRankingTest.apply_keeps_a_partial_hit_when_an_exact_hit_exists`;
+  `apply_keeps_a_partial_scan_hit_beside_an_exact_scan_and_silky_hit`;
+  `apply_still_drops_a_zero_overlap_neighbour_when_an_exact_hit_exists`;
+  `apply_prefers_the_tier_that_matches_more_of_the_named_words` (unchanged
+  contract); `CanonicalRecallMeaningTest.searchByMeaning_keeps_a_timetable_neighbour_after_trusted_trim_when_an_exact_hit_exists`;
+  `MeaningSearchCopyTest.mixed_exact_and_partial_copy_does_not_claim_nothing_saved_says_a_present_word`.
+- **Emulator/manual:** founder re-test `swimming schedule` vs timetable PDF;
+  also `Aadhaar` / `passport` so exact-token recall does not regress. Do
+  **not** run `connectedDebugAndroidTest` that clears the live DB.
+- **Known limitation:** `kids water lessons` is still an encoder problem
+  (rank 841). Trusted 0.22 on boosted score can still hide a distant
+  neighbour; not retuned unless device re-test shows that is the remaining
+  on-screen killer.
+- **Git commit:** local; do not push.
+
+## Delivery record (plan docs, 2026-09-18)
 
 - **Files/layers:** this change control; `CONTINUE.md`; `PROGRAM_STATE`
   D-20; `CHANGELOG`; scenario-bar honesty row.
 - **Automated verification:** docs only.
-- **Emulator/manual:** n/a this slice.
+- **Emulator/manual:** n/a that slice.
 - **Known limitation:** live meaning path still has both vetoes until Phase 1.
   USE may still fail pure paraphrase; the probe decides.
-- **Git commit:** local checkpoint when the founder asks; do not push.
+- **Git commit:** `661e919`.

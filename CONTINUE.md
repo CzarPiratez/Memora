@@ -6,17 +6,22 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 meaning ranking plan (2026-09-18).** Find by meaning already
-cosine-scans the full USE index. Exact **replacing the list** and
-token-count **pool seating** then throw neighbours away — that is why
-`swimming schedule` can hide timetables when any file contains both words.
-**Authorized this week only:** on-device encoder probe (three ranks) →
-Phase 0 live trace (`droppedByTier` while the tier still exists) → Phase 1
-cosine seating + stop list-replacing tiers. Keyword PDF / photo /
-screenshot / note Find (`SearchMemoryEvidence` LIKE/AND) is **frozen**.
-Not authorized: FTS, encoder swap, hybrid product wire, schema,
-AVAILABLE. Change control:
-`docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+**D-20 Phase 1 Exact list-replace removed (2026-09-18).** Exact no longer
+deletes Partial neighbours inside Canonical Recall. Token-count pool seating
+**stays**: the encoder probe showed `swimming schedule` gold at asset rank
+380, in token-30, **out** of cosine-30 — cosine seating would hide the
+timetable. Mixed lists use an honest banner (not “nothing saved says
+schedule” when an Exact hit has it). Keyword Find frozen. Phase 0 live
+trace still open. Encoder / FTS / cosine pool seating **not** authorized.
+Change control: `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+Do **not** run connected tests that `clearAll` the live DB.
+
+**D-20 encoder probe (2026-09-18).** Read-only cosine probe over the full USE
+index. Debug About → **Run encoder probe**. Logcat tag `MeaningEncoderProbe`.
+Founder A15: scanned 3030 vectors (1603 summaries + 1427 evidence), 1603
+assets after collapse; `swimming schedule` gold assetRank=380
+token30=true cosine30=false; `kids water lessons` rank 841 in neither pool.
+Top cosine hits were UNFYND screenshots / logos / photos.
 
 **Meaning-only tier (2026-09-15).** When a two-or-more-word cue has **zero**
 named words in any stored excerpt, Canonical Recall may keep a short
@@ -559,7 +564,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **ADR-050 A** PDF slice complete; **B** Spec full open (non-PDF deferred) |
 | Unified evidence keyword search (MIG-06/07 L1–L4) | `SearchMemoryEvidence` live for PDF + screenshot + photo + note Finds; L1–L8 Retired; all Find via `CanonicalRecall` |
 | On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
-| Find by meaning | Candidate recall; full-index USE cosine then lexical **veto** (D-20 plan); evidence-level embeddings (MIG-05 step 3+); E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
+| Find by meaning | Candidate recall; full-index USE cosine then D-20 Phase 1 (Exact no longer deletes Partial; token-count pool seating kept); evidence-level embeddings (MIG-05 step 3+); E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
 | PDF local reading UX | Aggregate N of M progress during WorkManager drain |
 | Measured quality | M1–M3 closed (emulator); **M4 midrange execute** closed (Galaxy A15 `midrange_arm64`: USE cosine **2/3** / boosted **3/3**) |

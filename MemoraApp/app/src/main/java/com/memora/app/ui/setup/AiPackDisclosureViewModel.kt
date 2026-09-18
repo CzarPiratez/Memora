@@ -1,12 +1,16 @@
 package com.memora.app.ui.setup
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.BuildConfig
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackContainer
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackResult
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModel
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModelResult
 import com.memora.app.application.intelligence.LoadCorpusCompleteness
+import com.memora.app.application.intelligence.MeaningEncoderProbeReport
+import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackInstallState
@@ -39,6 +43,7 @@ data class AiPackDisclosureUiState(
     val showDownloadModel: Boolean,
     val showBuildIndex: Boolean,
     val showStopIndex: Boolean = false,
+    val showEncoderProbe: Boolean = false,
     val isBusy: Boolean = false,
     val isIndexing: Boolean = false,
     val progressFeedback: String? = null,
@@ -58,6 +63,7 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val mediaPipeEmbeddingEngine: MediaPipeEmbeddingEngine,
     private val loadCorpusCompleteness: LoadCorpusCompleteness,
     private val meaningIndexScheduler: MeaningIndexWorkScheduler,
+    private val probeMeaningEncoderRanks: ProbeMeaningEncoderRanks,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
     val uiState: StateFlow<AiPackDisclosureUiState> = mutableUiState.asStateFlow()
@@ -158,6 +164,33 @@ class AiPackDisclosureViewModel @Inject constructor(
     fun onStopIndexRequested() {
         if (!mutableUiState.value.isIndexing) return
         meaningIndexScheduler.cancel()
+    }
+
+    fun onEncoderProbeRequested() {
+        if (mutableUiState.value.blockOtherActions || !mutableUiState.value.showEncoderProbe) {
+            return
+        }
+        setBusy(AiPackDisclosureCopy.FEEDBACK_PROBE_RUNNING)
+        viewModelScope.launch {
+            val report = try {
+                withContext(Dispatchers.IO) { probeMeaningEncoderRanks() }
+            } catch (_: Exception) {
+                mutableUiState.value = withContext(Dispatchers.IO) {
+                    buildStateWithCorpus(
+                        feedbackMessage = AiPackDisclosureCopy.FEEDBACK_PROBE_FAILED,
+                    )
+                }
+                return@launch
+            }
+            if (report is MeaningEncoderProbeReport.Completed) {
+                report.rows.forEach { row ->
+                    Log.i(ProbeMeaningEncoderRanks.LOG_TAG, row.logLine())
+                }
+            }
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildStateWithCorpus(feedbackMessage = AiPackDisclosureCopy.encoderProbeFinished(report))
+            }
+        }
     }
 
     fun onDerivedDataCleared() {
@@ -287,6 +320,7 @@ class AiPackDisclosureViewModel @Inject constructor(
             showDownloadModel = disclosed && !modelInstalled,
             showBuildIndex = embeddingAvailable,
             showStopIndex = false,
+            showEncoderProbe = BuildConfig.DEBUG && embeddingAvailable,
             corpusCompletenessBody = corpusSnapshot?.let { CorpusHonestyCopy.aiPackCorpusLine(it) },
             isBusy = false,
             isIndexing = false,

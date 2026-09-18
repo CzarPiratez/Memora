@@ -2,9 +2,11 @@ package com.memora.app.ui.setup
 
 import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
+import com.memora.app.application.intelligence.MeaningEncoderProbeReport
 import com.memora.app.application.intelligence.MeaningIndexBatchLimits
 import com.memora.app.application.intelligence.MeaningIndexDrainPhase
 import com.memora.app.application.intelligence.MeaningIndexDrainProgress
+import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
 import com.memora.app.application.intelligence.RunPendingMeaningIndexResult
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
@@ -99,6 +101,12 @@ object AiPackDisclosureCopy {
     const val BUILD_INDEX_LABEL = "Build meaning index from memories"
 
     const val STOP_INDEX_LABEL = "Stop"
+
+    const val ENCODER_PROBE_LABEL = "Run encoder probe"
+
+    const val ENCODER_PROBE_HINT =
+        "Diagnostic for D-20. Does not change Find. Writes ranks to Logcat " +
+            "(MeaningEncoderProbe). Never uploads your files."
 
     const val BACK_LABEL = "Back"
 
@@ -259,4 +267,28 @@ object AiPackDisclosureCopy {
         disclosureAcknowledged -> STATUS_NEED_MODEL
         else -> STATUS_NOT_ACKNOWLEDGED
     }
+
+    const val FEEDBACK_PROBE_RUNNING = "Running encoder probe…"
+
+    const val FEEDBACK_PROBE_NOTHING_INDEXED =
+        "Nothing is meaning-indexed yet. Build the meaning index first."
+
+    const val FEEDBACK_PROBE_FAILED =
+        "Encoder probe could not finish on this phone."
+
+    fun encoderProbeFinished(report: MeaningEncoderProbeReport): String =
+        when (report) {
+            is MeaningEncoderProbeReport.EngineUnavailable -> report.reason
+            MeaningEncoderProbeReport.NothingIndexed -> FEEDBACK_PROBE_NOTHING_INDEXED
+            is MeaningEncoderProbeReport.Completed -> {
+                val swimming = report.rows.firstOrNull { it.query.contains("swimming schedule") }
+                val chunk = swimming?.chunkRank?.toString() ?: "—"
+                val asset = swimming?.assetRankAfterCollapse?.toString() ?: "—"
+                val token = swimming?.inTokenSeatedPool?.toString() ?: "—"
+                val cosine = swimming?.inCosineSeatedPool?.toString() ?: "—"
+                "Probe finished (${report.rows.size} cues). " +
+                    "swimming schedule: chunkRank=$chunk assetRank=$asset " +
+                    "token30=$token cosine30=$cosine. See Logcat ${ProbeMeaningEncoderRanks.LOG_TAG}."
+            }
+        }
 }

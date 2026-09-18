@@ -38,6 +38,9 @@ class AiPackDisclosureCopyTest {
         assertTrue(AiPackDisclosureCopy.remainingBatchHint(12).contains("12 READY still waiting"))
         assertFalse(all.contains("available now"))
         assertFalse(all.contains("uploads your memories"))
+        assertTrue(AiPackDisclosureCopy.ENCODER_PROBE_HINT.contains("Does not change Find"))
+        assertTrue(AiPackDisclosureCopy.ENCODER_PROBE_HINT.contains("Never uploads"))
+        assertFalse(AiPackDisclosureCopy.ENCODER_PROBE_HINT.lowercase().contains("available"))
     }
 
     @Test

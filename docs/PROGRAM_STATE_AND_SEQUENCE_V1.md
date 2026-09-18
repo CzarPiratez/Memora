@@ -289,8 +289,10 @@ These match "swimming"."
 reports what it matched and what it did not, and lets the reader judge — which
 is also how it teaches a person what their own corpus actually says.
 
-**Residual (D-20):** Exact still **owns the whole list** when any competitor
-has every named word. D-12 only helped when *no* Exact hit existed. See
+**Residual (D-20 Phase 1):** Exact **no longer** owns the whole list. Token-count
+pool seating is **kept** — the encoder probe showed cosine-30 would drop the
+timetable (`swimming schedule` gold assetRank=380, token30=true,
+cosine30=false). Phase 0 live trace still open. See
 `CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO`.
 
 Ask Model: satisfies **P-AND vs P-LIST** (a descriptive phrase is not a
@@ -315,7 +317,9 @@ new Find path, no ranking in candidate generation. Live/Dual **N = 0**.
 
 **Residual (D-20):** on a library larger than the pool, token-count-first
 seating is a second veto: a depth-1 timetable never enters if 30 assets are
-depth 2. Phase 1 seats by cosine.
+depth 2. Probe on the founder library: gold was **in** token-30 and **out**
+of cosine-30, so Phase 1 does **not** flip seating to cosine. Encoder /
+larger pool still not authorized from that measure.
 
 **Meaning-only tier (2026-09-15):** zero-overlap paraphrase
 (`kids water lessons` against a file that says neither word) is no longer an
@@ -450,28 +454,28 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### D-20 — Exact list-replace and token-seated pool hide retrieved paraphrases (**P0, plan authorized**)
+### D-20 — Exact list-replace and token-seated pool hide retrieved paraphrases (**P0, Phase 1 Exact-replace delivered**)
 
-**OPEN 2026-09-18** (docs). Found on device after D-12/D-15/MeaningOnly:
+**OPEN remainder 2026-09-18.** Found on device after D-12/D-15/MeaningOnly:
 `kids water lessons` and `swimming schedule` still prefer files that contain
 the typed words (including screenshots) over swimming-timetable PDFs.
 
 D-12 is still true when **no** Exact competitor exists (Partial can show a
-timetable). D-15 still seats high-coverage files into the 30. Together they
-fail when **any** of the 30 is Exact: `applyLexicalPrecisionTier` **replaces
-the list**, and when more than 30 assets pass the cosine floor,
-`selectCandidatePool` admits by **token count first**. Cosine already ran
-over the full vector index. Ranking and admission then discard neighbours.
-`MeaningOnly` almost never runs on a real library (it requires zero named
-words in *any* remaining hit).
+timetable). D-15 still seats high-coverage files into the 30.
+
+**Phase 1 delivered (Exact list-replace):** `applyLexicalPrecisionTier` keeps
+Exact and Partial hits together. Mixed banner is honest. Survival is asserted
+after `MeaningTrustedHitPolicy` trim. **Token-count pool seating kept:**
+founder probe `swimming schedule` gold assetRank=380, token30=true,
+cosine30=false — cosine seating would hide the specimen. `kids water lessons`
+rank 841 in neither pool (encoder still later).
 
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.
 
-**Authorized sequence** (change control
-`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO`): on-device probe of gold-chunk
-ranks → Phase 0 trace → Phase 1 cosine pool seating + stop list-replacing
-tiers. Encoder / FTS / hybrid **not** authorized until that measure.
+**Authorized remainder** (`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO`):
+Phase 0 live trace still open; device re-test of `swimming schedule`. Encoder /
+FTS / hybrid / cosine pool seating **not** authorized.
 
 Live/Dual **N = 0**. No new Find path.
 

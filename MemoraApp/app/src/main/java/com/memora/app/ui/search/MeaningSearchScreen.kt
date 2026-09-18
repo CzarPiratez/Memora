@@ -158,6 +158,7 @@ fun MeaningSearchScreen(
                         MeaningSearchCopy.partialMatchBody(
                             matched = precision.matched,
                             missing = precision.missing,
+                            exactHitsPresent = precision.exactHitsPresent,
                         ),
                     )
                     Spacer(modifier = Modifier.height(12.dp))

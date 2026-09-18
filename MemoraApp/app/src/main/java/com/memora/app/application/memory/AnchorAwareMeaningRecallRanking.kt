@@ -20,7 +20,7 @@ import com.memora.app.domain.memory.RecallQueryConstraintClassifier
 /**
  * Shared meaning ranking stage inside [CanonicalRecall] (MIG-07B + FC-02 Stage A).
  *
- * Order: token boost → lexical AND filter → [RecallRanker] (Stage A CE or identity) →
+ * Order: token boost → lexical precision tier → [RecallRanker] (Stage A CE or identity) →
  * anchor structured-filter when the query carries TIME/TOPIC cues.
  */
 object AnchorAwareMeaningRecallRanking {
@@ -123,14 +123,15 @@ object AnchorAwareMeaningRecallRanking {
     }
 
     /**
-     * Lexical precision as a **tier**, not a veto (defect D-12).
+     * Lexical precision as a **tier**, not a veto (defects D-12 and D-20).
      *
-     * Hits whose stored text carries every named word win outright — that is the
-     * unchanged exact behaviour. When no hit carries all of them, the list falls
-     * to the best tier available and reports what it could not match, rather than
-     * answering an empty screen: `swimming schedule` must still reach a PDF that
-     * says `swimming timetable`, and must say plainly that nothing contained
-     * `schedule`. UNFYND does not claim the two words mean the same thing.
+     * Coverage still describes the list and still boosts a hit, but an Exact
+     * neighbour must not delete a Partial one: on device, `swimming schedule`
+     * already seated the timetable in the token-count pool, then this gate
+     * replaced the list with files that contained both words. When no hit
+     * carries every named word, the list still falls to the deepest shared
+     * Partial set and reports the miss. UNFYND does not claim `schedule`
+     * means `timetable`.
      *
      * When no named word appears anywhere, a two-or-more-word cue may still keep
      * a short high-cosine band as [RecallPrecision.MeaningOnly] — the remaining
@@ -156,12 +157,6 @@ object AnchorAwareMeaningRecallRanking {
             hit to cue.matchingTokens(hit.lexicalHaystack())
         }
 
-        val exact = scored.filter { it.second.size == required.size }.map { it.first }
-        if (exact.isNotEmpty()) return outcome.copy(hits = exact)
-
-        // Prefer the tier that satisfies most of the words the person used, then
-        // let the highest-ranked hit at that depth define which words those are,
-        // so one banner can describe the whole list truthfully.
         val deepest = scored.maxOf { it.second.size }
         if (deepest == 0) {
             val admitted = MeaningOnlyRecallPolicy.select(outcome.hits, required.size)
@@ -174,13 +169,86 @@ object AnchorAwareMeaningRecallRanking {
                 )
             }
         }
-        val matched = scored.first { it.second.size == deepest }.second
-        return outcome.copy(
-            hits = scored.filter { it.second == matched }.map { it.first },
-            precision = RecallPrecision.Partial(
-                matched = matched,
-                missing = required - matched.toSet(),
-            ),
+
+        val hasExact = scored.any { it.second.size == required.size }
+        val keptScored = if (hasExact) {
+            // D-20: keep every hit that carries at least one named word. Exact
+            // files still rank by boosted score; they no longer own the list.
+            scored.filter { it.second.isNotEmpty() }
+        } else {
+            // Prefer the tier that satisfies most of the words the person used,
+            // then let the highest-ranked hit at that depth define which words
+            // those are, so one banner can describe the whole list truthfully.
+            val matched = scored.first { it.second.size == deepest }.second
+            scored.filter { it.second == matched }
+        }
+        val hits = keptScored.map { it.first }
+        return outcome.copy(hits = hits, precision = precisionOf(hits, required, cue))
+    }
+
+    /**
+     * Trusted-hit trim can drop Exact rows and leave mixed Partial depths.
+     * Re-describe — and if no Exact hit remains, restore the deepest shared
+     * Partial subset so the banner cannot say a word is missing from the
+     * library when a remaining file still has it.
+     */
+    internal fun refineAfterTrustedTrim(
+        hits: List<MeaningSearchHit>,
+        rawQuery: String,
+    ): Pair<List<MeaningSearchHit>, RecallPrecision> {
+        if (hits.isEmpty()) return hits to RecallPrecision.Exact
+        val required = MeaningRecallCue.contentTokens(rawQuery)
+        if (required.isEmpty()) return hits to RecallPrecision.Exact
+
+        val cue = MeaningEvidenceLexicalFilter.prepare(required)
+        val scored = hits.map { hit ->
+            hit to cue.matchingTokens(hit.lexicalHaystack())
+        }
+        val deepest = scored.maxOf { it.second.size }
+        if (deepest == 0) {
+            return if (required.size >= RecallPrecision.MeaningOnly.MIN_NAMED_WORDS) {
+                hits to RecallPrecision.MeaningOnly(missing = required)
+            } else {
+                emptyList<MeaningSearchHit>() to RecallPrecision.Exact
+            }
+        }
+        val hasExact = scored.any { it.second.size == required.size }
+        val retained = if (hasExact) {
+            hits
+        } else {
+            val matched = scored.first { it.second.size == deepest }.second
+            scored.filter { it.second == matched }.map { it.first }
+        }
+        return retained to precisionOf(retained, required, cue)
+    }
+
+    private fun precisionOf(
+        hits: List<MeaningSearchHit>,
+        required: List<String>,
+        cue: MeaningEvidenceLexicalFilter.PreparedCue,
+    ): RecallPrecision {
+        if (hits.isEmpty() || required.isEmpty()) return RecallPrecision.Exact
+        val tokenLists = hits.map { cue.matchingTokens(it.lexicalHaystack()) }
+        val deepest = tokenLists.maxOf { it.size }
+        if (deepest == 0) {
+            return if (required.size >= RecallPrecision.MeaningOnly.MIN_NAMED_WORDS) {
+                RecallPrecision.MeaningOnly(missing = required)
+            } else {
+                RecallPrecision.Exact
+            }
+        }
+        if (tokenLists.all { it.size == required.size }) return RecallPrecision.Exact
+        val intersection = tokenLists.map { it.toSet() }.reduce { a, b -> a intersect b }
+        val union = tokenLists.map { it.toSet() }.reduce { a, b -> a union b }
+        val matched = required.filter { it in intersection }.ifEmpty {
+            required.filter { it in union }
+        }
+        val missing = required.filter { it !in intersection }
+        if (matched.isEmpty() || missing.isEmpty()) return RecallPrecision.Exact
+        return RecallPrecision.Partial(
+            matched = matched,
+            missing = missing,
+            exactHitsPresent = tokenLists.any { it.size == required.size },
         )
     }
 

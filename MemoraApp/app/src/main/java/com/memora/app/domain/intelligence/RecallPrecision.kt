@@ -17,19 +17,24 @@ package com.memora.app.domain.intelligence
  * matched and what it could not, and lets the reader judge.
  */
 sealed interface RecallPrecision {
-    /** Every named word appears in the stored text of every hit. */
+    /** Every named word appears in the stored text of every remaining hit. */
     data object Exact : RecallPrecision
 
     /**
-     * No saved Memory contained all of the named words, so this list is the best
-     * lexical tier available.
+     * At least one remaining hit is missing a named word, so the list is not a
+     * complete lexical match.
      *
      * [missing] must reach the person. A partial answer presented as a whole one
      * is worse than an empty one, because it looks like a complete search.
+     *
+     * When [exactHitsPresent] is true, some files *did* contain every named word
+     * and a neighbour that only matched some of them was kept (defect D-20). The
+     * banner must not then say nothing saved contains a word an Exact hit has.
      */
     data class Partial(
         val matched: List<String>,
         val missing: List<String>,
+        val exactHitsPresent: Boolean = false,
     ) : RecallPrecision {
         init {
             require(matched.isNotEmpty()) { "Partial precision requires a matched word." }

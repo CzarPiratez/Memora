@@ -84,6 +84,22 @@ class MeaningSearchCopyTest {
         assertTrue(body.contains("\"grade\" and \"swimming\""))
     }
 
+    /**
+     * D-20: a mixed Exact+Partial list must not claim nothing saved contains a
+     * word an Exact hit has.
+     */
+    @Test
+    fun mixed_exact_and_partial_copy_does_not_claim_nothing_saved_says_a_present_word() {
+        val body = MeaningSearchCopy.partialMatchBody(
+            matched = listOf("swimming"),
+            missing = listOf("schedule"),
+            exactHitsPresent = true,
+        )
+        assertTrue(body.contains("Some files contain every word you used"))
+        assertTrue(body.contains("Others mention \"swimming\" but not \"schedule\""))
+        assertFalse(body.contains("Nothing saved says"))
+    }
+
     @Test
     fun meaning_only_copy_names_the_miss_and_does_not_claim_a_synonym() {
         val body = MeaningSearchCopy.meaningOnlyBody(listOf("kids", "water", "lessons"))

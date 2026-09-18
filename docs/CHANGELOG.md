@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### D-20 Phase 1 — Exact no longer deletes Partial neighbours (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Probe put the swimming-timetable PDF in the token-seated 30 for
+  `swimming schedule`; Exact list-replace then deleted it whenever any other
+  file contained both words. Cosine-only seating would have dropped it
+  (asset rank 380, out of cosine-30), so pool seating is unchanged.
+- **Landed.** `applyLexicalPrecisionTier` keeps Exact + Partial together;
+  mixed banner is honest; survival asserted after `MeaningTrustedHitPolicy`
+  trim. Keyword Find, FTS, encoder, `selectCandidatePool` untouched.
+- **Not done.** Phase 0 live `droppedByTier` trace. Device re-test of
+  `swimming schedule` vs timetable. Encoder for `kids water lessons` (rank
+  841, in neither pool).
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
+### D-20 encoder probe — code landed, device run open (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Decide Phase 1 vs encoder before changing ranking: rank of the
+  gold chunk in full USE cosine, after collapse, and whether token-seated
+  pool 30 would have admitted it.
+- **Landed.** `ProbeMeaningEncoderRanks`; debug button on About on-device
+  meaning search; Logcat `MeaningEncoderProbe`. Read-only. Keyword Find
+  unchanged.
+- **Not done.** Phase 0 live `droppedByTier` trace. Encoder for
+  `kids water lessons` (rank 841). Cosine pool seating (would hide gold).
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 meaning ranking lexical veto — plan only (2026-09-18)
 
 - **Date:** 2026-09-18

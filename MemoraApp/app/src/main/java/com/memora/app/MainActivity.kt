@@ -341,6 +341,8 @@ class MainActivity : ComponentActivity() {
                             aiPackDisclosureViewModel::onBuildIndexRequested,
                         onAiPackDisclosureStopIndex =
                             aiPackDisclosureViewModel::onStopIndexRequested,
+                        onAiPackDisclosureRunEncoderProbe =
+                            aiPackDisclosureViewModel::onEncoderProbeRequested,
                         onMeaningQueryChanged = meaningSearchViewModel::onQueryChanged,
                         onMeaningSearch = meaningSearchViewModel::onSearch,
                         onMeaningSearchScreenVisible = meaningSearchViewModel::onScreenVisible,
@@ -438,6 +440,7 @@ fun UnfyndApp(
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
     onAiPackDisclosureStopIndex: () -> Unit,
+    onAiPackDisclosureRunEncoderProbe: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
@@ -535,6 +538,7 @@ fun UnfyndApp(
             onAiPackDisclosureDownloadModel = onAiPackDisclosureDownloadModel,
             onAiPackDisclosureBuildIndex = onAiPackDisclosureBuildIndex,
             onAiPackDisclosureStopIndex = onAiPackDisclosureStopIndex,
+            onAiPackDisclosureRunEncoderProbe = onAiPackDisclosureRunEncoderProbe,
             onMeaningQueryChanged = onMeaningQueryChanged,
             onMeaningSearch = onMeaningSearch,
             onMeaningSearchScreenVisible = onMeaningSearchScreenVisible,
@@ -626,6 +630,7 @@ private fun UnfyndAppReady(
     onAiPackDisclosureDownloadModel: () -> Unit,
     onAiPackDisclosureBuildIndex: () -> Unit,
     onAiPackDisclosureStopIndex: () -> Unit,
+    onAiPackDisclosureRunEncoderProbe: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
@@ -727,6 +732,7 @@ private fun UnfyndAppReady(
                     onDownloadModel = onAiPackDisclosureDownloadModel,
                     onBuildIndex = onAiPackDisclosureBuildIndex,
                     onStopIndex = onAiPackDisclosureStopIndex,
+                    onRunEncoderProbe = onAiPackDisclosureRunEncoderProbe,
                     onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )

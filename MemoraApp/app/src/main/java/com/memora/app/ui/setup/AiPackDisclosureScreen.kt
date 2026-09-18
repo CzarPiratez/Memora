@@ -31,6 +31,7 @@ fun AiPackDisclosureScreen(
     onDownloadModel: () -> Unit,
     onBuildIndex: () -> Unit,
     onStopIndex: () -> Unit,
+    onRunEncoderProbe: () -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,6 +136,22 @@ fun AiPackDisclosureScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.BUILD_INDEX_LABEL)
+            }
+        }
+        if (uiState.showEncoderProbe) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = AiPackDisclosureCopy.ENCODER_PROBE_HINT,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onRunEncoderProbe,
+                enabled = !uiState.blockOtherActions,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(AiPackDisclosureCopy.ENCODER_PROBE_LABEL)
             }
         }
         if (uiState.showActivate) {

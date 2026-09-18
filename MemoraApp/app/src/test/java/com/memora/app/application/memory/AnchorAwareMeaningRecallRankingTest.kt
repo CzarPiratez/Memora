@@ -250,8 +250,12 @@ class AnchorAwareMeaningRecallRankingTest {
         assertEquals(invoiceMatch, ranked.hits.first().revisionId)
     }
 
+    /**
+     * D-20: `scan` without `silky` is Partial, not junk. Exact must not delete it.
+     * A neighbour with *none* of the named words is still excluded.
+     */
     @Test
-    fun apply_lexical_and_filter_excludes_semantic_hits_missing_explicit_tokens() = runBlocking {
+    fun apply_keeps_a_partial_scan_hit_beside_an_exact_scan_and_silky_hit() = runBlocking {
         val scanOnly = MemoryRevisionId("rev-scan")
         val scanAndSilky = MemoryRevisionId("rev-both")
         val outcome = MeaningSearchOutcome.Matches(
@@ -280,8 +284,15 @@ class AnchorAwareMeaningRecallRankingTest {
             memoryRepository = FakeAnchorRepository(),
         ) as MeaningSearchOutcome.Matches
 
-        assertEquals(1, filtered.hits.size)
-        assertEquals(scanAndSilky, filtered.hits.single().revisionId)
+        assertEquals(setOf(scanOnly, scanAndSilky), filtered.hits.map { it.revisionId }.toSet())
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("scan"),
+                missing = listOf("silky"),
+                exactHitsPresent = true,
+            ),
+            filtered.precision,
+        )
     }
 
     @Test
@@ -436,9 +447,12 @@ class AnchorAwareMeaningRecallRankingTest {
         )
     }
 
-    /** An exact tier wins outright; a partial hit never dilutes a complete one. */
+    /**
+     * D-20: an Exact neighbour must not delete a Partial one. Coverage still
+     * boosts and still labels the list; it is not a subset gate.
+     */
     @Test
-    fun apply_prefers_the_exact_tier_and_drops_partial_hits() = runBlocking {
+    fun apply_keeps_a_partial_hit_when_an_exact_hit_exists() = runBlocking {
         val exact = MemoryRevisionId("rev-exact")
         val partial = MemoryRevisionId("rev-partial")
         val outcome = MeaningSearchOutcome.Matches(
@@ -446,6 +460,38 @@ class AnchorAwareMeaningRecallRankingTest {
             hits = listOf(
                 hit(partial, 0.9f, label = "TT.pdf", summaryText = "Swimming timetable"),
                 hit(exact, 0.2f, label = "Sched.pdf", summaryText = "Swimming schedule term 2"),
+            ),
+            limitReached = false,
+            model = model,
+        )
+
+        val ranked = AnchorAwareMeaningRecallRanking.apply(
+            outcome = outcome,
+            rawQuery = "swimming schedule",
+            memoryRepository = FakeAnchorRepository(),
+        ) as MeaningSearchOutcome.Matches
+
+        assertEquals(setOf(partial, exact), ranked.hits.map { it.revisionId }.toSet())
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("swimming"),
+                missing = listOf("schedule"),
+                exactHitsPresent = true,
+            ),
+            ranked.precision,
+        )
+    }
+
+    /** A file that carries none of the named words still cannot sit with Exact. */
+    @Test
+    fun apply_still_drops_a_zero_overlap_neighbour_when_an_exact_hit_exists() = runBlocking {
+        val exact = MemoryRevisionId("rev-exact")
+        val unrelated = MemoryRevisionId("rev-bus")
+        val outcome = MeaningSearchOutcome.Matches(
+            query = "swimming schedule",
+            hits = listOf(
+                hit(unrelated, 0.95f, label = "Bus.pdf", summaryText = "Bus discipline rules"),
+                hit(exact, 0.4f, label = "Sched.pdf", summaryText = "Swimming schedule term 2"),
             ),
             limitReached = false,
             model = model,
