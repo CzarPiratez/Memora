@@ -454,15 +454,23 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-23 — named-word depths share the capped meaning page (**P0, landed**)
+
+**LANDED 2026-09-18.** D-22 device: gold PDF in the 60 and in the 0.22 band,
+ranked 21, off the shown 20. Shown-page occupancy round-robins named-word
+depths when the cap truncates a multi-depth band. Not PDF seats. Not a
+bigger page. Not encoder.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`.
+Live/Dual **N = 0**.
+
 ### D-22 — live gold-in-pool measure (**P0, landed measure; seating/ranking gated**)
 
 **LANDED MEASURE 2026-09-18.** Debug `MeaningSearchTrace` reports whether
 probe gold (label/key) is in collapse, in the admitted 60, after the lexical
-tier, and on the shown page. Ranking and D-15 seating **unchanged**.
-
-**Next (after founder `diagnosis=`):** `out_of_pool` → mixed-depth seating
-CC; `in_pool_off_page` → ranking among the 60 without type quotas. Not PDF
-seats. Not encoder/FTS/one-box.
+tier, and on the shown page. Founder A15: `when are the swimming classes`
+`diagnosis=in_pool_off_page` (admitted 28, ranked 21). Ranking among the 60
+is **D-23**. D-15 seating unchanged.
 
 Change control: `docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
 Live/Dual **N = 0**.

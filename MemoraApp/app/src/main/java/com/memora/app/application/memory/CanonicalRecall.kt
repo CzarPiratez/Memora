@@ -83,7 +83,7 @@ class CanonicalRecall @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        val page = MeaningTrustedHitPolicy.page(outcome.hits, limit)
+        val page = MeaningTrustedHitPolicy.page(outcome.hits, limit, outcome.query)
         if (page.hits.isEmpty()) {
             return outcome.copy(
                 hits = emptyList(),

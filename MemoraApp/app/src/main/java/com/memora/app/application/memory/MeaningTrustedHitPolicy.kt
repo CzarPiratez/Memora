@@ -5,9 +5,12 @@ import com.memora.app.application.intelligence.MeaningSearchHit
 /**
  * Trust policy for meaning result lists (D-20 / MF-1).
  *
- * One relevance order for every asset type. No reserved seats for Partial
- * hits, PDFs, notes, or a particular cue. Coverage ranking lives in
- * [AnchorAwareMeaningRecallRanking]; this stage only trims the shown page.
+ * One relevance order for every asset type. No reserved seats for PDFs,
+ * notes, or a particular cue. When the close band exceeds the cap, named-word
+ * **depths** already in that band share the page ([MeaningNamedWordDepthPage]);
+ * that is not a type quota. Coverage ranking lives in
+ * [AnchorAwareMeaningRecallRanking]; this stage trims and occupies the shown
+ * page.
  *
  * The band reads raw [MeaningSearchHit.cosine], not the boosted working
  * [MeaningSearchHit.score]. Token boost was making Exact files sit at 1.0 and
@@ -30,26 +33,27 @@ object MeaningTrustedHitPolicy {
     fun apply(hits: List<MeaningSearchHit>, limit: Int): List<MeaningSearchHit> =
         page(hits, limit).hits
 
-    fun page(hits: List<MeaningSearchHit>, limit: Int): Page {
+    fun page(hits: List<MeaningSearchHit>, limit: Int, rawQuery: String = ""): Page {
         if (hits.isEmpty()) return Page(hits, truncatedByPageCap = false)
         val cappedLimit = limit.coerceAtMost(MAX_TRUSTED_HITS).coerceAtLeast(1)
         val topCosine = hits.maxOf { it.cosine }
         val inBand = hits.filter { hit ->
             topCosine - hit.cosine <= RELATIVE_SCORE_GAP
         }
+        val ordered = MeaningNamedWordDepthPage.order(inBand, rawQuery)
         return Page(
-            hits = inBand.take(cappedLimit),
+            hits = ordered.take(cappedLimit),
             truncatedByPageCap = inBand.size > cappedLimit,
         )
     }
 
-    /** Same trim as [page]; the query does not change seating or asset type. */
+    /**
+     * Same trim as [page]. [rawQuery] may mix named-word depths on a capped
+     * page. It does not reserve seats by asset type.
+     */
     fun apply(
         hits: List<MeaningSearchHit>,
         limit: Int,
         rawQuery: String,
-    ): List<MeaningSearchHit> {
-        if (rawQuery.isBlank()) return apply(hits, limit)
-        return apply(hits, limit)
-    }
+    ): List<MeaningSearchHit> = page(hits, limit, rawQuery).hits
 }

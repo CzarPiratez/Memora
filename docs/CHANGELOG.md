@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### D-23 — named-word depths share the capped meaning page (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** D-22 device: timetable PDF in the 60 (admitted 28) and in the
+  0.22 band, ranked 21, hidden by the cap of 20.
+- **Landed.** Close-band page occupancy round-robins named-word depths.
+  Cap 20 / pool 60 / no type quotas. Keyword Find unchanged.
+- **Not done.** Encoder. FTS. One-box. Raising the page.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`.
+  Live/Dual **N = 0**.
+
 ### D-22 — live gold-in-pool measure (2026-09-18)
 
 - **Date:** 2026-09-18

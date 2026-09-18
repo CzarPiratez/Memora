@@ -6,6 +6,16 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
+**D-23 page depth mix (2026-09-18).** Landed: when the close cosine band
+exceeds 20 and the cue has more than one named-word depth, the shown page
+round-robins those depths (deepest leads). Not PDF seats, not a bigger
+page. D-22 device: `when are the swimming classes` gold PDF admitted 28,
+ranked 21, `diagnosis=in_pool_off_page`. Re-test that cue; `passport` /
+`swimming timetable` must not regress. Change control:
+`docs/CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-22 gold-in-pool measure (2026-09-18).** Landed: debug `MeaningSearchTrace`
 adds gold filename, type, collapse/admitted/ranked/shown ranks, and
 `diagnosis` (`out_of_pool` vs `in_pool_off_page` vs `on_page`). Does **not**
@@ -14,6 +24,9 @@ Paste the `gold=` / `diagnosis=` fields. Next ticket is seating **only if**
 out of the 60, or ranking among the 60 **only if** off the page — not PDF
 seats, not keyword-vs-meaning as the product. Change control:
 `docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
+**Device 2026-09-18 23:44:** `when are the swimming classes`
+`gold=Grade-2-Swimming-TT-2026.pdf` `admittedRank=28` `rankedRank=21`
+`shownRank=-` `diagnosis=in_pool_off_page`. Ranking among the 60 is **D-23**.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
 

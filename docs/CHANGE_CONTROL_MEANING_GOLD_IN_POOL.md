@@ -2,9 +2,9 @@
 
 **Date:** 2026-09-18
 **Type:** Authorized measure slice (debug live path only)
-**Status:** **Landed in tree 2026-09-18.** Ranking and pool seating unchanged.
-Keyword Find frozen. Device diagnosis for
-`when are the swimming classes` is **open** (founder Logcat).
+**Status:** **Measure landed 2026-09-18.** Device line recorded
+(`diagnosis=in_pool_off_page`). Ranking among the 60 is **D-23**. Keyword
+Find frozen.
 **Ask Model:** **P-EVIDENCE**; measure before the next ranking or seating
 change. Honesty banners may remain; they must not delete neighbours.
 **Does not authorize:** pool seating change, ranking change, type quotas,
@@ -127,7 +127,7 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] Unregistered cue (`scan silky`) is `no_gold_cue`; `classes` is not
         treated as `timetable`
   - [x] About hint names gold ranks; “Does not change Find”
-  - [ ] Founder debug search pastes the `gold=` / `diagnosis=` fields
+  - [x] Founder debug search pastes the `gold=` / `diagnosis=` fields
 - **Holistic scenarios (before implement):**
   - User: meaning `when are the swimming classes` — one Logcat line says
     whether the timetable PDF is out of the 60 or in the 60 but off the
@@ -168,12 +168,12 @@ ESCAPE-HATCH AFTER CHANGE: no
   `MeaningSearchTraceTest` out-of-pool and in-pool-off-page;
   `CanonicalRecallMeaningTest.searchByMeaning_records_gold_membership_for_a_registered_cue`;
   About copy test for gold ranks.
-- **Emulator/manual:** founder debug meaning
-  `when are the swimming classes`; paste Logcat `MeaningSearchTrace`
-  `gold=` `collapseRank=` `admittedRank=` `rankedRank=` `shownRank=`
-  `diagnosis=`. Confirm `passport` / `swimming timetable` still look like
-  themselves. Do **not** run `connectedDebugAndroidTest`.
+- **Emulator/manual:** founder A15 2026-09-18 23:44
+  `when are the swimming classes`:
+  `gold=Grade-2-Swimming-TT-2026.pdf goldType=PDF collapseRank=689
+  admittedRank=28 rankedRank=21 shownRank=- goldCosine=0.675
+  diagnosis=in_pool_off_page`. Seating is not the leak. Ranking among the
+  60 is **D-23**. Do **not** run `connectedDebugAndroidTest`.
 - **Known limitation:** gold is label/key substring, not excerpt body.
-  Unregistered cues log `diagnosis=no_gold_cue`. Seating/ranking still
-  pending the device line.
+  Unregistered cues log `diagnosis=no_gold_cue`.
 - **Git commit:** local; do not push.
