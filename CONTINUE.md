@@ -6,14 +6,14 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 Phase 1 Exact list-replace removed (2026-09-18).** Exact no longer
-deletes Partial neighbours inside Canonical Recall. Token-count pool seating
-**stays**: the encoder probe showed `swimming schedule` gold at asset rank
-380, in token-30, **out** of cosine-30 — cosine seating would hide the
-timetable. Mixed lists use an honest banner (not “nothing saved says
-schedule” when an Exact hit has it). Keyword Find frozen. Phase 0 live
-trace still open. Encoder / FTS / cosine pool seating **not** authorized.
-Change control: `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+**D-20 mixed trusted seating (2026-09-18).** Device: after Exact list-replace
+was removed, `swimming schedule` still showed only files that contain both
+words. `Aadhaar` / `passport` were fine. Cause: `MeaningTrustedHitPolicy`
+0.22 of the **Exact** boosted top (often 1.0) dropped the timetable.
+Fix: when Exact and Partial share a list, reserve up to two Partial seats
+and band Exact among Exact only. Token-count pool seating unchanged.
+Keyword Find frozen. Change control:
+`docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 
 **D-20 encoder probe (2026-09-18).** Read-only cosine probe over the full USE

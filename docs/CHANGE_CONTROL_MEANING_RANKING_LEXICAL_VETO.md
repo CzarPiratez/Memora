@@ -3,8 +3,9 @@
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
 **Status:** **Probe delivered** (founder A15). **Phase 1 Exact list-replace
-delivered.** Token-count pool seating **kept** (probe). Phase 0 live trace
-not delivered. Device re-test of on-screen `swimming schedule` still open.
+delivered.** **Phase 1b mixed trusted seating delivered** (device: Exact-only
+list was the 0.22 band, not list-replace). Token-count pool seating **kept**.
+Phase 0 live trace not delivered.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -31,8 +32,9 @@ That is **not** “demo kNN of 30 vectors.” Retrieval has already run. Two
    and Partial sit together; MeaningOnly still only runs when deepest is 0.
    Combined with `MeaningEvidenceTokenBoost` (`+0.35`) and
    `MeaningTrustedHitPolicy` (0.22 of top **boosted** score, max 5), a distant
-   neighbour can still miss the trusted band — that is measured on device next,
-   not retuned in this slice.
+   neighbour still missed the shown list. **Phase 1b:** when Exact and Partial
+   share a list, reserve up to two Partial seats and band Exact among Exact
+   only. One-word exact-token cues (`Aadhaar`) still use the score band.
 
 `MeaningOnly` only runs when **zero** named words hit **any** remaining
 candidate. On a mixed library that is almost never true.
@@ -232,9 +234,26 @@ ESCAPE-HATCH AFTER CHANGE: no
   also `Aadhaar` / `passport` so exact-token recall does not regress. Do
   **not** run `connectedDebugAndroidTest` that clears the live DB.
 - **Known limitation:** `kids water lessons` is still an encoder problem
-  (rank 841). Trusted 0.22 on boosted score can still hide a distant
-  neighbour; not retuned unless device re-test shows that is the remaining
-  on-screen killer.
+  (rank 841). Trusted 0.22 on boosted score hid a distant neighbour on
+  device — Phase 1b.
+- **Git commit:** `12076e5`.
+
+## Delivery record — Phase 1b mixed trusted seating (2026-09-18)
+
+- **Files/layers:** `MeaningTrustedHitPolicy.apply(hits, limit, rawQuery)`
+  reserves up to two Partial seats when Exact competitors exist; Exact still
+  uses 0.22 among Exact only. `CanonicalRecall.trimMeaningMatches` passes the
+  query. One-word cues unchanged. Keyword Find unchanged.
+- **Automated verification:**
+  `MeaningTrustedHitPolicyTest.mixed_query_keeps_a_distant_partial_when_exact_hits_fill_the_band`;
+  `one_word_query_still_uses_the_score_band`;
+  `CanonicalRecallMeaningTest.searchByMeaning_keeps_a_distant_timetable_when_exact_hits_fill_the_trusted_band`.
+- **Emulator/manual:** founder re-test `swimming schedule`; confirm
+  `Aadhaar` / `passport` still look like themselves. Do **not** run
+  `connectedDebugAndroidTest` that clears the live DB.
+- **Known limitation:** reserved Partial seats are the strongest Partial
+  neighbours by score, not a synonym for `timetable`. Other `swimming` files
+  can take those seats.
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)

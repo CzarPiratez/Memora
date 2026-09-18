@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### D-20 Phase 1b — mixed trusted seating (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Device re-test: Exact list-replace was gone, but `swimming
+  schedule` still showed only both-word files. `Aadhaar` / `passport` worked.
+  The 0.22 trusted band is measured on boosted score; Exact caps at 1.0 and
+  the timetable falls out of the band.
+- **Landed.** `MeaningTrustedHitPolicy.apply(hits, limit, query)` reserves up
+  to two Partial seats when Exact competitors exist; Exact still uses the
+  0.22 band among Exact hits only. Keyword Find unchanged.
+- **Not done.** The two Partial seats are the strongest Partial neighbours
+  by score — they may not be the timetable PDF if other `swimming` files
+  outrank it. Encoder for `kids water lessons`. Phase 0 trace.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 Phase 1 — Exact no longer deletes Partial neighbours (2026-09-18)
 
 - **Date:** 2026-09-18

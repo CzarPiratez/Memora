@@ -70,7 +70,7 @@ class CanonicalRecall @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit)
+        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit, outcome.query)
         if (trusted.isEmpty()) {
             return outcome.copy(
                 hits = emptyList(),
