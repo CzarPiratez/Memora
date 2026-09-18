@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### D-25 — starved named-word family leads the mixed Partial page (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** D-24: timetables appeared at 8th and 14th because `{classes}`
+  led every round-robin.
+- **Landed.** Mixed Partial: starved family fair share first. Exact still
+  deepest-first. Cap 20. No type quotas.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`.
+  Live/Dual **N = 0**.
+
 ### D-24 — named-word families share the capped meaning page (2026-09-19)
 
 - **Date:** 2026-09-19

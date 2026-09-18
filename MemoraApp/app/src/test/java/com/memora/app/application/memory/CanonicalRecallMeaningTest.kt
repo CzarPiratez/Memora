@@ -411,8 +411,8 @@ class CanonicalRecallMeaningTest {
 
         assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, outcome.hits.size)
         assertTrue(outcome.hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
-        assertEquals("beginner-classes-0.jpg", outcome.hits.first().label)
-        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits[1].label)
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        assertEquals("beginner-classes-0.jpg", outcome.hits[1].label)
     }
 
     private fun recall(

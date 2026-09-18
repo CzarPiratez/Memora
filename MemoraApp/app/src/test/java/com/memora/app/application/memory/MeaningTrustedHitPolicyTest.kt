@@ -141,8 +141,8 @@ class MeaningTrustedHitPolicyTest {
         assertEquals(20, page.hits.size)
         assertTrue(page.truncatedByPageCap)
         assertTrue(page.hits.any { it.revisionId.value == "tt" })
-        assertEquals("classes-0", page.hits.first().revisionId.value)
-        assertEquals("tt", page.hits[1].revisionId.value)
+        assertEquals("tt", page.hits.first().revisionId.value)
+        assertEquals("classes-0", page.hits[1].revisionId.value)
     }
 
     @Test

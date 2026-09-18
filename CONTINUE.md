@@ -6,6 +6,16 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
+**D-25 starved-family page (2026-09-19).** Landed: when no file has every
+named word, the family starved in the cosine top-20 takes its fair share
+first. D-24 put timetables on the page at 8th/14th; they should now sit
+with the swimming-only share at the front. Exact cues still deepest-first.
+Re-test `when are the swimming classes`; `passport` / `swimming timetable`
+must not regress. Change control:
+`docs/CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-24 page family mix (2026-09-19).** Landed: the shown 20 round-robins
 named-word **families** (matching token sets), not only token count. D-23
 missed the timetable PDF because classes-only files are the same depth.

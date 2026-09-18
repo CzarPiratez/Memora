@@ -454,6 +454,15 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-25 — starved named-word family leads the mixed Partial page (**P0, landed**)
+
+**LANDED 2026-09-19.** D-24 device: timetables at 8th and 14th. Mixed
+Partial now gives the cosine-starved family its fair share first. Exact
+lists unchanged.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`.
+Live/Dual **N = 0**.
+
 ### D-24 — named-word families share the capped meaning page (**P0, landed**)
 
 **LANDED 2026-09-19.** D-23 device miss: same-depth `{classes}` occupied the

@@ -74,9 +74,32 @@ class MeaningNamedWordDepthPageTest {
             hits = classesOnly + swimmingOnly,
             rawQuery = "when are the swimming classes",
         )
-        assertEquals("classes-0", ordered.first().revisionId.value)
-        assertEquals("tt", ordered[1].revisionId.value)
+        assertEquals("tt", ordered.first().revisionId.value)
+        assertEquals("classes-0", ordered[1].revisionId.value)
         assertTrue(ordered.take(20).any { it.revisionId.value == "tt" })
+    }
+
+    @Test
+    fun starved_family_takes_its_fair_share_before_the_cosine_majority() {
+        val classesOnly = (0 until 20).map { index ->
+            hit("classes-$index", "beginner classes list $index")
+        }
+        val swimmingPhotos = (0 until 3).map { index ->
+            hit("swim-$index", "pool swimming photo $index")
+        }
+        val timetables = listOf(
+            hit("tt-a", "weekly swimming timetable A"),
+            hit("tt-b", "weekly swimming timetable B"),
+        )
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = classesOnly + swimmingPhotos + timetables,
+            rawQuery = "when are the swimming classes",
+        )
+        assertEquals(
+            listOf("swim-0", "swim-1", "swim-2", "tt-a", "tt-b"),
+            ordered.take(5).map { it.revisionId.value },
+        )
+        assertEquals("classes-0", ordered[5].revisionId.value)
     }
 
     @Test

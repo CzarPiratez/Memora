@@ -76,7 +76,8 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | D-21 meaning Partial families | [`CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`](CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md) — **landed**; keep any named-word hit already in the 60; not I3 / encoder / FTS |
 | D-22 meaning gold-in-pool measure | [`CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`](CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md) — **landed measure**; founder `diagnosis=in_pool_off_page`; seating not the leak |
 | D-23 meaning page depth mix | [`CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md) — **landed**; token-count mix; same-depth families still leaked (D-24) |
-| D-24 meaning page family mix | [`CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md) — **landed**; matching token sets share the capped 20; not PDF seats |
+| D-24 meaning page family mix | [`CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md) — **landed**; token sets share the 20; timetables still late (D-25) |
+| D-25 meaning starved-family page | [`CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`](CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md) — **landed**; mixed Partial starved family fair share first; Exact deepest-first |
 | Human recall language (ceiling) | [`HUMAN_RECALL_ASK_MODEL.md`](HUMAN_RECALL_ASK_MODEL.md) — required before further NL Find code |
 
 Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B
