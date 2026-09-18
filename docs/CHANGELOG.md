@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### D-20 Phase 1d — document seats when images fill meaning results (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Device: modifier-first Partial seats worked (swimming screenshot
+  / image first) but no PDF. Meaning `swimming timetable` also showed no
+  PDF. Keyword Find already returns four correct PDFs. USE cosine prefers
+  pictures of the words; the shown five never reached the original.
+- **Landed.** `MeaningTrustedHitPolicy` swaps up to two image seats for
+  PDF/note hits still in the ranked pool. Does not grow the 0.22 band.
+  Keyword Find unchanged.
+- **Not done.** If a PDF never entered the token-30 pool, there is nothing
+  to swap. Encoder still later for `kids water lessons`.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 Phase 1c — modifier-first Partial seats (2026-09-18)
 
 - **Date:** 2026-09-18

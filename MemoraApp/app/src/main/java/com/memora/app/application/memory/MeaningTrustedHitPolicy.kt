@@ -1,6 +1,7 @@
 package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchHit
+import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallCue
 
@@ -12,6 +13,10 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
  * that band must not be measured against the Exact top score, and reserved
  * Partial seats prefer a modifier match (`swimming`) over a generic head
  * (`schedule`) so a schedule-only image cannot take the neighbour seats.
+ *
+ * Pictures of a document still outrank the PDF on USE cosine. Keyword Find
+ * already returns those PDFs, so the shown five reserve document seats when
+ * the ranked pool still has them — swapping images, not growing the list.
  */
 object MeaningTrustedHitPolicy {
     const val MAX_TRUSTED_HITS = 5
@@ -22,6 +27,13 @@ object MeaningTrustedHitPolicy {
      * shown five cannot be Exact-only. Leaves at least one seat for Exact.
      */
     const val RESERVED_PARTIAL_WHEN_MIXED = 2
+
+    /**
+     * Seats reserved for PDF/note originals when images would otherwise fill
+     * the shown five. Leaves image neighbours in place if there is no image
+     * seat to swap.
+     */
+    const val RESERVED_DOCUMENT_WHEN_IMAGES = 2
 
     fun apply(hits: List<MeaningSearchHit>, limit: Int): List<MeaningSearchHit> {
         if (hits.isEmpty()) return hits
@@ -39,9 +51,21 @@ object MeaningTrustedHitPolicy {
         rawQuery: String,
     ): List<MeaningSearchHit> {
         if (hits.isEmpty()) return hits
+        val cap = limit.coerceAtMost(MAX_TRUSTED_HITS).coerceAtLeast(1)
         val required = MeaningRecallCue.contentTokens(rawQuery)
-        if (required.size < 2) return apply(hits, limit)
+        val seated = if (required.size < 2) {
+            apply(hits, limit)
+        } else {
+            seatMixedLexical(hits, limit, required)
+        }
+        return ensureDocumentSeats(seated, hits, cap)
+    }
 
+    private fun seatMixedLexical(
+        hits: List<MeaningSearchHit>,
+        limit: Int,
+        required: List<String>,
+    ): List<MeaningSearchHit> {
         val cue = MeaningEvidenceLexicalFilter.prepare(required)
         val exact = hits.filter { hit ->
             cue.matchingTokens(hit.lexicalHaystack()).size == required.size
@@ -91,4 +115,36 @@ object MeaningTrustedHitPolicy {
         }
         return withModifier + headOnly
     }
+
+    private fun ensureDocumentSeats(
+        selected: List<MeaningSearchHit>,
+        pool: List<MeaningSearchHit>,
+        cap: Int,
+    ): List<MeaningSearchHit> {
+        if (selected.isEmpty()) return selected
+        val documents = pool.filter { it.assetType.isDocument }
+        if (documents.isEmpty()) return selected
+        val selectedDocs = selected.count { it.assetType.isDocument }
+        val want = minOf(RESERVED_DOCUMENT_WHEN_IMAGES, documents.size, cap)
+        if (selectedDocs >= want) return selected
+        val add = documents.filter { candidate ->
+            selected.none { it.revisionId == candidate.revisionId }
+        }.take(want - selectedDocs)
+        if (add.isEmpty()) return selected
+        val keep = selected.toMutableList()
+        for (document in add) {
+            val dropAt = keep.indexOfLast { it.assetType.isImage }
+            if (dropAt < 0) break
+            keep.removeAt(dropAt)
+            keep.add(document)
+        }
+        val keepIds = keep.map { it.revisionId }.toHashSet()
+        return pool.filter { it.revisionId in keepIds }
+    }
+
+    private val AssetType.isDocument: Boolean
+        get() = this == AssetType.PDF || this == AssetType.NOTE
+
+    private val AssetType.isImage: Boolean
+        get() = this == AssetType.PHOTO || this == AssetType.SCREENSHOT
 }

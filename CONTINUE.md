@@ -6,13 +6,11 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 modifier-first Partial seats (2026-09-18).** Keyword Find already
-returns the swimming-timetable PDFs. Meaning `swimming schedule` still put a
-`schedule`-only JPG first because reserved Partial seats were score-only.
-Those seats now prefer the modifier (`swimming`) over the generic head
-(`schedule`). Not a synonym net. Exact-token `Aadhaar` / `passport`
-unchanged. Keyword Find frozen. PDFs can still lose to other *swimming*
-screenshots on cosine — that is the next measure. Change control:
+**D-20 document seats in meaning results (2026-09-18).** Device: after
+modifier-first Partial seats, `swimming schedule` and `swimming timetable`
+still showed only screenshots/images. Keyword Find already returns the
+timetable PDFs. Shown five now swap image seats for PDF/note hits still in
+the ranked pool. Not a synonym net. Keyword Find frozen. Change control:
 `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 

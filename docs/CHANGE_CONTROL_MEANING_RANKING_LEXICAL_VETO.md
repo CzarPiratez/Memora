@@ -4,9 +4,10 @@
 **Type:** Decision plan + authorized slices
 **Status:** **Probe delivered** (founder A15). **Phase 1 Exact list-replace
 delivered.** **Phase 1b mixed trusted seating delivered.** **Phase 1c
-modifier-first Partial seats delivered** (device: `schedule`-only JPG took a
-Partial seat; keyword Find already has the PDFs). Token-count pool seating
-**kept**. Phase 0 live trace not delivered.
+modifier-first Partial seats delivered.** **Phase 1d document seats
+delivered** (device: swimming screenshots filled the five; keyword Find
+already has the PDFs). Token-count pool seating **kept**. Phase 0 live
+trace not delivered.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -271,8 +272,25 @@ ESCAPE-HATCH AFTER CHANGE: no
   `schedule`-only JPG should not take a reserved seat if any `swimming`
   Partial exists. The timetable PDF may still lose to other swimming
   screenshots on cosine. Do **not** run `connectedDebugAndroidTest`.
-- **Known limitation:** does not rank among swimming Partials; USE can still
-  prefer a screenshot over the PDF.
+- **Known limitation:** does not rank among swimming Partials; USE still
+  preferred screenshots over the PDF. Phase 1d.
+- **Git commit:** `bc2c7b3`.
+
+## Delivery record — Phase 1d document seats (2026-09-18)
+
+- **Files/layers:** `MeaningTrustedHitPolicy.ensureDocumentSeats` swaps up to
+  two PHOTO/SCREENSHOT seats for PDF/NOTE hits still in the ranked pool.
+  Does not expand the 0.22 band. Applies after mixed/Exact seating, so
+  `swimming timetable` (Exact-only) is covered. Keyword Find unchanged.
+- **Automated verification:**
+  `exact_query_swaps_image_seats_for_a_pdf_still_in_the_pool`;
+  `mixed_query_swaps_an_image_seat_for_the_timetable_pdf`.
+- **Emulator/manual:** founder meaning `swimming schedule` and `swimming
+  timetable`. Expect a PDF among the five if it was in the ranked 30.
+  Keyword Find already returns those PDFs. Do **not** run
+  `connectedDebugAndroidTest`.
+- **Known limitation:** if token-count pool 30 contains no PDF, there is
+  nothing to swap. Encoder still later.
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)

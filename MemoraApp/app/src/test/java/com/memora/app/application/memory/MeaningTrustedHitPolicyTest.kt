@@ -118,12 +118,79 @@ class MeaningTrustedHitPolicyTest {
         assertEquals(listOf("schedule-jpg", "exact-a"), trusted.map { it.revisionId.value })
     }
 
-    private fun hit(id: String, score: Float, summary: String = "text $id") = MeaningSearchHit(
+    /**
+     * Device: `swimming timetable` (Exact) still showed only screenshots.
+     * Keyword Find already returns the PDFs. Swap image seats for documents
+     * still in the ranked pool.
+     */
+    @Test
+    fun exact_query_swaps_image_seats_for_a_pdf_still_in_the_pool() {
+        val hits = listOf(
+            hit("shot-a", 1.0f, "Swimming timetable board", AssetType.SCREENSHOT),
+            hit("shot-b", 0.99f, "Swimming timetable photo", AssetType.SCREENSHOT),
+            hit("shot-c", 0.98f, "Swimming timetable crop", AssetType.SCREENSHOT),
+            hit("shot-d", 0.97f, "Swimming timetable print", AssetType.SCREENSHOT),
+            hit("shot-e", 0.96f, "Swimming timetable screen", AssetType.SCREENSHOT),
+            hit(
+                "timetable-pdf",
+                0.50f,
+                "Grade 2 Swimming timetable 2026 PERIOD TIME",
+                AssetType.PDF,
+            ),
+        )
+        val trusted = MeaningTrustedHitPolicy.apply(
+            hits = hits,
+            limit = 10,
+            rawQuery = "swimming timetable",
+        )
+        val ids = trusted.map { it.revisionId.value }
+        assertTrue(ids.contains("timetable-pdf"))
+        assertTrue(trusted.any { it.assetType == AssetType.PDF })
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, trusted.size)
+    }
+
+    /**
+     * Device: `swimming schedule` showed swimming screenshots, never the PDF.
+     * The PDF is a modifier Partial and must take a swapped document seat.
+     */
+    @Test
+    fun mixed_query_swaps_an_image_seat_for_the_timetable_pdf() {
+        val hits = listOf(
+            hit("swimming-shot", 0.90f, "Swimming time table on the board", AssetType.SCREENSHOT),
+            hit("swimming-img", 0.88f, "Swimming timetable photo", AssetType.PHOTO),
+            hit("exact-a", 0.80f, "Swimming schedule term 2", AssetType.SCREENSHOT),
+            hit("exact-b", 0.79f, "Swimming schedule printout", AssetType.SCREENSHOT),
+            hit("exact-c", 0.78f, "Swimming schedule heading", AssetType.SCREENSHOT),
+            hit(
+                "timetable-pdf",
+                0.45f,
+                "Grade 2 Swimming timetable 2026 PERIOD TIME",
+                AssetType.PDF,
+            ),
+        )
+        val trusted = MeaningTrustedHitPolicy.apply(
+            hits = hits,
+            limit = 10,
+            rawQuery = "swimming schedule",
+        )
+        val ids = trusted.map { it.revisionId.value }
+        assertTrue(ids.contains("timetable-pdf"))
+        assertTrue(ids.contains("swimming-shot"))
+        assertFalse(ids.contains("exact-c"))
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, trusted.size)
+    }
+
+    private fun hit(
+        id: String,
+        score: Float,
+        summary: String = "text $id",
+        assetType: AssetType = AssetType.PDF,
+    ) = MeaningSearchHit(
         revisionId = MemoryRevisionId(id),
         memoryId = MemoryId("m-$id"),
         sourceId = SourceId("s"),
         sourceAssetKey = SourceAssetKey(id),
-        assetType = AssetType.PDF,
+        assetType = assetType,
         label = id,
         summaryText = summary,
         score = score,
