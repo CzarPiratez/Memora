@@ -248,7 +248,10 @@ class ProbeMeaningEncoderRanks @Inject constructor(
     }
 
     companion object {
-        /** Mirrors [CanonicalRecall] MAX_CANDIDATE_POOL; membership only. */
+        /**
+         * Diagnostic D-15 seating: token-30 vs cosine-30 membership. Product
+         * candidate pool is 60; do not treat this 30 as the shown page.
+         */
         const val DEFAULT_POOL_LIMIT = 30
 
         const val LOG_TAG = "MeaningEncoderProbe"

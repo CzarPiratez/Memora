@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### D-20 contract freeze — up to 20, not a floor (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Page 20 was being read as “at least 20” and as a list that later
+  grows with corpus size. `limitReached` also fired whenever the 60-pool or
+  the cosine band dropped anyone, so a thin close list still asked for
+  another word.
+- **Landed.** Cap stays 20; thin bands stay thin; Exact lists name the
+  count; `limitReached` only when the close band exceeded the cap. No type
+  quotas. Keyword Find unchanged.
+- **Not done.** Phase 0 trace. Encoder. Files outside the pool still cannot
+  appear.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 course correction — drop specimen quotas, page of 20 (2026-09-18)
 
 - **Date:** 2026-09-18

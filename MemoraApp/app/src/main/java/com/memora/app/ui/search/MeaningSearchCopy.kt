@@ -132,8 +132,22 @@ object MeaningSearchCopy {
         }
     }
 
-    fun limitReachedBody(): String =
-        "Showing the strongest matches for your cue. Add another word if you need a tighter list."
+    /**
+     * Exact lists only. Names how many close files are on this page.
+     * [limitReached] means the cosine band had more than the cap — not that
+     * the candidate pool was full, and not a promise of twenty cards.
+     */
+    fun exactResultsBody(matchCount: Int, limitReached: Boolean): String {
+        require(matchCount > 0) { "Exact results copy needs at least one hit." }
+        return if (limitReached) {
+            "Showing the strongest $matchCount matches for your cue. " +
+                "Add another word if you need a tighter list."
+        } else if (matchCount == 1) {
+            "1 close match on this phone."
+        } else {
+            "$matchCount close matches on this phone."
+        }
+    }
 
     fun hitTypeLabel(type: AssetType): String = when (type) {
         AssetType.PDF -> "PDF memory"

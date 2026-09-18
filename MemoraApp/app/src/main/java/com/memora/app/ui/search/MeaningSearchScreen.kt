@@ -165,8 +165,13 @@ fun MeaningSearchScreen(
                 } else if (precision is RecallPrecision.MeaningOnly) {
                     PhaseBody(MeaningSearchCopy.meaningOnlyBody(precision.missing))
                     Spacer(modifier = Modifier.height(12.dp))
-                } else if (phase.limitReached) {
-                    PhaseBody(MeaningSearchCopy.limitReachedBody())
+                } else {
+                    PhaseBody(
+                        MeaningSearchCopy.exactResultsBody(
+                            matchCount = phase.hits.size,
+                            limitReached = phase.limitReached,
+                        ),
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
                 phase.hits.forEach { hit ->

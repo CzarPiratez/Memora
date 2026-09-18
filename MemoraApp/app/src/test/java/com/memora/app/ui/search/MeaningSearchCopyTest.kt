@@ -101,6 +101,18 @@ class MeaningSearchCopyTest {
     }
 
     @Test
+    fun exact_results_copy_names_the_count_and_does_not_pad_to_twenty() {
+        val thin = MeaningSearchCopy.exactResultsBody(matchCount = 4, limitReached = false)
+        assertTrue(thin.contains("4 close matches"))
+        assertFalse(thin.contains("20"))
+        assertFalse(thin.contains("tighter list"))
+
+        val capped = MeaningSearchCopy.exactResultsBody(matchCount = 20, limitReached = true)
+        assertTrue(capped.contains("strongest 20 matches"))
+        assertTrue(capped.contains("tighter list"))
+    }
+
+    @Test
     fun meaning_only_copy_names_the_miss_and_does_not_claim_a_synonym() {
         val body = MeaningSearchCopy.meaningOnlyBody(listOf("kids", "water", "lessons"))
         assertTrue(body.contains("\"kids\", \"water\" and \"lessons\""))

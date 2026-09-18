@@ -70,8 +70,8 @@ class CanonicalRecall @Inject constructor(
         limit: Int,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        val trusted = MeaningTrustedHitPolicy.apply(outcome.hits, limit)
-        if (trusted.isEmpty()) {
+        val page = MeaningTrustedHitPolicy.page(outcome.hits, limit)
+        if (page.hits.isEmpty()) {
             return outcome.copy(
                 hits = emptyList(),
                 limitReached = false,
@@ -79,7 +79,7 @@ class CanonicalRecall @Inject constructor(
             )
         }
         val (refined, precision) = AnchorAwareMeaningRecallRanking.refineAfterTrustedTrim(
-            hits = trusted,
+            hits = page.hits,
             rawQuery = outcome.query,
         )
         if (refined.isEmpty()) {
@@ -89,10 +89,11 @@ class CanonicalRecall @Inject constructor(
                 precision = RecallPrecision.Exact,
             )
         }
-        val truncated = refined.size < outcome.hits.size
+        // Cap only: far cosine neighbours and a full 60-pool must not look
+        // like "we hid more equally close files."
         return outcome.copy(
             hits = refined,
-            limitReached = truncated || outcome.limitReached,
+            limitReached = page.truncatedByPageCap,
             precision = precision,
         )
     }
@@ -100,8 +101,9 @@ class CanonicalRecall @Inject constructor(
     companion object {
         /**
          * Over-fetch candidates so later ranking can promote lower-cosine hits
-         * before the shown page ([MeaningTrustedHitPolicy.MAX_TRUSTED_HITS]) is
-         * applied. Must stay larger than that page.
+         * before the shown page (up to [MeaningTrustedHitPolicy.MAX_TRUSTED_HITS])
+         * is applied. Must stay larger than that page. This is not a second
+         * product list and must not grow with corpus size.
          */
         private const val CANDIDATE_POOL_MULTIPLIER = 3
 

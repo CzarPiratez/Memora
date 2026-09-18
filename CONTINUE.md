@@ -6,13 +6,15 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 course correction (2026-09-18).** Specimen quotas (reserved Partial
+**D-20 contract freeze (2026-09-18).** Specimen quotas (reserved Partial
 seats, modifier-first, PDF forcing) are **removed**. Back on the original
 plan: Exact does not delete neighbours; token-count pool seating stays;
-keyword Find frozen; one relevance order for every asset type. MVP page is
-**20** (pool 60), trust band on **raw cosine** not boosted score. Cues like
-swimming / timetable / passport are examples, not special cases. Change
-control: `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+keyword Find frozen; one relevance order for every asset type. Shown page is
+**up to 20** (cap, not a floor; later corpus must improve ranking, not dump
+a longer list). Pool 60. Trust band on **raw cosine**. `limitReached` means
+the close band exceeded the cap. Cues like swimming / timetable / passport
+are examples, not special cases. Change control:
+`docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 
 **D-20 encoder probe (2026-09-18).** Read-only cosine probe over the full USE

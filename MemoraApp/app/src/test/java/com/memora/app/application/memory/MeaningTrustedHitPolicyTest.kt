@@ -8,6 +8,7 @@ import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryRevisionId
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -66,6 +67,26 @@ class MeaningTrustedHitPolicyTest {
         )
         val trusted = MeaningTrustedHitPolicy.apply(hits, limit = 20, rawQuery = "passport")
         assertEquals(listOf("a"), trusted.map { it.revisionId.value })
+    }
+
+    @Test
+    fun does_not_pad_a_thin_band_to_the_cap() {
+        val hits = listOf(
+            hit("a", score = 0.91f, cosine = 0.91f),
+            hit("b", score = 0.90f, cosine = 0.90f),
+            hit("c", score = 0.89f, cosine = 0.89f),
+        )
+        val page = MeaningTrustedHitPolicy.page(hits, limit = 20)
+        assertEquals(3, page.hits.size)
+        assertFalse(page.truncatedByPageCap)
+    }
+
+    @Test
+    fun truncated_only_when_the_band_exceeds_the_cap() {
+        val inBand = (0 until 25).map { hit("r$it", score = 0.9f, cosine = 0.9f - it * 0.001f) }
+        val page = MeaningTrustedHitPolicy.page(inBand, limit = 20)
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, page.hits.size)
+        assertTrue(page.truncatedByPageCap)
     }
 
     private fun hit(

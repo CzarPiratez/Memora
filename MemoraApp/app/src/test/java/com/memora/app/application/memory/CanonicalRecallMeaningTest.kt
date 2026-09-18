@@ -31,6 +31,7 @@ import com.memora.app.domain.memory.MemoryRevisionId
 import com.memora.app.domain.memory.MemoryText
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -214,6 +215,61 @@ class CanonicalRecallMeaningTest {
 
         assertEquals(12, outcome.hits.size)
         assertTrue(outcome.hits.size > 5)
+        assertFalse(outcome.limitReached)
+    }
+
+    @Test
+    fun searchByMeaning_does_not_claim_limit_reached_when_the_band_is_thin() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = mutableMapOf<MemoryRevisionId, MemoryMeaningLookup>()
+        (0 until 3).forEach { index ->
+            val revision = MemoryRevisionId("close-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.002f))
+            lookups[revision] = lookup(revision, "close-$index.pdf", "Invoice close $index")
+        }
+        (0 until 8).forEach { index ->
+            val revision = MemoryRevisionId("far-$index")
+            embeddingStore.upsert(record(revision, 0.40f))
+            lookups[revision] = lookup(revision, "far-$index.pdf", "Invoice far $index")
+        }
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("invoice") as MeaningSearchOutcome.Matches
+
+        assertEquals(3, outcome.hits.size)
+        assertFalse(outcome.limitReached)
+    }
+
+    @Test
+    fun searchByMeaning_caps_a_wide_band_at_twenty_and_sets_limit_reached() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 25).associate { index ->
+            val revision = MemoryRevisionId("rev-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "file-$index.pdf",
+                "Invoice notes $index",
+            )
+        }
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("invoice") as MeaningSearchOutcome.Matches
+
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, outcome.hits.size)
+        assertTrue(outcome.limitReached)
     }
 
     private fun recall(

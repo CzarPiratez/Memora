@@ -278,6 +278,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
     companion object {
         private const val TAG = "SearchAssetMemoriesByMeaning"
 
+        /** Candidate-generation default only. Product meaning page size is Canonical Recall's cap of 20. */
         const val DEFAULT_LIMIT = 10
 
         /** Soft floor so near-zero noise is not listed as a candidate. */

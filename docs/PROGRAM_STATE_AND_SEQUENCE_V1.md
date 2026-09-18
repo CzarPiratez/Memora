@@ -466,8 +466,9 @@ Token-count pool seating kept (probe).
 **1b–1d reversed:** reserved Partial seats, modifier-first, and PDF forcing
 were specimen drift. One relevance order for every asset type.
 
-**Page / pool:** shown **20**, candidate pool **60**. Trust band on **raw
-cosine**, not boosted score.
+**Page / pool:** shown **up to 20** (cap, not a floor; do not grow with
+corpus size), candidate pool **60**. Trust band on **raw cosine**, not
+boosted score. `limitReached` means the close band exceeded the cap.
 
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.

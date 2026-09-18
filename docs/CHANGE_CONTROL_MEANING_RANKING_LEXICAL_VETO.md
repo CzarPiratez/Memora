@@ -2,16 +2,18 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
-**Status:** **Course correction 2026-09-18.** Probe delivered. Phase 1 Exact
-list-replace delivered. **1b–1d specimen quotas removed** (Partial seats,
-modifier-first, PDF forcing). MVP page **20**, pool **60**, band on **raw
-cosine**. Token-count pool seating **kept**. Phase 0 live trace not
-delivered. Keyword Find frozen.
+**Status:** **Contract freeze 2026-09-18.** Probe delivered. Phase 1 Exact
+list-replace delivered. **1b–1d specimen quotas removed**. Shown page is
+**up to 20** (cap, not a floor; do not grow with corpus size). Pool **60**,
+band on **raw cosine**. `limitReached` means the close band exceeded the
+cap — not that the 60-pool was full. Token-count pool seating **kept**.
+Phase 0 live trace not delivered. Keyword Find frozen.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
 hybrid/RRF product wire, ANN, one-box Find, keyword Find changes, schema
-migration, `fallbackToDestructiveMigration`, cosine-only pool seating
+migration, `fallbackToDestructiveMigration`, cosine-only pool seating,
+growing the shown page with corpus size, type quotas
 
 ## Why this exists
 
@@ -24,18 +26,24 @@ words (or both words) and hide files the person meant (swimming timetables).
 That is **not** “demo kNN of 30 vectors.” Retrieval has already run. Two
 **lexical admission/veto** stages then throw neighbours away:
 
-1. **`selectCandidatePool`** (when more than 30 assets survive the 0.05 floor):
+**Contract freeze:** the shown page is **up to 20**, not “at least 20” and
+not a list that grows with corpus size. A larger library must improve
+ranking inside Canonical Recall, not dump more cards.
+
+1. **`selectCandidatePool`** (when more than the product pool of **60**
+   assets survive the 0.05 floor):
    seats by named-token **count** first, cosine inside a depth (D-15). A
-   timetable that only has `swimming` loses to 30 files that have
-   `swimming` **and** `schedule`.
+   timetable that only has `swimming` loses to 60 files that have
+   `swimming` **and** `schedule`. The encoder probe still reports
+   token-30 vs cosine-30 membership as a diagnostic of that seating rule.
 2. **`applyLexicalPrecisionTier` (Phase 1 — delivered):** if any remaining hit
    was Exact, that set **used to replace the list**. That gate is gone: Exact
    and Partial sit together; MeaningOnly still only runs when deepest is 0.
-   Combined with `MeaningEvidenceTokenBoost` (`+0.35`) and
-   `MeaningTrustedHitPolicy` (0.22 of top **boosted** score, max 5), a distant
-   neighbour still missed the shown list. **Phase 1b:** when Exact and Partial
-   share a list, reserve up to two Partial seats and band Exact among Exact
-   only. One-word exact-token cues (`Aadhaar`) still use the score band.
+   Combined with `MeaningEvidenceTokenBoost` (`+0.35`) and a trust band on
+   **boosted** score at max 5, a distant neighbour still missed the shown
+   list. That boosted-score / max-5 trim is the original defect. **1b–1d
+   type quotas were later added and then reversed** — they are not the
+   contract.
 
 `MeaningOnly` only runs when **zero** named words hit **any** remaining
 candidate. On a mixed library that is almost never true.
@@ -308,6 +316,26 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Known limitation:** files outside the token-seated 60 still cannot
   appear. USE can still rank a screenshot above a PDF; that is ranking, not
   a quota.
+- **Git commit:** local; do not push.
+
+## Delivery record — contract freeze up to 20 (2026-09-18)
+
+- **Why.** “Page of 20” was being read as a floor and as something that
+  later grows with corpus size. On a mixed library, `limitReached` was also
+  true whenever the 60-pool or the cosine band dropped anyone — so a thin
+  close list still said “add another word.”
+- **Files/layers:** `MeaningTrustedHitPolicy` page is a cap; `CanonicalRecall`
+  sets `limitReached` only when the close band exceeded that cap;
+  Exact lists name the count. Keyword Find unchanged. No type quotas.
+- **Automated verification:** `MeaningTrustedHitPolicyTest` (thin band does
+  not pad; truncated only at cap); `CanonicalRecallMeaningTest` (12 close
+  hits do not claim limit reached; 3 close + 8 far stay 3; 25 close cap at
+  20); `MeaningSearchCopyTest.exact_results_copy_names_the_count_and_does_not_pad_to_twenty`.
+- **Emulator/manual:** mixed cues across the founder library. Do **not**
+  expect twenty cards. Do **not** run `connectedDebugAndroidTest`.
+- **Known limitation:** files outside the token-seated 60 still cannot
+  appear. USE can still rank a screenshot above a PDF; that is ranking.
+  Probe membership stays 30-vs-30.
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)
