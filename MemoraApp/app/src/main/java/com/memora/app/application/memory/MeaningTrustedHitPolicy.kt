@@ -15,8 +15,8 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
  * (`schedule`) so a schedule-only image cannot take the neighbour seats.
  *
  * Pictures of a document still outrank the PDF on USE cosine. Keyword Find
- * already returns those PDFs, so the shown five reserve document seats when
- * the ranked pool still has them — swapping images, not growing the list.
+ * already returns those PDFs, so the shown five give every PDF/note still in
+ * the ranked pool a seat, swapping images, not growing the list past five.
  */
 object MeaningTrustedHitPolicy {
     const val MAX_TRUSTED_HITS = 5
@@ -29,11 +29,11 @@ object MeaningTrustedHitPolicy {
     const val RESERVED_PARTIAL_WHEN_MIXED = 2
 
     /**
-     * Seats reserved for PDF/note originals when images would otherwise fill
-     * the shown five. Leaves image neighbours in place if there is no image
-     * seat to swap.
+     * PDF and note originals in the ranked pool take seats before pictures of
+     * the same words, up to the shown five. Keyword Find is still the full
+     * literal list; meaning stays a short list.
      */
-    const val RESERVED_DOCUMENT_WHEN_IMAGES = 2
+    const val RESERVED_DOCUMENT_WHEN_IMAGES = MAX_TRUSTED_HITS
 
     fun apply(hits: List<MeaningSearchHit>, limit: Int): List<MeaningSearchHit> {
         if (hits.isEmpty()) return hits

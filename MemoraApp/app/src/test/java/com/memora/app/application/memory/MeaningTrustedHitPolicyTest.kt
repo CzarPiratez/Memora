@@ -150,6 +150,35 @@ class MeaningTrustedHitPolicyTest {
     }
 
     /**
+     * Four timetable PDFs in the ranked pool should all take seats in the
+     * shown five. Meaning is still a short list — not keyword's full hit set
+     * of nine — but it must not keep only one original.
+     */
+    @Test
+    fun exact_query_gives_every_pooled_pdf_a_seat_up_to_the_five() {
+        val hits = listOf(
+            hit("shot-a", 1.0f, "Swimming timetable board", AssetType.SCREENSHOT),
+            hit("shot-b", 0.99f, "Swimming timetable photo", AssetType.SCREENSHOT),
+            hit("shot-c", 0.98f, "Swimming timetable crop", AssetType.SCREENSHOT),
+            hit("shot-d", 0.97f, "Swimming timetable print", AssetType.SCREENSHOT),
+            hit("shot-e", 0.96f, "Swimming timetable screen", AssetType.SCREENSHOT),
+            hit("pdf-1", 0.50f, "Grade 2 Swimming timetable 2026", AssetType.PDF),
+            hit("pdf-2", 0.48f, "Grade 3 Swimming timetable 2026", AssetType.PDF),
+            hit("pdf-3", 0.46f, "Grade 4 Swimming timetable 2026", AssetType.PDF),
+            hit("pdf-4", 0.44f, "Grade 5 Swimming timetable 2026", AssetType.PDF),
+        )
+        val trusted = MeaningTrustedHitPolicy.apply(
+            hits = hits,
+            limit = 10,
+            rawQuery = "swimming timetable",
+        )
+        val pdfIds = trusted.filter { it.assetType == AssetType.PDF }.map { it.revisionId.value }
+        assertEquals(listOf("pdf-1", "pdf-2", "pdf-3", "pdf-4"), pdfIds)
+        assertEquals(1, trusted.count { it.assetType == AssetType.SCREENSHOT })
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, trusted.size)
+    }
+
+    /**
      * Device: `swimming schedule` showed swimming screenshots, never the PDF.
      * The PDF is a modifier Partial and must take a swapped document seat.
      */

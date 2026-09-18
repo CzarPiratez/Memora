@@ -6,11 +6,11 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 document seats in meaning results (2026-09-18).** Device: after
-modifier-first Partial seats, `swimming schedule` and `swimming timetable`
-still showed only screenshots/images. Keyword Find already returns the
-timetable PDFs. Shown five now swap image seats for PDF/note hits still in
-the ranked pool. Not a synonym net. Keyword Find frozen. Change control:
+**D-20 document seats fill the five (2026-09-18).** Meaning still shows at
+most five. Every PDF/note still in the ranked pool now takes a seat before
+pictures of the same words — so four timetable PDFs in that pool all appear.
+Keyword Find remains the full literal list (nine for `timetable`). If a PDF
+never entered the meaning pool of 30, it still cannot appear. Change control:
 `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 
