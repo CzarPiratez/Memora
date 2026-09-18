@@ -6,13 +6,13 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-18
 
-**D-20 mixed trusted seating (2026-09-18).** Device: after Exact list-replace
-was removed, `swimming schedule` still showed only files that contain both
-words. `Aadhaar` / `passport` were fine. Cause: `MeaningTrustedHitPolicy`
-0.22 of the **Exact** boosted top (often 1.0) dropped the timetable.
-Fix: when Exact and Partial share a list, reserve up to two Partial seats
-and band Exact among Exact only. Token-count pool seating unchanged.
-Keyword Find frozen. Change control:
+**D-20 modifier-first Partial seats (2026-09-18).** Keyword Find already
+returns the swimming-timetable PDFs. Meaning `swimming schedule` still put a
+`schedule`-only JPG first because reserved Partial seats were score-only.
+Those seats now prefer the modifier (`swimming`) over the generic head
+(`schedule`). Not a synonym net. Exact-token `Aadhaar` / `passport`
+unchanged. Keyword Find frozen. PDFs can still lose to other *swimming*
+screenshots on cosine — that is the next measure. Change control:
 `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
 Do **not** run connected tests that `clearAll` the live DB.
 

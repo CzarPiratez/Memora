@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### D-20 Phase 1c — modifier-first Partial seats (2026-09-18)
+
+- **Date:** 2026-09-18
+- **Why.** Device: mixed seating worked, but seat 1 was a JPG with only
+  `schedule`. Keyword Find `swimming timetable` already returns four correct
+  PDFs — the files are indexed. Reserved Partial seats were score-only, so a
+  generic head-word image beat swimming neighbours.
+- **Landed.** Mixed Partial seats prefer hits that match a modifier token
+  (`swimming` in `swimming schedule`) over head-only (`schedule`). Not a
+  synonym net. Keyword Find unchanged.
+- **Not done.** Among swimming Partials, USE cosine can still prefer a
+  screenshot over the timetable PDF.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`.
+  Live/Dual **N = 0**.
+
 ### D-20 Phase 1b — mixed trusted seating (2026-09-18)
 
 - **Date:** 2026-09-18

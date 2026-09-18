@@ -9,9 +9,9 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
  *
  * Prefer a short band near the top score over padding to a fixed top-10 of
  * weak neighbors. When Exact and Partial hits share a list (defect D-20),
- * that band must not be measured against the Exact top score: token boost
- * caps Exact files at 1.0 and a timetable at rank ~380 then falls outside
- * 0.22 even though ranking already admitted it.
+ * that band must not be measured against the Exact top score, and reserved
+ * Partial seats prefer a modifier match (`swimming`) over a generic head
+ * (`schedule`) so a schedule-only image cannot take the neighbour seats.
  */
 object MeaningTrustedHitPolicy {
     const val MAX_TRUSTED_HITS = 5
@@ -53,17 +53,42 @@ object MeaningTrustedHitPolicy {
         if (exact.isEmpty() || partial.isEmpty()) return apply(hits, limit)
 
         val cap = limit.coerceAtMost(MAX_TRUSTED_HITS).coerceAtLeast(1)
-        val reservedCount = minOf(RESERVED_PARTIAL_WHEN_MIXED, partial.size, cap - 1)
-        val reservedPartial = partial.take(reservedCount)
+        val orderedPartial = orderPartialsByModifierThenScore(partial, required, cue)
+        val reservedCount = minOf(RESERVED_PARTIAL_WHEN_MIXED, orderedPartial.size, cap - 1)
+        val reservedPartial = orderedPartial.take(reservedCount)
         val exactKeep = apply(exact, cap - reservedPartial.size)
         val keepIds = (exactKeep + reservedPartial).map { it.revisionId }.toHashSet()
         val leftover = cap - keepIds.size
         if (leftover > 0) {
-            partial.asSequence()
+            orderedPartial.asSequence()
                 .filter { it.revisionId !in keepIds }
                 .take(leftover)
                 .forEach { keepIds.add(it.revisionId) }
         }
         return hits.filter { it.revisionId in keepIds }
+    }
+
+    /**
+     * English noun compounds put the distinctive modifier first (`swimming
+     * schedule`, `passport photo`) and a generic head last. A Partial that only
+     * has the head is a weaker neighbour than one that has the modifier.
+     * Score order is kept inside each group. Not a synonym net: `schedule` is
+     * never treated as `timetable`.
+     */
+    private fun orderPartialsByModifierThenScore(
+        partial: List<MeaningSearchHit>,
+        required: List<String>,
+        cue: MeaningEvidenceLexicalFilter.PreparedCue,
+    ): List<MeaningSearchHit> {
+        val modifiers = required.dropLast(1).toSet()
+        if (modifiers.isEmpty()) return partial
+        val withModifier = partial.filter { hit ->
+            cue.matchingTokens(hit.lexicalHaystack()).any { it in modifiers }
+        }
+        if (withModifier.isEmpty()) return partial
+        val headOnly = partial.filter { hit ->
+            withModifier.none { it.revisionId == hit.revisionId }
+        }
+        return withModifier + headOnly
     }
 }

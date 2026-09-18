@@ -3,9 +3,10 @@
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
 **Status:** **Probe delivered** (founder A15). **Phase 1 Exact list-replace
-delivered.** **Phase 1b mixed trusted seating delivered** (device: Exact-only
-list was the 0.22 band, not list-replace). Token-count pool seating **kept**.
-Phase 0 live trace not delivered.
+delivered.** **Phase 1b mixed trusted seating delivered.** **Phase 1c
+modifier-first Partial seats delivered** (device: `schedule`-only JPG took a
+Partial seat; keyword Find already has the PDFs). Token-count pool seating
+**kept**. Phase 0 live trace not delivered.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
 **Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
@@ -251,9 +252,27 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Emulator/manual:** founder re-test `swimming schedule`; confirm
   `Aadhaar` / `passport` still look like themselves. Do **not** run
   `connectedDebugAndroidTest` that clears the live DB.
-- **Known limitation:** reserved Partial seats are the strongest Partial
-  neighbours by score, not a synonym for `timetable`. Other `swimming` files
-  can take those seats.
+- **Known limitation:** reserved Partial seats were score-only. Device then
+  showed a `schedule`-only JPG first. Keyword `swimming timetable` returns
+  four correct PDFs. Phase 1c.
+- **Git commit:** `79d9613`.
+
+## Delivery record — Phase 1c modifier-first Partial seats (2026-09-18)
+
+- **Files/layers:** `MeaningTrustedHitPolicy.orderPartialsByModifierThenScore`
+  — English compound: last content token is the head; earlier tokens are
+  modifiers. Reserved Partial seats take modifier matches first. Head-only
+  still used if no modifier Partial exists. Not a synonym net. Keyword Find
+  unchanged.
+- **Automated verification:**
+  `mixed_query_prefers_modifier_partials_over_a_head_only_image`;
+  `mixed_query_keeps_a_head_only_partial_when_no_modifier_partial_exists`.
+- **Emulator/manual:** founder `swimming schedule` again. The
+  `schedule`-only JPG should not take a reserved seat if any `swimming`
+  Partial exists. The timetable PDF may still lose to other swimming
+  screenshots on cosine. Do **not** run `connectedDebugAndroidTest`.
+- **Known limitation:** does not rank among swimming Partials; USE can still
+  prefer a screenshot over the PDF.
 - **Git commit:** local; do not push.
 
 ## Delivery record (plan docs, 2026-09-18)
