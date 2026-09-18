@@ -4,7 +4,16 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-18
+**Updated:** 2026-09-19
+
+**D-24 page family mix (2026-09-19).** Landed: the shown 20 round-robins
+named-word **families** (matching token sets), not only token count. D-23
+missed the timetable PDF because classes-only files are the same depth.
+Re-test `when are the swimming classes`; `passport` / `swimming timetable`
+must not regress. Change control:
+`docs/CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
 
 **D-23 page depth mix (2026-09-18).** Landed: when the close cosine band
 exceeds 20 and the cue has more than one named-word depth, the shown page

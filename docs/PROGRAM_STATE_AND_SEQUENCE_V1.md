@@ -454,6 +454,14 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-24 — named-word families share the capped meaning page (**P0, landed**)
+
+**LANDED 2026-09-19.** D-23 device miss: same-depth `{classes}` occupied the
+20. Occupancy now round-robins matching token **sets**. Not PDF seats.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`.
+Live/Dual **N = 0**.
+
 ### D-23 — named-word depths share the capped meaning page (**P0, landed**)
 
 **LANDED 2026-09-18.** D-22 device: gold PDF in the 60 and in the 0.22 band,

@@ -75,7 +75,8 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | D-20 meaning ranking lexical veto | [`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`](CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md) — ranking sequence **stopped** at Phase 1 gate; probe / Phase 1 / page freeze / Phase 0 traces delivered; 1b–1d quotas removed; residual is D-21 |
 | D-21 meaning Partial families | [`CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`](CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md) — **landed**; keep any named-word hit already in the 60; not I3 / encoder / FTS |
 | D-22 meaning gold-in-pool measure | [`CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`](CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md) — **landed measure**; founder `diagnosis=in_pool_off_page`; seating not the leak |
-| D-23 meaning page depth mix | [`CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md) — **landed**; named-word depths share the capped 20; not PDF seats / encoder / bigger page |
+| D-23 meaning page depth mix | [`CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md) — **landed**; token-count mix; same-depth families still leaked (D-24) |
+| D-24 meaning page family mix | [`CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md) — **landed**; matching token sets share the capped 20; not PDF seats |
 | Human recall language (ceiling) | [`HUMAN_RECALL_ASK_MODEL.md`](HUMAN_RECALL_ASK_MODEL.md) — required before further NL Find code |
 
 Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B

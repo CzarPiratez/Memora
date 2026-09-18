@@ -118,6 +118,34 @@ class MeaningTrustedHitPolicyTest {
     }
 
     @Test
+    fun same_depth_named_word_families_share_a_capped_page() {
+        val classesOnly = (0 until 20).map { index ->
+            hit(
+                id = "classes-$index",
+                score = 0.84f - index * 0.001f,
+                summary = "beginner classes list $index",
+                cosine = 0.84f - index * 0.001f,
+            )
+        }
+        val timetable = hit(
+            id = "tt",
+            score = 0.675f,
+            summary = "weekly swimming timetable",
+            cosine = 0.675f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = classesOnly + timetable,
+            limit = 20,
+            rawQuery = "when are the swimming classes",
+        )
+        assertEquals(20, page.hits.size)
+        assertTrue(page.truncatedByPageCap)
+        assertTrue(page.hits.any { it.revisionId.value == "tt" })
+        assertEquals("classes-0", page.hits.first().revisionId.value)
+        assertEquals("tt", page.hits[1].revisionId.value)
+    }
+
+    @Test
     fun one_word_cue_does_not_reorder_a_capped_page() {
         val hits = (0 until 25).map { index ->
             hit(

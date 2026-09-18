@@ -379,6 +379,42 @@ class CanonicalRecallMeaningTest {
         assertEquals("swimming-classes-0.jpg", outcome.hits.first().label)
     }
 
+    @Test
+    fun searchByMeaning_shows_a_swimming_only_neighbour_among_classes_only_hits() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 20).associate { index ->
+            val revision = MemoryRevisionId("classes-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "beginner-classes-$index.jpg",
+                "beginner classes list $index",
+            )
+        }.toMutableMap()
+        val pdf = MemoryRevisionId("rev-tt")
+        embeddingStore.upsert(record(pdf, 0.70f))
+        lookups[pdf] = lookup(
+            pdf,
+            "Grade-2-Swimming-TT-2026.pdf",
+            "weekly swimming timetable",
+        )
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, outcome.hits.size)
+        assertTrue(outcome.hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
+        assertEquals("beginner-classes-0.jpg", outcome.hits.first().label)
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits[1].label)
+    }
+
     private fun recall(
         embeddingEngine: EmbeddingEngine = UnavailableMeaningEngine(),
         embeddingStore: MemoryEmbeddingStore = InMemoryMemoryEmbeddingStore(),

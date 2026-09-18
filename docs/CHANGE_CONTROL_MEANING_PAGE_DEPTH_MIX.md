@@ -131,9 +131,10 @@ ESCAPE-HATCH AFTER CHANGE: no
   `one_word_cue_does_not_reorder_a_capped_page`;
   `CanonicalRecallMeaningTest.searchByMeaning_shows_a_shallower_named_word_neighbour_on_a_capped_page`;
   existing band / Exact-neighbour / type-order tests unchanged.
-- **Emulator/manual:** founder debug `when are the swimming classes`;
-  Logcat `shownRank` / `diagnosis=on_page`. Confirm `passport` and
-  `swimming timetable`. Do **not** run `connectedDebugAndroidTest`.
+- **Emulator/manual:** founder 2026-09-19: still cannot see
+  `Grade-2-Swimming-TT-2026.pdf` after D-23. Same-depth `{classes}` leak;
+  occupancy key corrected in **D-24**.
 - **Known limitation:** gold still needs to be in the 0.22 band. Files
-  outside the 60 still cannot appear. Encoder / one-box not this slice.
+  outside the 60 still cannot appear. Same-depth families were not mixed
+  (D-24).
 - **Git commit:** local; do not push.

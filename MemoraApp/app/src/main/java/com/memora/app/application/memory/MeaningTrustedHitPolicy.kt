@@ -7,10 +7,10 @@ import com.memora.app.application.intelligence.MeaningSearchHit
  *
  * One relevance order for every asset type. No reserved seats for PDFs,
  * notes, or a particular cue. When the close band exceeds the cap, named-word
- * **depths** already in that band share the page ([MeaningNamedWordDepthPage]);
- * that is not a type quota. Coverage ranking lives in
- * [AnchorAwareMeaningRecallRanking]; this stage trims and occupies the shown
- * page.
+ * **families** (matching token sets) already in that band share the page
+ * ([MeaningNamedWordDepthPage]); that is not a type quota. Coverage ranking
+ * lives in [AnchorAwareMeaningRecallRanking]; this stage trims and occupies
+ * the shown page.
  *
  * The band reads raw [MeaningSearchHit.cosine], not the boosted working
  * [MeaningSearchHit.score]. Token boost was making Exact files sit at 1.0 and
@@ -48,7 +48,7 @@ object MeaningTrustedHitPolicy {
     }
 
     /**
-     * Same trim as [page]. [rawQuery] may mix named-word depths on a capped
+     * Same trim as [page]. [rawQuery] may mix named-word families on a capped
      * page. It does not reserve seats by asset type.
      */
     fun apply(

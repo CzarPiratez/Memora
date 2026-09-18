@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### D-24 — named-word families share the capped meaning page (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** D-23 mixed by token count. Classes-only and swimming-only are
+  both 1-token; the cap still hid the timetable PDF.
+- **Landed.** Page occupancy round-robins matching token sets. Cap 20.
+  No type quotas. Keyword Find unchanged.
+- **Not done.** Encoder. FTS. One-box. Raising the page.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`.
+  Live/Dual **N = 0**.
+
 ### D-23 — named-word depths share the capped meaning page (2026-09-18)
 
 - **Date:** 2026-09-18

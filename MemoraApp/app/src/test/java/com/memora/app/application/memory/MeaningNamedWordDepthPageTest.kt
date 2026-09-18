@@ -25,7 +25,7 @@ class MeaningNamedWordDepthPageTest {
     }
 
     @Test
-    fun single_depth_keeps_incoming_order() {
+    fun single_family_keeps_incoming_order() {
         val hits = (0 until 5).map { index ->
             hit("both-$index", "swimming classes photo $index")
         }
@@ -62,6 +62,21 @@ class MeaningNamedWordDepthPageTest {
             rawQuery = "swimming timetable",
         )
         assertEquals(listOf("shot", "pdf", "note"), ordered.map { it.revisionId.value })
+    }
+
+    @Test
+    fun same_depth_families_share_the_page() {
+        val classesOnly = (0 until 20).map { index ->
+            hit("classes-$index", "beginner classes list $index")
+        }
+        val swimmingOnly = hit("tt", "weekly swimming timetable")
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = classesOnly + swimmingOnly,
+            rawQuery = "when are the swimming classes",
+        )
+        assertEquals("classes-0", ordered.first().revisionId.value)
+        assertEquals("tt", ordered[1].revisionId.value)
+        assertTrue(ordered.take(20).any { it.revisionId.value == "tt" })
     }
 
     @Test
