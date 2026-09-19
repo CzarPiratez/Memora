@@ -144,6 +144,38 @@ class MeaningTrustedHitPolicyTest {
     }
 
     @Test
+    fun self_captures_do_not_take_exact_seats_on_the_page() {
+        val self = (0 until 12).map { index ->
+            hit(
+                id = "self-$index",
+                score = 0.84f - index * 0.001f,
+                summary = "scan silky Find by meaning Why this result? PDF memory $index",
+                cosine = 0.84f - index * 0.001f,
+            )
+        }
+        val scan = hit(
+            id = "scan",
+            score = 0.70f,
+            summary = "document scan pages",
+            cosine = 0.70f,
+        )
+        val silky = hit(
+            id = "silky",
+            score = 0.68f,
+            summary = "silky fabric invoice",
+            cosine = 0.68f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = self + scan + silky,
+            limit = 20,
+            rawQuery = "scan silky",
+        )
+        assertEquals(14, page.hits.size)
+        assertEquals(listOf("scan", "silky"), page.hits.take(2).map { it.revisionId.value })
+        assertTrue(page.hits.takeLast(12).all { it.revisionId.value.startsWith("self-") })
+    }
+
+    @Test
     fun same_depth_named_word_families_share_a_capped_page() {
         val classesOnly = (0 until 20).map { index ->
             hit(

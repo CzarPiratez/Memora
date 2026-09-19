@@ -37,6 +37,28 @@ class MeaningNamedWordDepthPageTest {
     }
 
     @Test
+    fun exact_originals_lead_and_self_captures_stay_last() {
+        val exact = (0 until 4).map { index ->
+            hit("tt-$index", "weekly swimming timetable $index")
+        }
+        val self = (0 until 3).map { index ->
+            hit(
+                "self-$index",
+                "swimming timetable Find by meaning Why this result? PDF memory $index",
+            )
+        }
+        val neighbour = hit("photo", "pool swimming photo")
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = self + exact + neighbour,
+            rawQuery = "swimming timetable",
+        )
+        assertEquals(
+            listOf("tt-0", "tt-1", "tt-2", "tt-3", "photo", "self-0", "self-1", "self-2"),
+            ordered.map { it.revisionId.value },
+        )
+    }
+
+    @Test
     fun exact_family_leads_then_named_word_neighbours() {
         val twoToken = (0 until 3).map { index ->
             hit("class-$index", "swimming classes photo $index")
@@ -77,6 +99,26 @@ class MeaningNamedWordDepthPageTest {
         assertEquals("tt", ordered.first().revisionId.value)
         assertEquals("classes-0", ordered[1].revisionId.value)
         assertTrue(ordered.take(20).any { it.revisionId.value == "tt" })
+    }
+
+    @Test
+    fun self_captures_do_not_form_the_exact_family() {
+        val self = (0 until 12).map { index ->
+            hit(
+                "self-$index",
+                "scan silky Find by meaning Why this result? PDF memory $index",
+            )
+        }
+        val scan = hit("scan", "document scan pages")
+        val silky = hit("silky", "silky fabric invoice")
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = self + scan + silky,
+            rawQuery = "scan silky",
+        )
+        assertEquals(
+            listOf("scan", "silky") + self.map { it.revisionId.value },
+            ordered.map { it.revisionId.value },
+        )
     }
 
     @Test

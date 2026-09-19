@@ -6,6 +6,14 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
+**D-27 self-capture occupancy (2026-09-19).** Landed: pictures of UNFYND
+cannot form the Exact family on the shown page (D-26 was putting app
+screenshots first on `scan silky`). Re-test `scan silky` and `swimming
+timetable`; confirm passport / wifi / classes. Change control:
+`docs/CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-26 Exact-first page (2026-09-19).** Landed: when some file has every
 named word, Exact occupies the shown page first; neighbours fill leftover
 seats only. Mixed Partial (`wifi password` / `scan silky`) unchanged.

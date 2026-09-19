@@ -64,8 +64,10 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] 20 Exact + neighbour → page is Exact only
   - [x] 12 Exact + neighbour → neighbour after Exact, still on page
   - [x] 20 `{classes}` + `{swimming}` still starved-family (wifi class)
-  - [ ] Founder: `swimming timetable` Exact files lead; `passport` /
-        `wifi password` / `scan silky` unchanged
+  - [x] Founder: `swimming timetable` Exact PDFs moved to 4/7/8/9
+        (from 8/12/13/14); `passport` / `wifi password` / classes hold
+  - [x] Founder miss: `scan silky` first 12 = app screenshots; silky 17th
+        — Exact-first undid D-14 (see D-27)
 
 ## Delivery record (2026-09-19)
 

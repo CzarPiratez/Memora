@@ -381,6 +381,40 @@ class CanonicalRecallMeaningTest {
     }
 
     @Test
+    fun searchByMeaning_does_not_let_self_captures_lead_a_mixed_partial_page() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 12).associate { index ->
+            val revision = MemoryRevisionId("self-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "Screenshot_UNFYND_$index.png",
+                "scan silky Find by meaning Why this result? PDF memory $index",
+            )
+        }.toMutableMap()
+        val scan = MemoryRevisionId("rev-scan")
+        val silky = MemoryRevisionId("rev-silky")
+        embeddingStore.upsert(record(scan, 0.72f))
+        embeddingStore.upsert(record(silky, 0.70f))
+        lookups[scan] = lookup(scan, "scan.pdf", "document scan pages")
+        lookups[silky] = lookup(silky, "silky.pdf", "silky fabric invoice")
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("scan silky") as MeaningSearchOutcome.Matches
+
+        assertEquals("scan.pdf", outcome.hits.first().label)
+        assertEquals("silky.pdf", outcome.hits[1].label)
+        assertTrue(outcome.hits.take(2).none { it.label.contains("UNFYND") })
+        assertTrue(outcome.hits.takeLast(12).all { it.label.contains("UNFYND") })
+    }
+
+    @Test
     fun searchByMeaning_shows_a_swimming_only_neighbour_among_classes_only_hits() = runBlocking {
         val engine = FixedEmbeddingEngine(dimensions = 3)
         engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))

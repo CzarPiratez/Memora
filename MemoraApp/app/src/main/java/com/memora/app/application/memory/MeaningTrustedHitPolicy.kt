@@ -8,8 +8,9 @@ import com.memora.app.application.intelligence.MeaningSearchHit
  * One relevance order for every asset type. No reserved seats for PDFs,
  * notes, or a particular cue. When the close band exceeds the cap, named-word
  * **families** (matching token sets) already in that band share the page
- * ([MeaningNamedWordDepthPage]). Exact fills first when present. That is
- * not a type quota. Coverage ranking lives in [AnchorAwareMeaningRecallRanking]; this stage trims and occupies
+ * ([MeaningNamedWordDepthPage]). Exact fills first when an original has
+ * every named word. Pictures of UNFYND (D-14) stay last so they cannot
+ * form that Exact family. That is not a type quota. Coverage ranking lives in [AnchorAwareMeaningRecallRanking]; this stage trims and occupies
  * the shown page.
  *
  * The band reads raw [MeaningSearchHit.cosine], not the boosted working

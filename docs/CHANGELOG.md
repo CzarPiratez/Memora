@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### D-27 — self-captures cannot form the Exact family (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** D-26: `scan silky` opened with 12 app screenshots because they
+  OCR both named words and Exact-first undid D-14.
+- **Landed.** Occupancy partitions UNFYND self-captures and appends them
+  last. Exact-first / starved mix run on originals only.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`.
+  Live/Dual **N = 0**.
+
 ### D-26 — Exact family leads the meaning page (2026-09-19)
 
 - **Date:** 2026-09-19

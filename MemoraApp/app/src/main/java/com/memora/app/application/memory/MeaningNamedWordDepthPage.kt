@@ -3,22 +3,47 @@ package com.memora.app.application.memory
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallCue
+import com.memora.app.domain.intelligence.UnfyndSelfCapture
 
 /**
  * Shown-page occupancy among named-word **families** already in the trusted
- * band (D-23–D-26).
+ * band (D-23–D-27).
  *
- * Mixed Partial (no file has every named word): the family starved in the
- * cosine prefix takes its fair share first (D-25). Wifi / scan silky stay
- * here.
+ * Pictures of UNFYND itself (D-14) can OCR every named word because the
+ * Find chrome repeats the cue. They must not form the Exact family or they
+ * undo [AnchorAwareMeaningRecallRanking] demotion. They stay last.
  *
- * Exact (some file has every named word): Exact family occupies first, in
+ * Mixed Partial (no original has every named word): the family starved in
+ * the cosine prefix takes its fair share first (D-25). Wifi / scan silky
+ * stay here.
+ *
+ * Exact (some original has every named word): Exact occupies first, in
  * incoming order. Named-word neighbours fill leftover seats only (D-26).
  * D-20 keeps those neighbours in the 60; it does not let them take seats
  * ahead of Exact. Not a type quota, not a synonym, not a bigger dump.
  */
 object MeaningNamedWordDepthPage {
     fun order(hits: List<MeaningSearchHit>, rawQuery: String): List<MeaningSearchHit> {
+        if (hits.size <= 1) return hits
+        val selfCaptures = hits.filter { hit ->
+            UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())
+        }
+        val originals = if (selfCaptures.isEmpty()) {
+            hits
+        } else {
+            hits.filterNot { hit ->
+                UnfyndSelfCapture.matches(hit.label, hit.lexicalHaystack())
+            }
+        }
+        if (originals.isEmpty()) return hits
+        val ordered = orderOriginals(originals, rawQuery)
+        return if (selfCaptures.isEmpty()) ordered else ordered + selfCaptures
+    }
+
+    private fun orderOriginals(
+        hits: List<MeaningSearchHit>,
+        rawQuery: String,
+    ): List<MeaningSearchHit> {
         if (hits.size <= 1) return hits
         val tokens = MeaningRecallCue.contentTokens(rawQuery)
         if (tokens.size < 2) return hits

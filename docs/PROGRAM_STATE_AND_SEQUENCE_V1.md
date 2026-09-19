@@ -454,6 +454,15 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-27 — self-captures cannot form the Exact family (**P0, landed**)
+
+**LANDED 2026-09-19.** D-26 device: `scan silky` led with 12 app
+screenshots. Occupancy no longer treats [UnfyndSelfCapture] as Exact.
+D-25 / D-26 still apply to originals.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`.
+Live/Dual **N = 0**.
+
 ### D-26 — Exact family leads the meaning page (**P0, landed**)
 
 **LANDED 2026-09-19.** Exact in-band family occupies the page first.
