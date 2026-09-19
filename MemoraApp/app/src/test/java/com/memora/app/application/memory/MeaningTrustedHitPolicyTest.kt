@@ -176,6 +176,32 @@ class MeaningTrustedHitPolicyTest {
     }
 
     @Test
+    fun deepest_partial_stays_eligible_when_shallower_hits_set_a_high_band() {
+        val gradeOnly = (0 until 5).map { index ->
+            hit(
+                id = "grade-$index",
+                score = 0.90f - index * 0.001f,
+                summary = "term grade report $index",
+                cosine = 0.90f - index * 0.001f,
+            )
+        }
+        val gold = hit(
+            id = "tt",
+            score = 0.60f,
+            summary = "grade 2 weekly swimming timetable",
+            cosine = 0.60f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = gradeOnly + gold,
+            limit = 20,
+            rawQuery = "when are the swimming classes for grade 2",
+        )
+        assertEquals(6, page.hits.size)
+        assertEquals("tt", page.hits.first().revisionId.value)
+        assertEquals("grade-0", page.hits[1].revisionId.value)
+    }
+
+    @Test
     fun same_depth_named_word_families_share_a_capped_page() {
         val classesOnly = (0 until 20).map { index ->
             hit(

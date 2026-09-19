@@ -6,6 +6,15 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
+**D-28 deepest-partial page (2026-09-19).** Landed: a longer P-AND cue
+does not give one-word `{grade}` files an equal share. Deepest named-word
+hits stay eligible and lead; wifi / silky same-depth mix unchanged.
+Re-test `when are the swimming classes for grade 2`; confirm classes /
+timetable / wifi / silky / passport. Change control:
+`docs/CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-27 self-capture occupancy (2026-09-19).** Landed: pictures of UNFYND
 cannot form the Exact family on the shown page (D-26 was putting app
 screenshots first on `scan silky`). Re-test `scan silky` and `swimming

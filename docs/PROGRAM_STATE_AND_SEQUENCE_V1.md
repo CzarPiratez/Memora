@@ -454,6 +454,15 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-28 — deepest partial leads the meaning page (**P0, landed**)
+
+**LANDED 2026-09-19.** D-27 device: `… for grade 2` showed irrelevant
+`{grade}` files. Deepest named-word family occupies first; shallower
+leftover. D-25 same-depth mix unchanged.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md`.
+Live/Dual **N = 0**.
+
 ### D-27 — self-captures cannot form the Exact family (**P0, landed**)
 
 **LANDED 2026-09-19.** D-26 device: `scan silky` led with 12 app

@@ -23,6 +23,14 @@ class MeaningRecallCueTest {
     }
 
     @Test
+    fun content_tokens_keep_grade_and_drop_a_single_digit() {
+        assertEquals(
+            listOf("swimming", "classes", "grade"),
+            MeaningRecallCue.contentTokens("when are the swimming classes for grade 2"),
+        )
+    }
+
+    @Test
     fun content_tokens_drop_question_wrappers() {
         assertEquals(
             listOf("silky"),

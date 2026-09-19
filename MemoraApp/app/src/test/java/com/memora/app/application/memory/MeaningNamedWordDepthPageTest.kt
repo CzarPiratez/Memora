@@ -87,6 +87,44 @@ class MeaningNamedWordDepthPageTest {
     }
 
     @Test
+    fun deepest_partial_leads_shallower_families_on_a_three_word_cue() {
+        val gradeOnly = (0 until 20).map { index ->
+            hit("grade-$index", "term grade report $index")
+        }
+        val gold = hit("tt", "grade 2 weekly swimming timetable")
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = gradeOnly + gold,
+            rawQuery = "when are the swimming classes for grade 2",
+        )
+        assertEquals("tt", ordered.first().revisionId.value)
+        assertEquals("grade-0", ordered[1].revisionId.value)
+        assertTrue(ordered.takeLast(20).all { it.revisionId.value.startsWith("grade-") })
+    }
+
+    @Test
+    fun starved_mix_runs_only_among_the_deepest_families() {
+        val classesSwim = (0 until 10).map { index ->
+            hit("class-$index", "swimming classes photo $index")
+        }
+        val gradeSwim = listOf(
+            hit("tt-a", "grade 2 weekly swimming timetable A"),
+            hit("tt-b", "grade 2 weekly swimming timetable B"),
+        )
+        val gradeOnly = (0 until 10).map { index ->
+            hit("grade-$index", "term grade report $index")
+        }
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = classesSwim + gradeSwim + gradeOnly,
+            rawQuery = "when are the swimming classes for grade 2",
+        )
+        assertEquals(
+            listOf("tt-a", "tt-b") + (0 until 10).map { "class-$it" },
+            ordered.take(12).map { it.revisionId.value },
+        )
+        assertTrue(ordered.takeLast(10).all { it.revisionId.value.startsWith("grade-") })
+    }
+
+    @Test
     fun same_depth_families_share_the_page() {
         val classesOnly = (0 until 20).map { index ->
             hit("classes-$index", "beginner classes list $index")

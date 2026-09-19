@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### D-28 — deepest partial leads the meaning page (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** D-27: `when are the swimming classes for grade 2` dumped
+  `{grade}`-only files because D-25 shared the page across every family.
+- **Landed.** Deepest named-word hits stay eligible and occupy first.
+  Same-depth mix unchanged. Cap 20. No type quotas.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md`.
+  Live/Dual **N = 0**.
+
 ### D-27 — self-captures cannot form the Exact family (2026-09-19)
 
 - **Date:** 2026-09-19

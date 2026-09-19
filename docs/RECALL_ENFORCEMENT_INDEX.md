@@ -79,7 +79,8 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | D-24 meaning page family mix | [`CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`](CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md) — **landed**; token sets share the 20; timetables still late (D-25) |
 | D-25 meaning starved-family page | [`CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`](CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md) — **landed**; mixed Partial starved family first; Exact interleave corrected by D-26 |
 | D-26 meaning Exact-first page | [`CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md`](CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md) — **landed**; Exact leads; D-26 device: silky regressed (D-27) |
-| D-27 meaning self-capture occupancy | [`CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`](CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md) — **landed**; UNFYND screenshots cannot form Exact |
+| D-27 meaning self-capture occupancy | [`CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`](CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md) — **landed**; UNFYND screenshots cannot form Exact; D-27 device: grade-2 cue missed (D-28) |
+| D-28 meaning deepest-partial page | [`CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md`](CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md) — **landed**; deepest named-word hits lead; same-depth mix unchanged |
 | Human recall language (ceiling) | [`HUMAN_RECALL_ASK_MODEL.md`](HUMAN_RECALL_ASK_MODEL.md) — required before further NL Find code |
 
 Program Steps 1–7 landed as docs (2026-08-29). **MIG-07 keyword L1–L4 + MIG-07B

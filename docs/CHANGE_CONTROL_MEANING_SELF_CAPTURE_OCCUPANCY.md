@@ -65,8 +65,10 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] 12 Exact self-captures + scan + silky → originals first, self last
   - [x] Exact originals still lead neighbours (D-26)
   - [x] Mixed Partial starved-family tests kept
-  - [ ] Founder: `scan silky` restored; `swimming timetable` Exact files
-        still lead among originals; passport / wifi / classes hold
+  - [x] Founder: `scan silky` restored; `swimming timetable` Exact images
+        at 1–3, PDFs at 4/8/9/10; passport / wifi / classes hold
+  - [x] Founder miss: `when are the swimming classes for grade 2`
+        irrelevant — `{grade}` family share (see D-28)
 
 ## Delivery record (2026-09-19)
 
