@@ -454,6 +454,15 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
+### D-26 — Exact family leads the meaning page (**P0, landed**)
+
+**LANDED 2026-09-19.** Exact in-band family occupies the page first.
+Neighbours fill leftover seats (D-20 keep, not interleave). Mixed Partial
+D-25 unchanged.
+
+Change control: `docs/CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md`.
+Live/Dual **N = 0**.
+
 ### D-25 — starved named-word family leads the mixed Partial page (**P0, landed**)
 
 **LANDED 2026-09-19.** D-24 device: timetables at 8th and 14th. Mixed

@@ -90,7 +90,7 @@ class MeaningTrustedHitPolicyTest {
     }
 
     @Test
-    fun mixed_named_word_depths_share_a_capped_page() {
+    fun exact_family_fills_the_capped_page_before_neighbours() {
         val twoToken = (0 until 20).map { index ->
             hit(
                 id = "class-$index",
@@ -112,9 +112,35 @@ class MeaningTrustedHitPolicyTest {
         )
         assertEquals(20, page.hits.size)
         assertTrue(page.truncatedByPageCap)
-        assertTrue(page.hits.any { it.revisionId.value == "tt" })
         assertEquals("class-0", page.hits.first().revisionId.value)
-        assertEquals("tt", page.hits[1].revisionId.value)
+        assertTrue(page.hits.none { it.revisionId.value == "tt" })
+        assertTrue(page.hits.all { it.revisionId.value.startsWith("class-") })
+    }
+
+    @Test
+    fun exact_family_keeps_a_neighbour_when_the_cap_has_room() {
+        val twoToken = (0 until 12).map { index ->
+            hit(
+                id = "class-$index",
+                score = 0.84f - index * 0.001f,
+                summary = "swimming classes photo $index",
+                cosine = 0.84f - index * 0.001f,
+            )
+        }
+        val timetable = hit(
+            id = "tt",
+            score = 0.675f,
+            summary = "weekly swimming timetable",
+            cosine = 0.675f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = twoToken + timetable,
+            limit = 20,
+            rawQuery = "when are the swimming classes",
+        )
+        assertEquals(13, page.hits.size)
+        assertFalse(page.truncatedByPageCap)
+        assertEquals((0 until 12).map { "class-$it" } + "tt", page.hits.map { it.revisionId.value })
     }
 
     @Test

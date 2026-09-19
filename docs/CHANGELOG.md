@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### D-26 — Exact family leads the meaning page (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** D-25: `swimming timetable` Exact PDFs sat at 8/12/13/14 because
+  neighbours interleaved ahead of Exact.
+- **Landed.** Exact first; neighbours only in leftover seats. Wifi / silky
+  mix unchanged. Cap 20. No type quotas.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md`.
+  Live/Dual **N = 0**.
+
 ### D-25 — starved named-word family leads the mixed Partial page (2026-09-19)
 
 - **Date:** 2026-09-19

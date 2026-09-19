@@ -348,7 +348,7 @@ class CanonicalRecallMeaningTest {
         val engine = FixedEmbeddingEngine(dimensions = 3)
         engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
         val embeddingStore = InMemoryMemoryEmbeddingStore()
-        val lookups = (0 until 20).associate { index ->
+        val lookups = (0 until 12).associate { index ->
             val revision = MemoryRevisionId("class-$index")
             embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
             revision to lookup(
@@ -373,10 +373,11 @@ class CanonicalRecallMeaningTest {
         val outcome = recall.searchByMeaning("when are the swimming classes")
             as MeaningSearchOutcome.Matches
 
-        assertEquals(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS, outcome.hits.size)
-        assertTrue(outcome.limitReached)
-        assertTrue(outcome.hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
+        assertEquals(13, outcome.hits.size)
+        assertFalse(outcome.limitReached)
         assertEquals("swimming-classes-0.jpg", outcome.hits.first().label)
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.last().label)
+        assertTrue(outcome.hits.take(12).all { it.label.startsWith("swimming-classes-") })
     }
 
     @Test

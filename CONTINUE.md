@@ -6,6 +6,14 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
+**D-26 Exact-first page (2026-09-19).** Landed: when some file has every
+named word, Exact occupies the shown page first; neighbours fill leftover
+seats only. Mixed Partial (`wifi password` / `scan silky`) unchanged.
+Re-test `swimming timetable`; confirm passport / wifi / silky. Change
+control: `docs/CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md`.
+Live/Dual **N = 0**.
+Do **not** run connected tests that `clearAll` the live DB.
+
 **D-25 starved-family page (2026-09-19).** Landed: when no file has every
 named word, the family starved in the cosine top-20 takes its fair share
 first. D-24 put timetables on the page at 8th/14th; they should now sit

@@ -37,7 +37,7 @@ class MeaningNamedWordDepthPageTest {
     }
 
     @Test
-    fun mixed_depths_round_robin_deepest_first() {
+    fun exact_family_leads_then_named_word_neighbours() {
         val twoToken = (0 until 3).map { index ->
             hit("class-$index", "swimming classes photo $index")
         }
@@ -47,7 +47,7 @@ class MeaningNamedWordDepthPageTest {
             rawQuery = "when are the swimming classes",
         )
         assertEquals(
-            listOf("class-0", "tt", "class-1", "class-2"),
+            listOf("class-0", "class-1", "class-2", "tt"),
             ordered.map { it.revisionId.value },
         )
     }
