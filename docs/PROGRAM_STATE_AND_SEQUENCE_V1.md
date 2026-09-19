@@ -454,7 +454,18 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### D-28 — deepest partial leads the meaning page (**P0, landed**)
+### ADR-055 — meaning retrieval stack (**P0, authorized plan**)
+
+**ACCEPTED 2026-09-19.** Occupancy (D-23–D-28) is **closed** as a build
+sequence. Next meaning work is roles + lexical/meaning fusion + one score,
+then a measured embedder bake-off, then Stage A rerank. USE is a pack, not
+the product. Keyword Find frozen. D-20 “thousands” encoder gate
+**superseded**.
+
+Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+Live/Dual **N = 0**.
+
+### D-28 — deepest partial leads the meaning page (**P0, landed; path closed**)
 
 **LANDED 2026-09-19.** D-27 device: `… for grade 2` showed irrelevant
 `{grade}` files. Deepest named-word family occupies first; shallower
@@ -552,9 +563,10 @@ boosted score. `limitReached` means the close band exceeded the cap.
 **Not a keyword Find bug.** PDF / photo / screenshot / note text Find stays
 `SearchMemoryEvidence` LIKE/AND.
 
-**Authorized remainder:** none inside D-20. Phase 0 traces recorded. Encoder
-/ FTS / hybrid / cosine pool seating **not** authorized. Residual one-word
-Partial veto is **D-21**.
+**Authorized remainder:** none inside D-20. Phase 0 traces recorded.
+Residual one-word Partial veto was **D-21**. Encoder / FTS / hybrid forbids
+in this record are **superseded by ADR-055** (fusion + measured embedder
+inside Canonical Recall; keyword Find still frozen).
 
 Live/Dual **N = 0**. No new Find path.
 

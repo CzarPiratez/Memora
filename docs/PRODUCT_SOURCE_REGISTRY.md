@@ -109,6 +109,13 @@ conversational memory or an untracked desktop file.
     read-only viewer. No write grant, no `ACTION_EDIT`, no copy, no upload.
     Notes have no local file. Implementation:
     `CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`.
+16. **Meaning retrieval stack (ADR-055):** Meaning Find is roles + lexical
+    and meaning fusion + one score + a measured embedder pack + optional
+    Stage A rerank, all inside Canonical Recall. Occupancy D-23–D-28 is
+    closed history. USE is not the product. Keyword Find stays frozen until
+    a later FTS ticket. Living plan:
+    `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`. Does not authorize
+    synonym nets, cloud ranker, AVAILABLE, or a second Find path.
 
 ## Governed internal amendments
 

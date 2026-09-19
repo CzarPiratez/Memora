@@ -111,4 +111,6 @@ materially change the PRD without flagging them in `docs/DECISIONS.md`.
 
 Before Find / Recall / embedding-search work: open
 `docs/RECALL_ENFORCEMENT_INDEX.md` (60s) + `docs/LEGACY_RECALL_SURFACE.md` Live/Dual
-**N** (may only shrink, or ADR to grow).
+**N** (may only shrink, or ADR to grow). Occupancy D-23–D-28 is **closed**;
+next meaning work is ADR-055 (`docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`).
+Do not open a new page-mixer ticket.

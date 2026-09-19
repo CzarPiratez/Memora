@@ -6,71 +6,40 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
-**D-28 deepest-partial page (2026-09-19).** Landed: a longer P-AND cue
-does not give one-word `{grade}` files an equal share. Deepest named-word
-hits stay eligible and lead; wifi / silky same-depth mix unchanged.
-Re-test `when are the swimming classes for grade 2`; confirm classes /
-timetable / wifi / silky / passport. Change control:
-`docs/CHANGE_CONTROL_MEANING_DEEPEST_PARTIAL_PAGE.md`.
+**Meaning retrieval stack (ADR-055) — current plan.** Occupancy tickets
+are **closed**. Do **not** open D-29 family/Exact/starved mixers. Do **not**
+treat USE as the product or D-20’s “thousands” gate as current.
+
+Next implementation, in order, inside Canonical Recall only:
+
+1. Query roles + one score
+2. Fuse lexical (`SearchMemoryEvidence`) into meaning
+3. Bake-off USE vs a modern small embedder
+4. Swap the pack if it wins (disclosed reindex)
+5. Wire Stage A cross-encoder on the fused shortlist
+
+Keyword Find screens stay as they are. Living plan:
+`docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
 
-**D-27 self-capture occupancy (2026-09-19).** Landed: pictures of UNFYND
-cannot form the Exact family on the shown page (D-26 was putting app
-screenshots first on `scan silky`). Re-test `scan silky` and `swimming
-timetable`; confirm passport / wifi / classes. Change control:
-`docs/CHANGE_CONTROL_MEANING_SELF_CAPTURE_OCCUPANCY.md`.
-Live/Dual **N = 0**.
-Do **not** run connected tests that `clearAll` the live DB.
-
-**D-26 Exact-first page (2026-09-19).** Landed: when some file has every
-named word, Exact occupies the shown page first; neighbours fill leftover
-seats only. Mixed Partial (`wifi password` / `scan silky`) unchanged.
-Re-test `swimming timetable`; confirm passport / wifi / silky. Change
-control: `docs/CHANGE_CONTROL_MEANING_EXACT_FIRST_PAGE.md`.
-Live/Dual **N = 0**.
-Do **not** run connected tests that `clearAll` the live DB.
-
-**D-25 starved-family page (2026-09-19).** Landed: when no file has every
-named word, the family starved in the cosine top-20 takes its fair share
-first. D-24 put timetables on the page at 8th/14th; they should now sit
-with the swimming-only share at the front. Exact cues still deepest-first.
-Re-test `when are the swimming classes`; `passport` / `swimming timetable`
-must not regress. Change control:
-`docs/CHANGE_CONTROL_MEANING_STARVED_FAMILY_PAGE.md`.
-Live/Dual **N = 0**.
-Do **not** run connected tests that `clearAll` the live DB.
-
-**D-24 page family mix (2026-09-19).** Landed: the shown 20 round-robins
-named-word **families** (matching token sets), not only token count. D-23
-missed the timetable PDF because classes-only files are the same depth.
-Re-test `when are the swimming classes`; `passport` / `swimming timetable`
-must not regress. Change control:
-`docs/CHANGE_CONTROL_MEANING_PAGE_FAMILY_MIX.md`.
-Live/Dual **N = 0**.
-Do **not** run connected tests that `clearAll` the live DB.
-
-**D-23 page depth mix (2026-09-18).** Landed: when the close cosine band
-exceeds 20 and the cue has more than one named-word depth, the shown page
-round-robins those depths (deepest leads). Not PDF seats, not a bigger
-page. D-22 device: `when are the swimming classes` gold PDF admitted 28,
-ranked 21, `diagnosis=in_pool_off_page`. Re-test that cue; `passport` /
-`swimming timetable` must not regress. Change control:
-`docs/CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX.md`.
-Live/Dual **N = 0**.
-Do **not** run connected tests that `clearAll` the live DB.
+**Occupancy path closed (D-23–D-28).** Landed history only — not the next
+build sequence. Self-capture demotion (D-14 / D-27) stays. Records:
+`CHANGE_CONTROL_MEANING_PAGE_DEPTH_MIX`, `_PAGE_FAMILY_MIX`,
+`_STARVED_FAMILY_PAGE`, `_EXACT_FIRST_PAGE`, `_SELF_CAPTURE_OCCUPANCY`,
+`_DEEPEST_PARTIAL_PAGE`.
 
 **D-22 gold-in-pool measure (2026-09-18).** Landed: debug `MeaningSearchTrace`
 adds gold filename, type, collapse/admitted/ranked/shown ranks, and
 `diagnosis` (`out_of_pool` vs `in_pool_off_page` vs `on_page`). Does **not**
 change ranking or seating. One debug search: `when are the swimming classes`.
-Paste the `gold=` / `diagnosis=` fields. Next ticket is seating **only if**
-out of the 60, or ranking among the 60 **only if** off the page — not PDF
-seats, not keyword-vs-meaning as the product. Change control:
-`docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
+Paste the `gold=` / `diagnosis=` fields. **Superseded as a build sequence:**
+do not open another seating/occupancy ticket. Next work is ADR-055.
+Change control: `docs/CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`.
 **Device 2026-09-18 23:44:** `when are the swimming classes`
 `gold=Grade-2-Swimming-TT-2026.pdf` `admittedRank=28` `rankedRank=21`
-`shownRank=-` `diagnosis=in_pool_off_page`. Ranking among the 60 is **D-23**.
+`shownRank=-` `diagnosis=in_pool_off_page`. Occupancy follow-on (D-23–D-28)
+is **closed**.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
 

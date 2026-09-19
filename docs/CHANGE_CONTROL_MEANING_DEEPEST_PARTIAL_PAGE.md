@@ -2,8 +2,9 @@
 
 **Date:** 2026-09-19
 **Type:** Authorized ranking correction
-**Status:** **Landed in tree 2026-09-19.** Keyword Find frozen. Cap 20 /
-pool 60 unchanged. Same-depth mix (wifi / scan silky) unchanged.
+**Status:** **Landed in tree 2026-09-19. Occupancy path CLOSED (ADR-055).**
+Do not open a further mixer ticket. Keyword Find frozen. Cap 20 / pool 60
+unchanged. Same-depth mix (wifi / scan silky) unchanged.
 **Ask Model:** **P-AND**. Stacked attributes of one original
 (`swimming classes for grade 2`) are not a list of `{grade}` files.
 **Does not authorize:** PDF seats, synonym nets (`classes` ≠ `timetable`),
@@ -71,8 +72,8 @@ ESCAPE-HATCH AFTER CHANGE: no
   - [x] two depth-2 families starve among themselves; `{grade}` last
   - [x] gold cosine 0.60 vs shallower 0.90 still eligible
   - [x] D-25 / D-26 / D-27 tests kept
-  - [ ] Founder: `when are the swimming classes for grade 2` is swimming
-        again; hold cues unchanged
+  - [x] Occupancy path closed without a further mixer; next is ADR-055
+        (grade-2 cue is a retrieval-stack job, not D-29)
 
 ## Delivery record (2026-09-19)
 

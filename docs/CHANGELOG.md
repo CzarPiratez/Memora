@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### ADR-055 — meaning retrieval stack authorized (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** Occupancy tickets (D-23–D-28) rebuilt the page per wording. USE
+  is not the 2026 retrieval bar. Founder asked to record the new path and
+  retire the old sequence.
+- **Landed (docs).** ADR-055: roles + fuse lexical/meaning + one score +
+  measured embedder + Stage A rerank. Occupancy path closed. Keyword Find
+  frozen. No ranking code in this checkpoint.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
 ### D-28 — deepest partial leads the meaning page (2026-09-19)
 
 - **Date:** 2026-09-19

@@ -48,7 +48,7 @@ and remove or update its row here.
 
 | ID | Option | Layer | Status | Gate | Notes |
 |---|---|---|---|---|---|
-| FD-01 | **Embedding models:** BGE-small, GTE-small, E5-small, multilingual E5 | Core | deferred | Eval corpus + device benchmarks; ADR on swap | Behind existing `EmbeddingEngine`; beats USE only when measured |
+| FD-01 | **Embedding models:** BGE-small, GTE-small, E5-small, multilingual E5 | Core | **bake-off authorized** (ADR-055 slice 3) | Founder gold cues vs USE; swap only if measured (slice 4) | Behind `EmbeddingEngine`; USE is a pack, not the product. Plan: `CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md` |
 | FD-02 | **On-device SLM for Ask:** Gemma 2B, Phi-3-mini, Llama 3.2 1B–3B | Core | deferred | `GROUNDING_ARCHITECTURE.md` §14 gates 9–10, 12, 14 | ReasoningEngine selection; not MVP chat |
 | FD-03 | **Inference runtime:** ONNX Runtime Mobile, ExecuTorch, platform NNAPI/QNN/Core ML | Core | deferred | After FD-02 selection + adversarial eval | Avoid defaulting to llama.cpp for all capabilities |
 | FD-04 | **ANN backends:** sqlite-vec/vss, USearch, hnswlib, ObjectBox vector | Core | deferred | MIG-11 interface reshape; M4-style scale measurement | Brute-force correct until benchmarks prove need |

@@ -2053,4 +2053,53 @@ verb to smuggle in mutation.
 - HUMAN_RECALL J17 and MEANING_FIND ACT1: open-in-another-app landed alongside
   the share sheet; remind remains out
 
+## ADR-055: Meaning retrieval stack — roles, fuse, one score, measured embedder
+
+**Status:** Accepted
+**Date:** 2026-09-19
+
+**Decision:** Meaning Find is a **retrieval stack** inside Canonical Recall,
+not a page-occupancy mixer and not a dependence on MediaPipe USE.
+
+USE is the **current embedding pack**, not the product. The product path is:
+
+1. Parse **roles** (head / qualifier / list / constraint) so many wordings
+   of one job share one head. A qualifier may promote; it must not open a
+   new one-word Find.
+2. **Fuse** lexical candidate generation (`SearchMemoryEvidence`) with
+   meaning candidate generation (`SearchAssetMemoriesByMeaning`) inside
+   `searchByMeaning`. They are generators, not two consumer products.
+3. **One score** (overlap, then fused rank, then cosine / rerank). Pictures
+   of UNFYND never count as overlap (D-14 / D-27).
+4. **Measure** a modern small retrieval embedder (BGE / E5 / GTE class)
+   against USE on founder gold cues; swap the default pack only if it wins.
+   Reindex is disclosed. `EmbeddingEngine` stays the port (FD-01).
+5. **Rerank** the fused shortlist with ADR-051 Stage A when installed.
+
+**Occupancy path closed.** D-23–D-28 remain landed history. Do not open a
+new occupancy change control. D-20’s gate “do not swap the encoder unless
+gold sits at rank thousands” is **superseded**.
+
+**Keyword Find is frozen.** `CanonicalRecall.invoke` and the four keyword
+screens do not change in the first slices. Meaning may **read** the lexical
+generator. Replacing LIKE with FTS5 is a later ticket.
+
+**Out of scope / non-claims:** synonym nets; cloud ranker; one-box UI (later
+packaging); marketing AVAILABLE; new Live/Dual rows; Grounded Answers;
+VisionEngine.
+
+**Reason:** Five days of occupancy tickets showed that adding a word
+(`grade 2`) rebuilt the page. That is a missing retrieval law, not a
+missing mixer cell. Industry on-device search is lexical + semantic +
+fuse + short rerank. UNFYND already has the two generators and the
+`RecallRanker` port; occupancy was compensating for not using them.
+
+**Consequences:**
+
+- Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`
+- CONTINUE current checkpoint is this ADR, not D-28
+- Agents must not treat D-20 encoder/FTS forbids as current
+- Implementation is slice-by-slice under that change control; this ADR
+  alone does not swap the on-device model file
+
 

@@ -2,18 +2,14 @@
 
 **Date:** 2026-09-18
 **Type:** Decision plan + authorized slices
-**Status:** **Ranking sequence stopped 2026-09-18.** Probe, Phase 1 Exact
-list-replace, contract freeze (up to 20 / pool 60 / raw cosine), and Phase 0
-live trace are delivered. **1b–1d specimen quotas removed.** Founder traces
-met the Phase 1 stop gate for Exact-neighbour + exact-token. Residual
-one-word Partial veto is **D-21**, not this record:
-`docs/CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`. Keyword Find frozen.
+**Status:** **Phase 1 landed.** Occupancy follow-on (D-23–D-28) is **closed**.
+Encoder / FTS / hybrid forbids in this record are **superseded by ADR-055**.
+Residual one-word Partial keep is **D-21**. Keyword Find still frozen.
+Next meaning work: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 **Ask Model:** **P-AND vs P-LIST**; **P-EVIDENCE**; **P-MEANING-ONLY** (honesty
 banners may remain; they must not delete neighbours)
-**Does not authorize:** marketing AVAILABLE, synonym nets, FTS5, encoder swap,
-hybrid/RRF product wire, ANN, one-box Find, keyword Find changes, schema
-migration, `fallbackToDestructiveMigration`, cosine-only pool seating,
-growing the shown page with corpus size, type quotas
+**Does not authorize from this file alone:** marketing AVAILABLE, synonym
+nets, one-box UI, keyword ranking changes, type quotas, occupancy D-29
 
 ## Why this exists
 

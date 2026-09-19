@@ -16,6 +16,7 @@ paste Freeze.
 - `docs/LEGACY_RECALL_SURFACE.md` (living Live/Dual allowlist; shrink-only)
 - `docs/GOVERNANCE.md` + `docs/ARCHITECTURAL_MIGRATION_SPEC_V1.md` (MIG
   sequencing; authorize steps explicitly)
+- `docs/DECISIONS.md` ADR-055 (meaning retrieval stack; occupancy path closed)
 
 ## Invariants
 
@@ -69,6 +70,8 @@ EXTENDS LEGACY? yes/no (if yes → STOP unless ADR/exception with sunset)
 - Do not work around missing Canonical Recall by creating a new product path.
 - Do not authorize MIG-06+ from this rule alone.
 - Do not claim marketing AVAILABLE / Act / Grounded Answers from this rule.
+- Do not open a new meaning occupancy / page-mixer ticket (D-23–D-28 closed).
+  Next meaning work is ADR-055.
 - This rule does not replace `git-checkpoint-commits.mdc`.
 
 ## Success metric
