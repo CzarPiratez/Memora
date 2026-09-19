@@ -8,12 +8,11 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
  * Trust policy for meaning result lists (D-20 / MF-1).
  *
  * One relevance order for every asset type. No reserved seats for PDFs,
- * notes, or a particular cue. When the close band exceeds the cap, named-word
- * **families** (matching token sets) already eligible for the page share it
- * ([MeaningNamedWordDepthPage]). The deepest family fills first. Pictures of
- * UNFYND (D-14) stay last so they cannot form that family. That is not a
- * type quota. Coverage ranking lives in [AnchorAwareMeaningRecallRanking];
- * this stage trims and occupies the shown page.
+ * notes, or a particular cue. Eligible hits are ordered by
+ * [MeaningNamedWordDepthPage] (ADR-055: head / qualifier / one score).
+ * Pictures of UNFYND (D-14) stay last. That is not a type quota. Coverage
+ * ranking lives in [AnchorAwareMeaningRecallRanking]; this stage trims the
+ * shown page.
  *
  * The band reads raw [MeaningSearchHit.cosine], not the boosted working
  * [MeaningSearchHit.score]. Token boost was making Exact files sit at 1.0 and

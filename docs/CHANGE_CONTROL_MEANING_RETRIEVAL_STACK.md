@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-19
 **Type:** Authorized program plan (implementation slices below)
-**Status:** **Authorized. Occupancy path (D-23–D-28) CLOSED.** Keyword Find
-frozen. Live/Dual **N = 0**.
+**Status:** **Slice 1 landed 2026-09-19.** Occupancy path (D-23–D-28)
+CLOSED. Keyword Find frozen. Live/Dual **N = 0**. Next: slice 2 (fuse).
 **Governing ADR:** ADR-055 in `docs/DECISIONS.md`
 **Ask Model:** I1 (same job, many phrasings) · I2 (same-file qualifier) ·
 P-AND vs P-LIST. Ceiling remains `HUMAN_RECALL_ASK_MODEL.md`.
@@ -55,7 +55,7 @@ It must not invent a parallel product.
 
 | Slice | Work | Keyword Find |
 |---|---|---|
-| **1** | Query roles + one monotonic score on the meaning page | Untouched |
+| **1** | Query roles + one monotonic score on the meaning page (**landed**) | Untouched |
 | **2** | Fuse `SearchMemoryEvidence` candidates into `searchByMeaning` (RRF or equivalent inside Canonical Recall) | Untouched (read-only use of the generator) |
 | **3** | Encoder bake-off on gold cues (USE vs one modern small model) | Untouched |
 | **4** | Swap default meaning pack if bake-off wins; disclosed reindex | Untouched |
@@ -80,8 +80,8 @@ TARGET PATH: CanonicalRecall.searchByMeaning = roles → lexical+meaning
   fuse → one score → optional Stage A rerank
 WHY THIS CONVERGES: two generators already exist; occupancy was compensating
   for not fusing them; USE stays a pack behind EmbeddingEngine
-WHAT OLD PATH WILL EVENTUALLY BE RETIRED: MeaningNamedWordDepthPage as the
-  ranking authority (code may remain until slice 1 replaces it)
+WHAT OLD PATH WILL EVENTUALLY BE RETIRED: occupancy case table (slice 1
+  replaced it with one score; fusion still open)
 EXTENDS LEGACY? no
 LEGACY SURFACE DELTA: unchanged
 ESCAPE-HATCH AFTER CHANGE: no
@@ -97,13 +97,29 @@ ESCAPE-HATCH AFTER CHANGE: no
   screens unchanged; empty/offline/pack-missing stay honest.
 - **Acceptance (plan):** this record + ADR-055 + CONTINUE current
   checkpoint point here; occupancy “next ticket” language removed.
-- **Acceptance (slice 1, later):** unit tests for roles + one score;
-  hold wifi / silky / passport / timetable; grade-2 is the same head.
-- **Emulator/manual:** no `connectedDebugAndroidTest`.
+- **Acceptance (slice 1):**
+  - [x] `for grade 2` keeps head `swimming`+`classes`; `looking for silky`
+        is not a qualifier split
+  - [x] Qualifier-only files do not lead when a head hit exists
+  - [x] Exact head still leads; wifi / silky same-tier fair share kept
+  - [x] D-10: embed text still equals all content tokens
+  - [ ] Founder: `… for grade 2` is the swimming job; hold wifi / silky /
+        passport / timetable / classes
+
+## Delivery record (2026-09-19) — slice 1
+
+- **Files/layers:** `MeaningRecallRoles`; `MeaningNamedWordDepthPage` one
+  score (head / qualifier / same-tier fair share). Keyword Find untouched.
+- **Automated verification:** `:app:testDebugUnitTest` for
+  `MeaningRecallRolesTest`, `MeaningRecallCueTest`,
+  `MeaningNamedWordDepthPageTest`, `MeaningTrustedHitPolicyTest`,
+  `CanonicalRecallMeaningTest` — BUILD SUCCESSFUL (2026-09-19).
+- **Emulator/manual:** `when are the swimming classes for grade 2`; confirm
+  holds. No `connectedDebugAndroidTest`.
+- **Git commit:** local; do not push.
 
 ## Delivery record (2026-09-19) — plan only
 
 - **Files/layers:** ADR-055; this file; CONTINUE / CHANGELOG /
   PROGRAM_STATE / RECALL_ENFORCEMENT_INDEX / registry / AGENTS pointer.
-  **No ranking code in this commit.**
-- **Git commit:** local; do not push.
+  Plan commit landed before slice 1.

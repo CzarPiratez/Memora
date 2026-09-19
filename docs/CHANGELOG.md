@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### ADR-055 slice 1 — query roles + one meaning score (2026-09-19)
+
+- **Date:** 2026-09-19
+- **Why.** Same job, many wordings: `for grade 2` must not open a grade-only
+  Find. Occupancy case tables are closed.
+- **Landed.** `MeaningRecallRoles` + one page comparator. Keyword Find
+  untouched. Embed/precision tokens unchanged (D-10).
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
 ### ADR-055 — meaning retrieval stack authorized (2026-09-19)
 
 - **Date:** 2026-09-19

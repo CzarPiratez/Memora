@@ -454,13 +454,11 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### ADR-055 — meaning retrieval stack (**P0, authorized plan**)
+### ADR-055 — meaning retrieval stack (**P0, slice 1 landed**)
 
-**ACCEPTED 2026-09-19.** Occupancy (D-23–D-28) is **closed** as a build
-sequence. Next meaning work is roles + lexical/meaning fusion + one score,
-then a measured embedder bake-off, then Stage A rerank. USE is a pack, not
-the product. Keyword Find frozen. D-20 “thousands” encoder gate
-**superseded**.
+**SLICE 1 LANDED 2026-09-19.** Roles + one score on the meaning page.
+Occupancy path closed. Next is slice 2 (lexical fuse). USE is a pack.
+Keyword Find frozen. D-20 “thousands” encoder gate **superseded**.
 
 Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 Live/Dual **N = 0**.

@@ -6,17 +6,18 @@
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
 **Updated:** 2026-09-19
 
-**Meaning retrieval stack (ADR-055) — current plan.** Occupancy tickets
-are **closed**. Do **not** open D-29 family/Exact/starved mixers. Do **not**
-treat USE as the product or D-20’s “thousands” gate as current.
+**Meaning retrieval stack (ADR-055) — slice 1 landed.** Occupancy tickets
+are **closed**. Do **not** open D-29 mixers. Do **not** treat USE as the
+product.
 
-Next implementation, in order, inside Canonical Recall only:
+Slice 1: trailing `for` is a qualifier when a head already exists; one
+score (head, then qualifier, then same-tier fair share). Embed text
+unchanged. Keyword Find untouched. Re-test `when are the swimming classes
+for grade 2`; confirm wifi / silky / passport / timetable / classes.
 
-1. Query roles + one score
-2. Fuse lexical (`SearchMemoryEvidence`) into meaning
-3. Bake-off USE vs a modern small embedder
-4. Swap the pack if it wins (disclosed reindex)
-5. Wire Stage A cross-encoder on the fused shortlist
+Next: slice 2 — fuse lexical (`SearchMemoryEvidence`) into meaning.
+Then bake-off / pack swap / Stage A. Living plan:
+`docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 
 Keyword Find screens stay as they are. Living plan:
 `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.

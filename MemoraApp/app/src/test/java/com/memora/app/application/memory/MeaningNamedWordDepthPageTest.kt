@@ -102,6 +102,20 @@ class MeaningNamedWordDepthPageTest {
     }
 
     @Test
+    fun qualifier_hits_lead_class_only_photos_on_the_same_head() {
+        val classesSwim = (0 until 10).map { index ->
+            hit("class-$index", "swimming classes photo $index")
+        }
+        val gold = hit("tt", "grade 2 weekly swimming timetable")
+        val ordered = MeaningNamedWordDepthPage.order(
+            hits = classesSwim + gold,
+            rawQuery = "when are the swimming classes for grade 2",
+        )
+        assertEquals("tt", ordered.first().revisionId.value)
+        assertEquals("class-0", ordered[1].revisionId.value)
+    }
+
+    @Test
     fun starved_mix_runs_only_among_the_deepest_families() {
         val classesSwim = (0 until 10).map { index ->
             hit("class-$index", "swimming classes photo $index")

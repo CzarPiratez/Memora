@@ -87,6 +87,7 @@ class MeaningRecallCueTest {
             "which file has silky in it?",
             "get me some e.g.s from the pdf related to the training project",
             "scan silky",
+            "when are the swimming classes for grade 2",
         ).forEach { query ->
             val tokens = MeaningRecallCue.contentTokens(query)
             assertEquals(
