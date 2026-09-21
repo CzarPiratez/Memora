@@ -1,8 +1,8 @@
 package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchHit
-import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallCue
+import com.memora.app.domain.intelligence.MeaningRoleScorer
 
 /**
  * Trust policy for meaning result lists (D-20 / MF-1).
@@ -18,8 +18,9 @@ import com.memora.app.domain.intelligence.MeaningRecallCue
  * [MeaningSearchHit.score]. Token boost was making Exact files sit at 1.0 and
  * then deleting neighbours the model had already retrieved.
  *
- * A two-or-more-word hit stays eligible even when one-word files set a
- * higher cosine (D-28). One-word cues still use the close band alone.
+ * A head-word hit stays eligible even when qualifier-heavy files set a
+ * higher cosine (D-28, ADR-055). Qualifier-only files do not. One-word
+ * cues still use the close band alone.
  *
  * The shown page is **up to** [MAX_TRUSTED_HITS] — a cap, not a floor. A thin
  * close band stays thin; do not pad. A larger corpus must improve ranking
@@ -60,14 +61,13 @@ object MeaningTrustedHitPolicy {
     ): List<MeaningSearchHit> {
         val tokens = MeaningRecallCue.contentTokens(rawQuery)
         if (tokens.size < 2) return close
-        val cue = MeaningEvidenceLexicalFilter.prepare(tokens)
-        if (cue.isEmpty) return close
-        val maxDepth = hits.maxOf { cue.matchingTokens(it.lexicalHaystack()).size }
-        if (maxDepth < 2) return close
+        val scorer = MeaningRoleScorer.forQuery(rawQuery)
+        val maxHead = hits.maxOf { scorer.overlap(it.lexicalHaystack()).headOverlap }
+        if (maxHead < 1) return close
         val closeIds = close.map { it.revisionId }.toHashSet()
         return hits.filter { hit ->
             hit.revisionId in closeIds ||
-                cue.matchingTokens(hit.lexicalHaystack()).size == maxDepth
+                scorer.overlap(hit.lexicalHaystack()).headOverlap >= 1
         }
     }
 

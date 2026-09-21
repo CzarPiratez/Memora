@@ -4,25 +4,46 @@
 
 **Project:** UNFYND App (Android surface in this monorepo)  
 **Project folder path (deferred; ADR-040):** `MemoraApp/` — not the product name  
-**Updated:** 2026-09-19
+**Updated:** 2026-09-21
 
-**Meaning retrieval stack (ADR-055) — slice 1 landed.** Occupancy tickets
-are **closed**. Do **not** open D-29 mixers. Do **not** treat USE as the
-product.
+The product bar is **any** natural Meaning cue against the library: right
+originals first, or honest silence. Device phrases are specimens, not a
+word table. Occupancy tickets are **closed**. Do **not** open D-29 mixers.
+Do **not** treat USE as the product.
 
-Slice 1: trailing `for` is a qualifier when a head already exists; one
-score (head, then qualifier, then same-tier fair share). Embed text
-unchanged. Keyword Find untouched. Re-test `when are the swimming classes
-for grade 2`; confirm wifi / silky / passport / timetable / classes.
+**Device 2026-09-21 (slice 2 hold):** Founder pass after lexical fuse
+into Meaning. Constrained job, list cue, and Exact / one-word hold.
+Partial notice remains honest when no file has every named word.
 
-Next: slice 2 — fuse lexical (`SearchMemoryEvidence`) into meaning.
-Then bake-off / pack swap / Stage A. Living plan:
-`docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+**Device 2026-09-21 (slice 3 USE card):** `bakeoff pack=mediapipe-use
+cues=17 matched=12 gold@1=0 gold@10=0 gold@60=0 medianAssetRank=352
+challenger=not_installed`. Cosine never seated gold in the product pool
+of 60. Unmatched exact labels are locator/index, not a ranking ticket.
 
-Keyword Find screens stay as they are. Living plan:
-`docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+**Now:** slice 3 challenger pack landed (probe-only BGE-small ONNX).
+Download + run from About (debug). Does **not** swap USE. Does **not**
+change Find. Win bar remains gold@60 strictly greater. Paste Logcat
+`MeaningEncoderChallenger` `bakeoff` + `verdict` lines. Slice 4 only if
+`challenger_wins`.
+Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+Keyword Find screens stay as they are.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
+
+**Parallel track — ADR-056 (not ranking).** Open-confirmed source
+availability: standing honesty on Find cards when Open or an Open-class
+list thumbnail (PDF, photo, screenshot) already learned the original is
+gone. Cards stay in the list with Memory and Why; copy is list-density,
+not an error essay. Memory stays READY. Founder device **pass** 2026-09-21
+(deleted PDFs). Slice 2: user-initiated Hide from Find (reversible; not
+CR-08; not auto-hide). Restore is search-scoped with snackbar undo — idle
+Find is not a hidden-files list. Founder device **pass** 2026-09-21
+(Hide / cleared cue). Slice 3: notes learn standing honesty from local
+Asset / open-target / vaulted grant only — no Graph at Find. Missing
+Asset persists; disconnect without a stored URL does not. Device pending.
+Does not change this checkpoint's next slice, scoring, or
+`CHANGE_CONTROL_MEANING_RETRIEVAL_STACK`. Living plan:
+`docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
 
 **Occupancy path closed (D-23–D-28).** Landed history only — not the next
 build sequence. Self-capture demotion (D-14 / D-27) stays. Records:
@@ -724,6 +745,15 @@ not architectural authority).
 
 ## Last verified behavior
 
+- ADR-056 slice 1c (2026-09-21): **device pass** — unreachable Find cards
+  use list-density standing copy, outlined Try Open, type glyph, and
+  un-hyphenated filenames. Hits and Why stay. Ranking untouched.
+- ADR-056 slice 1b (2026-09-20): photo/screenshot list thumbnails learn
+  SOURCE_UNREACHABLE the same way PDFs already did; decode flakes and
+  permission-off stay UNAVAILABLE.
+- ADR-056 slice 1 (2026-09-20): last confirmed Open reachability persists;
+  Find cards show standing unreachable copy + Try Open; Memory stays READY.
+  Focused unit tests BUILD SUCCESSFUL. Device pass pending.
 - Gradle sync completed in Android Studio.
 - The emulator starts and the app installs.
 - `:app:testDebugUnitTest` passed after the source-neutral domain foundation was added.

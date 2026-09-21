@@ -36,6 +36,11 @@ class RecallQueryContentTokensTest {
             RecallQueryContentTokens.tokens("doc with silky in it"),
         )
         assertTrue(RecallQueryContentTokens.tokens("show me the files").isEmpty())
+        assertTrue(RecallQueryContentTokens.tokens("give me 2 files").isEmpty())
+        assertEquals(
+            listOf("grade", "2"),
+            RecallQueryContentTokens.tokens("grade 2"),
+        )
         assertEquals(
             listOf("training", "project"),
             RecallQueryContentTokens.tokens(

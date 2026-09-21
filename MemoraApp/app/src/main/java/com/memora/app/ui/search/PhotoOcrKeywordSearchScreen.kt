@@ -30,10 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.memora.app.application.find.FindHiddenPolicy
 import com.memora.app.application.find.FindThumbnailRequest
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 import com.memora.app.application.preview.OriginalPreviewReloadRequest
 import com.memora.app.application.preview.PreviewZoomPolicy
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 
 @Composable
 fun PhotoOcrKeywordSearchScreen(
@@ -44,6 +47,8 @@ fun PhotoOcrKeywordSearchScreen(
     onSearchCancelled: () -> Unit,
     onOpenOriginalPhoto: (PhotoOcrKeywordSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    findHidden: FindHiddenHost,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -111,31 +116,65 @@ fun PhotoOcrKeywordSearchScreen(
             PhotoOcrKeywordSearchPhase.SearchCouldNotFinish ->
                 Text(PhotoOcrKeywordSearchCopy.SEARCH_COULD_NOT_FINISH_BODY)
             is PhotoOcrKeywordSearchPhase.Results -> {
-                Text(
-                    PhotoOcrKeywordSearchCopy.resultsSummary(
-                        phase.query,
-                        phase.hits.size,
-                        phase.limitReached,
-                    ),
-                )
-                when (uiState.openFeedback) {
-                    PhotoOpenFeedbackUi.Opening -> Text(PhotoOcrKeywordSearchCopy.OPENING_BODY)
-                    PhotoOpenFeedbackUi.SourceUnavailable ->
-                        OpenError(PhotoOcrKeywordSearchCopy.SOURCE_UNAVAILABLE_BODY, onDismissOpenFeedback)
-                    PhotoOpenFeedbackUi.CouldNotOpen ->
-                        OpenError(PhotoOcrKeywordSearchCopy.COULD_NOT_OPEN_BODY, onDismissOpenFeedback)
-                    PhotoOpenFeedbackUi.None -> Unit
+                val hiddenIds = findHidden.hiddenIdentities()
+                val visible = FindHiddenPolicy.visible(phase.hits, hiddenIds) {
+                    it.recall.openTarget().asIdentity()
                 }
-                phase.hits.forEach { hit ->
-                    PhotoHitCard(hit, phase.query) { onOpenOriginalPhoto(hit) }
+                if (FindHiddenPolicy.rankedHitsAreAllHidden(phase.hits.size, visible.size)) {
+                    Text(FindHiddenCopy.ALL_HIDDEN_BODY)
+                } else {
+                    Text(
+                        PhotoOcrKeywordSearchCopy.resultsSummary(
+                            phase.query,
+                            visible.size,
+                            phase.limitReached,
+                        ),
+                    )
+                    when (uiState.openFeedback) {
+                        PhotoOpenFeedbackUi.Opening,
+                        PhotoOpenFeedbackUi.SourceUnavailable,
+                        PhotoOpenFeedbackUi.CouldNotOpen,
+                        PhotoOpenFeedbackUi.None -> Unit
+                    }
+                    visible.forEach { hit ->
+                        PhotoHitCard(
+                            hit = hit,
+                            query = phase.query,
+                            openState = uiState.openStateFor(hit.recall.openTarget()),
+                            availability = uiState.availabilityFor(hit.recall.openTarget()),
+                            onOpen = { onOpenOriginalPhoto(hit) },
+                            onDismissOpenFeedback = onDismissOpenFeedback,
+                            onThumbnailLoaded = onThumbnailLoaded,
+                            onHideFromFind = {
+                                findHidden.onHide(hit.recall.openTarget(), hit.label)
+                            },
+                        )
+                    }
                 }
             }
         }
+        val hideRanked = (uiState.phase as? PhotoOcrKeywordSearchPhase.Results)
+            ?.hits
+            ?.map { it.recall.openTarget().asIdentity() }
+            .orEmpty()
+        FindHiddenResultsFooter(
+            rankedIdentities = hideRanked,
+            findHidden = findHidden,
+        )
     }
 }
 
 @Composable
-private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: () -> Unit) {
+private fun PhotoHitCard(
+    hit: PhotoOcrKeywordSearchHit,
+    query: String,
+    openState: FindCardOpenState,
+    availability: SourceAvailabilityStatus,
+    onOpen: () -> Unit,
+    onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    onHideFromFind: () -> Unit,
+) {
     var why by remember(hit.sourceAssetKey, query) { mutableStateOf(false) }
     Spacer(Modifier.height(12.dp))
     Card(
@@ -145,16 +184,25 @@ private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: (
     ) {
         Column(Modifier.padding(16.dp)) {
             Row {
-                FindResultThumbnail(request = FindThumbnailRequest.fromRecall(hit.recall))
+                FindResultThumbnail(
+                    request = FindThumbnailRequest.fromRecall(hit.recall),
+                    onLoaded = { onThumbnailLoaded(hit.recall.openTarget(), it) },
+                )
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(hit.label, fontWeight = FontWeight.SemiBold)
+                    FindHitLabel(text = hit.label)
                     Text(hit.excerpt)
                 }
             }
-            Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
-                Text(PhotoOcrKeywordSearchCopy.OPEN_ORIGINAL_LABEL)
-            }
+            Spacer(Modifier.height(8.dp))
+            FindOpenOriginalButton(
+                copy = PhotoOcrKeywordSearchCopy.OPEN_ORIGINAL,
+                state = openState,
+                availability = availability,
+                onOpen = onOpen,
+                onDismissFailure = onDismissOpenFeedback,
+                onHideFromFind = onHideFromFind,
+            )
             Spacer(Modifier.height(8.dp))
             WhyDisclosure(
                 expanded = why,
@@ -163,12 +211,6 @@ private fun PhotoHitCard(hit: PhotoOcrKeywordSearchHit, query: String, onOpen: (
             )
         }
     }
-}
-
-@Composable
-private fun OpenError(body: String, dismiss: () -> Unit) {
-    Text(body, color = MaterialTheme.colorScheme.error)
-    TextButton(onClick = dismiss) { Text(PhotoOcrKeywordSearchCopy.DISMISS_LABEL) }
 }
 
 @Composable

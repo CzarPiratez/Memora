@@ -140,13 +140,21 @@ object PdfKeywordSearchCopy {
     const val OPEN_FEEDBACK_OPENING_BODY = "Opening a read-only preview of that page…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "UNFYND cannot open that original file right now. Reconnect the PDF folder " +
-            "if access was removed, then try again."
+        FindSourceAvailabilityCopy.FILE_ORIGINAL_UNREACHABLE
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
         "UNFYND could not render that PDF page. Try again, or reconnect the folder."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
+    val OPEN_ORIGINAL = FindOpenOriginalCopy(
+        openLabel = OPEN_ORIGINAL_PDF_LABEL,
+        openingLabel = "Opening…",
+        openingAnnouncement = OPEN_FEEDBACK_OPENING_BODY,
+        sourceUnavailableBody = OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY,
+        couldNotOpenBody = OPEN_FEEDBACK_COULD_NOT_OPEN_BODY,
+        dismissLabel = DISMISS_OPEN_FEEDBACK_LABEL,
+    )
 
     const val PREVIEW_TITLE = "Original PDF page"
 

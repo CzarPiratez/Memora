@@ -1,8 +1,8 @@
 package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchHit
-import com.memora.app.domain.intelligence.MeaningEvidenceLexicalFilter
 import com.memora.app.domain.intelligence.MeaningRecallRoles
+import com.memora.app.domain.intelligence.MeaningRoleScorer
 import com.memora.app.domain.intelligence.UnfyndSelfCapture
 
 /**
@@ -10,13 +10,14 @@ import com.memora.app.domain.intelligence.UnfyndSelfCapture
  *
  * One comparator, not an occupancy case table:
  * 1. Pictures of UNFYND stay last (D-14 / D-27).
- * 2. Any head-word hit beats qualifier-only hits.
- * 3. More qualifier overlap beats less (narrows the same job).
- * 4. More head overlap beats less (Exact head leads).
- * 5. Same tier, not Exact head → fair share among head families (wifi /
- *    scan silky). Same tier, Exact head → incoming / cosine order.
+ * 2. Job cues (ask-shape or a constraint): topic (first job word) leads;
+ *    leftover job words cannot take the first seats. Inside the topic
+ *    band, a tighter constraint outranks extra leftover head words.
+ * 3. Bare list cues: more head-word overlap, then family fair share.
+ * 4. Exact head, one family, no constraint → incoming / cosine order.
  *
- * Not a type quota. Not a synonym. Embed text is unchanged (D-10).
+ * Not a type quota. Not a synonym. Not a per-cue table. Embed text is
+ * unchanged (D-10). Device phrasings are specimens.
  */
 object MeaningNamedWordDepthPage {
     fun order(hits: List<MeaningSearchHit>, rawQuery: String): List<MeaningSearchHit> {
@@ -44,58 +45,59 @@ object MeaningNamedWordDepthPage {
         val roles = MeaningRecallRoles.parse(rawQuery)
         if (roles.head.size < 2 && roles.qualifier.isEmpty()) return hits
 
-        val headCue = MeaningEvidenceLexicalFilter.prepare(roles.head)
-        val qualCue = MeaningEvidenceLexicalFilter.prepare(roles.qualifier)
+        val scorer = MeaningRoleScorer.forQuery(rawQuery)
         val scored = hits.map { hit ->
-            val haystack = hit.lexicalHaystack()
-            val headMatched = headCue.matchingTokens(haystack).toSet()
-            val qualMatched = if (qualCue.isEmpty) {
-                emptySet()
-            } else {
-                qualCue.matchingTokens(haystack).toSet()
-            }
+            val overlap = scorer.overlap(hit.lexicalHaystack())
             Scored(
                 hit = hit,
-                hasHead = headMatched.isNotEmpty(),
-                headOverlap = headMatched.size,
-                qualifierOverlap = qualMatched.size,
-                family = when {
-                    headMatched.isNotEmpty() -> headMatched
-                    qualMatched.isNotEmpty() -> qualMatched
-                    else -> emptySet()
-                },
+                headOverlap = overlap.headOverlap,
+                qualifierOverlap = overlap.qualifierOverlap,
+                family = overlap.family,
+                band = scorer.band(overlap),
             )
         }
         val unmatched = scored.filter { it.family.isEmpty() }.map { it.hit }
         val named = scored.filter { it.family.isNotEmpty() }
         if (named.isEmpty()) return hits
 
-        val tiers = named.groupBy { it.tierKey() }
-            .toSortedMap(tierComparator)
+        val tiers = named.groupBy { it.band }
+            .toSortedMap(compareByDescending { it })
         val ordered = ArrayList<MeaningSearchHit>(hits.size)
         for ((_, rows) in tiers) {
-            ordered.addAll(orderTier(rows, roles.head.size))
+            ordered.addAll(
+                if (scorer.preferTopic) {
+                    orderConstrainedTier(rows)
+                } else {
+                    orderTier(rows, roles.head.size)
+                },
+            )
         }
         ordered.addAll(unmatched)
         return ordered
     }
 
+    private fun orderConstrainedTier(rows: List<Scored>): List<MeaningSearchHit> =
+        rows.sortedWith(
+            compareByDescending<Scored> { it.qualifierOverlap }
+                .thenByDescending { it.headOverlap },
+        ).map { it.hit }
+
     private fun orderTier(rows: List<Scored>, headSize: Int): List<MeaningSearchHit> {
-        val families = LinkedHashMap<Set<String>, MutableList<MeaningSearchHit>>()
+        val families = LinkedHashMap<Set<String>, MutableList<Scored>>()
         for (row in rows) {
-            families.getOrPut(row.family) { mutableListOf() }.add(row.hit)
+            families.getOrPut(row.family) { mutableListOf() }.add(row)
         }
-        if (families.size <= 1) return rows.map { it.hit }
-        val exactHead = rows.first().hasHead &&
-            rows.first().headOverlap == headSize &&
-            headSize >= 2
+        if (families.size <= 1) {
+            return rows.sortedByDescending { it.qualifierOverlap }.map { it.hit }
+        }
+        val exactHead = rows.first().headOverlap == headSize && headSize >= 2
         if (exactHead) return rows.map { it.hit }
         return fairShare(rows, families)
     }
 
     private fun fairShare(
         rows: List<Scored>,
-        families: Map<Set<String>, List<MeaningSearchHit>>,
+        families: Map<Set<String>, List<Scored>>,
     ): List<MeaningSearchHit> {
         val keys = families.keys.toList()
         val prefix = rows.take(MeaningTrustedHitPolicy.MAX_TRUSTED_HITS)
@@ -105,7 +107,9 @@ object MeaningNamedWordDepthPage {
             }.thenBy { family -> keys.indexOf(family) },
         )
         val queues = orderedKeys.associateWith { family ->
-            ArrayDeque(families.getValue(family))
+            ArrayDeque(
+                families.getValue(family).sortedByDescending { it.qualifierOverlap },
+            )
         }
         val mixed = ArrayList<MeaningSearchHit>()
         val fairShare = (MeaningTrustedHitPolicy.MAX_TRUSTED_HITS / orderedKeys.size)
@@ -114,14 +118,14 @@ object MeaningNamedWordDepthPage {
             var taken = 0
             while (taken < fairShare) {
                 val next = queues.getValue(family).removeFirstOrNull() ?: break
-                mixed.add(next)
+                mixed.add(next.hit)
                 taken += 1
             }
         }
         while (queues.any { it.value.isNotEmpty() }) {
             for (family in orderedKeys) {
                 val next = queues.getValue(family).removeFirstOrNull() ?: continue
-                mixed.add(next)
+                mixed.add(next.hit)
             }
         }
         return mixed
@@ -129,22 +133,9 @@ object MeaningNamedWordDepthPage {
 
     private data class Scored(
         val hit: MeaningSearchHit,
-        val hasHead: Boolean,
         val headOverlap: Int,
         val qualifierOverlap: Int,
         val family: Set<String>,
-    ) {
-        fun tierKey(): TierKey = TierKey(hasHead, qualifierOverlap, headOverlap)
-    }
-
-    private data class TierKey(
-        val hasHead: Boolean,
-        val qualifierOverlap: Int,
-        val headOverlap: Int,
+        val band: Int,
     )
-
-    private val tierComparator: Comparator<TierKey> =
-        compareByDescending<TierKey> { it.hasHead }
-            .thenByDescending { it.qualifierOverlap }
-            .thenByDescending { it.headOverlap }
 }

@@ -7,10 +7,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.CancellationSignal
 import android.util.Size
-import com.memora.app.application.find.FindThumbnailResult
+import com.memora.app.application.find.ImageThumbnailLoad
 import com.memora.app.application.find.ImageThumbnailLoader
 import com.memora.app.application.images.OpenPersistedPhotoForViewing
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.FileNotFoundException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.max
@@ -19,21 +20,30 @@ import kotlin.math.max
 class AndroidImageThumbnailLoader @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) : ImageThumbnailLoader {
-    override fun load(uri: Uri, maxEdgePx: Int): FindThumbnailResult.Ready? {
+    override fun load(location: String, maxEdgePx: Int): ImageThumbnailLoad {
         require(maxEdgePx > 0)
+        require(location.isNotBlank())
+        val uri = try {
+            Uri.parse(location)
+        } catch (_: Exception) {
+            return ImageThumbnailLoad.Unreachable
+        } ?: return ImageThumbnailLoad.Unreachable
         val bitmap = try {
             decode(uri, maxEdgePx)
         } catch (_: SecurityException) {
-            null
+            return ImageThumbnailLoad.Unreachable
+        } catch (_: FileNotFoundException) {
+            return ImageThumbnailLoad.Unreachable
         } catch (_: Exception) {
-            null
-        } ?: return null
+            return ImageThumbnailLoad.CouldNotDecode
+        } ?: return classifyNullDecode(uri)
         return try {
-            if (bitmap.width <= 0 || bitmap.height <= 0) null
-            else {
+            if (bitmap.width <= 0 || bitmap.height <= 0) {
+                ImageThumbnailLoad.CouldNotDecode
+            } else {
                 val pixels = IntArray(bitmap.width * bitmap.height)
                 bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-                FindThumbnailResult.Ready(
+                ImageThumbnailLoad.Ready(
                     widthPx = bitmap.width,
                     heightPx = bitmap.height,
                     argb8888 = pixels,
@@ -43,6 +53,23 @@ class AndroidImageThumbnailLoader @Inject constructor(
             bitmap.recycle()
         }
     }
+
+    /**
+     * [decode] returned null without throwing. Open the descriptor once more
+     * so a missing file is Unreachable and a corrupt/undecodable file is not.
+     */
+    private fun classifyNullDecode(uri: Uri): ImageThumbnailLoad =
+        try {
+            context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                ImageThumbnailLoad.CouldNotDecode
+            } ?: ImageThumbnailLoad.Unreachable
+        } catch (_: SecurityException) {
+            ImageThumbnailLoad.Unreachable
+        } catch (_: FileNotFoundException) {
+            ImageThumbnailLoad.Unreachable
+        } catch (_: Exception) {
+            ImageThumbnailLoad.CouldNotDecode
+        }
 
     private fun decode(uri: Uri, maxEdgePx: Int): Bitmap? {
         val resolver = context.applicationContext.contentResolver

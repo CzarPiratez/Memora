@@ -37,8 +37,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.memora.app.application.find.FindHiddenPolicy
 import com.memora.app.application.find.FindThumbnailRequest
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.intelligence.MeaningSearchHit
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import com.memora.app.domain.intelligence.RecallPrecision
 
 @Composable
@@ -50,6 +53,8 @@ fun MeaningSearchScreen(
     onSearchCancelled: () -> Unit,
     onOpenOriginal: (MeaningSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    findHidden: FindHiddenHost,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -150,8 +155,15 @@ fun MeaningSearchScreen(
             MeaningSearchPhase.SearchCouldNotFinish ->
                 PhaseBody(MeaningSearchCopy.SEARCH_COULD_NOT_FINISH_BODY)
             is MeaningSearchPhase.Results -> {
+                val hiddenIds = findHidden.hiddenIdentities()
+                val visible = FindHiddenPolicy.visible(phase.hits, hiddenIds) {
+                    it.openTarget().asIdentity()
+                }
                 val precision = phase.precision
-                if (precision is RecallPrecision.Partial) {
+                if (FindHiddenPolicy.rankedHitsAreAllHidden(phase.hits.size, visible.size)) {
+                    PhaseBody(FindHiddenCopy.ALL_HIDDEN_BODY)
+                    Spacer(modifier = Modifier.height(12.dp))
+                } else if (precision is RecallPrecision.Partial) {
                     // What is missing outranks how many were found: "add another
                     // word" is the wrong advice when a word already went unmatched.
                     PhaseBody(
@@ -169,24 +181,37 @@ fun MeaningSearchScreen(
                 } else {
                     PhaseBody(
                         MeaningSearchCopy.exactResultsBody(
-                            matchCount = phase.hits.size,
+                            matchCount = visible.size,
                             limitReached = phase.limitReached,
                         ),
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
-                phase.hits.forEach { hit ->
+                visible.forEach { hit ->
                     MeaningHitCard(
                         hit = hit,
                         query = phase.query,
                         openState = uiState.openStateFor(hit.openTarget()),
+                        availability = uiState.availabilityFor(hit.openTarget()),
                         onOpenOriginal = onOpenOriginal,
                         onDismissOpenFeedback = onDismissOpenFeedback,
+                        onThumbnailLoaded = onThumbnailLoaded,
+                        onHideFromFind = {
+                            findHidden.onHide(hit.openTarget(), hit.label)
+                        },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
+        val hideRanked = (uiState.phase as? MeaningSearchPhase.Results)
+            ?.hits
+            ?.map { it.openTarget().asIdentity() }
+            .orEmpty()
+        FindHiddenResultsFooter(
+            rankedIdentities = hideRanked,
+            findHidden = findHidden,
+        )
     }
 }
 
@@ -204,8 +229,11 @@ private fun MeaningHitCard(
     hit: MeaningSearchHit,
     query: String,
     openState: FindCardOpenState,
+    availability: SourceAvailabilityStatus,
     onOpenOriginal: (MeaningSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    onHideFromFind: () -> Unit,
 ) {
     var showWhy by remember(hit.revisionId.value, query) { mutableStateOf(false) }
     Card(
@@ -217,22 +245,23 @@ private fun MeaningHitCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row {
-                FindResultThumbnail(request = FindThumbnailRequest.fromMeaning(hit))
+                FindResultThumbnail(
+                    request = FindThumbnailRequest.fromMeaning(hit),
+                    onLoaded = { onThumbnailLoaded(hit.openTarget(), it) },
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = MeaningSearchCopy.friendlyHitLabel(hit.label),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    FindHitLabel(text = MeaningSearchCopy.friendlyHitLabel(hit.label))
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
             FindOpenOriginalButton(
                 copy = MeaningSearchCopy.OPEN_ORIGINAL,
                 state = openState,
+                availability = availability,
                 onOpen = { onOpenOriginal(hit) },
                 onDismissFailure = onDismissOpenFeedback,
+                onHideFromFind = onHideFromFind,
             )
             Spacer(modifier = Modifier.height(8.dp))
             WhyDisclosure(

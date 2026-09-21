@@ -2,6 +2,8 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.asset.LoadSourceAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
 import com.memora.app.application.images.LoadPersistedScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.OpenPersistedScreenshotForViewing
 import com.memora.app.application.images.ScreenshotMemoryEvidenceKeywordAdapter
@@ -9,8 +11,11 @@ import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchOutcome
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchReadiness
 import com.memora.app.application.images.ScreenshotPreviewRenderResult
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.memory.CanonicalRecall
+import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -30,6 +35,8 @@ data class ScreenshotOcrKeywordSearchUiState(
         ScreenshotOcrKeywordSearchReadinessUi.Loading,
     val openFeedback: ScreenshotOpenFeedbackUi = ScreenshotOpenFeedbackUi.None,
     val originalPreview: ScreenshotOriginalPreviewUi? = null,
+    val openTarget: FindOpenTarget? = null,
+    val availability: Map<AssetIdentity, SourceAvailabilityStatus> = emptyMap(),
 ) {
     val canSubmitSearch: Boolean
         get() = phase !is ScreenshotOcrKeywordSearchPhase.Searching &&
@@ -43,6 +50,27 @@ data class ScreenshotOcrKeywordSearchUiState(
 
     val canCancelSearch: Boolean
         get() = phase is ScreenshotOcrKeywordSearchPhase.Searching
+
+    fun openStateFor(target: FindOpenTarget): FindCardOpenState = when (openFeedback) {
+        ScreenshotOpenFeedbackUi.None -> FindCardOpenState.IDLE
+        ScreenshotOpenFeedbackUi.Opening ->
+            if (openTarget == target) FindCardOpenState.OPENING else FindCardOpenState.IDLE
+        ScreenshotOpenFeedbackUi.SourceUnavailable ->
+            if (openTarget == target) {
+                FindCardOpenState.SOURCE_UNAVAILABLE
+            } else {
+                FindCardOpenState.IDLE
+            }
+        ScreenshotOpenFeedbackUi.CouldNotOpen ->
+            if (openTarget == target) {
+                FindCardOpenState.COULD_NOT_OPEN
+            } else {
+                FindCardOpenState.IDLE
+            }
+    }
+
+    fun availabilityFor(target: FindOpenTarget): SourceAvailabilityStatus =
+        target.availabilityIn(availability)
 }
 
 sealed interface ScreenshotOcrKeywordSearchReadinessUi {
@@ -156,6 +184,10 @@ class ScreenshotOcrKeywordSearchViewModel(
         suspend (ScreenshotOcrKeywordSearchHit) -> ScreenshotPreviewRenderResult,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val loadAvailability: suspend (Collection<AssetIdentity>) ->
+        Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+    private val recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+    private val recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
 ) : ViewModel() {
     @Inject
     constructor(
@@ -163,6 +195,8 @@ class ScreenshotOcrKeywordSearchViewModel(
         loadPersistedScreenshotOcrKeywordSearchReadiness:
             LoadPersistedScreenshotOcrKeywordSearchReadiness,
         openPersistedScreenshotForViewing: OpenPersistedScreenshotForViewing,
+        loadSourceAvailability: LoadSourceAvailability,
+        recordOpenSourceAvailability: RecordOpenSourceAvailability,
     ) : this(
         searchScreenshotKeyword = { rawQuery ->
             ScreenshotMemoryEvidenceKeywordAdapter.toScreenshotOutcome(
@@ -180,6 +214,9 @@ class ScreenshotOcrKeywordSearchViewModel(
                 screenshotLabel = hit.label,
             )
         },
+        loadAvailability = { loadSourceAvailability(it) },
+        recordReachable = { id, key -> recordOpenSourceAvailability.reachable(id, key) },
+        recordUnreachable = { id, key -> recordOpenSourceAvailability.unreachable(id, key) },
     )
 
     private val mutableUiState = MutableStateFlow(ScreenshotOcrKeywordSearchUiState())
@@ -267,10 +304,16 @@ class ScreenshotOcrKeywordSearchViewModel(
                     )
                 }
             }
+            val availability = when (val phase = nextPhase) {
+                is ScreenshotOcrKeywordSearchPhase.Results -> loadAvailability(
+                    phase.hits.map { it.recall.openTarget().asIdentity() },
+                )
+                else -> emptyMap()
+            }
             mutableUiState.update { state ->
                 if (generation != searchGeneration.get()) return@update state
                 if (state.phase !is ScreenshotOcrKeywordSearchPhase.Searching) return@update state
-                state.copy(phase = nextPhase)
+                state.copy(phase = nextPhase, availability = availability)
             }
         }
     }
@@ -292,9 +335,11 @@ class ScreenshotOcrKeywordSearchViewModel(
     fun onOpenOriginalScreenshot(hit: ScreenshotOcrKeywordSearchHit) {
         if (mutableUiState.value.openFeedback is ScreenshotOpenFeedbackUi.Opening) return
         val generation = openGeneration.incrementAndGet()
+        val target = hit.recall.openTarget()
         viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
                 openFeedback = ScreenshotOpenFeedbackUi.Opening,
+                openTarget = target,
                 originalPreview = null,
             )
             val outcome = try {
@@ -308,22 +353,34 @@ class ScreenshotOcrKeywordSearchViewModel(
                 return@launch
             }
             if (generation != openGeneration.get()) return@launch
+            val identity = target.asIdentity()
+            val currentAvailability = mutableUiState.value.availability
             mutableUiState.value = when (outcome) {
-                is ScreenshotPreviewRenderResult.Ready -> mutableUiState.value.copy(
-                    openFeedback = ScreenshotOpenFeedbackUi.None,
-                    originalPreview = ScreenshotOriginalPreviewUi(
-                        sourceId = hit.sourceId,
-                        sourceAssetKey = hit.sourceAssetKey,
-                        screenshotLabel = outcome.screenshotLabel,
-                        widthPx = outcome.widthPx,
-                        heightPx = outcome.heightPx,
-                        argb8888 = outcome.argb8888,
-                    ),
-                )
-                ScreenshotPreviewRenderResult.SourceUnavailable -> mutableUiState.value.copy(
-                    openFeedback = ScreenshotOpenFeedbackUi.SourceUnavailable,
-                    originalPreview = null,
-                )
+                is ScreenshotPreviewRenderResult.Ready -> {
+                    recordReachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableUiState.value.copy(
+                        openFeedback = ScreenshotOpenFeedbackUi.None,
+                        availability = currentAvailability +
+                            (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = ScreenshotOriginalPreviewUi(
+                            sourceId = hit.sourceId,
+                            sourceAssetKey = hit.sourceAssetKey,
+                            screenshotLabel = outcome.screenshotLabel,
+                            widthPx = outcome.widthPx,
+                            heightPx = outcome.heightPx,
+                            argb8888 = outcome.argb8888,
+                        ),
+                    )
+                }
+                ScreenshotPreviewRenderResult.SourceUnavailable -> {
+                    recordUnreachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableUiState.value.copy(
+                        openFeedback = ScreenshotOpenFeedbackUi.SourceUnavailable,
+                        originalPreview = null,
+                        availability = currentAvailability +
+                            (identity to SourceAvailabilityStatus.UNREACHABLE),
+                    )
+                }
                 ScreenshotPreviewRenderResult.CouldNotOpen -> mutableUiState.value.copy(
                     openFeedback = ScreenshotOpenFeedbackUi.CouldNotOpen,
                     originalPreview = null,
@@ -335,6 +392,23 @@ class ScreenshotOcrKeywordSearchViewModel(
     fun onOpenFeedbackDismissed() {
         if (mutableUiState.value.openFeedback is ScreenshotOpenFeedbackUi.Opening) return
         mutableUiState.value = mutableUiState.value.copy(openFeedback = ScreenshotOpenFeedbackUi.None)
+    }
+
+    fun onThumbnailLoaded(target: FindOpenTarget, result: FindThumbnailResult) {
+        val update = result.availabilityUpdate(target, mutableUiState.value.availability) ?: return
+        viewModelScope.launch {
+            when (update.first) {
+                SourceAvailabilityStatus.REACHABLE ->
+                    recordReachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNREACHABLE ->
+                    recordUnreachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNKNOWN -> return@launch
+            }
+            mutableUiState.update { state ->
+                val next = result.availabilityUpdate(target, state.availability) ?: return@update state
+                state.copy(availability = next.second)
+            }
+        }
     }
 
     fun onOriginalPreviewClosed() {

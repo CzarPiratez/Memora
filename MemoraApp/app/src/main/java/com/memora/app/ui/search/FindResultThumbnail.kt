@@ -52,11 +52,14 @@ private val ThumbnailSize = 72.dp
 fun FindResultThumbnail(
     request: FindThumbnailRequest,
     modifier: Modifier = Modifier,
+    onLoaded: (FindThumbnailResult) -> Unit = {},
 ) {
     val loader = LocalFindThumbnailLoader.current
     var result by remember(request.cacheKey) { mutableStateOf<FindThumbnailResult?>(null) }
     LaunchedEffect(request.cacheKey) {
-        result = loader.load(request)
+        val loaded = loader.load(request)
+        result = loaded
+        onLoaded(loaded)
     }
     Box(
         modifier = modifier
@@ -102,7 +105,7 @@ private fun ThumbnailGlyph(
 ) {
     val spoken = FindThumbnailCopy.spokenDescription(request, glyph)
     Text(
-        text = FindThumbnailCopy.glyphLabel(glyph.kind),
+        text = FindThumbnailCopy.glyphLabel(glyph.kind, request.assetType),
         style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

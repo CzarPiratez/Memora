@@ -186,7 +186,7 @@ an essay is **G3** (Grounded Answers, `TIMELINE` reserved). Do not slip I8 into 
 | **I13** | No solid match | unknown word in a large mixed library | Find | Honest empty (U6) | Pad-to-10 | **MF-1** |
 | **I14** | Pack / engine missing | meaning pack absent | Find | Clear unavailable; keyword still offered (U7) | Crash or fake meaning | **MF-1** |
 | **I15** | Index incomplete / not yet searchable | new PDF still assembling | Find | Corpus honesty; “not indexed yet” ≠ “no match” when we can tell | Pretend complete (U8) | **PARTIAL** (FC-04 corpus UI; per-query distinction OPEN) |
-| **I16** | Open failed / moved / revoked | Find hit, Open fails | Find | Search still valid; clear cannot-open | Hide failure; delete the Memory silently | **OPEN** (product copy) |
+| **I16** | Open failed / moved / revoked | Find hit, Open fails | Find | Search still valid; clear cannot-open | Hide failure; delete the Memory silently | **PARTIAL** (ADR-056: standing Open honesty + Hide from Find device pass 2026-09-21; note Open-class local join landed, device pending; discovery absence OPEN) |
 | **I17** | Why / trust | open Why on any hit | Find | Consumer dialect (U5); if grouped (I3), Why names **which cue** matched | Hash wall; “matched by meaning” with no cue | **PARTIAL** (MF-2 copy; grouped Why OPEN) |
 | **I18** | Refine after wrong hit | “not that one — the other silky” | Find | Clear new query state; no ghost Why | Session bleed | **OPEN** |
 | **I19** | Identify / disambiguate | several near-duplicate spelling lists | Find | Short list, distinct labels, Why contrast | One random file claimed as the only hit | **OPEN** |

@@ -5,12 +5,13 @@ package com.memora.app.domain.intelligence
  *
  * When the cue names one or more content tokens, [satisfies] is the exact AND
  * over those tokens. [PreparedCue.matchingTokens] is the same compilation
- * counted per word, which candidate admission (D-15) and the precision tier
+ * counted per word, which [MeaningRoleScorer] and the precision tier
  * (D-12) both read. Semantic cosine remains candidate generation. Not keyword
  * Find and not measured AVAILABLE.
  *
  * The token list comes from [MeaningRecallCue.contentTokens] so that precision
- * and candidate generation always agree on what the person named (defect D-10).
+ * and embed text always agree on what the person named (defect D-10). Pool
+ * admission and page order read [MeaningRoleScorer] (ADR-055).
  */
 object MeaningEvidenceLexicalFilter {
     /**
@@ -47,8 +48,8 @@ object MeaningEvidenceLexicalFilter {
      * can never be satisfied, matching [EnglishRecallInflection.occursAsWholeWord].
      *
      * [satisfies] is the exact AND. [matchingTokens] is the same compilation
-     * counted per word, so candidate admission (D-15) and the precision tier
-     * (D-12) cannot disagree about how many named words a Memory carries.
+     * counted per word, so [MeaningRoleScorer] and the precision tier (D-12)
+     * cannot disagree about which named words a Memory carries.
      */
     class PreparedCue internal constructor(
         private val tokens: List<TokenCue>,

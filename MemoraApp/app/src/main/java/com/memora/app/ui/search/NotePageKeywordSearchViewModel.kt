@@ -2,6 +2,8 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.asset.LoadFindOpenAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
 import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.application.notes.ExternalUrlLauncher
 import com.memora.app.application.notes.LoadPersistedNotePageKeywordSearchReadiness
@@ -11,7 +13,9 @@ import com.memora.app.application.notes.NotePageKeywordSearchOutcome
 import com.memora.app.application.notes.NotePageKeywordSearchReadiness
 import com.memora.app.application.notes.OpenPersistedNotePageInOneNote
 import com.memora.app.application.notes.OpenPersistedNotePageResult
+import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -29,6 +33,7 @@ data class NotePageKeywordSearchUiState(
     val phase: NotePageKeywordSearchPhase = NotePageKeywordSearchPhase.Idle,
     val readiness: NotePageKeywordSearchReadinessUi = NotePageKeywordSearchReadinessUi.Loading,
     val openFeedback: NotePageOpenFeedbackUi = NotePageOpenFeedbackUi.None,
+    val availability: Map<AssetIdentity, SourceAvailabilityStatus> = emptyMap(),
 ) {
     /**
      * An open in flight no longer locks the screen. Opening a note waits on
@@ -63,6 +68,9 @@ data class NotePageKeywordSearchUiState(
                 FindCardOpenState.IDLE
             }
     }
+
+    fun availabilityFor(target: FindOpenTarget): SourceAvailabilityStatus =
+        target.availabilityIn(availability)
 }
 
 sealed interface NotePageKeywordSearchReadinessUi {
@@ -149,6 +157,10 @@ class NotePageKeywordSearchViewModel(
     private val launchOneNoteOriginal: (webUrl: String?, clientUrl: String?) -> Boolean,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val loadAvailability: suspend (Collection<AssetIdentity>) ->
+        Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+    private val recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+    private val recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
 ) : ViewModel() {
     @Inject
     constructor(
@@ -156,6 +168,8 @@ class NotePageKeywordSearchViewModel(
         loadPersistedNotePageKeywordSearchReadiness: LoadPersistedNotePageKeywordSearchReadiness,
         openPersistedNotePageInOneNote: OpenPersistedNotePageInOneNote,
         externalUrlLauncher: ExternalUrlLauncher,
+        loadSourceAvailability: LoadFindOpenAvailability,
+        recordOpenSourceAvailability: RecordOpenSourceAvailability,
     ) : this(
         searchPersistedNotePageText = { rawQuery ->
             NoteMemoryEvidenceKeywordAdapter.toNoteOutcome(
@@ -172,6 +186,9 @@ class NotePageKeywordSearchViewModel(
         launchOneNoteOriginal = { webUrl, clientUrl ->
             externalUrlLauncher.launchOneNoteOriginal(webUrl, clientUrl)
         },
+        loadAvailability = { loadSourceAvailability(it) },
+        recordReachable = { id, key -> recordOpenSourceAvailability.reachable(id, key) },
+        recordUnreachable = { id, key -> recordOpenSourceAvailability.unreachable(id, key) },
     )
 
     private val mutableUiState = MutableStateFlow(NotePageKeywordSearchUiState())
@@ -264,10 +281,16 @@ class NotePageKeywordSearchViewModel(
                     )
                 }
             }
+            val availability = when (val phase = nextPhase) {
+                is NotePageKeywordSearchPhase.Results -> loadAvailability(
+                    phase.hits.map { it.openTarget().asIdentity() },
+                )
+                else -> emptyMap()
+            }
             mutableUiState.update { state ->
                 if (generation != searchGeneration.get()) return@update state
                 if (state.phase !is NotePageKeywordSearchPhase.Searching) return@update state
-                state.copy(phase = nextPhase)
+                state.copy(phase = nextPhase, availability = availability)
             }
         }
     }
@@ -308,6 +331,8 @@ class NotePageKeywordSearchViewModel(
                 return@launch
             }
             if (generation != openGeneration.get()) return@launch
+            val identity = target.asIdentity()
+            val currentAvailability = mutableUiState.value.availability
             mutableUiState.value = when (outcome) {
                 is OpenPersistedNotePageResult.Ready -> {
                     val launched = try {
@@ -315,18 +340,30 @@ class NotePageKeywordSearchViewModel(
                     } catch (_: Exception) {
                         false
                     }
+                    if (launched) {
+                        recordReachable(hit.sourceId, hit.sourceAssetKey)
+                    }
                     mutableUiState.value.copy(
                         openFeedback = if (launched) {
                             NotePageOpenFeedbackUi.None
                         } else {
                             NotePageOpenFeedbackUi.CouldNotOpen(target)
                         },
+                        availability = if (launched) {
+                            currentAvailability + (identity to SourceAvailabilityStatus.REACHABLE)
+                        } else {
+                            currentAvailability
+                        },
                     )
                 }
-                OpenPersistedNotePageResult.SourceUnavailable ->
+                OpenPersistedNotePageResult.SourceUnavailable -> {
+                    recordUnreachable(hit.sourceId, hit.sourceAssetKey)
                     mutableUiState.value.copy(
                         openFeedback = NotePageOpenFeedbackUi.SourceUnavailable(target),
+                        availability = currentAvailability +
+                            (identity to SourceAvailabilityStatus.UNREACHABLE),
                     )
+                }
                 OpenPersistedNotePageResult.CouldNotOpen ->
                     mutableUiState.value.copy(
                         openFeedback = NotePageOpenFeedbackUi.CouldNotOpen(target),

@@ -23,11 +23,13 @@ class MeaningRecallCueTest {
     }
 
     @Test
-    fun content_tokens_keep_grade_and_drop_a_single_digit() {
+    fun content_tokens_keep_a_number_named_beside_other_content() {
         assertEquals(
-            listOf("swimming", "classes", "grade"),
+            listOf("swimming", "classes", "grade", "2"),
             MeaningRecallCue.contentTokens("when are the swimming classes for grade 2"),
         )
+        assertEquals(listOf("year", "4"), MeaningRecallCue.contentTokens("year 4"))
+        assertEquals(emptyList<String>(), MeaningRecallCue.contentTokens("give me 2 files"))
     }
 
     @Test
@@ -36,6 +38,15 @@ class MeaningRecallCueTest {
             listOf("silky"),
             MeaningRecallCue.contentTokens("which file has silky in it"),
         )
+    }
+
+    @Test
+    fun ask_shape_is_detected_on_questions_not_bare_lists() {
+        assertEquals(true, MeaningRecallCue.hadAskShape("when are the swimming classes"))
+        assertEquals(true, MeaningRecallCue.hadAskShape("when are the swimming classes grade"))
+        assertEquals(false, MeaningRecallCue.hadAskShape("scan silky"))
+        assertEquals(false, MeaningRecallCue.hadAskShape("wifi password"))
+        assertEquals(false, MeaningRecallCue.hadAskShape("passport"))
     }
 
     @Test

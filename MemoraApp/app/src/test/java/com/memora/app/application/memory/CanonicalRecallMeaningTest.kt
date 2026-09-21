@@ -18,10 +18,12 @@ import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore
 import com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.intelligence.RecallPrecision
+import com.memora.app.domain.memory.EvidenceLocator
 import com.memora.app.domain.memory.MemoryAnchor
 import com.memora.app.domain.memory.MemoryAnchorId
 import com.memora.app.domain.memory.MemoryAnchorKind
 import com.memora.app.domain.memory.MemoryEvidenceId
+import com.memora.app.domain.memory.MemoryEvidenceKind
 import com.memora.app.domain.memory.MemoryEvidenceSearchRow
 import com.memora.app.domain.memory.MemoryId
 import com.memora.app.domain.memory.MemoryIntegrityState
@@ -484,14 +486,214 @@ class CanonicalRecallMeaningTest {
         assertTrue(outcome.hits.drop(1).all { it.label.startsWith("grade-report-") })
     }
 
+    @Test
+    fun searchByMeaning_does_not_dump_school_docs_ahead_of_the_job_head() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 70).associate { index ->
+            val revision = MemoryRevisionId("school-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "grade-report-$index.pdf",
+                "term classes grade report $index",
+            )
+        }.toMutableMap()
+        val gold = MemoryRevisionId("rev-tt")
+        embeddingStore.upsert(record(gold, 0.55f))
+        lookups[gold] = lookup(
+            gold,
+            "Grade-2-Swimming-TT-2026.pdf",
+            "grade 2 weekly swimming timetable",
+        )
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes for grade 2")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        assertTrue(outcome.hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
+        assertTrue(outcome.hits.take(10).any { it.label.contains("Swimming", ignoreCase = true) })
+    }
+
+    @Test
+    fun searchByMeaning_a_looser_constraint_does_not_lead_a_tighter_one() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val looser = MemoryRevisionId("rev-grade3")
+        val gold = MemoryRevisionId("rev-tt")
+        val shot = MemoryRevisionId("rev-self")
+        embeddingStore.upsert(record(looser, 0.92f))
+        embeddingStore.upsert(record(shot, 0.88f))
+        embeddingStore.upsert(record(gold, 0.55f))
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(
+                mapOf(
+                    looser to lookup(
+                        looser,
+                        "IMG-20260615-WA0001.jpg",
+                        "grade 3 boys swimming classes notice on the board",
+                    ),
+                    shot to lookup(
+                        shot,
+                        "Screenshot_20260916_170350_UNFYND.png",
+                        "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+                    ),
+                    gold to lookup(
+                        gold,
+                        "Grade-2-Swimming-TT-2026.pdf",
+                        "grade 2 weekly swimming timetable",
+                    ),
+                ),
+            ),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes for grade 2")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        assertTrue(outcome.hits.last().label.contains("UNFYND"))
+        assertTrue(outcome.hits.any { it.label.startsWith("IMG-") })
+    }
+
+    @Test
+    fun searchByMeaning_ask_shape_without_for_does_not_let_leftover_words_lead() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 70).associate { index ->
+            val revision = MemoryRevisionId("school-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "grade-report-$index.pdf",
+                "term classes grade report $index",
+            )
+        }.toMutableMap()
+        val gold = MemoryRevisionId("rev-tt")
+        embeddingStore.upsert(record(gold, 0.55f))
+        lookups[gold] = lookup(
+            gold,
+            "Grade-2-Swimming-TT-2026.pdf",
+            "weekly swimming timetable",
+        )
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes grade")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        assertTrue(outcome.hits.take(1).none { it.label.startsWith("grade-report-") })
+        val precision = outcome.precision as RecallPrecision.Partial
+        assertTrue(precision.matched.contains("swimming"))
+        assertTrue(precision.matched.contains("grade"))
+    }
+
+    @Test
+    fun searchByMeaning_ask_shape_two_word_job_leads_with_the_topic() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val lookups = (0 until 70).associate { index ->
+            val revision = MemoryRevisionId("classes-$index")
+            embeddingStore.upsert(record(revision, 0.90f - index * 0.001f))
+            revision to lookup(
+                revision,
+                "beginner-classes-$index.jpg",
+                "beginner classes list $index",
+            )
+        }.toMutableMap()
+        val gold = MemoryRevisionId("rev-tt")
+        embeddingStore.upsert(record(gold, 0.55f))
+        lookups[gold] = lookup(
+            gold,
+            "Grade-2-Swimming-TT-2026.pdf",
+            "weekly swimming timetable",
+        )
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        val precision = outcome.precision as RecallPrecision.Partial
+        assertTrue(precision.matched.contains("swimming"))
+    }
+
+    @Test
+    fun searchByMeaning_fuses_a_lexical_hit_cosine_never_admitted() = runBlocking {
+        val engine = FixedEmbeddingEngine(dimensions = 3)
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val embeddingStore = InMemoryMemoryEmbeddingStore()
+        val leftover = MemoryRevisionId("rev-classes")
+        embeddingStore.upsert(record(leftover, 0.90f))
+        val gold = MemoryRevisionId("rev-tt")
+        val lookups = mapOf(
+            leftover to lookup(
+                leftover,
+                "beginner-classes.jpg",
+                "beginner classes list",
+            ),
+            gold to lookup(
+                gold,
+                "Grade-2-Swimming-TT-2026.pdf",
+                "grade 2 weekly swimming timetable",
+            ),
+        )
+        val recall = recall(
+            embeddingEngine = engine,
+            embeddingStore = embeddingStore,
+            memoryRepository = MeaningLookupRepository(lookups),
+            excerptSearch = FakeExcerptSearch(
+                rows = listOf(
+                    MemoryEvidenceExcerptMatch(
+                        memoryId = MemoryId("mem-${gold.value}"),
+                        revisionId = gold,
+                        evidenceId = MemoryEvidenceId("e-tt"),
+                        kind = MemoryEvidenceKind.DOCUMENT_TEXT,
+                        locator = EvidenceLocator("pdf:page:1"),
+                        excerpt = "grade 2 weekly swimming timetable MON TUE",
+                        sourceId = SourceId("src"),
+                        sourceAssetKey = SourceAssetKey("Grade-2-Swimming-TT-2026.pdf"),
+                        assetType = AssetType.PDF,
+                        displayLabel = "Grade-2-Swimming-TT-2026.pdf",
+                    ),
+                ),
+            ),
+        )
+
+        val outcome = recall.searchByMeaning("when are the swimming classes for grade 2")
+            as MeaningSearchOutcome.Matches
+
+        assertEquals("Grade-2-Swimming-TT-2026.pdf", outcome.hits.first().label)
+        assertTrue(outcome.hits.any { it.label == "beginner-classes.jpg" })
+    }
+
     private fun recall(
         embeddingEngine: EmbeddingEngine = UnavailableMeaningEngine(),
         embeddingStore: MemoryEmbeddingStore = InMemoryMemoryEmbeddingStore(),
         evidenceStore: MemoryEvidenceEmbeddingStore = InMemoryMemoryEvidenceEmbeddingStore(),
         memoryRepository: MemoryRepository = EmptyMemoryRepositoryDelegate(),
+        excerptSearch: MemoryEvidenceExcerptSearch = EmptyExcerptSearch(),
     ): CanonicalRecall = CanonicalRecall(
         searchMemoryEvidence = SearchMemoryEvidence(
-            excerptSearch = EmptyExcerptSearch(),
+            excerptSearch = excerptSearch,
         ),
         searchAssetMemoriesByMeaning = SearchAssetMemoriesByMeaning(
             embeddingEngine = embeddingEngine,
@@ -683,5 +885,39 @@ class CanonicalRecallMeaningTest {
             limit: Int,
             assetType: AssetType?,
         ): List<MemoryEvidenceExcerptMatch> = emptyList()
+    }
+
+    private class FakeExcerptSearch(
+        private val rows: List<MemoryEvidenceExcerptMatch>,
+    ) : MemoryEvidenceExcerptSearch {
+        override suspend fun countCurrentReadyEvidence(
+            assemblySchemaVersion: String,
+            assetType: AssetType?,
+        ): Int = rows.count { assetType == null || it.assetType == assetType }
+
+        override suspend fun countCurrentReadyEvidenceCorpus(
+            assemblySchemaVersion: String,
+            assetType: AssetType?,
+        ): MemoryEvidenceCorpusCounts {
+            val filtered = rows.filter { assetType == null || it.assetType == assetType }
+            val documents = filtered.map { it.sourceId.value to it.sourceAssetKey.value }.toSet()
+            return MemoryEvidenceCorpusCounts(
+                evidenceCount = filtered.size,
+                documentCount = documents.size,
+            )
+        }
+
+        override suspend fun searchByExcerpt(
+            escapedNeedle: String,
+            assemblySchemaVersion: String,
+            limit: Int,
+            assetType: AssetType?,
+        ): List<MemoryEvidenceExcerptMatch> {
+            val literal = escapedNeedle.replace("\\", "")
+            return rows
+                .filter { assetType == null || it.assetType == assetType }
+                .filter { it.excerpt.contains(literal, ignoreCase = true) }
+                .take(limit)
+        }
     }
 }

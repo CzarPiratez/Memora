@@ -40,7 +40,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.memora.app.application.find.FindHiddenPolicy
 import com.memora.app.application.find.FindThumbnailRequest
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.images.ScreenshotOcrKeywordSearchHit
 import com.memora.app.application.preview.OriginalPreviewReloadRequest
 import com.memora.app.application.preview.PreviewZoomPolicy
@@ -54,6 +56,8 @@ fun ScreenshotOcrKeywordSearchScreen(
     onSearchCancelled: () -> Unit,
     onOpenOriginalScreenshot: (ScreenshotOcrKeywordSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    findHidden: FindHiddenHost,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -187,73 +191,55 @@ fun ScreenshotOcrKeywordSearchScreen(
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             is ScreenshotOcrKeywordSearchPhase.Results -> {
-                Text(
-                    text = ScreenshotOcrKeywordSearchCopy.resultsSummary(
-                        query = phase.query,
-                        matchCount = phase.hits.size,
-                        limitReached = phase.limitReached,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                )
-                when (val feedback = uiState.openFeedback) {
-                    ScreenshotOpenFeedbackUi.None -> Unit
-                    ScreenshotOpenFeedbackUi.Opening -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics(mergeDescendants = true) {
-                                    liveRegion = LiveRegionMode.Polite
-                                    contentDescription =
-                                        ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.clearAndSetSemantics { },
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-                    ScreenshotOpenFeedbackUi.SourceUnavailable,
-                    ScreenshotOpenFeedbackUi.CouldNotOpen,
-                    -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = when (feedback) {
-                                ScreenshotOpenFeedbackUi.SourceUnavailable ->
-                                    ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY
-                                else ->
-                                    ScreenshotOcrKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                        )
-                        TextButton(onClick = onDismissOpenFeedback) {
-                            Text(ScreenshotOcrKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
-                        }
-                    }
+                val hiddenIds = findHidden.hiddenIdentities()
+                val visible = FindHiddenPolicy.visible(phase.hits, hiddenIds) {
+                    it.recall.openTarget().asIdentity()
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                phase.hits.forEachIndexed { index, hit ->
-                    ScreenshotOcrKeywordHitCard(
-                        hit = hit,
-                        query = phase.query,
-                        index = index,
-                        openEnabled = uiState.openFeedback !is ScreenshotOpenFeedbackUi.Opening,
-                        onOpenOriginal = { onOpenOriginalScreenshot(hit) },
+                if (FindHiddenPolicy.rankedHitsAreAllHidden(phase.hits.size, visible.size)) {
+                    Text(
+                        text = FindHiddenCopy.ALL_HIDDEN_BODY,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    )
+                } else {
+                    Text(
+                        text = ScreenshotOcrKeywordSearchCopy.resultsSummary(
+                            query = phase.query,
+                            matchCount = visible.size,
+                            limitReached = phase.limitReached,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+                    visible.forEachIndexed { index, hit ->
+                        ScreenshotOcrKeywordHitCard(
+                            hit = hit,
+                            query = phase.query,
+                            index = index,
+                            openState = uiState.openStateFor(hit.recall.openTarget()),
+                            availability = uiState.availabilityFor(hit.recall.openTarget()),
+                            onOpenOriginal = { onOpenOriginalScreenshot(hit) },
+                            onDismissOpenFeedback = onDismissOpenFeedback,
+                            onThumbnailLoaded = onThumbnailLoaded,
+                            onHideFromFind = {
+                                findHidden.onHide(hit.recall.openTarget(), hit.label)
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
+        val hideRanked = (uiState.phase as? ScreenshotOcrKeywordSearchPhase.Results)
+            ?.hits
+            ?.map { it.recall.openTarget().asIdentity() }
+            .orEmpty()
+        FindHiddenResultsFooter(
+            rankedIdentities = hideRanked,
+            findHidden = findHidden,
+        )
     }
 }
 
@@ -291,8 +277,12 @@ private fun ScreenshotOcrKeywordHitCard(
     hit: ScreenshotOcrKeywordSearchHit,
     query: String,
     index: Int,
-    openEnabled: Boolean,
+    openState: FindCardOpenState,
+    availability: com.memora.app.domain.asset.SourceAvailabilityStatus,
     onOpenOriginal: () -> Unit,
+    onDismissOpenFeedback: () -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
+    onHideFromFind: () -> Unit,
 ) {
     var whyExpanded by remember(query, index, hit.sourceId, hit.sourceAssetKey) {
         mutableStateOf(false)
@@ -306,14 +296,13 @@ private fun ScreenshotOcrKeywordHitCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row {
-                FindResultThumbnail(request = FindThumbnailRequest.fromRecall(hit.recall))
+                FindResultThumbnail(
+                    request = FindThumbnailRequest.fromRecall(hit.recall),
+                    onLoaded = { onThumbnailLoaded(hit.recall.openTarget(), it) },
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = hit.label,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    FindHitLabel(text = hit.label)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -332,13 +321,14 @@ private fun ScreenshotOcrKeywordHitCard(
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = onOpenOriginal,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = openEnabled,
-            ) {
-                Text(ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL_SCREENSHOT_LABEL)
-            }
+            FindOpenOriginalButton(
+                copy = ScreenshotOcrKeywordSearchCopy.OPEN_ORIGINAL,
+                state = openState,
+                availability = availability,
+                onOpen = onOpenOriginal,
+                onDismissFailure = onDismissOpenFeedback,
+                onHideFromFind = onHideFromFind,
+            )
             Spacer(modifier = Modifier.height(8.dp))
             WhyDisclosure(
                 expanded = whyExpanded,

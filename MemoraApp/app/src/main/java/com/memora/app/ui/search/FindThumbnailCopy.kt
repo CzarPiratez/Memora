@@ -19,9 +19,17 @@ object FindThumbnailCopy {
 
     const val UNAVAILABLE_DESCRIPTION = "Preview unavailable"
 
-    fun glyphLabel(kind: FindThumbnailGlyph): String = when (kind) {
+    const val SOURCE_UNREACHABLE_DESCRIPTION = "Original cannot be opened"
+
+    fun glyphLabel(kind: FindThumbnailGlyph, assetType: AssetType): String = when (kind) {
         FindThumbnailGlyph.NOTE -> NOTE_GLYPH
         FindThumbnailGlyph.UNAVAILABLE -> UNAVAILABLE_GLYPH
+        FindThumbnailGlyph.SOURCE_UNREACHABLE -> when (assetType) {
+            AssetType.PDF -> "PDF"
+            AssetType.PHOTO -> "Photo"
+            AssetType.SCREENSHOT -> "Shot"
+            AssetType.NOTE -> NOTE_GLYPH
+        }
     }
 
     fun spokenDescription(
@@ -31,6 +39,7 @@ object FindThumbnailCopy {
         is FindThumbnailResult.Glyph -> when (result.kind) {
             FindThumbnailGlyph.NOTE -> NOTE_GLYPH
             FindThumbnailGlyph.UNAVAILABLE -> UNAVAILABLE_DESCRIPTION
+            FindThumbnailGlyph.SOURCE_UNREACHABLE -> SOURCE_UNREACHABLE_DESCRIPTION
         }
         is FindThumbnailResult.Ready -> when (request.assetType) {
             AssetType.PDF -> {

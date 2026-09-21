@@ -32,6 +32,8 @@ fun AiPackDisclosureScreen(
     onBuildIndex: () -> Unit,
     onStopIndex: () -> Unit,
     onRunEncoderProbe: () -> Unit = {},
+    onDownloadChallenger: () -> Unit = {},
+    onRunChallengerProbe: () -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -158,6 +160,32 @@ fun AiPackDisclosureScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(AiPackDisclosureCopy.ENCODER_PROBE_LABEL)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = AiPackDisclosureCopy.CHALLENGER_PROBE_HINT,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (uiState.showDownloadChallenger) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onDownloadChallenger,
+                    enabled = !uiState.blockOtherActions,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(AiPackDisclosureCopy.DOWNLOAD_CHALLENGER_LABEL)
+                }
+            }
+            if (uiState.showRunChallengerProbe) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onRunChallengerProbe,
+                    enabled = !uiState.blockOtherActions,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(AiPackDisclosureCopy.RUN_CHALLENGER_PROBE_LABEL)
+                }
             }
         }
         if (uiState.showActivate) {

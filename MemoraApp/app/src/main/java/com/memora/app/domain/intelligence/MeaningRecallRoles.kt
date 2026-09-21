@@ -5,12 +5,13 @@ package com.memora.app.domain.intelligence
  *
  * Wrappers and TIME words are already gone via [MeaningRecallCue.contentTokens].
  * A trailing `for` is a **qualifier** only when content remains on both sides
- * (`swimming classes for grade 2`). `looking for silky` has no head before
- * `for`, so `silky` stays the head.
+ * (job `for` constraint). `looking for silky` has no head before `for`, so
+ * the named word stays the head. Other constraint syntax is later slices.
  *
  * Qualifier tokens may promote a file that has them. They must not open a
  * one-word Find of their own. Embed / precision still read
- * [MeaningRecallCue.contentTokens] (D-10). This object is page order only.
+ * [MeaningRecallCue.contentTokens] (D-10). Pool admission and page order
+ * both read [MeaningRoleScorer].
  */
 data class MeaningRecallRoles(
     val head: List<String>,

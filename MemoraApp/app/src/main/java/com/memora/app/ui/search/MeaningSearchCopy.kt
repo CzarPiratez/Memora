@@ -201,9 +201,7 @@ object MeaningSearchCopy {
     const val OPENING_LABEL = "Opening…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "UNFYND could not reopen that original. Access may have been revoked, or the " +
-            "file is no longer reachable. Meaning search still uses indexed memories " +
-            "saved on this phone."
+        FindSourceAvailabilityCopy.FILE_ORIGINAL_UNREACHABLE
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
         "UNFYND could not open that original. Try again in a moment. Meaning search " +

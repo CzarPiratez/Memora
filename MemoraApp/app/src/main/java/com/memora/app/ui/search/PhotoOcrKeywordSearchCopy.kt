@@ -31,10 +31,19 @@ object PhotoOcrKeywordSearchCopy {
     const val OPEN_ORIGINAL_LABEL = "Open original"
     const val OPENING_BODY = "Opening a read-only preview of that photo…"
     const val SOURCE_UNAVAILABLE_BODY =
-        "UNFYND cannot open that photo right now. Photo access may have changed."
+        FindSourceAvailabilityCopy.FILE_ORIGINAL_UNREACHABLE
     const val COULD_NOT_OPEN_BODY = "UNFYND could not show that photo."
     const val DISMISS_LABEL = "Dismiss"
     const val BACK_LABEL = "Back"
+
+    val OPEN_ORIGINAL = FindOpenOriginalCopy(
+        openLabel = OPEN_ORIGINAL_LABEL,
+        openingLabel = "Opening…",
+        openingAnnouncement = OPENING_BODY,
+        sourceUnavailableBody = SOURCE_UNAVAILABLE_BODY,
+        couldNotOpenBody = COULD_NOT_OPEN_BODY,
+        dismissLabel = DISMISS_LABEL,
+    )
     const val PREVIEW_TITLE = "Original photo"
     const val CLOSE_PREVIEW_LABEL = "Back to results"
     const val PREVIEW_SCOPE_BODY =

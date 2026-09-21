@@ -9,6 +9,7 @@ package com.memora.app.domain.intelligence
 object EnglishRecallInflection {
     fun wholeWordVariants(token: String): Set<String> {
         val t = token.lowercase().trim()
+        if (t.all(Char::isDigit) && t.isNotEmpty()) return setOf(t)
         if (t.length < RecallQueryContentTokens.MIN_TOKEN_LENGTH) return emptySet()
         val out = linkedSetOf(t)
         addPlural(t, out)

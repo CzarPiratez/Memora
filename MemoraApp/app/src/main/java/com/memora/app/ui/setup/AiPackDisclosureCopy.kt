@@ -2,15 +2,20 @@ package com.memora.app.ui.setup
 
 import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
+import com.memora.app.application.intelligence.MeaningEncoderBakeOffScorecard
+import com.memora.app.application.intelligence.MeaningEncoderBakeOffVerdict
+import com.memora.app.application.intelligence.MeaningEncoderChallengerProbeReport
 import com.memora.app.application.intelligence.MeaningEncoderProbeReport
 import com.memora.app.application.intelligence.MeaningIndexBatchLimits
 import com.memora.app.application.intelligence.MeaningIndexDrainPhase
 import com.memora.app.application.intelligence.MeaningIndexDrainProgress
+import com.memora.app.application.intelligence.ProbeMeaningEncoderChallenger
 import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
 import com.memora.app.application.intelligence.RunPendingMeaningIndexResult
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
 import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
+import com.memora.app.domain.intelligence.OnnxBgeSmallEnV15Spec
 
 /**
  * Honesty copy for embedding-first disclosure / model install / index (E3–E4b).
@@ -107,6 +112,18 @@ object AiPackDisclosureCopy {
     const val ENCODER_PROBE_HINT =
         "Diagnostic for D-20. Does not change Find. Writes ranks to Logcat " +
             "(MeaningEncoderProbe). Never uploads your files."
+
+    val CHALLENGER_PROBE_HINT: String =
+        "ADR-055 bake-off only. Downloads BGE-small (~" +
+            "${OnnxBgeSmallEnV15Spec.DISCLOSED_SIZE_MB_CEILING} MB) " +
+            "into private storage, re-embeds the same USE-indexed Memories in memory, " +
+            "and scores gold@60 against the frozen USE card. Does not change Find, " +
+            "does not swap the product meaning model, does not write the meaning index. " +
+            "Model bytes only — never uploads your files. Can take several minutes."
+
+    const val DOWNLOAD_CHALLENGER_LABEL = "Download BGE challenger (probe only)"
+
+    const val RUN_CHALLENGER_PROBE_LABEL = "Run BGE challenger probe"
 
     const val MEANING_LIVE_TRACE_HINT =
         "Debug meaning Find also writes a live trace to Logcat " +
@@ -282,19 +299,44 @@ object AiPackDisclosureCopy {
     const val FEEDBACK_PROBE_FAILED =
         "Encoder probe could not finish on this phone."
 
+    const val FEEDBACK_CHALLENGER_DOWNLOADING = "Downloading BGE challenger…"
+
+    const val FEEDBACK_CHALLENGER_INSTALLED =
+        "BGE challenger installed. Run the challenger probe next. Find is unchanged."
+
+    const val FEEDBACK_CHALLENGER_ALREADY =
+        "BGE challenger is already installed on this phone."
+
+    const val FEEDBACK_CHALLENGER_PROBE_RUNNING =
+        "Running BGE challenger probe… This re-embeds the USE-indexed corpus and can take minutes."
+
+    const val FEEDBACK_CHALLENGER_PACK_MISSING =
+        "BGE challenger is not installed yet. Download it first."
+
+    const val FEEDBACK_CHALLENGER_PROBE_FAILED =
+        "BGE challenger probe could not finish on this phone."
+
     fun encoderProbeFinished(report: MeaningEncoderProbeReport): String =
         when (report) {
             is MeaningEncoderProbeReport.EngineUnavailable -> report.reason
             MeaningEncoderProbeReport.NothingIndexed -> FEEDBACK_PROBE_NOTHING_INDEXED
             is MeaningEncoderProbeReport.Completed -> {
-                val swimming = report.rows.firstOrNull { it.query.contains("swimming schedule") }
-                val chunk = swimming?.chunkRank?.toString() ?: "—"
-                val asset = swimming?.assetRankAfterCollapse?.toString() ?: "—"
-                val token = swimming?.inTokenSeatedPool?.toString() ?: "—"
-                val cosine = swimming?.inCosineSeatedPool?.toString() ?: "—"
-                "Probe finished (${report.rows.size} cues). " +
-                    "swimming schedule: chunkRank=$chunk assetRank=$asset " +
-                    "token30=$token cosine30=$cosine. See Logcat ${ProbeMeaningEncoderRanks.LOG_TAG}."
+                val card = MeaningEncoderBakeOffScorecard.of(report.rows)
+                val verdict = MeaningEncoderBakeOffVerdict.decide(live = card)
+                "Probe finished (${report.rows.size} cues). ${card.displayLine()} " +
+                    "${verdict.displayLine()} See Logcat ${ProbeMeaningEncoderRanks.LOG_TAG}."
             }
+        }
+
+    fun challengerProbeFinished(report: MeaningEncoderChallengerProbeReport): String =
+        when (report) {
+            MeaningEncoderChallengerProbeReport.PackMissing -> FEEDBACK_CHALLENGER_PACK_MISSING
+            MeaningEncoderChallengerProbeReport.NothingIndexed -> FEEDBACK_PROBE_NOTHING_INDEXED
+            is MeaningEncoderChallengerProbeReport.ProductEngineUnavailable -> report.reason
+            is MeaningEncoderChallengerProbeReport.Failed -> report.reason
+            is MeaningEncoderChallengerProbeReport.Completed ->
+                "Challenger probe finished (${report.rows.size} cues). " +
+                    "${report.scorecard.displayLine()} ${report.verdict.displayLine()} " +
+                    "See Logcat ${ProbeMeaningEncoderChallenger.LOG_TAG}."
         }
 }

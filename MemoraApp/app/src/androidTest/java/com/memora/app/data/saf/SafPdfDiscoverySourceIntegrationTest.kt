@@ -31,15 +31,7 @@ class SafPdfDiscoverySourceIntegrationTest {
     fun openExistingApplicationDatabase() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         database = Room.databaseBuilder(targetContext, MemoraDatabase::class.java, "memora.db")
-            .addMigrations(
-                MemoraDatabaseMigrations.MIGRATION_1_2,
-                MemoraDatabaseMigrations.MIGRATION_2_3,
-                MemoraDatabaseMigrations.MIGRATION_3_4,
-                MemoraDatabaseMigrations.MIGRATION_12_13,
-                MemoraDatabaseMigrations.MIGRATION_13_14,
-                MemoraDatabaseMigrations.MIGRATION_14_15,
-                MemoraDatabaseMigrations.MIGRATION_15_16,
-            ).build()
+            .addMigrations(*MemoraDatabaseMigrations.ALL).build()
     }
 
     @After

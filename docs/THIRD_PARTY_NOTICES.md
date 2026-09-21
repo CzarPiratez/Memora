@@ -27,6 +27,16 @@ This does not authorize network access, AI Pack download, or PHOTO OCR.
 Review record: `docs/dependency-review/mediapipe-tasks-text-0.10.29-review.md`.
 Model download uses existing INTERNET for **model bytes only** — not user content.
 
+## Meaning encoder bake-off challenger (ADR-055 slice 3, probe-only)
+
+| Component | Exact version | Purpose | Licence / notice source |
+|---|---:|---|---|
+| Xenova/bge-small-en-v1.5 `onnx/model_quantized.onnx` | quantized-v1 (sha256 `6c9c6101…`) | Debug bake-off embedder only; not the product meaning pack | MIT ([BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5)); ONNX export via Xenova |
+| `com.microsoft.onnxruntime:onnxruntime-android` | 1.28.0 | Already on classpath for Stage A; reused for challenger inference | MIT; see ONNX Runtime review |
+
+Download is **model bytes only** after debug CTA. Does not upload Memories.
+Does not replace MediaPipe USE until a measured slice-4 swap.
+
 ## PDF extraction validation dependency set
 
 This inventory applies to the synthetic-fixture validation step only. It does not

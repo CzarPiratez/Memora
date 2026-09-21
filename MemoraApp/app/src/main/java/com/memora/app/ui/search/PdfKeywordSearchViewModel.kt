@@ -2,6 +2,8 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.asset.LoadSourceAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
 import com.memora.app.application.documents.LoadPersistedPdfKeywordSearchReadiness
 import com.memora.app.application.documents.OpenPersistedPdfForViewing
 import com.memora.app.application.documents.PdfKeywordSearchHit
@@ -9,8 +11,11 @@ import com.memora.app.application.documents.PdfKeywordSearchOutcome
 import com.memora.app.application.documents.PdfKeywordSearchReadiness
 import com.memora.app.application.documents.PdfMemoryEvidenceKeywordAdapter
 import com.memora.app.application.documents.PdfPagePreviewRenderResult
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.memory.CanonicalRecall
+import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -29,6 +34,8 @@ data class PdfKeywordSearchUiState(
     val readiness: PdfKeywordSearchReadinessUi = PdfKeywordSearchReadinessUi.Loading,
     val openFeedback: PdfOpenFeedbackUi = PdfOpenFeedbackUi.None,
     val originalPreview: PdfOriginalPreviewUi? = null,
+    val openTarget: FindOpenTarget? = null,
+    val availability: Map<AssetIdentity, SourceAvailabilityStatus> = emptyMap(),
 ) {
     /** Shared gate for the Search button and keyboard Search action. */
     val canSubmitSearch: Boolean
@@ -45,6 +52,27 @@ data class PdfKeywordSearchUiState(
     /** Cancel is available only while a search is in progress. */
     val canCancelSearch: Boolean
         get() = phase is PdfKeywordSearchPhase.Searching
+
+    fun openStateFor(target: FindOpenTarget): FindCardOpenState = when (openFeedback) {
+        PdfOpenFeedbackUi.None -> FindCardOpenState.IDLE
+        PdfOpenFeedbackUi.Opening ->
+            if (openTarget == target) FindCardOpenState.OPENING else FindCardOpenState.IDLE
+        PdfOpenFeedbackUi.SourceUnavailable ->
+            if (openTarget == target) {
+                FindCardOpenState.SOURCE_UNAVAILABLE
+            } else {
+                FindCardOpenState.IDLE
+            }
+        PdfOpenFeedbackUi.CouldNotOpen ->
+            if (openTarget == target) {
+                FindCardOpenState.COULD_NOT_OPEN
+            } else {
+                FindCardOpenState.IDLE
+            }
+    }
+
+    fun availabilityFor(target: FindOpenTarget): SourceAvailabilityStatus =
+        target.availabilityIn(availability)
 }
 
 sealed interface PdfKeywordSearchReadinessUi {
@@ -170,12 +198,18 @@ class PdfKeywordSearchViewModel(
      */
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val loadAvailability: suspend (Collection<AssetIdentity>) ->
+        Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+    private val recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+    private val recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
 ) : ViewModel() {
     @Inject
     constructor(
         canonicalRecall: CanonicalRecall,
         loadPersistedPdfKeywordSearchReadiness: LoadPersistedPdfKeywordSearchReadiness,
         openPersistedPdfForViewing: OpenPersistedPdfForViewing,
+        loadSourceAvailability: LoadSourceAvailability,
+        recordOpenSourceAvailability: RecordOpenSourceAvailability,
     ) : this(
         searchPdfKeyword = { rawQuery ->
             PdfMemoryEvidenceKeywordAdapter.toPdfOutcome(
@@ -194,6 +228,9 @@ class PdfKeywordSearchViewModel(
                 documentLabel = hit.label,
             )
         },
+        loadAvailability = { loadSourceAvailability(it) },
+        recordReachable = { id, key -> recordOpenSourceAvailability.reachable(id, key) },
+        recordUnreachable = { id, key -> recordOpenSourceAvailability.unreachable(id, key) },
     )
 
     private val mutableUiState = MutableStateFlow(PdfKeywordSearchUiState())
@@ -284,10 +321,16 @@ class PdfKeywordSearchViewModel(
                 }
             }
             // Cancel may have moved Idle already; never overwrite a non-Searching phase.
+            val availability = when (val phase = nextPhase) {
+                is PdfKeywordSearchPhase.Results -> loadAvailability(
+                    phase.hits.map { it.recall.openTarget().asIdentity() },
+                )
+                else -> emptyMap()
+            }
             mutableUiState.update { state ->
                 if (generation != searchGeneration.get()) return@update state
                 if (state.phase !is PdfKeywordSearchPhase.Searching) return@update state
-                state.copy(phase = nextPhase)
+                state.copy(phase = nextPhase, availability = availability)
             }
         }
     }
@@ -318,9 +361,11 @@ class PdfKeywordSearchViewModel(
     fun onOpenOriginalPdf(hit: PdfKeywordSearchHit) {
         if (mutableUiState.value.openFeedback is PdfOpenFeedbackUi.Opening) return
         val generation = openGeneration.incrementAndGet()
+        val target = hit.recall.openTarget()
         viewModelScope.launch {
             mutableUiState.value = mutableUiState.value.copy(
                 openFeedback = PdfOpenFeedbackUi.Opening,
+                openTarget = target,
                 originalPreview = null,
             )
             val outcome = try {
@@ -334,24 +379,36 @@ class PdfKeywordSearchViewModel(
                 return@launch
             }
             if (generation != openGeneration.get()) return@launch
+            val identity = target.asIdentity()
+            val currentAvailability = mutableUiState.value.availability
             mutableUiState.value = when (outcome) {
-                is PdfPagePreviewRenderResult.Ready -> mutableUiState.value.copy(
-                    openFeedback = PdfOpenFeedbackUi.None,
-                    originalPreview = PdfOriginalPreviewUi(
-                        sourceId = hit.sourceId,
-                        sourceAssetKey = hit.sourceAssetKey,
-                        documentLabel = outcome.documentLabel,
-                        pageNumber = outcome.pageNumber,
-                        pageCount = outcome.pageCount,
-                        widthPx = outcome.widthPx,
-                        heightPx = outcome.heightPx,
-                        argb8888 = outcome.argb8888,
-                    ),
-                )
-                PdfPagePreviewRenderResult.SourceUnavailable -> mutableUiState.value.copy(
-                    openFeedback = PdfOpenFeedbackUi.SourceUnavailable,
-                    originalPreview = null,
-                )
+                is PdfPagePreviewRenderResult.Ready -> {
+                    recordReachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableUiState.value.copy(
+                        openFeedback = PdfOpenFeedbackUi.None,
+                        availability = currentAvailability +
+                            (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = PdfOriginalPreviewUi(
+                            sourceId = hit.sourceId,
+                            sourceAssetKey = hit.sourceAssetKey,
+                            documentLabel = outcome.documentLabel,
+                            pageNumber = outcome.pageNumber,
+                            pageCount = outcome.pageCount,
+                            widthPx = outcome.widthPx,
+                            heightPx = outcome.heightPx,
+                            argb8888 = outcome.argb8888,
+                        ),
+                    )
+                }
+                PdfPagePreviewRenderResult.SourceUnavailable -> {
+                    recordUnreachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableUiState.value.copy(
+                        openFeedback = PdfOpenFeedbackUi.SourceUnavailable,
+                        originalPreview = null,
+                        availability = currentAvailability +
+                            (identity to SourceAvailabilityStatus.UNREACHABLE),
+                    )
+                }
                 PdfPagePreviewRenderResult.CouldNotOpen -> mutableUiState.value.copy(
                     openFeedback = PdfOpenFeedbackUi.CouldNotOpen,
                     originalPreview = null,
@@ -363,6 +420,23 @@ class PdfKeywordSearchViewModel(
     fun onOpenFeedbackDismissed() {
         if (mutableUiState.value.openFeedback is PdfOpenFeedbackUi.Opening) return
         mutableUiState.value = mutableUiState.value.copy(openFeedback = PdfOpenFeedbackUi.None)
+    }
+
+    fun onThumbnailLoaded(target: FindOpenTarget, result: FindThumbnailResult) {
+        val update = result.availabilityUpdate(target, mutableUiState.value.availability) ?: return
+        viewModelScope.launch {
+            when (update.first) {
+                SourceAvailabilityStatus.REACHABLE ->
+                    recordReachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNREACHABLE ->
+                    recordUnreachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNKNOWN -> return@launch
+            }
+            mutableUiState.update { state ->
+                val next = result.availabilityUpdate(target, state.availability) ?: return@update state
+                state.copy(availability = next.second)
+            }
+        }
     }
 
     fun onOriginalPreviewClosed() {

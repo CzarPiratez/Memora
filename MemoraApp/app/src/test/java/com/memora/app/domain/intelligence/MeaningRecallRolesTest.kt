@@ -18,9 +18,13 @@ class MeaningRecallRolesTest {
 
     @Test
     fun trailing_for_is_a_qualifier_when_a_head_already_exists() {
-        val roles = MeaningRecallRoles.parse("when are the swimming classes for grade 2")
-        assertEquals(listOf("swimming", "classes"), roles.head)
-        assertEquals(listOf("grade"), roles.qualifier)
+        val swimming = MeaningRecallRoles.parse("when are the swimming classes for grade 2")
+        assertEquals(listOf("swimming", "classes"), swimming.head)
+        assertEquals(listOf("grade", "2"), swimming.qualifier)
+
+        val receipts = MeaningRecallRoles.parse("receipts for hotel")
+        assertEquals(listOf("receipts"), receipts.head)
+        assertEquals(listOf("hotel"), receipts.qualifier)
     }
 
     @Test

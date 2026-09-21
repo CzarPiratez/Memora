@@ -8,6 +8,8 @@ import com.memora.app.data.local.RoomAssetMemoryAssemblyOutcomeStore
 import com.memora.app.data.local.RoomAssetMemoryFactSource
 import com.memora.app.data.local.RoomAssetRepository
 import com.memora.app.data.local.RoomNotePageOpenTargetRepository
+import com.memora.app.data.local.RoomFindHiddenStore
+import com.memora.app.data.local.RoomSourceAvailabilityStore
 import com.memora.app.data.local.RoomDiscoveryCheckpointRepository
 import com.memora.app.data.local.RoomDiscoveryPageStore
 import com.memora.app.data.local.RoomDocumentTreeApprovalRepository
@@ -23,6 +25,8 @@ import com.memora.app.data.security.MemoraDatabaseHandle
 import com.memora.app.data.security.MemoraUserConfirmedDerivedDataClearer
 import com.memora.app.data.security.ProductionDatabaseIdentity
 import com.memora.app.domain.asset.AssetRepository
+import com.memora.app.domain.asset.FindHiddenStore
+import com.memora.app.domain.asset.SourceAvailabilityStore
 import com.memora.app.domain.notes.NotePageOpenTargetRepository
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryPageStore
@@ -65,6 +69,20 @@ object PersistenceModule {
     @Singleton
     fun provideAssetRepository(handle: MemoraDatabaseHandle): AssetRepository =
         RoomAssetRepository(assetDao = { handle.database().assetDao() })
+
+    @Provides
+    @Singleton
+    fun provideSourceAvailabilityStore(
+        handle: MemoraDatabaseHandle,
+    ): SourceAvailabilityStore =
+        RoomSourceAvailabilityStore(dao = { handle.database().sourceAvailabilityDao() })
+
+    @Provides
+    @Singleton
+    fun provideFindHiddenStore(
+        handle: MemoraDatabaseHandle,
+    ): FindHiddenStore =
+        RoomFindHiddenStore(dao = { handle.database().findHiddenDao() })
 
     @Provides
     @Singleton

@@ -1,11 +1,18 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.asset.InMemorySourceAvailabilityStore
+import com.memora.app.application.asset.LoadSourceAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
+import com.memora.app.application.find.FindThumbnailGlyph
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.intelligence.MeaningOpenOriginalResult
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.application.intelligence.MeaningSearchReadiness
+import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
 import com.memora.app.domain.asset.SourceAssetKey
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 import com.memora.app.domain.memory.CorpusCompletenessCounts
@@ -284,6 +291,155 @@ class MeaningSearchViewModelTest {
         )
     }
 
+    @Test
+    fun failed_open_stays_on_the_card_across_search_and_successful_open_resurrects() = runTest {
+        val store = InMemorySourceAvailabilityStore()
+        val record = RecordOpenSourceAvailability(store)
+        val load = LoadSourceAvailability(store)
+        var openResult: MeaningOpenOriginalResult = MeaningOpenOriginalResult.SourceUnavailable
+        val viewModel = MeaningSearchViewModel(
+            searchByMeaning = {
+                MeaningSearchOutcome.Matches(
+                    query = "note",
+                    hits = listOf(sampleHit()),
+                    limitReached = false,
+                    model = model,
+                )
+            },
+            loadReadiness = {
+                MeaningSearchReadiness.Ready(
+                    model = model,
+                    indexedCount = 1,
+                    memoriesReadyCount = 1,
+                    corpusCompleteness = CorpusCompletenessSnapshot(
+                        counts = CorpusCompletenessCounts(
+                            memoriesReady = 1,
+                            memoriesPendingAssembly = 0,
+                            meaningSummaryIndexed = 1,
+                            meaningEvidenceIndexed = 0,
+                            meaningIndexPending = 0,
+                        ),
+                        blocked = null,
+                    ),
+                )
+            },
+            openOriginal = { _, _ -> openResult },
+            launchOneNoteOriginal = { _, _ -> false },
+            minSearchingVisibleMs = 0L,
+            loadAvailability = { load(it) },
+            recordReachable = { id, key -> record.reachable(id, key) },
+            recordUnreachable = { id, key -> record.unreachable(id, key) },
+        ).also { it.onScreenVisible() }
+        advanceUntilIdle()
+
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        viewModel.onOpenOriginal(sampleHit())
+        advanceUntilIdle()
+
+        assertEquals(
+            SourceAvailabilityStatus.UNREACHABLE,
+            viewModel.uiState.value.availabilityFor(target()),
+        )
+
+        viewModel.onSearch()
+        advanceUntilIdle()
+        assertEquals(
+            SourceAvailabilityStatus.UNREACHABLE,
+            viewModel.uiState.value.availabilityFor(target()),
+        )
+        assertEquals(
+            SourceAvailabilityStatus.UNREACHABLE,
+            store.find(SourceId("s"), SourceAssetKey("k"))?.status,
+        )
+
+        openResult = MeaningOpenOriginalResult.ScreenshotReady(
+            label = "Screenshot_memora_note.png",
+            widthPx = 2,
+            heightPx = 2,
+            argb8888 = IntArray(4) { 0xFF0000FF.toInt() },
+        )
+        viewModel.onOpenOriginal(sampleHit())
+        advanceUntilIdle()
+        assertEquals(
+            SourceAvailabilityStatus.REACHABLE,
+            viewModel.uiState.value.availabilityFor(target()),
+        )
+        assertEquals(
+            SourceAvailabilityStatus.REACHABLE,
+            store.find(SourceId("s"), SourceAssetKey("k"))?.status,
+        )
+    }
+
+    @Test
+    fun retryable_could_not_open_does_not_mark_the_original_unreachable() = runTest {
+        val store = InMemorySourceAvailabilityStore()
+        val record = RecordOpenSourceAvailability(store)
+        val viewModel = viewModel(
+            open = { _, _ -> MeaningOpenOriginalResult.CouldNotOpen },
+            loadAvailability = { emptyMap() },
+            recordReachable = { id, key -> record.reachable(id, key) },
+            recordUnreachable = { id, key -> record.unreachable(id, key) },
+        ) {
+            MeaningSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit()),
+                limitReached = false,
+                model = model,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+        viewModel.onOpenOriginal(sampleHit())
+        advanceUntilIdle()
+
+        assertEquals(
+            SourceAvailabilityStatus.UNKNOWN,
+            viewModel.uiState.value.availabilityFor(target()),
+        )
+        assertEquals(null, store.find(SourceId("s"), SourceAssetKey("k")))
+    }
+
+    @Test
+    fun thumbnail_unreachable_shows_standing_honesty_without_open() = runTest {
+        val store = InMemorySourceAvailabilityStore()
+        val record = RecordOpenSourceAvailability(store)
+        val viewModel = viewModel(
+            recordReachable = { id, key -> record.reachable(id, key) },
+            recordUnreachable = { id, key -> record.unreachable(id, key) },
+        ) {
+            MeaningSearchOutcome.Matches(
+                query = "note",
+                hits = listOf(sampleHit(AssetType.PDF, key = "k")),
+                limitReached = false,
+                model = model,
+            )
+        }
+        advanceUntilIdle()
+        viewModel.onQueryChanged("note")
+        viewModel.onSearch()
+        advanceUntilIdle()
+
+        viewModel.onThumbnailLoaded(
+            target(),
+            FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE),
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            SourceAvailabilityStatus.UNREACHABLE,
+            viewModel.uiState.value.availabilityFor(target()),
+        )
+        assertEquals(
+            SourceAvailabilityStatus.UNREACHABLE,
+            store.find(SourceId("s"), SourceAssetKey("k"))?.status,
+        )
+        assertEquals(MeaningOpenFeedbackUi.None, viewModel.uiState.value.openFeedback)
+    }
+
     private fun noteMatches() = MeaningSearchOutcome.Matches(
         query = "note",
         hits = listOf(
@@ -294,7 +450,7 @@ class MeaningSearchViewModelTest {
         model = model,
     )
 
-    private fun target(sourceAssetKey: String) = FindOpenTarget(
+    private fun target(sourceAssetKey: String = "k") = FindOpenTarget(
         sourceId = "s",
         sourceAssetKey = sourceAssetKey,
     )
@@ -322,6 +478,10 @@ class MeaningSearchViewModelTest {
         },
         launch: (String?, String?) -> Boolean = { _, _ -> false },
         minSearchingVisibleMs: Long = 0L,
+        loadAvailability: suspend (Collection<AssetIdentity>) ->
+            Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+        recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+        recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
         search: suspend (String) -> MeaningSearchOutcome,
     ) = MeaningSearchViewModel(
         searchByMeaning = search,
@@ -329,6 +489,9 @@ class MeaningSearchViewModelTest {
         openOriginal = open,
         launchOneNoteOriginal = launch,
         minSearchingVisibleMs = minSearchingVisibleMs,
+        loadAvailability = loadAvailability,
+        recordReachable = recordReachable,
+        recordUnreachable = recordUnreachable,
     ).also { it.onScreenVisible() }
 
     private fun sampleHit(

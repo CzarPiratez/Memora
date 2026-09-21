@@ -16,6 +16,13 @@ class EnglishRecallInflectionTest {
     }
 
     @Test
+    fun a_named_digit_matches_as_a_whole_token() {
+        assertTrue(EnglishRecallInflection.occursAsWholeWord("grade-2-swimming timetable", "2"))
+        assertFalse(EnglishRecallInflection.occursAsWholeWord("grade 3 boys notice", "2"))
+        assertEquals(setOf("2"), EnglishRecallInflection.wholeWordVariants("2"))
+    }
+
+    @Test
     fun does_not_synonym_silky_to_silk() {
         assertFalse(EnglishRecallInflection.occursAsWholeWord("soft silk fabric", "silky"))
         assertTrue(EnglishRecallInflection.wholeWordVariants("silky").contains("silky"))

@@ -3,6 +3,9 @@ package com.memora.app.ui.search
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.asset.LoadFindOpenAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.intelligence.LoadMeaningSearchReadiness
 import com.memora.app.application.intelligence.MeaningOpenOriginalResult
 import com.memora.app.application.intelligence.MeaningSearchHit
@@ -11,6 +14,8 @@ import com.memora.app.application.intelligence.MeaningSearchReadiness
 import com.memora.app.application.intelligence.OpenMeaningSearchOriginal
 import com.memora.app.application.memory.CanonicalRecall
 import com.memora.app.application.notes.ExternalUrlLauncher
+import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import com.memora.app.domain.intelligence.RecallPrecision
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
@@ -30,6 +35,7 @@ data class MeaningSearchUiState(
     val readiness: MeaningSearchReadinessUi = MeaningSearchReadinessUi.Loading,
     val openFeedback: MeaningOpenFeedbackUi = MeaningOpenFeedbackUi.None,
     val originalPreview: MeaningOriginalPreviewUi? = null,
+    val availability: Map<AssetIdentity, SourceAvailabilityStatus> = emptyMap(),
 ) {
     /**
      * An open in flight no longer locks the screen. Opening a note waits on
@@ -64,6 +70,9 @@ data class MeaningSearchUiState(
                 FindCardOpenState.IDLE
             }
     }
+
+    fun availabilityFor(target: FindOpenTarget): SourceAvailabilityStatus =
+        target.availabilityIn(availability)
 }
 
 sealed interface MeaningSearchReadinessUi {
@@ -168,6 +177,10 @@ class MeaningSearchViewModel(
     private val launchOneNoteOriginal: (webUrl: String?, clientUrl: String?) -> Boolean,
     private val minSearchingVisibleMs: Long = DEFAULT_MIN_SEARCHING_VISIBLE_MS,
     private val monotonicMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val loadAvailability: suspend (Collection<AssetIdentity>) ->
+        Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+    private val recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+    private val recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
 ) : ViewModel() {
     @Inject
     constructor(
@@ -175,6 +188,8 @@ class MeaningSearchViewModel(
         loadMeaningSearchReadiness: LoadMeaningSearchReadiness,
         openMeaningSearchOriginal: OpenMeaningSearchOriginal,
         externalUrlLauncher: ExternalUrlLauncher,
+        loadSourceAvailability: LoadFindOpenAvailability,
+        recordOpenSourceAvailability: RecordOpenSourceAvailability,
     ) : this(
         searchByMeaning = { query -> canonicalRecall.searchByMeaning(query) },
         loadReadiness = { loadMeaningSearchReadiness() },
@@ -182,6 +197,9 @@ class MeaningSearchViewModel(
         launchOneNoteOriginal = { web, client ->
             externalUrlLauncher.launchOneNoteOriginal(web, client)
         },
+        loadAvailability = { identities -> loadSourceAvailability(identities) },
+        recordReachable = { id, key -> recordOpenSourceAvailability.reachable(id, key) },
+        recordUnreachable = { id, key -> recordOpenSourceAvailability.unreachable(id, key) },
     )
 
     private val mutableUiState = MutableStateFlow(MeaningSearchUiState())
@@ -307,10 +325,20 @@ class MeaningSearchViewModel(
                     )
                 }
             }
+            if (generation != searchGeneration.get()) return@launch
+
+            val availability = when (val phase = nextPhase) {
+                is MeaningSearchPhase.Results -> loadAvailability(
+                    phase.hits.map { it.openTarget().asIdentity() },
+                )
+                else -> emptyMap()
+            }
+            if (generation != searchGeneration.get()) return@launch
+
             mutableUiState.update { state ->
                 if (generation != searchGeneration.get()) return@update state
                 if (state.phase !is MeaningSearchPhase.Searching) return@update state
-                state.copy(phase = nextPhase)
+                state.copy(phase = nextPhase, availability = availability)
             }
         }
     }
@@ -357,53 +385,70 @@ class MeaningSearchViewModel(
                 return@launch
             }
             if (generation != openGeneration.get()) return@launch
+            val identity = target.asIdentity()
+            val currentAvailability = mutableUiState.value.availability
             mutableUiState.value = when (outcome) {
-                is MeaningOpenOriginalResult.ScreenshotReady -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.None,
-                    originalPreview = MeaningOriginalPreviewUi.Screenshot(
-                        ScreenshotOriginalPreviewUi(
-                            sourceId = hit.sourceId.value,
-                            sourceAssetKey = hit.sourceAssetKey.value,
-                            screenshotLabel = outcome.label,
-                            widthPx = outcome.widthPx,
-                            heightPx = outcome.heightPx,
-                            argb8888 = outcome.argb8888,
+                is MeaningOpenOriginalResult.ScreenshotReady -> {
+                    recordReachable(hit.sourceId.value, hit.sourceAssetKey.value)
+                    mutableUiState.value.copy(
+                        openFeedback = MeaningOpenFeedbackUi.None,
+                        availability = currentAvailability + (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = MeaningOriginalPreviewUi.Screenshot(
+                            ScreenshotOriginalPreviewUi(
+                                sourceId = hit.sourceId.value,
+                                sourceAssetKey = hit.sourceAssetKey.value,
+                                screenshotLabel = outcome.label,
+                                widthPx = outcome.widthPx,
+                                heightPx = outcome.heightPx,
+                                argb8888 = outcome.argb8888,
+                            ),
                         ),
-                    ),
-                )
-                is MeaningOpenOriginalResult.PhotoReady -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.None,
-                    originalPreview = MeaningOriginalPreviewUi.Photo(
-                        PhotoOriginalPreviewUi(
-                            sourceId = hit.sourceId.value,
-                            sourceAssetKey = hit.sourceAssetKey.value,
-                            photoLabel = outcome.label,
-                            widthPx = outcome.widthPx,
-                            heightPx = outcome.heightPx,
-                            argb8888 = outcome.argb8888,
+                    )
+                }
+                is MeaningOpenOriginalResult.PhotoReady -> {
+                    recordReachable(hit.sourceId.value, hit.sourceAssetKey.value)
+                    mutableUiState.value.copy(
+                        openFeedback = MeaningOpenFeedbackUi.None,
+                        availability = currentAvailability + (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = MeaningOriginalPreviewUi.Photo(
+                            PhotoOriginalPreviewUi(
+                                sourceId = hit.sourceId.value,
+                                sourceAssetKey = hit.sourceAssetKey.value,
+                                photoLabel = outcome.label,
+                                widthPx = outcome.widthPx,
+                                heightPx = outcome.heightPx,
+                                argb8888 = outcome.argb8888,
+                            ),
                         ),
-                    ),
-                )
-                is MeaningOpenOriginalResult.PdfReady -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.None,
-                    originalPreview = MeaningOriginalPreviewUi.Pdf(
-                        PdfOriginalPreviewUi(
-                            sourceId = hit.sourceId.value,
-                            sourceAssetKey = hit.sourceAssetKey.value,
-                            documentLabel = outcome.label,
-                            pageNumber = outcome.pageNumber,
-                            pageCount = outcome.pageCount,
-                            widthPx = outcome.widthPx,
-                            heightPx = outcome.heightPx,
-                            argb8888 = outcome.argb8888,
+                    )
+                }
+                is MeaningOpenOriginalResult.PdfReady -> {
+                    recordReachable(hit.sourceId.value, hit.sourceAssetKey.value)
+                    mutableUiState.value.copy(
+                        openFeedback = MeaningOpenFeedbackUi.None,
+                        availability = currentAvailability + (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = MeaningOriginalPreviewUi.Pdf(
+                            PdfOriginalPreviewUi(
+                                sourceId = hit.sourceId.value,
+                                sourceAssetKey = hit.sourceAssetKey.value,
+                                documentLabel = outcome.label,
+                                pageNumber = outcome.pageNumber,
+                                pageCount = outcome.pageCount,
+                                widthPx = outcome.widthPx,
+                                heightPx = outcome.heightPx,
+                                argb8888 = outcome.argb8888,
+                            ),
                         ),
-                    ),
-                )
+                    )
+                }
                 is MeaningOpenOriginalResult.NoteReady -> {
                     val launched = try {
                         launchOneNoteOriginal(outcome.webUrl, outcome.clientUrl)
                     } catch (_: Exception) {
                         false
+                    }
+                    if (launched) {
+                        recordReachable(hit.sourceId.value, hit.sourceAssetKey.value)
                     }
                     mutableUiState.value.copy(
                         openFeedback = if (launched) {
@@ -412,12 +457,21 @@ class MeaningSearchViewModel(
                             MeaningOpenFeedbackUi.CouldNotOpen(target)
                         },
                         originalPreview = null,
+                        availability = if (launched) {
+                            currentAvailability + (identity to SourceAvailabilityStatus.REACHABLE)
+                        } else {
+                            currentAvailability
+                        },
                     )
                 }
-                MeaningOpenOriginalResult.SourceUnavailable -> mutableUiState.value.copy(
-                    openFeedback = MeaningOpenFeedbackUi.SourceUnavailable(target),
-                    originalPreview = null,
-                )
+                MeaningOpenOriginalResult.SourceUnavailable -> {
+                    recordUnreachable(hit.sourceId.value, hit.sourceAssetKey.value)
+                    mutableUiState.value.copy(
+                        openFeedback = MeaningOpenFeedbackUi.SourceUnavailable(target),
+                        originalPreview = null,
+                        availability = currentAvailability + (identity to SourceAvailabilityStatus.UNREACHABLE),
+                    )
+                }
                 MeaningOpenOriginalResult.CouldNotOpen -> mutableUiState.value.copy(
                     openFeedback = MeaningOpenFeedbackUi.CouldNotOpen(target),
                     originalPreview = null,
@@ -429,6 +483,23 @@ class MeaningSearchViewModel(
     fun onOpenFeedbackDismissed() {
         if (mutableUiState.value.openFeedback is MeaningOpenFeedbackUi.Opening) return
         mutableUiState.value = mutableUiState.value.copy(openFeedback = MeaningOpenFeedbackUi.None)
+    }
+
+    fun onThumbnailLoaded(target: FindOpenTarget, result: FindThumbnailResult) {
+        val update = result.availabilityUpdate(target, mutableUiState.value.availability) ?: return
+        viewModelScope.launch {
+            when (update.first) {
+                SourceAvailabilityStatus.REACHABLE ->
+                    recordReachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNREACHABLE ->
+                    recordUnreachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNKNOWN -> return@launch
+            }
+            mutableUiState.update { state ->
+                val next = result.availabilityUpdate(target, state.availability) ?: return@update state
+                state.copy(availability = next.second)
+            }
+        }
     }
 
     fun onOriginalPreviewClosed() {

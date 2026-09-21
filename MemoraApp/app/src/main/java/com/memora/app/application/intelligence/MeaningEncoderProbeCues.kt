@@ -15,6 +15,10 @@ object MeaningEncoderProbeCues {
     val DEFAULT: List<MeaningEncoderProbeCue> = listOf(
         MeaningEncoderProbeCue("swimming schedule", goldSubstrings = swimmingGold),
         MeaningEncoderProbeCue("when are the swimming classes", goldSubstrings = swimmingGold),
+        MeaningEncoderProbeCue(
+            "when are the swimming classes for grade 2",
+            goldSubstrings = swimmingGold,
+        ),
         MeaningEncoderProbeCue("Wednesday swimming timings", goldSubstrings = swimmingGold),
         MeaningEncoderProbeCue("school swimming timetable", goldSubstrings = swimmingGold),
         MeaningEncoderProbeCue("kids water lessons", goldSubstrings = swimmingGold),

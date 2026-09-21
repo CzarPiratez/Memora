@@ -50,6 +50,10 @@ object MeaningRecallCue {
     /** Query string shown in Why / empty states. */
     fun displayQuery(rawQuery: String): String = normalize(rawQuery)
 
+    /** Ask-shape wrappers were present (`when are…`, `show me…`). */
+    fun hadAskShape(rawQuery: String): Boolean =
+        RecallQueryContentTokens.hadAskShape(rawQuery)
+
     /**
      * Words a TIME expression owns (`recent`, `last week`, `in 2024`). They say
      * which Memories qualify; they are not text to retrieve on, so neither the
@@ -58,7 +62,7 @@ object MeaningRecallCue {
     private fun constraintConsumedTokens(normalizedQuery: String): Set<String> =
         RecallQueryConstraintClassifier.classify(normalizedQuery)
             .timeSpanText
-            ?.let { RecallQueryContentTokens.tokens(it).toSet() }
+            ?.let { RecallQueryContentTokens.namedTokens(it).toSet() }
             .orEmpty()
 
     private val WHITESPACE = Regex("""\s+""")

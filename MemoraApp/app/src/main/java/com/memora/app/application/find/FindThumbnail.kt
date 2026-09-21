@@ -3,6 +3,7 @@ package com.memora.app.application.find
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.memory.CanonicalRecallResult
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 
 /**
  * Bounds for Find-card thumbnails. Not a measured AVAILABLE SLA.
@@ -70,7 +71,10 @@ data class FindThumbnailRequest(
 
 enum class FindThumbnailGlyph {
     NOTE,
+    /** Decode/permission miss — not a confirmed gone original. */
     UNAVAILABLE,
+    /** Open-class reopen could not reach the original. */
+    SOURCE_UNREACHABLE,
 }
 
 sealed interface FindThumbnailResult {
@@ -94,6 +98,20 @@ sealed interface FindThumbnailResult {
 }
 
 /**
+ * Last-known Open reachability learned from a list thumbnail reopen.
+ * Null means the glyph is not a confirmed Open outcome (note, flake, permission).
+ */
+fun FindThumbnailResult.learnedAvailability(): SourceAvailabilityStatus? = when (this) {
+    is FindThumbnailResult.Ready -> SourceAvailabilityStatus.REACHABLE
+    is FindThumbnailResult.Glyph -> when (kind) {
+        FindThumbnailGlyph.SOURCE_UNREACHABLE -> SourceAvailabilityStatus.UNREACHABLE
+        FindThumbnailGlyph.NOTE,
+        FindThumbnailGlyph.UNAVAILABLE,
+        -> null
+    }
+}
+
+/**
  * Pure rules for thumbnail caching and PDF page choice.
  *
  * Failures are not cached so a later permission grant can retry. Note glyphs
@@ -108,4 +126,12 @@ object FindThumbnailPolicy {
         is FindThumbnailResult.Ready -> true
         is FindThumbnailResult.Glyph -> result.kind == FindThumbnailGlyph.NOTE
     }
+
+    /**
+     * After every image URI candidate missed: a decode flake must not mark
+     * the original gone. Only a clean miss (all Unreachable) is Open-class.
+     */
+    fun imageMissGlyph(decodeFlake: Boolean): FindThumbnailGlyph =
+        if (decodeFlake) FindThumbnailGlyph.UNAVAILABLE
+        else FindThumbnailGlyph.SOURCE_UNREACHABLE
 }

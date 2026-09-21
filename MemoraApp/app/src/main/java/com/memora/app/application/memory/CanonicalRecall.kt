@@ -1,5 +1,6 @@
 package com.memora.app.application.memory
 
+import android.util.Log
 import com.memora.app.application.intelligence.MeaningSearchOutcome
 import com.memora.app.application.intelligence.MeaningSearchTrace
 import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
@@ -20,7 +21,8 @@ import java.util.concurrent.TimeUnit
  * structured filter and FC-02 Stage A [RecallRanker].
  *
  * Meaning Find ViewModels call [searchByMeaning] (MIG-07B Slice 3). Candidate
- * generation remains [SearchAssetMemoriesByMeaning]; shared ranking (token boost
+ * generation is [SearchAssetMemoriesByMeaning] fused with a read-only
+ * [SearchMemoryEvidence] probe (ADR-055 slice 2). Shared ranking (token boost
  * + lexical + Stage A rerank + anchor filter) lives in [AnchorAwareMeaningRecallRanking].
  */
 class CanonicalRecall @Inject constructor(
@@ -59,17 +61,18 @@ class CanonicalRecall @Inject constructor(
         val startedNs = System.nanoTime()
         val poolLimit = (limit * CANDIDATE_POOL_MULTIPLIER).coerceAtMost(MAX_CANDIDATE_POOL)
         val outcome = searchAssetMemoriesByMeaning(rawQuery = rawQuery, limit = poolLimit)
+        val fused = fuseLexicalCandidates(outcome, rawQuery, poolLimit)
         val ranked = AnchorAwareMeaningRecallRanking.apply(
-            outcome = outcome,
+            outcome = fused,
             rawQuery = rawQuery,
             memoryRepository = memoryRepository,
             recallRanker = recallRanker,
         )
-        val trimmed = trimMeaningMatches(ranked, limit)
+        val trimmed = trimMeaningMatches(ranked, limit, rawQuery)
         MeaningSearchTrace.emit(
             MeaningSearchTrace.fromLivePath(
                 rawQuery = rawQuery,
-                candidate = outcome,
+                candidate = fused,
                 ranked = ranked,
                 shown = trimmed,
                 latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNs),
@@ -78,12 +81,47 @@ class CanonicalRecall @Inject constructor(
         return trimmed
     }
 
+    /**
+     * Keyword screens stay frozen. This only *reads* the lexical generator
+     * so a Memory that already has the named words cannot sit outside the
+     * meaning pool. Role score still ranks. Engine-unavailable stays honest.
+     */
+    private suspend fun fuseLexicalCandidates(
+        outcome: MeaningSearchOutcome,
+        rawQuery: String,
+        poolLimit: Int,
+    ): MeaningSearchOutcome {
+        if (outcome !is MeaningSearchOutcome.Matches) return outcome
+        val probe = MeaningLexicalProbeQuery.of(rawQuery)
+        if (probe.isEmpty()) return outcome
+        val lexicalHits = try {
+            when (
+                val lexical = searchMemoryEvidence(
+                    rawQuery = probe,
+                    limit = poolLimit,
+                )
+            ) {
+                is MemoryEvidenceSearchOutcome.Matches -> lexical.hits
+                else -> emptyList()
+            }
+        } catch (error: Exception) {
+            Log.w(TAG, "lexical fuse probe failed; meaning pool unchanged", error)
+            emptyList()
+        }
+        return MeaningCandidateFusion.merge(outcome, lexicalHits)
+    }
+
     private fun trimMeaningMatches(
         outcome: MeaningSearchOutcome,
         limit: Int,
+        rawQuery: String,
     ): MeaningSearchOutcome {
         if (outcome !is MeaningSearchOutcome.Matches) return outcome
-        val page = MeaningTrustedHitPolicy.page(outcome.hits, limit, outcome.query)
+        // Page order and the Partial banner must see the same raw cue the
+        // person typed. Display query is for Why / empty copy only — if a
+        // later display form dropped ask-shape wrappers, leftover job words
+        // would take the first seats again.
+        val page = MeaningTrustedHitPolicy.page(outcome.hits, limit, rawQuery)
         if (page.hits.isEmpty()) {
             return outcome.copy(
                 hits = emptyList(),
@@ -93,7 +131,7 @@ class CanonicalRecall @Inject constructor(
         }
         val (refined, precision) = AnchorAwareMeaningRecallRanking.refineAfterTrustedTrim(
             hits = page.hits,
-            rawQuery = outcome.query,
+            rawQuery = rawQuery,
         )
         if (refined.isEmpty()) {
             return outcome.copy(
@@ -112,6 +150,8 @@ class CanonicalRecall @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "CanonicalRecall"
+
         /**
          * Over-fetch candidates so later ranking can promote lower-cosine hits
          * before the shown page (up to [MeaningTrustedHitPolicy.MAX_TRUSTED_HITS])

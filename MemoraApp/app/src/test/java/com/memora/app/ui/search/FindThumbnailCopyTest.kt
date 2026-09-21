@@ -5,6 +5,7 @@ import com.memora.app.application.find.FindThumbnailRequest
 import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.domain.asset.AssetType
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -41,7 +42,28 @@ class FindThumbnailCopyTest {
 
     @Test
     fun note_glyph_does_not_pretend_to_be_a_page_image() {
-        assertEquals("Note", FindThumbnailCopy.glyphLabel(FindThumbnailGlyph.NOTE))
+        assertEquals("Note", FindThumbnailCopy.glyphLabel(FindThumbnailGlyph.NOTE, AssetType.NOTE))
         assertTrue(FindThumbnailCopy.UNAVAILABLE_DESCRIPTION.contains("unavailable"))
+    }
+
+    @Test
+    fun unreachable_glyph_names_the_type_and_does_not_say_unavailable() {
+        assertEquals(
+            "PDF",
+            FindThumbnailCopy.glyphLabel(FindThumbnailGlyph.SOURCE_UNREACHABLE, AssetType.PDF),
+        )
+        val request = FindThumbnailRequest(
+            sourceId = "s",
+            sourceAssetKey = "a",
+            assetType = AssetType.PDF,
+            label = "gone.pdf",
+            pageNumber = 1,
+        )
+        val spoken = FindThumbnailCopy.spokenDescription(
+            request,
+            FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE),
+        )
+        assertEquals("Original cannot be opened", spoken)
+        assertFalse(spoken!!.lowercase().contains("unavailable"))
     }
 }

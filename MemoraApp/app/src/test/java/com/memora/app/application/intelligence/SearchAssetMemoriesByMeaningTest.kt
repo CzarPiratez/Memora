@@ -526,6 +526,64 @@ class SearchAssetMemoriesByMeaningTest {
     }
 
     @Test
+    fun a_head_family_keeps_a_seat_when_qualifier_docs_fill_cosine() = runBlocking {
+        val engine = FixedEmbeddingEngine(model, dimensions = 3)
+        val store = InMemoryMemoryEmbeddingStore()
+        val lookups = mutableMapOf<MemoryRevisionId, MemoryMeaningLookup>()
+
+        repeat(4) { index ->
+            val revision = MemoryRevisionId("rev-school-$index")
+            val memory = MemoryId("mem-school-$index")
+            store.upsert(
+                MemoryEmbeddingRecord(
+                    revisionId = revision,
+                    memoryId = memory,
+                    model = model,
+                    vector = EmbeddingVector(floatArrayOf(1f, 0.05f * index, 0f)),
+                    sourceTextFingerprint = "fp-school-$index",
+                    createdAtEpochMs = index.toLong(),
+                ),
+            )
+            lookups[revision] = lookup(
+                revisionId = revision,
+                memoryId = memory,
+                label = "grade-report-$index.pdf",
+                summaryText = "term classes grade report $index",
+            )
+        }
+
+        val gold = MemoryRevisionId("rev-tt")
+        store.upsert(
+            MemoryEmbeddingRecord(
+                revisionId = gold,
+                memoryId = MemoryId("mem-tt"),
+                model = model,
+                vector = EmbeddingVector(floatArrayOf(0.2f, 1f, 0f)),
+                sourceTextFingerprint = "fp-tt",
+                createdAtEpochMs = 99L,
+            ),
+        )
+        lookups[gold] = lookup(
+            revisionId = gold,
+            memoryId = MemoryId("mem-tt"),
+            label = "Grade-2-Swimming-TT-2026.pdf",
+            summaryText = "grade 2 weekly swimming timetable",
+        )
+
+        engine.nextQueryVector = EmbeddingVector(floatArrayOf(1f, 0f, 0f))
+        val outcome = searchUseCase(
+            embeddingEngine = engine,
+            embeddingStore = store,
+            memoryRepository = FakeMemoryRepository(lookups = lookups),
+        )("when are the swimming classes for grade 2", 2)
+
+        val hits = (outcome as MeaningSearchOutcome.Matches).hits
+        assertEquals(2, hits.size)
+        assertTrue(hits.any { it.label == "Grade-2-Swimming-TT-2026.pdf" })
+        assertEquals(hits.sortedByDescending { it.score }, hits)
+    }
+
+    @Test
     fun a_cue_with_no_literal_match_still_offers_meaning_neighbours() = runBlocking {
         val engine = FixedEmbeddingEngine(model, dimensions = 3)
         val store = InMemoryMemoryEmbeddingStore()

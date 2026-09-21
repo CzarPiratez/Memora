@@ -2,6 +2,8 @@ package com.memora.app.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.memora.app.application.asset.LoadSourceAvailability
+import com.memora.app.application.asset.RecordOpenSourceAvailability
 import com.memora.app.application.images.LoadPersistedPhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.OpenPersistedPhotoForViewing
 import com.memora.app.application.images.PhotoMemoryEvidenceKeywordAdapter
@@ -9,8 +11,11 @@ import com.memora.app.application.images.PhotoOcrKeywordSearchHit
 import com.memora.app.application.images.PhotoOcrKeywordSearchOutcome
 import com.memora.app.application.images.PhotoOcrKeywordSearchReadiness
 import com.memora.app.application.images.PhotoPreviewRenderResult
+import com.memora.app.application.find.FindThumbnailResult
 import com.memora.app.application.memory.CanonicalRecall
+import com.memora.app.domain.asset.AssetIdentity
 import com.memora.app.domain.asset.AssetType
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -25,9 +30,24 @@ data class PhotoOcrKeywordSearchUiState(
     val readiness: PhotoOcrKeywordSearchReadinessUi = PhotoOcrKeywordSearchReadinessUi.Loading,
     val openFeedback: PhotoOpenFeedbackUi = PhotoOpenFeedbackUi.None,
     val originalPreview: PhotoOriginalPreviewUi? = null,
+    val openTarget: FindOpenTarget? = null,
+    val availability: Map<AssetIdentity, SourceAvailabilityStatus> = emptyMap(),
 ) {
     val canSubmitSearch get() = query.isNotBlank() && phase !is PhotoOcrKeywordSearchPhase.Searching
     val canCancelSearch get() = phase is PhotoOcrKeywordSearchPhase.Searching
+
+    fun openStateFor(target: FindOpenTarget): FindCardOpenState = when (openFeedback) {
+        PhotoOpenFeedbackUi.None -> FindCardOpenState.IDLE
+        PhotoOpenFeedbackUi.Opening ->
+            if (openTarget == target) FindCardOpenState.OPENING else FindCardOpenState.IDLE
+        PhotoOpenFeedbackUi.SourceUnavailable ->
+            if (openTarget == target) FindCardOpenState.SOURCE_UNAVAILABLE else FindCardOpenState.IDLE
+        PhotoOpenFeedbackUi.CouldNotOpen ->
+            if (openTarget == target) FindCardOpenState.COULD_NOT_OPEN else FindCardOpenState.IDLE
+    }
+
+    fun availabilityFor(target: FindOpenTarget): SourceAvailabilityStatus =
+        target.availabilityIn(availability)
 }
 
 sealed interface PhotoOcrKeywordSearchReadinessUi {
@@ -106,12 +126,18 @@ class PhotoOcrKeywordSearchViewModel(
     private val search: suspend (String) -> PhotoOcrKeywordSearchOutcome,
     private val loadReadiness: suspend () -> PhotoOcrKeywordSearchReadiness,
     private val openPhoto: suspend (PhotoOcrKeywordSearchHit) -> PhotoPreviewRenderResult,
+    private val loadAvailability: suspend (Collection<AssetIdentity>) ->
+        Map<AssetIdentity, SourceAvailabilityStatus> = { emptyMap() },
+    private val recordReachable: suspend (String, String) -> Unit = { _, _ -> },
+    private val recordUnreachable: suspend (String, String) -> Unit = { _, _ -> },
 ) : ViewModel() {
     @Inject
     constructor(
         canonicalRecall: CanonicalRecall,
         readiness: LoadPersistedPhotoOcrKeywordSearchReadiness,
         opener: OpenPersistedPhotoForViewing,
+        loadSourceAvailability: LoadSourceAvailability,
+        recordOpenSourceAvailability: RecordOpenSourceAvailability,
     ) : this(
         search = { rawQuery ->
             PhotoMemoryEvidenceKeywordAdapter.toPhotoOutcome(
@@ -123,6 +149,9 @@ class PhotoOcrKeywordSearchViewModel(
         },
         loadReadiness = { readiness() },
         openPhoto = { opener(it.sourceId, it.sourceAssetKey, it.label) },
+        loadAvailability = { loadSourceAvailability(it) },
+        recordReachable = { id, key -> recordOpenSourceAvailability.reachable(id, key) },
+        recordUnreachable = { id, key -> recordOpenSourceAvailability.unreachable(id, key) },
     )
 
     private val mutableState = MutableStateFlow(PhotoOcrKeywordSearchUiState())
@@ -178,7 +207,14 @@ class PhotoOcrKeywordSearchViewModel(
                     )
                 }
             }
-            mutableState.value = mutableState.value.copy(phase = phase)
+            if (current != generation.get()) return@launch
+            val availability = when (val next = phase) {
+                is PhotoOcrKeywordSearchPhase.Results -> loadAvailability(
+                    next.hits.map { it.recall.openTarget().asIdentity() },
+                )
+                else -> emptyMap()
+            }
+            mutableState.value = mutableState.value.copy(phase = phase, availability = availability)
         }
     }
 
@@ -189,23 +225,38 @@ class PhotoOcrKeywordSearchViewModel(
     }
 
     fun onOpenOriginalPhoto(hit: PhotoOcrKeywordSearchHit) {
+        val target = hit.recall.openTarget()
         viewModelScope.launch {
-            mutableState.value = mutableState.value.copy(openFeedback = PhotoOpenFeedbackUi.Opening)
+            mutableState.value = mutableState.value.copy(
+                openFeedback = PhotoOpenFeedbackUi.Opening,
+                openTarget = target,
+            )
+            val identity = target.asIdentity()
             mutableState.value = when (val result = runCatching { openPhoto(hit) }.getOrNull()) {
-                is PhotoPreviewRenderResult.Ready -> mutableState.value.copy(
-                    openFeedback = PhotoOpenFeedbackUi.None,
-                    originalPreview = PhotoOriginalPreviewUi(
-                        sourceId = hit.sourceId,
-                        sourceAssetKey = hit.sourceAssetKey,
-                        photoLabel = result.photoLabel,
-                        widthPx = result.widthPx,
-                        heightPx = result.heightPx,
-                        argb8888 = result.argb8888,
-                    ),
-                )
-                PhotoPreviewRenderResult.SourceUnavailable -> mutableState.value.copy(
-                    openFeedback = PhotoOpenFeedbackUi.SourceUnavailable,
-                )
+                is PhotoPreviewRenderResult.Ready -> {
+                    recordReachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableState.value.copy(
+                        openFeedback = PhotoOpenFeedbackUi.None,
+                        availability = mutableState.value.availability +
+                            (identity to SourceAvailabilityStatus.REACHABLE),
+                        originalPreview = PhotoOriginalPreviewUi(
+                            sourceId = hit.sourceId,
+                            sourceAssetKey = hit.sourceAssetKey,
+                            photoLabel = result.photoLabel,
+                            widthPx = result.widthPx,
+                            heightPx = result.heightPx,
+                            argb8888 = result.argb8888,
+                        ),
+                    )
+                }
+                PhotoPreviewRenderResult.SourceUnavailable -> {
+                    recordUnreachable(hit.sourceId, hit.sourceAssetKey)
+                    mutableState.value.copy(
+                        openFeedback = PhotoOpenFeedbackUi.SourceUnavailable,
+                        availability = mutableState.value.availability +
+                            (identity to SourceAvailabilityStatus.UNREACHABLE),
+                    )
+                }
                 else -> mutableState.value.copy(openFeedback = PhotoOpenFeedbackUi.CouldNotOpen)
             }
         }
@@ -213,6 +264,21 @@ class PhotoOcrKeywordSearchViewModel(
 
     fun onOpenFeedbackDismissed() {
         mutableState.value = mutableState.value.copy(openFeedback = PhotoOpenFeedbackUi.None)
+    }
+
+    fun onThumbnailLoaded(target: FindOpenTarget, result: FindThumbnailResult) {
+        val update = result.availabilityUpdate(target, mutableState.value.availability) ?: return
+        viewModelScope.launch {
+            when (update.first) {
+                SourceAvailabilityStatus.REACHABLE ->
+                    recordReachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNREACHABLE ->
+                    recordUnreachable(target.sourceId, target.sourceAssetKey)
+                SourceAvailabilityStatus.UNKNOWN -> return@launch
+            }
+            val next = result.availabilityUpdate(target, mutableState.value.availability) ?: return@launch
+            mutableState.value = mutableState.value.copy(availability = next.second)
+        }
     }
 
     fun onOriginalPreviewClosed() {

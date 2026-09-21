@@ -111,11 +111,23 @@ conversational memory or an untracked desktop file.
     `CHANGE_CONTROL_OPEN_ORIGINAL_IN_ANOTHER_APP.md`.
 16. **Meaning retrieval stack (ADR-055):** Meaning Find is roles + lexical
     and meaning fusion + one score + a measured embedder pack + optional
-    Stage A rerank, all inside Canonical Recall. Occupancy D-23–D-28 is
-    closed history. USE is not the product. Keyword Find stays frozen until
-    a later FTS ticket. Living plan:
-    `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`. Does not authorize
-    synonym nets, cloud ranker, AVAILABLE, or a second Find path.
+    Stage A rerank, all inside Canonical Recall. The bar is any natural
+    cue: right originals first, or honest silence. Device phrases are
+    specimens, not a word table. Occupancy D-23–D-28 is closed history.
+    USE is not the product. Keyword Find stays frozen until a later FTS
+    ticket. Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+    Does not authorize synonym nets, cloud ranker, AVAILABLE, or a second
+    Find path.
+17. **Source availability (ADR-056):** Last confirmed Open reachability is
+    orthogonal to Memory integrity. Find still returns READY Memories
+    (I16 / R1). Cards show standing honesty and Try Open. User-initiated
+    Hide from Find is a reversible visibility preference — not CR-08, not
+    auto-hide, not a ranking input. Search does not probe originals.
+    Notes learn standing honesty from local Asset / open-target / vaulted
+    grant rows — never Graph at Find. Discovery absence and Forget /
+    CR-08 are later slices. Living plan:
+    `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`. Does not authorize
+    ranking changes or a second Find path.
 
 ## Governed internal amendments
 

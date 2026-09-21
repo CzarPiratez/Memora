@@ -2,6 +2,7 @@ package com.memora.app.data.security
 
 import android.content.Context
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
+import com.memora.app.data.intelligence.NoBackupMeaningEncoderChallengerStore
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
 import java.io.File
 
@@ -41,6 +42,14 @@ object MemoraDerivedDataClearer {
         if (embeddingModels.exists()) {
             embeddingModels.listFiles()?.forEach { it.delete() }
             embeddingModels.delete()
+        }
+        val challenger = File(
+            appContext.noBackupFilesDir,
+            NoBackupMeaningEncoderChallengerStore.ROOT_DIR_NAME,
+        )
+        if (challenger.exists()) {
+            challenger.listFiles()?.forEach { it.delete() }
+            challenger.delete()
         }
     }
 

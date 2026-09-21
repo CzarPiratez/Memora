@@ -6,12 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.memora.app.BuildConfig
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackContainer
 import com.memora.app.application.intelligence.ActivateOfflineEmbeddingPackResult
+import com.memora.app.application.intelligence.DownloadMeaningEncoderChallengerPack
+import com.memora.app.application.intelligence.DownloadMeaningEncoderChallengerPackResult
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModel
 import com.memora.app.application.intelligence.DownloadOnDeviceEmbeddingModelResult
 import com.memora.app.application.intelligence.LoadCorpusCompleteness
+import com.memora.app.application.intelligence.MeaningEncoderBakeOffScorecard
+import com.memora.app.application.intelligence.MeaningEncoderBakeOffVerdict
+import com.memora.app.application.intelligence.MeaningEncoderChallengerProbeReport
 import com.memora.app.application.intelligence.MeaningEncoderProbeReport
+import com.memora.app.application.intelligence.ProbeMeaningEncoderChallenger
 import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
+import com.memora.app.data.intelligence.NoBackupMeaningEncoderChallengerStore
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.AiPackManager
@@ -44,6 +51,8 @@ data class AiPackDisclosureUiState(
     val showBuildIndex: Boolean,
     val showStopIndex: Boolean = false,
     val showEncoderProbe: Boolean = false,
+    val showDownloadChallenger: Boolean = false,
+    val showRunChallengerProbe: Boolean = false,
     val isBusy: Boolean = false,
     val isIndexing: Boolean = false,
     val progressFeedback: String? = null,
@@ -58,12 +67,15 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val aiPackManager: AiPackManager,
     private val activateOfflinePack: ActivateOfflineEmbeddingPackContainer,
     private val downloadModel: DownloadOnDeviceEmbeddingModel,
+    private val downloadChallenger: DownloadMeaningEncoderChallengerPack,
     private val modelStore: OnDeviceEmbeddingModelStore,
+    private val challengerStore: NoBackupMeaningEncoderChallengerStore,
     private val embeddingEngine: EmbeddingEngine,
     private val mediaPipeEmbeddingEngine: MediaPipeEmbeddingEngine,
     private val loadCorpusCompleteness: LoadCorpusCompleteness,
     private val meaningIndexScheduler: MeaningIndexWorkScheduler,
     private val probeMeaningEncoderRanks: ProbeMeaningEncoderRanks,
+    private val probeMeaningEncoderChallenger: ProbeMeaningEncoderChallenger,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(buildState())
     val uiState: StateFlow<AiPackDisclosureUiState> = mutableUiState.asStateFlow()
@@ -186,9 +198,80 @@ class AiPackDisclosureViewModel @Inject constructor(
                 report.rows.forEach { row ->
                     Log.i(ProbeMeaningEncoderRanks.LOG_TAG, row.logLine())
                 }
+                val card = MeaningEncoderBakeOffScorecard.of(report.rows)
+                Log.i(ProbeMeaningEncoderRanks.LOG_TAG, card.logLine())
+                Log.i(
+                    ProbeMeaningEncoderRanks.LOG_TAG,
+                    MeaningEncoderBakeOffVerdict.decide(live = card).logLine(),
+                )
             }
             mutableUiState.value = withContext(Dispatchers.IO) {
                 buildStateWithCorpus(feedbackMessage = AiPackDisclosureCopy.encoderProbeFinished(report))
+            }
+        }
+    }
+
+    fun onDownloadChallengerRequested() {
+        if (mutableUiState.value.blockOtherActions ||
+            !mutableUiState.value.showDownloadChallenger
+        ) {
+            return
+        }
+        setBusy(AiPackDisclosureCopy.FEEDBACK_CHALLENGER_DOWNLOADING)
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) { downloadChallenger() }
+            val feedback = when (result) {
+                DownloadMeaningEncoderChallengerPackResult.Installed ->
+                    AiPackDisclosureCopy.FEEDBACK_CHALLENGER_INSTALLED
+                DownloadMeaningEncoderChallengerPackResult.AlreadyInstalled ->
+                    AiPackDisclosureCopy.FEEDBACK_CHALLENGER_ALREADY
+                is DownloadMeaningEncoderChallengerPackResult.Failed -> result.reason
+            }
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildStateWithCorpus(feedbackMessage = feedback)
+            }
+        }
+    }
+
+    fun onChallengerProbeRequested() {
+        if (mutableUiState.value.blockOtherActions ||
+            !mutableUiState.value.showRunChallengerProbe
+        ) {
+            return
+        }
+        setBusy(AiPackDisclosureCopy.FEEDBACK_CHALLENGER_PROBE_RUNNING)
+        viewModelScope.launch {
+            val report = try {
+                withContext(Dispatchers.IO) {
+                    probeMeaningEncoderChallenger { done, total ->
+                        // Keep UI responsive; only update copy occasionally via busy text.
+                        if (done == total || done % 250 == 0) {
+                            mutableUiState.value = mutableUiState.value.copy(
+                                progressFeedback =
+                                    "BGE challenger embedding $done / $total…",
+                            )
+                        }
+                    }
+                }
+            } catch (_: Exception) {
+                mutableUiState.value = withContext(Dispatchers.IO) {
+                    buildStateWithCorpus(
+                        feedbackMessage = AiPackDisclosureCopy.FEEDBACK_CHALLENGER_PROBE_FAILED,
+                    )
+                }
+                return@launch
+            }
+            if (report is MeaningEncoderChallengerProbeReport.Completed) {
+                report.rows.forEach { row ->
+                    Log.i(ProbeMeaningEncoderChallenger.LOG_TAG, row.logLine())
+                }
+                Log.i(ProbeMeaningEncoderChallenger.LOG_TAG, report.scorecard.logLine())
+                Log.i(ProbeMeaningEncoderChallenger.LOG_TAG, report.verdict.logLine())
+            }
+            mutableUiState.value = withContext(Dispatchers.IO) {
+                buildStateWithCorpus(
+                    feedbackMessage = AiPackDisclosureCopy.challengerProbeFinished(report),
+                )
             }
         }
     }
@@ -302,11 +385,13 @@ class AiPackDisclosureViewModel @Inject constructor(
         val installationState = aiPackManager.installationState(packId)
         val disclosed = entry?.disclosureAcknowledgedAtEpochMs != null
         val modelInstalled = modelStore.isInstalled()
+        val challengerInstalled = challengerStore.isInstalled()
         val embeddingAvailable =
             embeddingEngine.availability() is CapabilityAvailability.Available
         val canActivate = disclosed &&
             installationState != AiPackInstallState.ACTIVE &&
             installationState != AiPackInstallState.VERIFYING
+        val showEncoderProbe = BuildConfig.DEBUG && embeddingAvailable
         return AiPackDisclosureUiState(
             statusBody = AiPackDisclosureCopy.statusBody(
                 installationState = installationState,
@@ -320,7 +405,9 @@ class AiPackDisclosureViewModel @Inject constructor(
             showDownloadModel = disclosed && !modelInstalled,
             showBuildIndex = embeddingAvailable,
             showStopIndex = false,
-            showEncoderProbe = BuildConfig.DEBUG && embeddingAvailable,
+            showEncoderProbe = showEncoderProbe,
+            showDownloadChallenger = showEncoderProbe && !challengerInstalled,
+            showRunChallengerProbe = showEncoderProbe && challengerInstalled,
             corpusCompletenessBody = corpusSnapshot?.let { CorpusHonestyCopy.aiPackCorpusLine(it) },
             isBusy = false,
             isIndexing = false,

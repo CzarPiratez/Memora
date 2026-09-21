@@ -26,8 +26,10 @@ import androidx.room.RoomDatabase
         MemoryEmbeddingEntity::class,
         MemoryEvidenceEmbeddingEntity::class,
         MemoryAssemblySkipEntity::class,
+        SourceAvailabilityEntity::class,
+        FindHiddenEntity::class,
     ],
-    version = 17,
+    version = 19,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -60,4 +62,8 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun memoryEvidenceEmbeddingDao(): MemoryEvidenceEmbeddingDao
 
     abstract fun memoryAssemblySkipDao(): MemoryAssemblySkipDao
+
+    abstract fun sourceAvailabilityDao(): SourceAvailabilityDao
+
+    abstract fun findHiddenDao(): FindHiddenDao
 }

@@ -1,5 +1,13 @@
 package com.memora.app.ui.search
 
+import com.memora.app.application.find.FindThumbnailResult
+import com.memora.app.application.find.learnedAvailability
+import com.memora.app.application.memory.CanonicalRecallResult
+import com.memora.app.domain.asset.AssetIdentity
+import com.memora.app.domain.asset.SourceAssetKey
+import com.memora.app.domain.asset.SourceAvailabilityStatus
+import com.memora.app.domain.asset.SourceId
+
 /**
  * Which result card an Open-original attempt belongs to.
  *
@@ -24,6 +32,27 @@ data class FindOpenTarget(
         require(sourceId.isNotBlank()) { "An open target needs the source it came from." }
         require(sourceAssetKey.isNotBlank()) { "An open target needs the asset it points at." }
     }
+
+    fun asIdentity(): AssetIdentity =
+        AssetIdentity(SourceId(sourceId), SourceAssetKey(sourceAssetKey))
+}
+
+fun FindOpenTarget.availabilityIn(
+    snapshot: Map<AssetIdentity, SourceAvailabilityStatus>,
+): SourceAvailabilityStatus =
+    snapshot[asIdentity()] ?: SourceAvailabilityStatus.UNKNOWN
+
+fun CanonicalRecallResult.openTarget(): FindOpenTarget =
+    FindOpenTarget(sourceId.value, sourceAssetKey.value)
+
+fun FindThumbnailResult.availabilityUpdate(
+    target: FindOpenTarget,
+    current: Map<AssetIdentity, SourceAvailabilityStatus>,
+): Pair<SourceAvailabilityStatus, Map<AssetIdentity, SourceAvailabilityStatus>>? {
+    val learned = learnedAvailability() ?: return null
+    val identity = target.asIdentity()
+    if (current[identity] == learned) return null
+    return learned to (current + (identity to learned))
 }
 
 /**

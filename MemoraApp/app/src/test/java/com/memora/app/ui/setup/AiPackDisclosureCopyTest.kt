@@ -1,6 +1,8 @@
 package com.memora.app.ui.setup
 
 import com.memora.app.application.intelligence.IndexMemoryEmbeddingsResult
+import com.memora.app.application.intelligence.MeaningEncoderProbeReport
+import com.memora.app.application.intelligence.MeaningEncoderProbeRow
 import com.memora.app.application.intelligence.IndexOcrEvidenceEmbeddingsResult
 import com.memora.app.application.intelligence.IndexPdfPageEmbeddingsResult
 import com.memora.app.application.intelligence.MeaningIndexDrainPhase
@@ -149,6 +151,44 @@ class AiPackDisclosureCopyTest {
                 MeaningIndexDrainProgress(MeaningIndexDrainPhase.NOTE_EVIDENCE, 3, 3),
             ),
         )
+    }
+
+    @Test
+    fun encoder_probe_finished_shows_use_baseline_card() {
+        val text = AiPackDisclosureCopy.encoderProbeFinished(
+            MeaningEncoderProbeReport.Completed(
+                listOf(
+                    MeaningEncoderProbeRow(
+                        query = "when are the swimming classes for grade 2",
+                        embedText = "swimming classes grade 2",
+                        contentTokens = listOf("swimming", "classes", "grade", "2"),
+                        vectorsScanned = 10,
+                        assetRankAfterCollapse = 4,
+                    ),
+                ),
+            ),
+        )
+        assertTrue(text.contains("mediapipe-use"))
+        assertTrue(text.contains("gold@1=0"))
+        assertTrue(text.contains("gold@10=1"))
+        assertTrue(text.contains("Swap bar"))
+        assertTrue(text.contains("MeaningEncoderProbe"))
+        assertFalse(text.contains("swimming schedule:"))
+    }
+
+    @Test
+    fun challenger_copy_is_probe_only_and_does_not_claim_product_swap() {
+        val all = listOf(
+            AiPackDisclosureCopy.CHALLENGER_PROBE_HINT,
+            AiPackDisclosureCopy.DOWNLOAD_CHALLENGER_LABEL,
+            AiPackDisclosureCopy.RUN_CHALLENGER_PROBE_LABEL,
+            AiPackDisclosureCopy.FEEDBACK_CHALLENGER_INSTALLED,
+        ).joinToString(" ").lowercase()
+        assertTrue(all.contains("bge"))
+        assertTrue(all.contains("probe"))
+        assertTrue(all.contains("does not change find") || all.contains("find is unchanged"))
+        assertFalse(all.contains("available now"))
+        assertFalse(all.contains("swaps the product"))
     }
 
     private fun completed(

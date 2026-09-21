@@ -29,6 +29,11 @@ class FindThumbnailPolicyTest {
                 FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE),
             ),
         )
+        assertFalse(
+            FindThumbnailPolicy.cacheable(
+                FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE),
+            ),
+        )
         assertTrue(
             FindThumbnailPolicy.cacheable(FindThumbnailResult.Glyph(FindThumbnailGlyph.NOTE)),
         )
@@ -66,5 +71,33 @@ class FindThumbnailPolicyTest {
         )
         val request = FindThumbnailRequest.fromMeaning(hit)
         assertEquals(9, request.pageNumber)
+    }
+
+    @Test
+    fun thumbnail_reopen_learns_availability_only_when_confirmed() {
+        assertEquals(
+            com.memora.app.domain.asset.SourceAvailabilityStatus.UNREACHABLE,
+            FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE).learnedAvailability(),
+        )
+        assertEquals(
+            com.memora.app.domain.asset.SourceAvailabilityStatus.REACHABLE,
+            FindThumbnailResult.Ready(1, 1, intArrayOf(0xFFFFFFFF.toInt())).learnedAvailability(),
+        )
+        assertEquals(
+            null,
+            FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE).learnedAvailability(),
+        )
+    }
+
+    @Test
+    fun image_miss_only_claims_gone_when_every_candidate_was_unreachable() {
+        assertEquals(
+            FindThumbnailGlyph.SOURCE_UNREACHABLE,
+            FindThumbnailPolicy.imageMissGlyph(decodeFlake = false),
+        )
+        assertEquals(
+            FindThumbnailGlyph.UNAVAILABLE,
+            FindThumbnailPolicy.imageMissGlyph(decodeFlake = true),
+        )
     }
 }

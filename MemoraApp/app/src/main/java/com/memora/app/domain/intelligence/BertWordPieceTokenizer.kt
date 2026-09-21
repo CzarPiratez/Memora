@@ -82,6 +82,37 @@ class BertWordPieceTokenizer(
         return EncodedPair(inputIds, attention, tokenTypes)
     }
 
+    /**
+     * Single-sequence encode for bi-encoder packs (BGE / MiniLM sentence).
+     * Shape: [CLS] tokens [SEP] + pad. All token_type_ids are 0.
+     */
+    fun encodeSingle(
+        text: String,
+        maxLength: Int = DEFAULT_MAX_LENGTH,
+    ): EncodedPair {
+        require(text.isNotBlank())
+        require(maxLength >= 4)
+
+        val content = wordPiece(basicTokenize(text))
+        val maxContent = maxLength - 2
+        val kept = content.take(maxContent)
+
+        val ids = ArrayList<Int>(maxLength)
+        ids.add(idOf(CLS))
+        kept.forEach { ids.add(it) }
+        ids.add(idOf(SEP))
+        while (ids.size < maxLength) {
+            ids.add(idOf(PAD))
+        }
+
+        val inputIds = LongArray(maxLength) { ids[it].toLong() }
+        val attention = LongArray(maxLength) { index ->
+            if (ids[index] == idOf(PAD)) 0L else 1L
+        }
+        val tokenTypes = LongArray(maxLength) { 0L }
+        return EncodedPair(inputIds, attention, tokenTypes)
+    }
+
     private fun basicTokenize(text: String): List<String> {
         val lowered = text.lowercase()
         val cleaned = StringBuilder()

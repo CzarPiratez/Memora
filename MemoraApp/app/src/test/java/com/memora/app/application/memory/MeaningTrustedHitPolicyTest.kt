@@ -176,12 +176,38 @@ class MeaningTrustedHitPolicyTest {
     }
 
     @Test
+    fun a_head_hit_stays_eligible_when_school_docs_set_the_band() {
+        val school = (0 until 20).map { index ->
+            hit(
+                id = "n%02d".format(index),
+                score = 0.90f - index * 0.001f,
+                summary = "term classes grade report copy",
+                cosine = 0.90f - index * 0.001f,
+            )
+        }
+        val gold = hit(
+            id = "tt",
+            score = 0.60f,
+            summary = "grade 2 weekly swimming timetable",
+            cosine = 0.60f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = school + gold,
+            limit = 20,
+            rawQuery = "when are the swimming classes for grade 2",
+        )
+        assertEquals("tt", page.hits.first().revisionId.value)
+        assertTrue(page.hits.any { it.revisionId.value == "tt" })
+        assertTrue(page.hits.drop(1).all { it.revisionId.value.startsWith("n") })
+    }
+
+    @Test
     fun deepest_partial_stays_eligible_when_shallower_hits_set_a_high_band() {
         val gradeOnly = (0 until 5).map { index ->
             hit(
-                id = "grade-$index",
+                id = "g%02d".format(index),
                 score = 0.90f - index * 0.001f,
-                summary = "term grade report $index",
+                summary = "term grade report copy",
                 cosine = 0.90f - index * 0.001f,
             )
         }
@@ -198,7 +224,7 @@ class MeaningTrustedHitPolicyTest {
         )
         assertEquals(6, page.hits.size)
         assertEquals("tt", page.hits.first().revisionId.value)
-        assertEquals("grade-0", page.hits[1].revisionId.value)
+        assertTrue(page.hits.drop(1).all { it.revisionId.value.startsWith("g") })
     }
 
     @Test
@@ -227,6 +253,31 @@ class MeaningTrustedHitPolicyTest {
         assertTrue(page.hits.any { it.revisionId.value == "tt" })
         assertEquals("tt", page.hits.first().revisionId.value)
         assertEquals("classes-0", page.hits[1].revisionId.value)
+    }
+
+    @Test
+    fun ask_shape_without_for_keeps_the_topic_ahead_of_leftover_words() {
+        val leftover = (0 until 20).map { index ->
+            hit(
+                id = "school-$index",
+                score = 0.90f - index * 0.001f,
+                summary = "term classes grade report $index",
+                cosine = 0.90f - index * 0.001f,
+            )
+        }
+        val gold = hit(
+            id = "tt",
+            score = 0.55f,
+            summary = "weekly swimming timetable",
+            cosine = 0.55f,
+        )
+        val page = MeaningTrustedHitPolicy.page(
+            hits = leftover + gold,
+            limit = 20,
+            rawQuery = "when are the swimming classes grade",
+        )
+        assertEquals("tt", page.hits.first().revisionId.value)
+        assertTrue(page.hits.drop(1).all { it.revisionId.value.startsWith("school-") })
     }
 
     @Test

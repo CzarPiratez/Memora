@@ -626,6 +626,48 @@ object MemoraDatabaseMigrations {
         }
     }
 
+    /**
+     * ADR-056 slice 1: last confirmed Open reachability, keyed by Asset
+     * identity. Empty on migrate — observations are written on the next Open.
+     * Does not change Memory integrity or search ranking.
+     */
+    val MIGRATION_17_18: Migration = object : Migration(17, 18) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `source_availability_observations` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `cause` TEXT NOT NULL,
+                    `observed_at_epoch_millis` INTEGER NOT NULL,
+                    PRIMARY KEY(`source_id`, `source_asset_key`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+    /**
+     * ADR-056 slice 2: user-initiated Hide from Find. Empty on migrate.
+     * Does not change Memory integrity, availability, or ranking.
+     */
+    val MIGRATION_18_19: Migration = object : Migration(18, 19) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `find_hidden_identities` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `label` TEXT NOT NULL,
+                    `hidden_at_epoch_millis` INTEGER NOT NULL,
+                    PRIMARY KEY(`source_id`, `source_asset_key`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -643,5 +685,7 @@ object MemoraDatabaseMigrations {
         MIGRATION_14_15,
         MIGRATION_15_16,
         MIGRATION_16_17,
+        MIGRATION_17_18,
+        MIGRATION_18_19,
     )
 }

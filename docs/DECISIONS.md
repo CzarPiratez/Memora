@@ -2069,8 +2069,13 @@ USE is the **current embedding pack**, not the product. The product path is:
 2. **Fuse** lexical candidate generation (`SearchMemoryEvidence`) with
    meaning candidate generation (`SearchAssetMemoriesByMeaning`) inside
    `searchByMeaning`. They are generators, not two consumer products.
-3. **One score** (overlap, then fused rank, then cosine / rerank). Pictures
-   of UNFYND never count as overlap (D-14 / D-27).
+3. **One score** (topic + constraint lead when a constraint is named;
+   leftover job words cannot take the first seats; list cues keep family
+   fair share; then fused rank; then cosine / rerank). Pictures of
+   UNFYND never count as overlap (D-14 / D-27). Device cues are
+   **specimens** of that law, not a per-word table. The product bar is
+   any natural cue against the library: right originals first, or honest
+   silence.
 4. **Measure** a modern small retrieval embedder (BGE / E5 / GTE class)
    against USE on founder gold cues; swap the default pack only if it wins.
    Reindex is disclosed. `EmbeddingEngine` stays the port (FD-01).
@@ -2101,5 +2106,58 @@ fuse + short rerank. UNFYND already has the two generators and the
 - Agents must not treat D-20 encoder/FTS forbids as current
 - Implementation is slice-by-slice under that change control; this ADR
   alone does not swap the on-device model file
+
+## ADR-056: Source availability is orthogonal to Memory integrity
+
+**Status:** Accepted  
+**Date:** 2026-09-20
+
+**Decision:** Whether UNFYND can reopen an original is **not** Memory
+integrity and **not** a Find ranking input. It is a separate observation
+keyed by Asset identity.
+
+A Memory can be READY — searchable, with Why — while the original is
+unreachable. I16 / R1 require that Find still return that Memory and tell
+the truth about Open. Silently deleting or hiding the Memory is the
+anti-case.
+
+**Slice 1 (this ADR's first delivery):** persist last **confirmed Open**
+outcome (`REACHABLE` / `UNREACHABLE`). Show standing honesty on Canonical
+Recall cards *before* the next tap. Try Open still retries so a restored
+file can resurrect. Retryable CouldNotOpen is not recorded. Open-class
+list thumbnail reopen counts as confirmation for PDFs, photos, and
+screenshots — not for permission-off or decode flakes.
+
+**Slice 2:** user-initiated Hide from Find is a recall-visibility
+preference, orthogonal to Memory and to availability. It is **not** CR-08
+(cascade erase with proof) and **not** silent auto-hide. Show again
+restores the identity to the already-ranked list. Room 18→19
+`find_hidden_identities`. Ranking never reads this store.
+
+**Slice 3:** standing honesty for notes without a list thumbnail. Join
+local Asset + stored OneNote URL + vaulted grant onto UNKNOWN
+availability after ranking. Persist only a missing Asset. Disconnect
+without a stored URL is presentation-only so Connect can resurrect.
+Search never calls Graph or `ensureSession`.
+
+**Non-claims / later slices:** discovery-absence tombstones; Forget /
+CR-08; distinguishing delete vs move vs revoked grant when Open cannot;
+search-time probes of originals; ranking; ADR-055 meaning retrieval work.
+
+**Reason:** Deleted files still appeared as live Find hits because Open
+failures were ephemeral. Collapsing that into Memory integrity would
+fight P-01 / P-11 and erase Why. An orthogonal store lets Find stay
+honest without becoming a file browser.
+
+**Consequences:**
+
+- Living plan: `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`
+- Room 17→18 `source_availability_observations`; Room 18→19
+  `find_hidden_identities`
+- I16 stays PARTIAL (standing Open honesty + user Hide device pass
+  2026-09-21; note Open-class local join landed, device pending);
+  discovery absence and Forget / CR-08 remain open
+- Parallel to ADR-055 — do not mix ranking work into this substrate
+
 
 

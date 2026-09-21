@@ -36,6 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,7 +71,16 @@ import com.memora.app.ui.privacy.DatabaseAvailabilityPhase
 import com.memora.app.ui.privacy.DatabaseAvailabilityUiState
 import com.memora.app.ui.privacy.DatabaseAvailabilityViewModel
 import com.memora.app.application.find.FindThumbnailRequest
+import com.memora.app.application.find.FindHiddenPolicy
+import com.memora.app.application.find.FindThumbnailResult
+import com.memora.app.ui.search.FindHiddenCopy
+import com.memora.app.ui.search.FindHiddenHost
+import com.memora.app.ui.search.FindHiddenResultsFooter
+import com.memora.app.ui.search.FindHiddenViewModel
+import com.memora.app.ui.search.FindHitLabel
+import com.memora.app.ui.search.FindOpenTarget
 import com.memora.app.ui.search.FindResultThumbnail
+import com.memora.app.ui.search.FindOpenOriginalButton
 import com.memora.app.ui.search.FindThumbnailLoader
 import com.memora.app.ui.search.FindThumbnailViewModel
 import com.memora.app.ui.search.LocalFindThumbnailLoader
@@ -82,6 +95,7 @@ import com.memora.app.ui.search.OriginalOpenLauncher
 import com.memora.app.ui.search.OriginalShareLauncher
 import com.memora.app.ui.search.CanonicalRecallWhyCopy
 import com.memora.app.ui.search.PdfKeywordSearchCopy
+import com.memora.app.ui.search.openTarget
 import com.memora.app.ui.search.PdfKeywordSearchHighlight
 import com.memora.app.ui.search.PdfKeywordSearchPhase
 import com.memora.app.ui.search.PdfKeywordSearchReadinessUi
@@ -181,6 +195,7 @@ class MainActivity : ComponentActivity() {
     private val notesConnectorViewModel: NotesConnectorViewModel by viewModels()
     private val aiPackDisclosureViewModel: AiPackDisclosureViewModel by viewModels()
     private val meaningSearchViewModel: MeaningSearchViewModel by viewModels()
+    private val findHiddenViewModel: FindHiddenViewModel by viewModels()
     private val findThumbnailViewModel: FindThumbnailViewModel by viewModels()
     private val originalPreviewReloadViewModel: OriginalPreviewReloadViewModel by viewModels()
     private val originalHandoffViewModel: OriginalHandoffViewModel by viewModels()
@@ -203,6 +218,32 @@ class MainActivity : ComponentActivity() {
             val notesConnectorUiState by notesConnectorViewModel.uiState.collectAsState()
             val aiPackDisclosureUiState by aiPackDisclosureViewModel.uiState.collectAsState()
             val meaningSearchUiState by meaningSearchViewModel.uiState.collectAsState()
+            val findHiddenItems by findHiddenViewModel.hidden.collectAsState()
+            val pendingHideUndo by findHiddenViewModel.pendingUndo.collectAsState()
+            val hideSnackbarHostState = remember { SnackbarHostState() }
+            LaunchedEffect(databaseAvailabilityUiState.phase) {
+                if (databaseAvailabilityUiState.phase is DatabaseAvailabilityPhase.Ready) {
+                    findHiddenViewModel.refresh()
+                }
+            }
+            LaunchedEffect(pendingHideUndo) {
+                val item = pendingHideUndo ?: return@LaunchedEffect
+                val result = hideSnackbarHostState.showSnackbar(
+                    message = FindHiddenCopy.HIDDEN_NOTICE,
+                    actionLabel = FindHiddenCopy.SHOW_AGAIN_LABEL,
+                    duration = SnackbarDuration.Long,
+                    withDismissAction = true,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    findHiddenViewModel.showAgain(item)
+                }
+                findHiddenViewModel.clearPendingUndo()
+            }
+            val findHidden = FindHiddenHost(
+                hidden = findHiddenItems,
+                onHide = findHiddenViewModel::hide,
+                onShowAgain = findHiddenViewModel::showAgain,
+            )
 
             UnfyndTheme {
                 CompositionLocalProvider(
@@ -219,7 +260,10 @@ class MainActivity : ComponentActivity() {
                         originalHandoffViewModel.open(request)
                     },
                 ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(hideSnackbarHostState) },
+                ) { innerPadding ->
                     UnfyndApp(
                         databaseAvailabilityUiState = databaseAvailabilityUiState,
                         setupUiState = setupUiState,
@@ -231,6 +275,7 @@ class MainActivity : ComponentActivity() {
                         photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
                         notePageKeywordSearchUiState = notePageKeywordSearchUiState,
                         meaningSearchUiState = meaningSearchUiState,
+                        findHidden = findHidden,
                         assetMemorySetupState = assetMemorySetupState,
                         notesConnectorUiState = notesConnectorUiState,
                         aiPackDisclosureUiState = aiPackDisclosureUiState,
@@ -262,6 +307,8 @@ class MainActivity : ComponentActivity() {
                         onPdfKeywordQueryCleared = pdfKeywordSearchViewModel::onQueryCleared,
                         onPdfKeywordSearchCancelled = pdfKeywordSearchViewModel::onSearchCancelled,
                         onPdfKeywordOpenOriginal = pdfKeywordSearchViewModel::onOpenOriginalPdf,
+                        onPdfKeywordThumbnailLoaded =
+                            pdfKeywordSearchViewModel::onThumbnailLoaded,
                         onPdfKeywordOpenFeedbackDismissed =
                             pdfKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onPdfKeywordPreviewClosed = pdfKeywordSearchViewModel::onOriginalPreviewClosed,
@@ -276,6 +323,8 @@ class MainActivity : ComponentActivity() {
                             screenshotOcrKeywordSearchViewModel::onSearchCancelled,
                         onScreenshotOcrKeywordOpenOriginal =
                             screenshotOcrKeywordSearchViewModel::onOpenOriginalScreenshot,
+                        onScreenshotOcrKeywordThumbnailLoaded =
+                            screenshotOcrKeywordSearchViewModel::onThumbnailLoaded,
                         onScreenshotOcrKeywordOpenFeedbackDismissed =
                             screenshotOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onScreenshotOcrKeywordPreviewClosed =
@@ -290,6 +339,8 @@ class MainActivity : ComponentActivity() {
                             photoOcrKeywordSearchViewModel::onSearchCancelled,
                         onPhotoOcrKeywordOpenOriginal =
                             photoOcrKeywordSearchViewModel::onOpenOriginalPhoto,
+                        onPhotoOcrKeywordThumbnailLoaded =
+                            photoOcrKeywordSearchViewModel::onThumbnailLoaded,
                         onPhotoOcrKeywordOpenFeedbackDismissed =
                             photoOcrKeywordSearchViewModel::onOpenFeedbackDismissed,
                         onPhotoOcrKeywordPreviewClosed =
@@ -324,6 +375,7 @@ class MainActivity : ComponentActivity() {
                             assetMemorySetupViewModel.onDerivedDataCleared()
                             notesConnectorViewModel.onDerivedDataCleared()
                             aiPackDisclosureViewModel.onDerivedDataCleared()
+                            findHiddenViewModel.refresh()
                         },
                         onNotesDisconnect = notesConnectorViewModel::onDisconnectRequested,
                         onNotesConnect = notesConnectorViewModel::onConnectRequested,
@@ -343,12 +395,17 @@ class MainActivity : ComponentActivity() {
                             aiPackDisclosureViewModel::onStopIndexRequested,
                         onAiPackDisclosureRunEncoderProbe =
                             aiPackDisclosureViewModel::onEncoderProbeRequested,
+                        onAiPackDisclosureDownloadChallenger =
+                            aiPackDisclosureViewModel::onDownloadChallengerRequested,
+                        onAiPackDisclosureRunChallengerProbe =
+                            aiPackDisclosureViewModel::onChallengerProbeRequested,
                         onMeaningQueryChanged = meaningSearchViewModel::onQueryChanged,
                         onMeaningSearch = meaningSearchViewModel::onSearch,
                         onMeaningSearchScreenVisible = meaningSearchViewModel::onScreenVisible,
                         onMeaningQueryCleared = meaningSearchViewModel::onQueryCleared,
                         onMeaningSearchCancelled = meaningSearchViewModel::onSearchCancelled,
                         onMeaningOpenOriginal = meaningSearchViewModel::onOpenOriginal,
+                        onMeaningThumbnailLoaded = meaningSearchViewModel::onThumbnailLoaded,
                         onMeaningOpenFeedbackDismissed =
                             meaningSearchViewModel::onOpenFeedbackDismissed,
                         onMeaningPreviewClosed = meaningSearchViewModel::onOriginalPreviewClosed,
@@ -373,6 +430,7 @@ fun UnfyndApp(
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     meaningSearchUiState: MeaningSearchUiState,
+    findHidden: FindHiddenHost,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     aiPackDisclosureUiState: AiPackDisclosureUiState,
@@ -400,6 +458,7 @@ fun UnfyndApp(
     onPdfKeywordQueryCleared: () -> Unit,
     onPdfKeywordSearchCancelled: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
+    onPdfKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
     onScreenshotOcrKeywordQueryChanged: (String) -> Unit,
@@ -408,6 +467,7 @@ fun UnfyndApp(
     onScreenshotOcrKeywordQueryCleared: () -> Unit,
     onScreenshotOcrKeywordSearchCancelled: () -> Unit,
     onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
+    onScreenshotOcrKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onScreenshotOcrKeywordPreviewClosed: () -> Unit,
     onPhotoOcrKeywordQueryChanged: (String) -> Unit,
@@ -416,6 +476,7 @@ fun UnfyndApp(
     onPhotoOcrKeywordQueryCleared: () -> Unit,
     onPhotoOcrKeywordSearchCancelled: () -> Unit,
     onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
+    onPhotoOcrKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onPhotoOcrKeywordPreviewClosed: () -> Unit,
     onNotePageKeywordQueryChanged: (String) -> Unit,
@@ -441,12 +502,15 @@ fun UnfyndApp(
     onAiPackDisclosureBuildIndex: () -> Unit,
     onAiPackDisclosureStopIndex: () -> Unit,
     onAiPackDisclosureRunEncoderProbe: () -> Unit,
+    onAiPackDisclosureDownloadChallenger: () -> Unit,
+    onAiPackDisclosureRunChallengerProbe: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
     onMeaningQueryCleared: () -> Unit,
     onMeaningSearchCancelled: () -> Unit,
     onMeaningOpenOriginal: (MeaningSearchHit) -> Unit,
+    onMeaningThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onMeaningOpenFeedbackDismissed: () -> Unit,
     onMeaningPreviewClosed: () -> Unit,
     modifier: Modifier = Modifier,
@@ -470,6 +534,7 @@ fun UnfyndApp(
             photoOcrKeywordSearchUiState = photoOcrKeywordSearchUiState,
             notePageKeywordSearchUiState = notePageKeywordSearchUiState,
             meaningSearchUiState = meaningSearchUiState,
+            findHidden = findHidden,
             assetMemorySetupState = assetMemorySetupState,
             notesConnectorUiState = notesConnectorUiState,
             aiPackDisclosureUiState = aiPackDisclosureUiState,
@@ -497,6 +562,7 @@ fun UnfyndApp(
             onPdfKeywordQueryCleared = onPdfKeywordQueryCleared,
             onPdfKeywordSearchCancelled = onPdfKeywordSearchCancelled,
             onPdfKeywordOpenOriginal = onPdfKeywordOpenOriginal,
+            onPdfKeywordThumbnailLoaded = onPdfKeywordThumbnailLoaded,
             onPdfKeywordOpenFeedbackDismissed = onPdfKeywordOpenFeedbackDismissed,
             onPdfKeywordPreviewClosed = onPdfKeywordPreviewClosed,
             onScreenshotOcrKeywordQueryChanged = onScreenshotOcrKeywordQueryChanged,
@@ -505,6 +571,7 @@ fun UnfyndApp(
             onScreenshotOcrKeywordQueryCleared = onScreenshotOcrKeywordQueryCleared,
             onScreenshotOcrKeywordSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
             onScreenshotOcrKeywordOpenOriginal = onScreenshotOcrKeywordOpenOriginal,
+            onScreenshotOcrKeywordThumbnailLoaded = onScreenshotOcrKeywordThumbnailLoaded,
             onScreenshotOcrKeywordOpenFeedbackDismissed =
                 onScreenshotOcrKeywordOpenFeedbackDismissed,
             onScreenshotOcrKeywordPreviewClosed = onScreenshotOcrKeywordPreviewClosed,
@@ -514,6 +581,7 @@ fun UnfyndApp(
             onPhotoOcrKeywordQueryCleared = onPhotoOcrKeywordQueryCleared,
             onPhotoOcrKeywordSearchCancelled = onPhotoOcrKeywordSearchCancelled,
             onPhotoOcrKeywordOpenOriginal = onPhotoOcrKeywordOpenOriginal,
+            onPhotoOcrKeywordThumbnailLoaded = onPhotoOcrKeywordThumbnailLoaded,
             onPhotoOcrKeywordOpenFeedbackDismissed = onPhotoOcrKeywordOpenFeedbackDismissed,
             onPhotoOcrKeywordPreviewClosed = onPhotoOcrKeywordPreviewClosed,
             onNotePageKeywordQueryChanged = onNotePageKeywordQueryChanged,
@@ -539,12 +607,15 @@ fun UnfyndApp(
             onAiPackDisclosureBuildIndex = onAiPackDisclosureBuildIndex,
             onAiPackDisclosureStopIndex = onAiPackDisclosureStopIndex,
             onAiPackDisclosureRunEncoderProbe = onAiPackDisclosureRunEncoderProbe,
+            onAiPackDisclosureDownloadChallenger = onAiPackDisclosureDownloadChallenger,
+            onAiPackDisclosureRunChallengerProbe = onAiPackDisclosureRunChallengerProbe,
             onMeaningQueryChanged = onMeaningQueryChanged,
             onMeaningSearch = onMeaningSearch,
             onMeaningSearchScreenVisible = onMeaningSearchScreenVisible,
             onMeaningQueryCleared = onMeaningQueryCleared,
             onMeaningSearchCancelled = onMeaningSearchCancelled,
             onMeaningOpenOriginal = onMeaningOpenOriginal,
+            onMeaningThumbnailLoaded = onMeaningThumbnailLoaded,
             onMeaningOpenFeedbackDismissed = onMeaningOpenFeedbackDismissed,
             onMeaningPreviewClosed = onMeaningPreviewClosed,
             modifier = modifier,
@@ -563,6 +634,7 @@ private fun UnfyndAppReady(
     photoOcrKeywordSearchUiState: PhotoOcrKeywordSearchUiState,
     notePageKeywordSearchUiState: NotePageKeywordSearchUiState,
     meaningSearchUiState: MeaningSearchUiState,
+    findHidden: FindHiddenHost,
     assetMemorySetupState: AssetMemorySetupState,
     notesConnectorUiState: NotesConnectorUiState,
     aiPackDisclosureUiState: AiPackDisclosureUiState,
@@ -590,6 +662,7 @@ private fun UnfyndAppReady(
     onPdfKeywordQueryCleared: () -> Unit,
     onPdfKeywordSearchCancelled: () -> Unit,
     onPdfKeywordOpenOriginal: (PdfKeywordSearchHit) -> Unit,
+    onPdfKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onPdfKeywordOpenFeedbackDismissed: () -> Unit,
     onPdfKeywordPreviewClosed: () -> Unit,
     onScreenshotOcrKeywordQueryChanged: (String) -> Unit,
@@ -598,6 +671,7 @@ private fun UnfyndAppReady(
     onScreenshotOcrKeywordQueryCleared: () -> Unit,
     onScreenshotOcrKeywordSearchCancelled: () -> Unit,
     onScreenshotOcrKeywordOpenOriginal: (ScreenshotOcrKeywordSearchHit) -> Unit,
+    onScreenshotOcrKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onScreenshotOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onScreenshotOcrKeywordPreviewClosed: () -> Unit,
     onPhotoOcrKeywordQueryChanged: (String) -> Unit,
@@ -606,6 +680,7 @@ private fun UnfyndAppReady(
     onPhotoOcrKeywordQueryCleared: () -> Unit,
     onPhotoOcrKeywordSearchCancelled: () -> Unit,
     onPhotoOcrKeywordOpenOriginal: (PhotoOcrKeywordSearchHit) -> Unit,
+    onPhotoOcrKeywordThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onPhotoOcrKeywordOpenFeedbackDismissed: () -> Unit,
     onPhotoOcrKeywordPreviewClosed: () -> Unit,
     onNotePageKeywordQueryChanged: (String) -> Unit,
@@ -631,12 +706,15 @@ private fun UnfyndAppReady(
     onAiPackDisclosureBuildIndex: () -> Unit,
     onAiPackDisclosureStopIndex: () -> Unit,
     onAiPackDisclosureRunEncoderProbe: () -> Unit,
+    onAiPackDisclosureDownloadChallenger: () -> Unit,
+    onAiPackDisclosureRunChallengerProbe: () -> Unit,
     onMeaningQueryChanged: (String) -> Unit,
     onMeaningSearch: () -> Unit,
     onMeaningSearchScreenVisible: () -> Unit,
     onMeaningQueryCleared: () -> Unit,
     onMeaningSearchCancelled: () -> Unit,
     onMeaningOpenOriginal: (MeaningSearchHit) -> Unit,
+    onMeaningThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onMeaningOpenFeedbackDismissed: () -> Unit,
     onMeaningPreviewClosed: () -> Unit,
     modifier: Modifier = Modifier,
@@ -733,6 +811,8 @@ private fun UnfyndAppReady(
                     onBuildIndex = onAiPackDisclosureBuildIndex,
                     onStopIndex = onAiPackDisclosureStopIndex,
                     onRunEncoderProbe = onAiPackDisclosureRunEncoderProbe,
+                    onDownloadChallenger = onAiPackDisclosureDownloadChallenger,
+                    onRunChallengerProbe = onAiPackDisclosureRunChallengerProbe,
                     onBack = { isShowingAiPackDisclosure = false },
                     modifier = modifier,
                 )
@@ -784,7 +864,9 @@ private fun UnfyndAppReady(
                         onSearch = onPdfKeywordSearch,
                         onSearchCancelled = onPdfKeywordSearchCancelled,
                         onOpenOriginalPdf = onPdfKeywordOpenOriginal,
+                        onThumbnailLoaded = onPdfKeywordThumbnailLoaded,
                         onDismissOpenFeedback = onPdfKeywordOpenFeedbackDismissed,
+                        findHidden = findHidden,
                         onBack = { isShowingPdfKeywordSearch = false },
                         modifier = modifier,
                     )
@@ -807,7 +889,9 @@ private fun UnfyndAppReady(
                         onSearch = onScreenshotOcrKeywordSearch,
                         onSearchCancelled = onScreenshotOcrKeywordSearchCancelled,
                         onOpenOriginalScreenshot = onScreenshotOcrKeywordOpenOriginal,
+                        onThumbnailLoaded = onScreenshotOcrKeywordThumbnailLoaded,
                         onDismissOpenFeedback = onScreenshotOcrKeywordOpenFeedbackDismissed,
+                        findHidden = findHidden,
                         onBack = { isShowingScreenshotOcrKeywordSearch = false },
                         modifier = modifier,
                     )
@@ -830,7 +914,9 @@ private fun UnfyndAppReady(
                         onSearch = onPhotoOcrKeywordSearch,
                         onSearchCancelled = onPhotoOcrKeywordSearchCancelled,
                         onOpenOriginalPhoto = onPhotoOcrKeywordOpenOriginal,
+                        onThumbnailLoaded = onPhotoOcrKeywordThumbnailLoaded,
                         onDismissOpenFeedback = onPhotoOcrKeywordOpenFeedbackDismissed,
+                        findHidden = findHidden,
                         onBack = { isShowingPhotoOcrKeywordSearch = false },
                         modifier = modifier,
                     )
@@ -846,6 +932,7 @@ private fun UnfyndAppReady(
                     onSearchCancelled = onNotePageKeywordSearchCancelled,
                     onOpenOriginalNote = onNotePageKeywordOpenOriginal,
                     onDismissOpenFeedback = onNotePageKeywordOpenFeedbackDismissed,
+                    findHidden = findHidden,
                     onBack = { isShowingNotePageKeywordSearch = false },
                     modifier = modifier,
                 )
@@ -878,7 +965,9 @@ private fun UnfyndAppReady(
                         onSearch = onMeaningSearch,
                         onSearchCancelled = onMeaningSearchCancelled,
                         onOpenOriginal = onMeaningOpenOriginal,
+                        onThumbnailLoaded = onMeaningThumbnailLoaded,
                         onDismissOpenFeedback = onMeaningOpenFeedbackDismissed,
+                        findHidden = findHidden,
                         onBack = { isShowingMeaningSearch = false },
                         modifier = modifier,
                     )
@@ -1194,7 +1283,9 @@ fun PdfKeywordSearchScreen(
     onSearch: () -> Unit,
     onSearchCancelled: () -> Unit,
     onOpenOriginalPdf: (PdfKeywordSearchHit) -> Unit,
+    onThumbnailLoaded: (FindOpenTarget, FindThumbnailResult) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    findHidden: FindHiddenHost,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1320,46 +1411,29 @@ fun PdfKeywordSearchScreen(
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             is PdfKeywordSearchPhase.Results -> {
-                Text(
-                    text = PdfKeywordSearchCopy.resultsSummary(
-                        query = phase.query,
-                        matchCount = phase.hits.size,
-                        limitReached = phase.limitReached,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                )
-                when (val feedback = uiState.openFeedback) {
-                    PdfOpenFeedbackUi.None -> Unit
-                    PdfOpenFeedbackUi.Opening -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        PdfKeywordStatusProgress(
-                            statusText = PdfKeywordSearchCopy.OPEN_FEEDBACK_OPENING_BODY,
-                        )
-                    }
-                    PdfOpenFeedbackUi.SourceUnavailable,
-                    PdfOpenFeedbackUi.CouldNotOpen,
-                    -> {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = when (feedback) {
-                                PdfOpenFeedbackUi.SourceUnavailable ->
-                                    PdfKeywordSearchCopy.OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY
-                                else ->
-                                    PdfKeywordSearchCopy.OPEN_FEEDBACK_COULD_NOT_OPEN_BODY
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                        )
-                        TextButton(onClick = onDismissOpenFeedback) {
-                            Text(PdfKeywordSearchCopy.DISMISS_OPEN_FEEDBACK_LABEL)
-                        }
-                    }
+                val hiddenIds = findHidden.hiddenIdentities()
+                val visible = FindHiddenPolicy.visible(phase.hits, hiddenIds) {
+                    it.recall.openTarget().asIdentity()
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                phase.hits.forEachIndexed { index, hit ->
+                if (FindHiddenPolicy.rankedHitsAreAllHidden(phase.hits.size, visible.size)) {
+                    Text(
+                        text = FindHiddenCopy.ALL_HIDDEN_BODY,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    )
+                } else {
+                    Text(
+                        text = PdfKeywordSearchCopy.resultsSummary(
+                            query = phase.query,
+                            matchCount = visible.size,
+                            limitReached = phase.limitReached,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    visible.forEachIndexed { index, hit ->
                     var whyExpanded by remember(phase.query, index, hit.sourceId, hit.sourceAssetKey, hit.pageNumber) {
                         mutableStateOf(false)
                     }
@@ -1374,14 +1448,13 @@ fun PdfKeywordSearchScreen(
                             Row {
                                 FindResultThumbnail(
                                     request = FindThumbnailRequest.fromRecall(hit.recall),
+                                    onLoaded = {
+                                        onThumbnailLoaded(hit.recall.openTarget(), it)
+                                    },
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = hit.label,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.SemiBold,
-                                    )
+                                    FindHitLabel(text = hit.label)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = PdfKeywordSearchCopy.pageLabel(hit.pageNumber),
@@ -1400,13 +1473,16 @@ fun PdfKeywordSearchScreen(
                                 style = MaterialTheme.typography.bodySmall,
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            Button(
-                                onClick = { onOpenOriginalPdf(hit) },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = uiState.openFeedback !is PdfOpenFeedbackUi.Opening,
-                            ) {
-                                Text(PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_LABEL)
-                            }
+                            FindOpenOriginalButton(
+                                copy = PdfKeywordSearchCopy.OPEN_ORIGINAL,
+                                state = uiState.openStateFor(hit.recall.openTarget()),
+                                availability = uiState.availabilityFor(hit.recall.openTarget()),
+                                onOpen = { onOpenOriginalPdf(hit) },
+                                onDismissFailure = onDismissOpenFeedback,
+                                onHideFromFind = {
+                                    findHidden.onHide(hit.recall.openTarget(), hit.label)
+                                },
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = PdfKeywordSearchCopy.OPEN_ORIGINAL_PDF_HINT,
@@ -1424,9 +1500,18 @@ fun PdfKeywordSearchScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
+        val hideRanked = (uiState.phase as? PdfKeywordSearchPhase.Results)
+            ?.hits
+            ?.map { it.recall.openTarget().asIdentity() }
+            .orEmpty()
+        FindHiddenResultsFooter(
+            rankedIdentities = hideRanked,
+            findHidden = findHidden,
+        )
     }
 }
 

@@ -39,8 +39,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.memora.app.application.find.FindHiddenPolicy
 import com.memora.app.application.find.FindThumbnailRequest
 import com.memora.app.application.notes.NotePageKeywordSearchHit
+import com.memora.app.domain.asset.SourceAvailabilityStatus
 
 @Composable
 fun NotePageKeywordSearchScreen(
@@ -51,6 +53,7 @@ fun NotePageKeywordSearchScreen(
     onSearchCancelled: () -> Unit,
     onOpenOriginalNote: (NotePageKeywordSearchHit) -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    findHidden: FindHiddenHost,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -183,32 +186,56 @@ fun NotePageKeywordSearchScreen(
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             is NotePageKeywordSearchPhase.Results -> {
-                Text(
-                    text = NotePageKeywordSearchCopy.resultsSummary(
-                        query = phase.query,
-                        matchCount = phase.hits.size,
-                        limitReached = phase.limitReached,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                )
-                // Open progress and open failures render on the card that was
-                // tapped; see FindOpenOriginalButton.
-                Spacer(modifier = Modifier.height(12.dp))
-                phase.hits.forEachIndexed { index, hit ->
-                    NotePageKeywordHitCard(
-                        hit = hit,
-                        query = phase.query,
-                        index = index,
-                        openState = uiState.openStateFor(hit.openTarget()),
-                        onOpenOriginal = { onOpenOriginalNote(hit) },
-                        onDismissOpenFeedback = onDismissOpenFeedback,
+                val hiddenIds = findHidden.hiddenIdentities()
+                val visible = FindHiddenPolicy.visible(phase.hits, hiddenIds) {
+                    it.openTarget().asIdentity()
+                }
+                if (FindHiddenPolicy.rankedHitsAreAllHidden(phase.hits.size, visible.size)) {
+                    Text(
+                        text = FindHiddenCopy.ALL_HIDDEN_BODY,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                     )
+                } else {
+                    Text(
+                        text = NotePageKeywordSearchCopy.resultsSummary(
+                            query = phase.query,
+                            matchCount = visible.size,
+                            limitReached = phase.limitReached,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    )
+                    // Open progress and open failures render on the card that was
+                    // tapped; see FindOpenOriginalButton.
                     Spacer(modifier = Modifier.height(12.dp))
+                    visible.forEachIndexed { index, hit ->
+                        NotePageKeywordHitCard(
+                            hit = hit,
+                            query = phase.query,
+                            index = index,
+                            openState = uiState.openStateFor(hit.openTarget()),
+                            availability = uiState.availabilityFor(hit.openTarget()),
+                            onOpenOriginal = { onOpenOriginalNote(hit) },
+                            onDismissOpenFeedback = onDismissOpenFeedback,
+                            onHideFromFind = {
+                                findHidden.onHide(hit.openTarget(), hit.label)
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
+        val hideRanked = (uiState.phase as? NotePageKeywordSearchPhase.Results)
+            ?.hits
+            ?.map { it.openTarget().asIdentity() }
+            .orEmpty()
+        FindHiddenResultsFooter(
+            rankedIdentities = hideRanked,
+            findHidden = findHidden,
+        )
     }
 }
 
@@ -218,8 +245,10 @@ private fun NotePageKeywordHitCard(
     query: String,
     index: Int,
     openState: FindCardOpenState,
+    availability: com.memora.app.domain.asset.SourceAvailabilityStatus,
     onOpenOriginal: () -> Unit,
     onDismissOpenFeedback: () -> Unit,
+    onHideFromFind: () -> Unit,
 ) {
     var whyExpanded by remember(query, index, hit.sourceId, hit.sourceAssetKey) {
         mutableStateOf(false)
@@ -236,11 +265,7 @@ private fun NotePageKeywordHitCard(
                 FindResultThumbnail(request = FindThumbnailRequest.fromRecall(hit.recall))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = hit.label,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    FindHitLabel(text = hit.label)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -252,18 +277,25 @@ private fun NotePageKeywordHitCard(
                 ),
                 style = MaterialTheme.typography.bodySmall,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
+            val standingUnreachable =
+                availability == SourceAvailabilityStatus.UNREACHABLE ||
+                    openState == FindCardOpenState.SOURCE_UNAVAILABLE
+            if (!standingUnreachable) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = NotePageKeywordSearchCopy.OPEN_ORIGINAL_NOTE_HINT,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             FindOpenOriginalButton(
                 copy = NotePageKeywordSearchCopy.OPEN_ORIGINAL,
                 state = openState,
+                availability = availability,
                 onOpen = onOpenOriginal,
                 onDismissFailure = onDismissOpenFeedback,
+                onHideFromFind = onHideFromFind,
             )
             Spacer(modifier = Modifier.height(8.dp))
             WhyDisclosure(

@@ -2,6 +2,147 @@
 
 ## Unreleased
 
+### ADR-056 slice 3 — note Open-class (local, 2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Notes have no list thumbnail reopen, so disconnected or missing
+  notes still looked live until Open. Graph at search would violate P-11.
+- **Landed.** After stored Open observations, meaning + note keyword Find
+  join local Asset, stored OneNote URL, and vaulted grant. Missing Asset
+  persists UNREACHABLE. No URL and no grant is standing unreachable, not
+  persisted, so Connect resurrects. Stored URL stays live without a
+  session. Memory stays READY. Ranking untouched. Device pending.
+- **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
+  Live/Dual **N = 0**.
+
+### ADR-056 slice 2 — Hide from Find (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Standing honesty left unreachable cards in the list with no
+  reversible door. Silent auto-hide would violate I16 / R1. CR-08 is
+  cascade erase with proof — a different product.
+- **Landed.** User-initiated Hide from Find on standing-unreachable cards
+  (keyword + meaning). Memory stays READY. Ranking untouched. Show again
+  restores the same ranked identity. All-hidden is not NoMatches. Room 19
+  `find_hidden_identities`. Restore is search-scoped: idle Find is not a
+  hidden-files list; Hide offers a snackbar Show again. Founder device
+  **pass** 2026-09-21 (Hide / cleared cue).
+- **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 3 — BGE challenger pack (probe-only) (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** USE gold@60=0. Measure a modern small retrieval embedder on the
+  same cue set before any product swap.
+- **Landed.** Debug About can download Xenova BGE-small quantized ONNX and
+  run a read-only probe that re-embeds the USE-indexed corpus in memory.
+  Product USE / Find / keyword unchanged. Win bar unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 3 — USE bake-off win bar (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Founder USE card is gold@60=0 (median 352). A closer median
+  outside the product pool must not authorize a swap.
+- **Landed.** Frozen USE baseline + `MeaningEncoderBakeOffVerdict`.
+  Challenger still not installed. Keyword Find and product ranking
+  unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 3 — USE bake-off scorecard (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Slice 2 held. A challenger pack is not installed. Measure the
+  current USE index as a card (gold@1 / @10 / @60 + median) before any swap.
+- **Landed.** Debug encoder probe writes one `bakeoff` Logcat line and
+  shows that card on About. Challenger = not_installed. Keyword Find and
+  product ranking unchanged.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 2 — fuse lexical candidates into Meaning (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Keyword Find already reaches files cosine can miss. Meaning must
+  read that generator so a Memory holding the named job cannot sit outside
+  the pool. Leftover heads must not AND-veto reachability.
+- **Landed.** `searchByMeaning` unions a read-only `SearchMemoryEvidence`
+  probe (topic + constraint on job cues; full AND on list cues). Lexical-only
+  hits cannot set the trusted cosine band. Role score still ranks. Keyword
+  screens frozen. Engine-unavailable stays honest.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 1 — named constraint number + app-screenshot demotion (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** A constrained Meaning cue led with a looser same-topic file and
+  pictures of UNFYND Find. Device phrasing is a specimen of that class.
+- **Landed.** A number named beside other content stays (quantity-only
+  digits still drop). Inside a topic band, a tighter constraint outranks
+  leftover extra heads. Android `Screenshot_*_UNFYND` demotes even when
+  OCR is only the document. Keyword Find untouched. Slice 2 fuse is next.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
+### ADR-056 slice 1c — unreachable-card craft (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Device: deleted PDFs told the truth, then filled the list with a
+  red three-sentence essay, a hyphenated `.p df` filename, and a primary
+  Try Open. I16 / R1 require the hit and Why to stay; they do not require
+  an error dump. Hiding or re-ranking those cards would be drift.
+- **Landed.** Shared list-density standing copy; muted (not error) tone;
+  outlined Try Open; two-line filename without hyphenation; unreachable
+  thumbnail names the type (PDF) instead of an empty dash. Memory stays
+  READY. Ranking untouched. Founder device **pass** 2026-09-21 (deleted
+  PDFs still Findable; compact standing copy). Hide from Find and CR-08
+  remain later — Hide is not CR-08 (CR-08 is cascade erase with proof).
+- **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
+  Live/Dual **N = 0**.
+
+### ADR-056 slice 1b — photo/screenshot list-thumbnail honesty (2026-09-20)
+
+- **Date:** 2026-09-20
+- **Why.** Deleted photos and screenshots still showed **Open original** until
+  tap, because a blank thumbnail was treated as a decode miss, not a gone
+  original. PDFs already learned unreachability from the list thumbnail.
+- **Landed.** Image thumbnail loads distinguish Unreachable vs CouldNotDecode.
+  Missing asset or every URI candidate unreachable persists standing honesty
+  before Open. Permission-off and decode flakes do not mark the file gone.
+  Memory stays READY. Ranking untouched.
+- **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
+  Live/Dual **N = 0**.
+
+### ADR-056 slice 1 — Open-confirmed source availability (2026-09-20)
+
+- **Date:** 2026-09-20
+- **Why.** Deleted originals still matched keyword and meaning Find; Open
+  showed a one-shot notice, then the next search looked like a live file.
+  Hiding or deleting the Memory would violate I16 / R1.
+- **Landed.** Orthogonal `source_availability_observations` (Room 18).
+  Confirmed Open success/unreachable persists; Find cards show standing
+  honesty and Try Open. Memory stays READY. Ranking untouched.
+- **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
+  Live/Dual **N = 0**.
+
+### ADR-055 slice 1 correction — head-first role score (2026-09-20)
+
+- **Date:** 2026-09-20
+- **Why.** Device: `when are the swimming classes for grade 2` first
+  screen was school grade docs with no swimming. Qualifier-before-head
+  plus D-15 named-count admission filled the 60 with `classes`+`grade`.
+- **Landed.** Same role score for pool, eligibility, and page: more head
+  overlap first; fair share among head families; qualifier inside a
+  family only. Vocabulary-free — device phrases are specimens, not a
+  word table. Longer constrained cues: topic + constraint lead so a
+  leftover-word family cannot take the first seats. Keyword Find untouched.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
 ### ADR-055 slice 1 — query roles + one meaning score (2026-09-19)
 
 - **Date:** 2026-09-19

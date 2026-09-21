@@ -119,10 +119,7 @@ object NotePageKeywordSearchCopy {
     const val OPENING_LABEL = "Opening…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "UNFYND could not open that original note because the Microsoft OneNote connection " +
-            "needs to be renewed. Open Notes indexing, tap Connect OneNote, finish sign-in " +
-            "inside UNFYND, then try Open original note again. " +
-            "Keyword search still uses Memory evidence saved on this phone."
+        FindSourceAvailabilityCopy.NOTE_ORIGINAL_UNREACHABLE
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
         "UNFYND could not open that page in OneNote or a browser. Check your network and try again. " +

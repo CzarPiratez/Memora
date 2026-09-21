@@ -1,6 +1,5 @@
 package com.memora.app.application.find
 
-import android.net.Uri
 import android.os.CancellationSignal
 import com.memora.app.application.documents.PdfPagePreviewRenderResult
 import com.memora.app.application.documents.PdfPagePreviewRenderer
@@ -74,23 +73,28 @@ class LoadFindResultThumbnail @Inject constructor(
         }
         val asset = assetRepository.find(
             AssetIdentity(SourceId(request.sourceId), SourceAssetKey(request.sourceAssetKey)),
-        )?.asset ?: return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
+        )?.asset ?: return FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE)
         if (asset.type != request.assetType) {
             return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
         }
-        val storedUri = try {
-            Uri.parse(asset.location.value)
-        } catch (_: Exception) {
+        val displayName = asset.displayName?.takeIf { it.isNotBlank() } ?: request.label
+        val locations = uriResolver.candidateLocations(
+            storedLocation = asset.location.value,
+            displayName = displayName,
+        )
+        if (locations.isEmpty()) {
             return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
         }
-        val displayName = asset.displayName?.takeIf { it.isNotBlank() } ?: request.label
-        val uris = uriResolver.candidates(storedUri = storedUri, displayName = displayName)
-        for (uri in uris) {
+        var decodeFlake = false
+        for (location in locations) {
             coroutineContext.ensureActive()
-            val ready = imageThumbnailLoader.load(uri, FindThumbnailLimits.MAX_EDGE_PX)
-            if (ready != null) return ready
+            when (val loaded = imageThumbnailLoader.load(location, FindThumbnailLimits.MAX_EDGE_PX)) {
+                is ImageThumbnailLoad.Ready -> return loaded.toFindResult()
+                ImageThumbnailLoad.CouldNotDecode -> decodeFlake = true
+                ImageThumbnailLoad.Unreachable -> Unit
+            }
         }
-        return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
+        return FindThumbnailResult.Glyph(FindThumbnailPolicy.imageMissGlyph(decodeFlake))
     }
 
     private suspend fun loadPdf(request: FindThumbnailRequest): FindThumbnailResult {
@@ -98,7 +102,7 @@ class LoadFindResultThumbnail @Inject constructor(
         val pageWasCited = FindThumbnailPolicy.pageWasCited(request.pageNumber)
         val record = assetRepository.find(
             AssetIdentity(SourceId(request.sourceId), SourceAssetKey(request.sourceAssetKey)),
-        ) ?: return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
+        ) ?: return FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE)
         val asset = record.asset
         if (asset.type != AssetType.PDF) {
             return FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
@@ -117,24 +121,41 @@ class LoadFindResultThumbnail @Inject constructor(
                     maxEdgePx = FindThumbnailLimits.MAX_EDGE_PX,
                 )
             }
-            return when (outcome) {
-                is PdfReadOnlyDescriptorOutcome.Consumed -> when (val render = outcome.value) {
-                    is PdfPagePreviewRenderResult.Ready -> FindThumbnailResult.Ready(
-                        widthPx = render.widthPx,
-                        heightPx = render.heightPx,
-                        argb8888 = render.argb8888,
-                        renderedPageNumber = render.pageNumber,
-                        pageWasCited = pageWasCited,
-                    )
-                    PdfPagePreviewRenderResult.SourceUnavailable,
-                    PdfPagePreviewRenderResult.CouldNotOpen,
-                    -> FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
-                }
-                else -> FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
-            }
+            return thumbnailFromPdfOutcome(outcome, pageWasCited)
         } finally {
             cancelHandle?.dispose()
         }
+    }
+
+    private fun thumbnailFromPdfOutcome(
+        outcome: PdfReadOnlyDescriptorOutcome<PdfPagePreviewRenderResult>,
+        pageWasCited: Boolean,
+    ): FindThumbnailResult = when (outcome) {
+        is PdfReadOnlyDescriptorOutcome.Consumed -> when (val render = outcome.value) {
+            is PdfPagePreviewRenderResult.Ready -> FindThumbnailResult.Ready(
+                widthPx = render.widthPx,
+                heightPx = render.heightPx,
+                argb8888 = render.argb8888,
+                renderedPageNumber = render.pageNumber,
+                pageWasCited = pageWasCited,
+            )
+            PdfPagePreviewRenderResult.SourceUnavailable ->
+                FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE)
+            PdfPagePreviewRenderResult.CouldNotOpen ->
+                FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
+        }
+        PdfReadOnlyDescriptorOutcome.AccessRevoked,
+        PdfReadOnlyDescriptorOutcome.SourceUnavailable,
+        PdfReadOnlyDescriptorOutcome.SourceMismatch,
+        PdfReadOnlyDescriptorOutcome.StaleSource,
+        PdfReadOnlyDescriptorOutcome.InvalidTarget,
+        PdfReadOnlyDescriptorOutcome.TreeMembershipDenied,
+        -> FindThumbnailResult.Glyph(FindThumbnailGlyph.SOURCE_UNREACHABLE)
+        PdfReadOnlyDescriptorOutcome.AccessRequired,
+        PdfReadOnlyDescriptorOutcome.UnsupportedPlatform,
+        PdfReadOnlyDescriptorOutcome.Cancelled,
+        PdfReadOnlyDescriptorOutcome.RetryableFailure,
+        -> FindThumbnailResult.Glyph(FindThumbnailGlyph.UNAVAILABLE)
     }
 
     private companion object {

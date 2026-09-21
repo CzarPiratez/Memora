@@ -573,7 +573,7 @@ class AnchorAwareMeaningRecallRankingTest {
         assertEquals(setOf(deeper, shallower), ranked.hits.map { it.revisionId }.toSet())
         assertEquals(
             RecallPrecision.Partial(
-                matched = listOf("swimming"),
+                matched = listOf("grade", "swimming"),
                 missing = listOf("schedule"),
             ),
             ranked.precision,
@@ -610,6 +610,33 @@ class AnchorAwareMeaningRecallRankingTest {
                 matched = listOf("scan", "silky"),
                 missing = listOf("scan", "silky"),
                 mixedNamedWordFamilies = true,
+            ),
+            precision,
+        )
+    }
+
+    @Test
+    fun refineAfterTrustedTrim_names_every_word_present_on_the_page() {
+        val leftover = hit(
+            MemoryRevisionId("rev-grade"),
+            0.9f,
+            label = "Report.pdf",
+            summaryText = "term grade report",
+        )
+        val gold = hit(
+            MemoryRevisionId("rev-tt"),
+            0.6f,
+            label = "TT.pdf",
+            summaryText = "grade 2 weekly swimming timetable",
+        )
+        val (_, precision) = AnchorAwareMeaningRecallRanking.refineAfterTrustedTrim(
+            hits = listOf(leftover, gold),
+            rawQuery = "when are the swimming classes grade",
+        )
+        assertEquals(
+            RecallPrecision.Partial(
+                matched = listOf("swimming", "grade"),
+                missing = listOf("classes"),
             ),
             precision,
         )

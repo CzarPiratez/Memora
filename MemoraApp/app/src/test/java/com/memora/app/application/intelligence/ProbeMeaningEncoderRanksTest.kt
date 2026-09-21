@@ -44,7 +44,8 @@ class ProbeMeaningEncoderRanksTest {
         assertTrue(queries.any { it.contains("swimming schedule") })
         assertTrue(queries.any { it.contains("when are the swimming classes") })
         assertTrue(queries.any { it == "passport" || it.contains("aadhaar") })
-        assertEquals(16, MeaningEncoderProbeCues.DEFAULT.size)
+        assertEquals(17, MeaningEncoderProbeCues.DEFAULT.size)
+        assertTrue(queries.any { it.contains("for grade 2") })
     }
 
     @Test

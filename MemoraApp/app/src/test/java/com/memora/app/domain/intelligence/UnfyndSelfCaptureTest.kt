@@ -36,6 +36,26 @@ class UnfyndSelfCaptureTest {
     }
 
     @Test
+    fun an_android_screenshot_of_this_app_is_a_self_capture_even_without_chrome() {
+        assertTrue(
+            UnfyndSelfCapture.matches(
+                label = "Screenshot_20260916_170350_UNFYND.png",
+                text = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+            ),
+        )
+    }
+
+    @Test
+    fun a_real_file_whose_title_mentions_unfynd_is_not_a_self_capture() {
+        assertFalse(
+            UnfyndSelfCapture.matches(
+                label = "UNFYND-brand-guide.pdf",
+                text = "Grade 2 Swimming Timetable 2026 PERIOD TIME MON TUE",
+            ),
+        )
+    }
+
+    @Test
     fun a_real_timetable_is_not_a_self_capture() {
         assertFalse(
             UnfyndSelfCapture.matches(

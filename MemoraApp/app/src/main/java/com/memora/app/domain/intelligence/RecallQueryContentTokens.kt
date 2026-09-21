@@ -69,9 +69,11 @@ object RecallQueryContentTokens {
 
     /**
      * How many files the person wants — not a word in the PDF.
-     * Spoken 1–12 only; digits of length 1 are already dropped by [MIN_TOKEN_LENGTH].
-     * Does not treat `year 4` as quantity (`4` is a digit). `two` in "give me two
-     * files" is quantity; rare "times table two" may over-strip (P0 tradeoff).
+     * Spoken 1–12 only. A lone digit after wrappers (`give me 2 files`) is
+     * still dropped as quantity. A digit beside remaining content
+     * (`grade 2`, `year 4`, `room 12`) stays — it is part of the constraint,
+     * not a result count. `two` in "give me two files" is quantity; rare
+     * "times table two" may over-strip (P0 tradeoff).
      */
     private val RESULT_QUANTITY = setOf(
         "both",
@@ -221,9 +223,38 @@ object RecallQueryContentTokens {
         )
 
     fun tokens(rawQuery: String): List<String> {
+        val kept = namedTokens(rawQuery)
+        return if (kept.any { !it.all(Char::isDigit) }) kept else emptyList()
+    }
+
+    /**
+     * Same split as [tokens], but a digits-only fragment stays. TIME
+     * consumption (`2024`) has to see the year; quantity-only drop belongs
+     * on the person's cue, not on a span we already classified.
+     */
+    fun namedTokens(rawQuery: String): List<String> {
         val prepared = EG_ABBREV.replace(rawQuery.lowercase(), " eg ")
         return TOKEN_SPLIT.split(prepared)
             .map { it.trim() }
-            .filter { it.length >= MIN_TOKEN_LENGTH && it !in STOP_AND_WRAPPERS }
+            .filter { it.isNotEmpty() && it !in STOP_AND_WRAPPERS && isNamedToken(it) }
+    }
+
+    /**
+     * Words of [MIN_TOKEN_LENGTH]+, or a number the person actually named
+     * next to other content. Isolated numbers are quantity, not a Find.
+     */
+    fun isNamedToken(token: String): Boolean =
+        token.length >= MIN_TOKEN_LENGTH || token.all(Char::isDigit)
+
+    /**
+     * True when ask-shape wrappers were stripped. Bare list cues (`scan silky`)
+     * stay false so they keep family fair share.
+     */
+    fun hadAskShape(rawQuery: String): Boolean {
+        val prepared = EG_ABBREV.replace(rawQuery.lowercase(), " eg ")
+        val rawCount = TOKEN_SPLIT.split(prepared)
+            .map { it.trim() }
+            .count { it.length >= MIN_TOKEN_LENGTH }
+        return rawCount > tokens(rawQuery).size
     }
 }

@@ -83,6 +83,17 @@ class BertWordPieceTokenizerTest {
         }
     }
 
+    @Test
+    fun encode_single_is_cls_tokens_sep_with_zero_types() {
+        val tokenizer = loadVocab()
+        val encoded = tokenizer.encodeSingle("invoice", maxLength = 16)
+        assertEquals(16, encoded.length)
+        assertEquals(101L, encoded.inputIds[0])
+        assertTrue(encoded.inputIds.contains(102L))
+        assertTrue(encoded.tokenTypeIds.all { it == 0L })
+        assertTrue(encoded.attentionMask.count { it == 1L } >= 3)
+    }
+
     private fun loadVocab(): BertWordPieceTokenizer {
         val stream = checkNotNull(
             javaClass.classLoader?.getResourceAsStream("recall_rank/bert_vocab.txt"),

@@ -179,15 +179,7 @@ class ConversionProcessDeathResumeIntegrationTest {
             MemoraDatabase::class.java,
             ProductionDatabaseIdentity.DATABASE_NAME,
         )
-            .addMigrations(
-                MemoraDatabaseMigrations.MIGRATION_1_2,
-                MemoraDatabaseMigrations.MIGRATION_2_3,
-                MemoraDatabaseMigrations.MIGRATION_3_4,
-                MemoraDatabaseMigrations.MIGRATION_12_13,
-                MemoraDatabaseMigrations.MIGRATION_13_14,
-                MemoraDatabaseMigrations.MIGRATION_14_15,
-                MemoraDatabaseMigrations.MIGRATION_15_16,
-            )
+            .addMigrations(*MemoraDatabaseMigrations.ALL)
             .build()
         try {
             plaintext.openHelper.writableDatabase

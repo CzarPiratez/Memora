@@ -2,13 +2,17 @@ package com.memora.app.data.di
 
 import android.content.Context
 import com.memora.app.data.intelligence.HttpOnDeviceEmbeddingModelDownloader
+import com.memora.app.data.intelligence.HttpMeaningEncoderChallengerDownloader
 import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
+import com.memora.app.data.intelligence.NoBackupMeaningEncoderChallengerStore
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
 import com.memora.app.data.intelligence.StageARecallRanker
 import com.memora.app.domain.intelligence.AiPackPayloadStore
 import com.memora.app.domain.intelligence.DeterministicMemoryBuilder
 import com.memora.app.domain.intelligence.EmbeddingEngine
+import com.memora.app.domain.intelligence.MeaningEncoderChallengerDownloader
+import com.memora.app.domain.intelligence.MeaningEncoderChallengerPackPresence
 import com.memora.app.domain.intelligence.MemoryBuilder
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelDownloader
 import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
@@ -41,6 +45,18 @@ abstract class LocalIntelligenceModule {
     abstract fun bindOnDeviceEmbeddingModelDownloader(
         impl: HttpOnDeviceEmbeddingModelDownloader,
     ): OnDeviceEmbeddingModelDownloader
+
+    @Binds
+    @Singleton
+    abstract fun bindMeaningEncoderChallengerDownloader(
+        impl: HttpMeaningEncoderChallengerDownloader,
+    ): MeaningEncoderChallengerDownloader
+
+    @Binds
+    @Singleton
+    abstract fun bindMeaningEncoderChallengerPackPresence(
+        impl: NoBackupMeaningEncoderChallengerStore,
+    ): MeaningEncoderChallengerPackPresence
 
     /** MIG-04: production MemoryBuilder is deterministic assembly, not Unavailable. */
     @Binds

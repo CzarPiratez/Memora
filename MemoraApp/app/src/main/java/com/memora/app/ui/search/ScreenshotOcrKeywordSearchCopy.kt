@@ -87,14 +87,21 @@ object ScreenshotOcrKeywordSearchCopy {
         "Opening a read-only preview of that screenshot…"
 
     const val OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY =
-        "UNFYND cannot open that screenshot right now. The saved link may be stale " +
-            "after a phone restart, or photo access may have been removed. " +
-            "Try Start indexing again in photo setup, then Open original once more."
+        FindSourceAvailabilityCopy.FILE_ORIGINAL_UNREACHABLE
 
     const val OPEN_FEEDBACK_COULD_NOT_OPEN_BODY =
         "UNFYND could not show that screenshot. Try again in a moment."
 
     const val DISMISS_OPEN_FEEDBACK_LABEL = "Dismiss"
+
+    val OPEN_ORIGINAL = FindOpenOriginalCopy(
+        openLabel = OPEN_ORIGINAL_SCREENSHOT_LABEL,
+        openingLabel = "Opening…",
+        openingAnnouncement = OPEN_FEEDBACK_OPENING_BODY,
+        sourceUnavailableBody = OPEN_FEEDBACK_SOURCE_UNAVAILABLE_BODY,
+        couldNotOpenBody = OPEN_FEEDBACK_COULD_NOT_OPEN_BODY,
+        dismissLabel = DISMISS_OPEN_FEEDBACK_LABEL,
+    )
 
     const val PREVIEW_TITLE = "Original screenshot"
 

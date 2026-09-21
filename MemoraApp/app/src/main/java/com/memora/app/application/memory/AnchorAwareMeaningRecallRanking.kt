@@ -244,20 +244,25 @@ object AnchorAwareMeaningRecallRanking {
         val tokenSets = tokenLists.map { it.toSet() }
         val intersection = tokenSets.reduce { a, b -> a intersect b }
         val union = tokenSets.reduce { a, b -> a union b }
-        val matched = required.filter { it in intersection }.ifEmpty {
-            required.filter { it in union }
-        }
         val missingFromAll = required.filter { it !in union }
         val missing = missingFromAll.ifEmpty {
             required.filter { it !in intersection }
         }
-        if (matched.isEmpty() || missing.isEmpty()) return RecallPrecision.Exact
         val exactHitsPresent = tokenLists.any { it.size == required.size }
+        val mixedNamedWordFamilies = missingFromAll.isEmpty() && !exactHitsPresent
+        val matched = when {
+            exactHitsPresent ->
+                required.filter { it in intersection }.ifEmpty {
+                    required.filter { it in union }
+                }
+            else -> required.filter { it in union }
+        }
+        if (matched.isEmpty() || missing.isEmpty()) return RecallPrecision.Exact
         return RecallPrecision.Partial(
             matched = matched,
             missing = missing,
             exactHitsPresent = exactHitsPresent,
-            mixedNamedWordFamilies = missingFromAll.isEmpty() && !exactHitsPresent,
+            mixedNamedWordFamilies = mixedNamedWordFamilies,
         )
     }
 
