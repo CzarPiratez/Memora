@@ -20,13 +20,16 @@ cues=17 matched=12 gold@1=0 gold@10=0 gold@60=0 medianAssetRank=352
 challenger=not_installed`. Cosine never seated gold in the product pool
 of 60. Unmatched exact labels are locator/index, not a ranking ticket.
 
-**Now:** slice 3 challenger pack landed (probe-only BGE-small ONNX).
-Download + run from About (debug). Does **not** swap USE. Does **not**
-change Find. Win bar remains gold@60 strictly greater. Paste Logcat
-`MeaningEncoderChallenger` `bakeoff` + `verdict` lines. Slice 4 only if
-`challenger_wins`.
+**Device 2026-09-21 (slice 3 BGE card):** `bakeoff pack=onnx-bge-small-en-v1.5
+cues=17 matched=12 gold@1=1 gold@10=6 gold@60=11 medianAssetRank=8`
+`verdict=challenger_wins gold@60=11 useGold@60=0`. Same five unmatched
+exact labels (locator/index). Probe tops still often show UNFYND
+screenshots — product demotion (D-14/D-27) stays on Find, not this card.
+
+**Now:** slice 4 — disclosed product meaning-pack swap to BGE-small +
+rebuild of the meaning index. Keyword Find frozen. Find ranking laws
+unchanged. Do **not** treat the probe as Find.
 Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
-Keyword Find screens stay as they are.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
 

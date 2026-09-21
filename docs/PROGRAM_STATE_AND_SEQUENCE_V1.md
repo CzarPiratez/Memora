@@ -454,13 +454,12 @@ pending, and the screen reads "This folder list is up to date for now."
 
 Live/Dual **N = 0**; discovery only, no retrieval, ranking, or Why change.
 
-### ADR-055 — meaning retrieval stack (**P0, slices 1–2 held; slice 3 challenger probe**)
+### ADR-055 — meaning retrieval stack (**P0, slices 1–3 held; slice 4 next**)
 
-**SLICES 1–2 HELD 2026-09-21.** Role score + lexical fuse on Meaning.
-Occupancy path closed. Slice 3 USE card: gold@60=0, median 352. Win bar
-frozen. BGE-small ONNX challenger is probe-only (About debug); product
-USE untouched. Keyword Find frozen. D-20 “thousands” encoder gate
-**superseded**.
+**SLICES 1–3 HELD 2026-09-21.** Role score + lexical fuse. USE card
+gold@60=0. BGE-small probe: gold@60=11, `challenger_wins`. Slice 4 is
+disclosed product pack swap + meaning reindex. Keyword Find frozen.
+D-20 “thousands” encoder gate **superseded**.
 
 Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 Live/Dual **N = 0**.

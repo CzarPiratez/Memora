@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-19
 **Type:** Authorized program plan (implementation slices below)
-**Status:** **Slice 3 challenger pack landed (probe-only). Await device card.**
+**Status:** **Slice 3 held 2026-09-21 (`challenger_wins`). Slice 4 next.**
 Occupancy path (D-23–D-28) CLOSED. Keyword Find frozen. Live/Dual **N = 0**.
-Fuse is on the product path. USE gold@60 = 0 (median 352). BGE-small ONNX
-downloads privately for the bake-off probe only; product USE untouched.
-Swap is slice 4 only if `MeaningEncoderBakeOffVerdict` says challenger_wins.
+Fuse is on the product path. USE gold@60 = 0 (median 352). BGE-small probe
+card: gold@60 = 11 (median 8). Product USE still installed until slice 4
+disclosed swap + reindex.
 **Governing ADR:** ADR-055 in `docs/DECISIONS.md`
 **Ask Model:** I1 (same job, many phrasings) · I2 (same-file qualifier) ·
 P-AND vs P-LIST. Ceiling remains `HUMAN_RECALL_ASK_MODEL.md`.
@@ -131,13 +131,32 @@ ESCAPE-HATCH AFTER CHANGE: no
 - **Acceptance (slice 3):**
   - [x] USE baseline scorecard (gold@1 / @10 / @60 + median) from the
         existing debug probe; no excerpts
-  - [ ] Challenger pack installed and scored on the same cue set
-        (device: About → Download BGE challenger → Run BGE challenger probe;
-        paste `MeaningEncoderChallenger` bakeoff + verdict)
+  - [x] Challenger pack installed and scored on the same cue set
+        (device 2026-09-21: gold@1=1 gold@10=6 gold@60=11 median=8;
+        `verdict=challenger_wins`)
   - [x] Win bar recorded before any swap (slice 4): gold@60 strictly
         greater on the same cue count; gold@1/@10 must not regress;
         median-only is not a win; unmatched gold is locator/index
   - [x] Keyword Find and product ranking unchanged this slice
+- **Acceptance (slice 4):**
+  - [ ] Product meaning pack defaults to the winning BGE-small ONNX
+  - [ ] Disclosed rebuild of the meaning index (USE vectors not mixed)
+  - [ ] Keyword Find screens and ranking laws unchanged
+  - [ ] Engine-unavailable / pack-missing stay honest
+  - [ ] Founder USB re-test after reindex; no `connectedDebugAndroidTest`
+
+## Delivery record (2026-09-21) — slice 3 BGE device card (held)
+
+- **Why.** Founder ran the probe-only BGE bake-off on the live library.
+- **Card.** `pack=onnx-bge-small-en-v1.5 cues=17 matched=12 gold@1=1
+  gold@10=6 gold@60=11 medianAssetRank=8` vs USE gold@60=0.
+  `verdict=challenger_wins`. Same five unmatched exact labels as USE
+  (locator/index). Probe top-5 often includes UNFYND screenshots —
+  product demotion stays on Find.
+- **Law.** Frozen in `MeaningEncoderBgeChallengerBaseline`. Does not swap
+  the product pack by itself. Slice 4 is the disclosed swap + reindex.
+- **Emulator/manual:** device card recorded. No `connectedDebugAndroidTest`.
+- **Git commit:** local; do not push.
 
 ## Delivery record (2026-09-21) — slice 3 BGE challenger pack (probe-only)
 

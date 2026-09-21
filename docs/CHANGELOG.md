@@ -30,6 +30,17 @@
 - **Change control:** `docs/CHANGE_CONTROL_SOURCE_AVAILABILITY.md`.
   Live/Dual **N = 0**.
 
+### ADR-055 slice 3 — BGE challenger wins bake-off (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Founder device probe scored BGE-small against the frozen USE
+  card on the same 17 cues.
+- **Result.** USE gold@60=0 / median 352. BGE gold@1=1 gold@10=6
+  gold@60=11 / median 8. `verdict=challenger_wins`. Product pack not yet
+  swapped (slice 4).
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
 ### ADR-055 slice 3 — BGE challenger pack (probe-only) (2026-09-21)
 
 - **Date:** 2026-09-21

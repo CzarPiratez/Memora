@@ -112,4 +112,21 @@ class MeaningEncoderBakeOffVerdictTest {
         assertFalse(source.contains("timetable"))
         assertFalse(source.contains("grade"))
     }
+
+    @Test
+    fun frozen_bge_card_beats_use_under_the_win_bar() {
+        val bge = MeaningEncoderBgeChallengerBaseline.card
+        assertEquals(17, bge.cues)
+        assertEquals(12, bge.goldMatched)
+        assertEquals(1, bge.goldAt1)
+        assertEquals(6, bge.goldAt10)
+        assertEquals(11, bge.goldAt60)
+        assertEquals(8, bge.medianAssetRank)
+        val verdict = MeaningEncoderBakeOffVerdict.decide(
+            live = MeaningEncoderUseBaseline.card,
+            challenger = bge,
+        )
+        assertTrue(verdict is MeaningEncoderBakeOffVerdict.ChallengerWins)
+        assertEquals(11, (verdict as MeaningEncoderBakeOffVerdict.ChallengerWins).goldAt60)
+    }
 }
