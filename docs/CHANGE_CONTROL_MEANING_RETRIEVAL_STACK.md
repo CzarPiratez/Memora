@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-19
 **Type:** Authorized program plan (implementation slices below)
-**Status:** **Slice 3 held 2026-09-21 (`challenger_wins`). Slice 4 next.**
+**Status:** **Slice 4 landed in tree 2026-09-21 (BGE product pack). Founder USB reindex re-test next.**
 Occupancy path (D-23–D-28) CLOSED. Keyword Find frozen. Live/Dual **N = 0**.
 Fuse is on the product path. USE gold@60 = 0 (median 352). BGE-small probe
-card: gold@60 = 11 (median 8). Product USE still installed until slice 4
-disclosed swap + reindex.
+card: gold@60 = 11 (median 8). Product meaning pack is BGE-small ONNX;
+USE vectors are purged on install; rebuild meaning index required.
 **Governing ADR:** ADR-055 in `docs/DECISIONS.md`
 **Ask Model:** I1 (same job, many phrasings) · I2 (same-file qualifier) ·
 P-AND vs P-LIST. Ceiling remains `HUMAN_RECALL_ASK_MODEL.md`.
@@ -139,11 +139,37 @@ ESCAPE-HATCH AFTER CHANGE: no
         median-only is not a win; unmatched gold is locator/index
   - [x] Keyword Find and product ranking unchanged this slice
 - **Acceptance (slice 4):**
-  - [ ] Product meaning pack defaults to the winning BGE-small ONNX
-  - [ ] Disclosed rebuild of the meaning index (USE vectors not mixed)
-  - [ ] Keyword Find screens and ranking laws unchanged
-  - [ ] Engine-unavailable / pack-missing stay honest
+  - [x] Product meaning pack defaults to the winning BGE-small ONNX
+  - [x] Disclosed rebuild of the meaning index (USE vectors not mixed)
+  - [x] Keyword Find screens and ranking laws unchanged
+  - [x] Engine-unavailable / pack-missing stay honest
   - [ ] Founder USB re-test after reindex; no `connectedDebugAndroidTest`
+
+## Delivery record (2026-09-21) — slice 4 BGE product swap (in tree)
+
+- **Why.** Slice 3 `challenger_wins` (BGE gold@60=11 vs USE 0). Product
+  still ran MediaPipe USE until this disclosed swap.
+- **Law.** Product `EmbeddingEngine` is `OnnxBgeSmallEmbeddingEngine`
+  (cached ONNX session). Find cues use `embedQuery` + BGE query prefix;
+  Memory / evidence text uses `embedText` without a prefix. Product
+  download/store is sha256-pinned BGE. Successful install purges USE /
+  average-word Room vectors and deletes legacy MediaPipe files. About
+  disclosure names BGE and requires rebuild. Keyword Find and ranking
+  laws unchanged. Pack-missing stays Unavailable.
+- **Holistic scenarios:** USE still on phone → download shows until BGE
+  installed; install clears USE vectors so Find cannot mix packs; no BGE
+  file → honest Unavailable; rebuild pending keyed by BGE model identity;
+  keyword screens untouched.
+- **Files/layers:** `OnnxBgeSmallEmbeddingEngine`; product store /
+  downloader; `PurgeRetiredMeaningEmbeddings`; `EmbeddingEngine.embedQuery`;
+  `SearchAssetMemoriesByMeaning` / probe query path; About disclosure.
+  Keyword Find untouched.
+- **Automated verification:** `PurgeRetiredMeaningEmbeddingsTest`,
+  `OnnxBgeSmallEnV15SpecTest`, `AiPackDisclosureCopyTest`, plus existing
+  meaning unit suites after `deleteForModel` stubs.
+- **Emulator/manual:** founder USB — disclose / download BGE / Build
+  meaning index / Find by meaning. No `connectedDebugAndroidTest`.
+- **Git commit:** local when asked; do not push.
 
 ## Delivery record (2026-09-21) — slice 3 BGE device card (held)
 

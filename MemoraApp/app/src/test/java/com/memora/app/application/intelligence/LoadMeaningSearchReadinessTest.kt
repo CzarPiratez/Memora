@@ -39,6 +39,7 @@ class LoadMeaningSearchReadinessTest {
                     override fun listForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) =
                         emptyList<com.memora.app.domain.intelligence.MemoryEmbeddingRecord>()
 
+                    override fun deleteForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity): Int = 0
                     override fun countForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) = 0
                 },
                 evidenceEmbeddingStore = object : com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore {
@@ -54,6 +55,7 @@ class LoadMeaningSearchReadinessTest {
                     override fun listForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) =
                         emptyList<com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord>()
 
+                    override fun deleteForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity): Int = 0
                     override fun countForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) = 0
                 },
                 applyMig05EvidenceSearchCutover = ApplyMig05EvidenceSearchCutover(
@@ -69,6 +71,7 @@ class LoadMeaningSearchReadinessTest {
                         override fun listForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) =
                             emptyList<com.memora.app.domain.intelligence.MemoryEmbeddingRecord>()
 
+                        override fun deleteForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity): Int = 0
                         override fun countForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity) = 0
                     },
                     evidenceEmbeddingStore = object : com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingStore {
@@ -86,6 +89,7 @@ class LoadMeaningSearchReadinessTest {
                             model: com.memora.app.domain.intelligence.ModelVersionIdentity,
                         ) = emptyList<com.memora.app.domain.intelligence.MemoryEvidenceEmbeddingRecord>()
 
+                        override fun deleteForModel(model: com.memora.app.domain.intelligence.ModelVersionIdentity): Int = 0
                         override fun countForModel(
                             model: com.memora.app.domain.intelligence.ModelVersionIdentity,
                         ) = 0

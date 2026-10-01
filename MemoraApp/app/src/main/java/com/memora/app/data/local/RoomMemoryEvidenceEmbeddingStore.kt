@@ -37,6 +37,10 @@ class RoomMemoryEvidenceEmbeddingStore(
             .map { it.toDomain() }
     }
 
+    override fun deleteForModel(model: ModelVersionIdentity): Int = io {
+        dao().deleteForModel(modelId = model.modelId, modelVersion = model.version)
+    }
+
     private fun <T> io(block: suspend () -> T): T =
         runBlocking(Dispatchers.IO) { block() }
 }

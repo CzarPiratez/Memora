@@ -711,6 +711,14 @@ class SearchAssetMemoriesByMeaningTest {
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
+
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
     }
 
     private class InMemoryMemoryEvidenceEmbeddingStore : MemoryEvidenceEmbeddingStore {
@@ -741,6 +749,14 @@ class SearchAssetMemoriesByMeaningTest {
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
+
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
     }
 
     private open class FakeMemoryRepository(

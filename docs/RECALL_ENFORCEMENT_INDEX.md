@@ -72,7 +72,7 @@ Does **not** ban MemoryBuilder / AssetMemoryFactSource.
 | MIG-07 note cutover | [`CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md`](CHANGE_CONTROL_MIG07_NOTE_KEYWORD_CUTOVER.md) |
 | Shared hit/Why (DRAFT) | [`CANONICAL_RECALL_RESULT_CONTRACT.md`](CANONICAL_RECALL_RESULT_CONTRACT.md) |
 | Meaning Find intent / scenario bar | [`MEANING_FIND_PRODUCT_SCENARIO_BAR.md`](MEANING_FIND_PRODUCT_SCENARIO_BAR.md) |
-| **Meaning retrieval stack (current)** | [`CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`](CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md) + ADR-055 — **slices 1–3 held**; BGE `challenger_wins` (gold@60 11 vs USE 0); **slice 4** disclosed pack swap + reindex next; occupancy closed |
+| **Meaning retrieval stack (current)** | [`CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`](CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md) + ADR-055 — **slices 1–4 in tree**; BGE product pack (slice 4); founder USB reindex re-test next; occupancy closed |
 | D-20 meaning ranking lexical veto | [`CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md`](CHANGE_CONTROL_MEANING_RANKING_LEXICAL_VETO.md) — Phase 1 landed; **encoder/FTS forbids superseded by ADR-055** |
 | D-21 meaning Partial families | [`CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md`](CHANGE_CONTROL_MEANING_PARTIAL_FAMILIES.md) — **landed**; keep any named-word hit already in the 60; not I3 / encoder / FTS |
 | D-22 meaning gold-in-pool measure | [`CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md`](CHANGE_CONTROL_MEANING_GOLD_IN_POOL.md) — **landed measure**; founder `diagnosis=in_pool_off_page`; seating not the leak |

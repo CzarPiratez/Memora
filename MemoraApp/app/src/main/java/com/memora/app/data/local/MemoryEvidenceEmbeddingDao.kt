@@ -44,4 +44,13 @@ interface MemoryEvidenceEmbeddingDao {
         """,
     )
     suspend fun listForModel(modelId: String, modelVersion: String): List<MemoryEvidenceEmbeddingEntity>
+
+    @Query(
+        """
+        DELETE FROM memory_evidence_embeddings
+        WHERE model_id = :modelId
+          AND model_version = :modelVersion
+        """,
+    )
+    suspend fun deleteForModel(modelId: String, modelVersion: String): Int
 }

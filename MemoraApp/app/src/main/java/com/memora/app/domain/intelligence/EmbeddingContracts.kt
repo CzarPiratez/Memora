@@ -102,6 +102,9 @@ interface MemoryEmbeddingStore {
 
     /** All vectors for one model identity (candidate recall drain). */
     fun listForModel(model: ModelVersionIdentity): List<MemoryEmbeddingRecord>
+
+    /** Drop every summary vector for one model (pack swap; never mix identities). */
+    fun deleteForModel(model: ModelVersionIdentity): Int
 }
 
 /**
@@ -141,4 +144,7 @@ interface MemoryEvidenceEmbeddingStore {
     fun countForModel(model: ModelVersionIdentity): Int
 
     fun listForModel(model: ModelVersionIdentity): List<MemoryEvidenceEmbeddingRecord>
+
+    /** Drop every evidence vector for one model (pack swap; never mix identities). */
+    fun deleteForModel(model: ModelVersionIdentity): Int
 }

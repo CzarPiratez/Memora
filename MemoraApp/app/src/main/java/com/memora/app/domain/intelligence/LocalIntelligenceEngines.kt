@@ -36,11 +36,17 @@ interface DocumentEngine : LocalCapability {
  * Encodes Memory text and user queries into compatible, versioned semantic vectors.
  *
  * Callers must honor [availability] — Unavailable engines must not invent vectors.
+ *
+ * [embedText] is for indexed Memory / evidence text. [embedQuery] is for Find
+ * cues; packs that need a retrieval instruction (BGE) override it.
  */
 interface EmbeddingEngine : LocalCapability {
     override val capabilityId: CapabilityId get() = CapabilityId.EMBEDDING
 
     fun embedText(text: String): EmbeddingEncodeResult
+
+    /** Default: same as [embedText]. BGE-style packs prepend a query instruction. */
+    fun embedQuery(text: String): EmbeddingEncodeResult = embedText(text)
 }
 
 /**

@@ -2061,7 +2061,8 @@ verb to smuggle in mutation.
 **Decision:** Meaning Find is a **retrieval stack** inside Canonical Recall,
 not a page-occupancy mixer and not a dependence on MediaPipe USE.
 
-USE is the **current embedding pack**, not the product. The product path is:
+USE is the **retired embedding pack** (bake-off loser), not the product.
+The product path is:
 
 1. Parse **roles** (head / qualifier / list / constraint) so many wordings
    of one job share one head. A qualifier may promote; it must not open a

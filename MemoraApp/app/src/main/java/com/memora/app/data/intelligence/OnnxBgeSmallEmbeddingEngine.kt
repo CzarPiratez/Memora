@@ -2,42 +2,47 @@ package com.memora.app.data.intelligence
 
 import android.content.Context
 import android.util.Log
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import com.memora.app.domain.intelligence.BertWordPieceTokenizer
 import com.memora.app.domain.intelligence.CapabilityAvailability
 import com.memora.app.domain.intelligence.CapabilityLimits
 import com.memora.app.domain.intelligence.EmbeddingEncodeResult
 import com.memora.app.domain.intelligence.EmbeddingEngine
+import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import com.memora.app.domain.intelligence.OnnxBgeSmallEnV15Spec
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Probe-only BGE-small [EmbeddingEngine]. Never bound as the product engine.
- * Vectors are incompatible with the USE Room index.
+ * Product [EmbeddingEngine] (ADR-055 slice 4): BGE-small-en-v1.5 ONNX.
+ *
+ * Documents / Memories use [embedText] without a prefix. Find cues use
+ * [embedQuery] with the BGE retrieval instruction. Session is cached.
  */
 @Singleton
 class OnnxBgeSmallEmbeddingEngine @Inject constructor(
-    @ApplicationContext context: Context,
-    private val store: NoBackupMeaningEncoderChallengerStore,
+    private val appContext: Context,
+    private val modelStore: OnDeviceEmbeddingModelStore,
 ) : EmbeddingEngine {
-    private val appContext = context.applicationContext
     private val lock = Any()
     private var cachedTokenizer: BertWordPieceTokenizer? = null
+    private var ortEnv: OrtEnvironment? = null
+    private var ortSession: OrtSession? = null
 
-    override fun availability(): CapabilityAvailability {
-        if (!store.isInstalled()) {
-            return CapabilityAvailability.Unavailable(
-                "BGE challenger pack is not installed on this phone yet.",
-            )
+    override fun availability(): CapabilityAvailability = synchronized(lock) {
+        if (!modelStore.isInstalled()) {
+            return CapabilityAvailability.Unavailable(MODEL_MISSING_REASON)
         }
         if (loadTokenizerOrNull() == null) {
-            return CapabilityAvailability.Unavailable(
-                "BGE challenger tokenizer vocab is not available.",
-            )
+            return CapabilityAvailability.Unavailable(TOKENIZER_MISSING_REASON)
         }
-        return CapabilityAvailability.Available(OnnxBgeSmallEnV15Spec.MODEL_IDENTITY)
+        ensureSessionLocked()
+        if (ortSession == null) {
+            return CapabilityAvailability.Unavailable(MODEL_LOAD_FAILED_REASON)
+        }
+        CapabilityAvailability.Available(OnnxBgeSmallEnV15Spec.MODEL_IDENTITY)
     }
 
     override fun limits(): CapabilityLimits =
@@ -46,74 +51,107 @@ class OnnxBgeSmallEmbeddingEngine @Inject constructor(
             maxOutputItems = 1,
         )
 
-    override fun embedText(text: String): EmbeddingEncodeResult {
-        val trimmed = text.trim()
-        if (trimmed.isBlank()) {
+    override fun embedText(text: String): EmbeddingEncodeResult =
+        embedRaw(text.trim(), forQuery = false)
+
+    override fun embedQuery(text: String): EmbeddingEncodeResult {
+        val body = text.trim()
+        if (body.isBlank()) {
+            return EmbeddingEncodeResult.Failed("Query embed text cannot be blank.")
+        }
+        return embedRaw(OnnxBgeSmallEnV15Spec.QUERY_PREFIX + body, forQuery = true)
+    }
+
+    /** Drop a loaded runtime after clear-index / model delete / reinstall. */
+    fun reset() {
+        synchronized(lock) {
+            closeSessionLocked()
+            cachedTokenizer = null
+        }
+    }
+
+    private fun embedRaw(text: String, forQuery: Boolean): EmbeddingEncodeResult {
+        if (text.isBlank()) {
             return EmbeddingEncodeResult.Failed("Embed text cannot be blank.")
         }
-        when (val availability = availability()) {
-            is CapabilityAvailability.Unavailable ->
-                return EmbeddingEncodeResult.Unavailable(availability.reason)
-            is CapabilityAvailability.Available -> Unit
-        }
-        val modelPath = store.absoluteModelPath()
-            ?: return EmbeddingEncodeResult.Unavailable("BGE challenger model path missing.")
-        val tokenizer = loadTokenizerOrNull()
-            ?: return EmbeddingEncodeResult.Unavailable("BGE challenger tokenizer missing.")
-
         return synchronized(lock) {
+            when (val availability = availabilityUnlocked()) {
+                is CapabilityAvailability.Unavailable ->
+                    return@synchronized EmbeddingEncodeResult.Unavailable(availability.reason)
+                is CapabilityAvailability.Available -> Unit
+            }
+            val session = ortSession
+                ?: return@synchronized EmbeddingEncodeResult.Unavailable(MODEL_LOAD_FAILED_REASON)
+            val env = ortEnv
+                ?: return@synchronized EmbeddingEncodeResult.Unavailable(MODEL_LOAD_FAILED_REASON)
+            val tokenizer = loadTokenizerOrNull()
+                ?: return@synchronized EmbeddingEncodeResult.Unavailable(TOKENIZER_MISSING_REASON)
             try {
                 val encoded = tokenizer.encodeSingle(
-                    text = trimmed,
+                    text = text,
                     maxLength = OnnxBgeSmallEnV15Spec.MAX_SEQUENCE_LENGTH,
                 )
-                val (env, session) = OnnxBiEncoderRuntime.openSession(File(modelPath))
-                try {
-                    val vector = OnnxBiEncoderRuntime.embedEncoded(
-                        env = env,
-                        session = session,
-                        encoded = encoded,
-                        expectedDimensions = OnnxBgeSmallEnV15Spec.EMBEDDING_DIMENSIONS,
-                    )
-                    EmbeddingEncodeResult.Success(
-                        vector = vector,
-                        model = OnnxBgeSmallEnV15Spec.MODEL_IDENTITY,
-                    )
-                } finally {
-                    session.close()
-                }
+                val vector = OnnxBiEncoderRuntime.embedEncoded(
+                    env = env,
+                    session = session,
+                    encoded = encoded,
+                    expectedDimensions = OnnxBgeSmallEnV15Spec.EMBEDDING_DIMENSIONS,
+                )
+                EmbeddingEncodeResult.Success(
+                    vector = vector,
+                    model = OnnxBgeSmallEnV15Spec.MODEL_IDENTITY,
+                )
             } catch (error: Exception) {
-                Log.w(TAG, "embed failed: ${error.message}")
+                Log.w(TAG, "embed failed forQuery=$forQuery: ${error.message}")
                 EmbeddingEncodeResult.Failed(
                     error.message?.takeIf { it.isNotBlank() }
-                        ?: "BGE challenger embed failed on this phone.",
+                        ?: "On-device meaning embed failed on this phone.",
                 )
             }
         }
     }
 
-    /**
-     * Query encode with the BGE retrieval instruction. Document / Memory text
-     * uses [embedText] without a prefix.
-     */
-    fun embedQuery(contentTokensJoined: String): EmbeddingEncodeResult {
-        val body = contentTokensJoined.trim()
-        if (body.isBlank()) {
-            return EmbeddingEncodeResult.Failed("Query embed text cannot be blank.")
+    private fun availabilityUnlocked(): CapabilityAvailability {
+        if (!modelStore.isInstalled()) {
+            return CapabilityAvailability.Unavailable(MODEL_MISSING_REASON)
         }
-        return embedText(OnnxBgeSmallEnV15Spec.QUERY_PREFIX + body)
+        if (loadTokenizerOrNull() == null) {
+            return CapabilityAvailability.Unavailable(TOKENIZER_MISSING_REASON)
+        }
+        ensureSessionLocked()
+        return if (ortSession != null) {
+            CapabilityAvailability.Available(OnnxBgeSmallEnV15Spec.MODEL_IDENTITY)
+        } else {
+            CapabilityAvailability.Unavailable(MODEL_LOAD_FAILED_REASON)
+        }
     }
 
-    fun reset() {
-        synchronized(lock) {
-            cachedTokenizer = null
+    private fun ensureSessionLocked() {
+        if (ortSession != null) return
+        val path = modelStore.absoluteModelPath() ?: return
+        try {
+            val opened = OnnxBiEncoderRuntime.openSession(File(path))
+            ortEnv = opened.first
+            ortSession = opened.second
+        } catch (error: Exception) {
+            Log.w(TAG, "ONNX session load failed", error)
+            closeSessionLocked()
         }
+    }
+
+    private fun closeSessionLocked() {
+        try {
+            ortSession?.close()
+        } catch (_: Exception) {
+        }
+        ortSession = null
+        ortEnv = null
     }
 
     private fun loadTokenizerOrNull(): BertWordPieceTokenizer? {
         cachedTokenizer?.let { return it }
         return try {
-            appContext.assets.open(NoBackupMeaningEncoderChallengerStore.VOCAB_ASSET)
+            appContext.assets.open(NoBackupRecallRankPackStore.VOCAB_ASSET)
                 .bufferedReader()
                 .use {
                     BertWordPieceTokenizer.loadFromReader(it).also { loaded ->
@@ -126,8 +164,17 @@ class OnnxBgeSmallEmbeddingEngine @Inject constructor(
         }
     }
 
-    private companion object {
-        const val TAG = "OnnxBgeSmallEmbedding"
-        const val MAX_INPUT_CHARS = 2_048
+    companion object {
+        private const val TAG = "OnnxBgeSmallEmbedding"
+        private const val MAX_INPUT_CHARS = 2_048
+
+        const val MODEL_MISSING_REASON =
+            "On-device meaning model is not installed on this phone yet."
+
+        const val MODEL_LOAD_FAILED_REASON =
+            "On-device meaning model could not be loaded on this phone."
+
+        const val TOKENIZER_MISSING_REASON =
+            "On-device meaning tokenizer vocab is not available."
     }
 }

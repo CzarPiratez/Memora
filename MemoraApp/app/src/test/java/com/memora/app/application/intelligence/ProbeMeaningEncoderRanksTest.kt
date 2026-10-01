@@ -261,6 +261,12 @@ class ProbeMeaningEncoderRanksTest {
 
         override fun listForModel(model: ModelVersionIdentity) =
             records.values.filter { it.model == model }.toList()
+
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues { it.model == model }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
     }
 
     private class InMemoryMemoryEvidenceEmbeddingStore : MemoryEvidenceEmbeddingStore {
@@ -287,6 +293,12 @@ class ProbeMeaningEncoderRanksTest {
 
         override fun listForModel(model: ModelVersionIdentity) =
             records.values.filter { it.model == model }.toList()
+
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues { it.model == model }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
     }
 
     private open class FakeRepo(

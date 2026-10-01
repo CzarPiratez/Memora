@@ -18,24 +18,31 @@ INTERNET is for this source-access path only — not Local-AI and not Memora clo
 Review record: `docs/dependency-review/mlkit-text-recognition-16.0.1-review.md`.
 This does not authorize network access, AI Pack download, or PHOTO OCR.
 
-## On-device meaning embeddings (E5b1 / ADR-031)
+## On-device meaning embeddings (ADR-055 slice 4 product pack)
 
 | Component | Exact version | Purpose | Licence / notice source |
 |---|---:|---|---|
-| `com.google.mediapipe:tasks-text` | 0.10.29 | On-device text embedding runtime; TFLite model downloaded to private storage after disclosure | Apache License 2.0; [MediaPipe](https://developers.google.com/mediapipe) / Maven Central |
+| Xenova/bge-small-en-v1.5 `onnx/model_quantized.onnx` | quantized-v1 (sha256 `6c9c6101…`) | Product on-device meaning embedder after bake-off win | MIT ([BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5)); ONNX export via Xenova |
+| `com.microsoft.onnxruntime:onnxruntime-android` | 1.28.0 | Already on classpath for Stage A; product BGE inference | MIT; see ONNX Runtime review |
+
+Download is **model bytes only** after disclosure. Does not upload Memories.
+Replaces MediaPipe USE as the product meaning pack (ADR-055 slice 4).
+Rebuild the meaning index after install; USE vectors are purged so packs
+never mix.
+
+## Retired MediaPipe USE embedder (E5b1 / ADR-031–032; purge-only)
+
+| Component | Exact version | Purpose | Licence / notice source |
+|---|---:|---|---|
+| `com.google.mediapipe:tasks-text` | 0.10.29 | Kept for historical measurement baselines; not the product pack | Apache License 2.0; [MediaPipe](https://developers.google.com/mediapipe) / Maven Central |
 
 Review record: `docs/dependency-review/mediapipe-tasks-text-0.10.29-review.md`.
-Model download uses existing INTERNET for **model bytes only** — not user content.
 
-## Meaning encoder bake-off challenger (ADR-055 slice 3, probe-only)
+## Meaning encoder bake-off challenger store (ADR-055 slice 3 archive)
 
-| Component | Exact version | Purpose | Licence / notice source |
-|---|---:|---|---|
-| Xenova/bge-small-en-v1.5 `onnx/model_quantized.onnx` | quantized-v1 (sha256 `6c9c6101…`) | Debug bake-off embedder only; not the product meaning pack | MIT ([BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5)); ONNX export via Xenova |
-| `com.microsoft.onnxruntime:onnxruntime-android` | 1.28.0 | Already on classpath for Stage A; reused for challenger inference | MIT; see ONNX Runtime review |
-
-Download is **model bytes only** after debug CTA. Does not upload Memories.
-Does not replace MediaPipe USE until a measured slice-4 swap.
+Debug About may still download a second private BGE copy for probe-only
+re-score against the frozen USE card. That path does not write Room and
+does not change Find. Product pack is the private store above.
 
 ## PDF extraction validation dependency set
 

@@ -14,8 +14,8 @@ import java.nio.LongBuffer
 import kotlin.math.sqrt
 
 /**
- * ONNX bi-encoder helpers for the ADR-055 BGE challenger (probe-only).
- * CLS pooling + L2 normalize. Does not write Room or change Find.
+ * ONNX bi-encoder helpers for BGE-small (ADR-055 product pack).
+ * CLS pooling + L2 normalize.
  */
 object OnnxBiEncoderRuntime {
     fun openSession(modelFile: File): Pair<OrtEnvironment, OrtSession> {

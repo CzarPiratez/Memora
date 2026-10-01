@@ -67,7 +67,7 @@ class ProbeMeaningEncoderRanks @Inject constructor(
                     if (embedQuery.isBlank() || MeaningRecallCue.contentTokens(cue.query).isEmpty()) {
                         null
                     } else {
-                        when (val encoded = embeddingEngine.embedText(embedQuery)) {
+                        when (val encoded = embeddingEngine.embedQuery(embedQuery)) {
                             is EmbeddingEncodeResult.Success -> encoded.vector
                             else -> null
                         }

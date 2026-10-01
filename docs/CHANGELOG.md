@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### ADR-055 slice 4 — BGE product meaning pack (2026-09-21)
+
+- **Date:** 2026-09-21
+- **Why.** Bake-off `challenger_wins` (BGE gold@60=11 vs USE 0). Product
+  still ran MediaPipe USE; incompatible vectors must not mix.
+- **Landed.** Product `EmbeddingEngine` is BGE-small ONNX with query
+  prefix on Find, sha256-pinned download, USE vector purge on install,
+  About disclosure rewrite, mandatory meaning-index rebuild. Keyword
+  Find and ranking laws unchanged. Founder USB reindex re-test next.
+- **Change control:** `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
+  Live/Dual **N = 0**.
+
 ### ADR-056 slice 3 — note Open-class (local, 2026-09-21)
 
 - **Date:** 2026-09-21

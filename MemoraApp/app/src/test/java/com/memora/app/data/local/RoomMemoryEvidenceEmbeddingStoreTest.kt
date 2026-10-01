@@ -99,5 +99,14 @@ class RoomMemoryEvidenceEmbeddingStoreTest {
             rows.values
                 .filter { it.modelId == modelId && it.modelVersion == modelVersion }
                 .sortedByDescending { it.createdAtEpochMs }
+
+        override suspend fun deleteForModel(modelId: String, modelVersion: String): Int {
+            val keys = rows.keys.filter { key ->
+                val parts = key.split("|")
+                parts.size == 4 && parts[2] == modelId && parts[3] == modelVersion
+            }
+            keys.forEach { rows.remove(it) }
+            return keys.size
+        }
     }
 }

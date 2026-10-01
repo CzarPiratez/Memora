@@ -48,7 +48,7 @@ and remove or update its row here.
 
 | ID | Option | Layer | Status | Gate | Notes |
 |---|---|---|---|---|---|
-| FD-01 | **Embedding models:** BGE-small, GTE-small, E5-small, multilingual E5 | Core | **BGE wins bake-off** (ADR-055 slice 3) | Slice 4 disclosed swap + reindex | Founder device 2026-09-21: BGE gold@60=11 vs USE 0. Plan: `CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md` |
+| FD-01 | **Embedding models:** BGE-small, GTE-small, E5-small, multilingual E5 | Core | **BGE product pack (ADR-055 slice 4)** | Founder USB reindex re-test; later multilingual / denser packs only with bake-off | Founder device 2026-09-21: BGE gold@60=11 vs USE 0. Plan: `CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md` |
 | FD-02 | **On-device SLM for Ask:** Gemma 2B, Phi-3-mini, Llama 3.2 1B–3B | Core | deferred | `GROUNDING_ARCHITECTURE.md` §14 gates 9–10, 12, 14 | ReasoningEngine selection; not MVP chat |
 | FD-03 | **Inference runtime:** ONNX Runtime Mobile, ExecuTorch, platform NNAPI/QNN/Core ML | Core | deferred | After FD-02 selection + adversarial eval | Avoid defaulting to llama.cpp for all capabilities |
 | FD-04 | **ANN backends:** sqlite-vec/vss, USearch, hnswlib, ObjectBox vector | Core | deferred | MIG-11 interface reshape; M4-style scale measurement | Brute-force correct until benchmarks prove need |

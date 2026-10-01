@@ -799,6 +799,14 @@ class CanonicalRecallMeaningTest {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
 
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
+
         private fun key(revisionId: MemoryRevisionId, model: ModelVersionIdentity) =
             "${revisionId.value}|${model.modelId}|${model.version}"
     }
@@ -816,6 +824,7 @@ class CanonicalRecallMeaningTest {
 
         override fun listForModel(model: ModelVersionIdentity) =
             emptyList<MemoryEvidenceEmbeddingRecord>()
+        override fun deleteForModel(model: ModelVersionIdentity): Int = 0
     }
 
     private open class MeaningSearchMemoryRepositoryBase :

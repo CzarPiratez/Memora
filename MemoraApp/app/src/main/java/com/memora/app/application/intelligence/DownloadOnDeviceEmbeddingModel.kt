@@ -8,17 +8,18 @@ import com.memora.app.domain.intelligence.OnDeviceEmbeddingModelStore
 import javax.inject.Inject
 
 /**
- * Downloads the MediaPipe Universal Sentence Encoder into private storage
- * (ADR-032 / E4b).
+ * Downloads the product BGE-small meaning pack into private storage
+ * (ADR-055 slice 4).
  *
  * Requires prior disclosure acknowledgment. Downloads model bytes only — never
- * uploads Memories or source content. Legacy average-word files do not count as
- * installed and are removed after a successful USE install.
+ * uploads Memories or source content. After install, retired USE / average-word
+ * vectors are purged so Room never mixes pack identities.
  */
 class DownloadOnDeviceEmbeddingModel @Inject constructor(
     private val ledger: AiPackInstallLedger,
     private val modelStore: OnDeviceEmbeddingModelStore,
     private val downloader: OnDeviceEmbeddingModelDownloader,
+    private val purgeRetiredMeaningEmbeddings: PurgeRetiredMeaningEmbeddings,
 ) {
     operator fun invoke(): DownloadOnDeviceEmbeddingModelResult {
         val entry = ledger.entry(EmbeddingFirstAiPackTrack.PLANNED_PACK_ID)
@@ -30,8 +31,10 @@ class DownloadOnDeviceEmbeddingModel @Inject constructor(
         }
 
         return when (val outcome = downloader.downloadProductModel()) {
-            OnDeviceEmbeddingModelDownloadOutcome.Installed ->
+            OnDeviceEmbeddingModelDownloadOutcome.Installed -> {
+                purgeRetiredMeaningEmbeddings()
                 DownloadOnDeviceEmbeddingModelResult.Installed
+            }
             is OnDeviceEmbeddingModelDownloadOutcome.Failed ->
                 DownloadOnDeviceEmbeddingModelResult.Failed(outcome.reason)
         }

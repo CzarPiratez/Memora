@@ -102,7 +102,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         }
 
         val embedQuery = MeaningRecallCue.embedText(rawQuery)
-        val queryVector = when (val encoded = embeddingEngine.embedText(embedQuery)) {
+        val queryVector = when (val encoded = embeddingEngine.embedQuery(embedQuery)) {
             is EmbeddingEncodeResult.Unavailable ->
                 return MeaningSearchOutcome.EngineUnavailable(encoded.reason)
             is EmbeddingEncodeResult.Failed ->

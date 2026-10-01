@@ -9,7 +9,7 @@
 The product bar is **any** natural Meaning cue against the library: right
 originals first, or honest silence. Device phrases are specimens, not a
 word table. Occupancy tickets are **closed**. Do **not** open D-29 mixers.
-Do **not** treat USE as the product.
+Do **not** treat USE as the product. Product meaning pack is **BGE-small**.
 
 **Device 2026-09-21 (slice 2 hold):** Founder pass after lexical fuse
 into Meaning. Constrained job, list cue, and Exact / one-word hold.
@@ -26,9 +26,10 @@ cues=17 matched=12 gold@1=1 gold@10=6 gold@60=11 medianAssetRank=8`
 exact labels (locator/index). Probe tops still often show UNFYND
 screenshots — product demotion (D-14/D-27) stays on Find, not this card.
 
-**Now:** slice 4 — disclosed product meaning-pack swap to BGE-small +
-rebuild of the meaning index. Keyword Find frozen. Find ranking laws
-unchanged. Do **not** treat the probe as Find.
+**Now:** slice 4 landed in tree — product meaning pack is BGE-small ONNX
+(query prefix on Find; USE vectors purged on install). **Founder USB:**
+About → download BGE (if needed) → Build meaning index → Find by meaning
+on held cues. Keyword Find frozen. Ranking laws unchanged.
 Living plan: `docs/CHANGE_CONTROL_MEANING_RETRIEVAL_STACK.md`.
 Live/Dual **N = 0**.
 Do **not** run connected tests that `clearAll` the live DB.
@@ -641,7 +642,7 @@ Find, evidence-backed Asset Memories, and a **candidate** Find-by-meaning path.
 | MemoryBuilder contract (MIG-04) | `assemble` seam live; `DeterministicMemoryBuilder` Available; observations empty; drain → use case → MemoryBuilder; no VisionEngine |
 | Evidence embeddings (MIG-05 step 4) | PdfPageEmbedding* retired (Room 15); evidence-only index writer; search on evidence store; **ADR-050 A** PDF slice complete; **B** Spec full open (non-PDF deferred) |
 | Unified evidence keyword search (MIG-06/07 L1–L4) | `SearchMemoryEvidence` live for PDF + screenshot + photo + note Finds; L1–L8 Retired; all Find via `CanonicalRecall` |
-| On-device meaning model | **USE** (Universal Sentence Encoder); disclosure + download |
+| On-device meaning model | **BGE-small** ONNX (ADR-055 slice 4); disclosure + download; USE purged on install |
 | Find by meaning | Candidate recall; full-index USE cosine then D-20 Phase 1 (Exact no longer deletes Partial; token-count pool seating kept); evidence-level embeddings (MIG-05 step 3+); E5d token assist; PdfPageEmbedding* dual-write **gone** (step 4) |
 | Meaning index UX | ≤25 memories/tap + live progress + remaining-tap honesty |
 | PDF local reading UX | Aggregate N of M progress during WorkManager drain |

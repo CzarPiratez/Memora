@@ -1,7 +1,8 @@
 package com.memora.app.domain.intelligence
 
 /**
- * Locator for the privately installed on-device embedding model file (ADR-031/032).
+ * Locator for the privately installed on-device embedding model file (ADR-055
+ * slice 4 product pack: BGE-small ONNX).
  *
  * Does not download or run inference.
  */
@@ -16,10 +17,9 @@ interface OnDeviceEmbeddingModelStore {
 }
 
 /**
- * Product on-device embedder (E4b / ADR-032): MediaPipe Universal Sentence Encoder.
- *
- * Replaces the compact average-word model for semantic-only quality. Model is
- * never bundled in the APK.
+ * Retired product on-device embedder (E4b / ADR-032): MediaPipe Universal
+ * Sentence Encoder. Kept for measurement baselines and USE-vector purge after
+ * the ADR-055 slice 4 BGE swap. Not the product default.
  */
 object MediaPipeUniversalSentenceEncoderSpec {
     const val DOWNLOAD_URL =

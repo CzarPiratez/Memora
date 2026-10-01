@@ -31,8 +31,12 @@ class AiPackDisclosureCopyTest {
 
         assertTrue(all.contains("on-device"))
         assertTrue(all.contains("model"))
+        assertTrue(AiPackDisclosureCopy.SCOPE_BODY.contains("BGE-small"))
         assertTrue(AiPackDisclosureCopy.SCOPE_BODY.contains("Universal Sentence Encoder"))
         assertTrue(AiPackDisclosureCopy.SIZE_BODY.contains("rebuild the meaning index"))
+        assertTrue(AiPackDisclosureCopy.SIZE_BODY.contains("never mix"))
+        assertTrue(AiPackDisclosureCopy.FEEDBACK_MODEL_INSTALLED.contains("BGE"))
+        assertTrue(AiPackDisclosureCopy.FEEDBACK_MODEL_INSTALLED.contains("Rebuild"))
         assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("25"))
         assertTrue(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("Stop"))
         assertFalse(AiPackDisclosureCopy.INDEX_BATCH_BODY.contains("tap Build again"))
@@ -187,8 +191,8 @@ class AiPackDisclosureCopyTest {
         assertTrue(all.contains("bge"))
         assertTrue(all.contains("probe"))
         assertTrue(all.contains("does not change find") || all.contains("find is unchanged"))
+        assertTrue(AiPackDisclosureCopy.CHALLENGER_PROBE_HINT.contains("Product meaning pack is already BGE"))
         assertFalse(all.contains("available now"))
-        assertFalse(all.contains("swaps the product"))
     }
 
     private fun completed(

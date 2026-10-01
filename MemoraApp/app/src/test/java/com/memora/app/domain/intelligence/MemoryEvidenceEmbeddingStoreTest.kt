@@ -92,6 +92,28 @@ class MemoryEvidenceEmbeddingStoreTest {
         )
     }
 
+    @Test
+    fun delete_for_model_removes_matching_records_and_returns_count() {
+        val store = InMemoryMemoryEvidenceEmbeddingStore()
+        val otherModel = ModelVersionIdentity(modelId = "other-embed", version = "1.0.0")
+
+        store.upsert(sampleRecord(evidenceId = MemoryEvidenceId("e1"), fingerprint = "fp1"))
+        store.upsert(
+            sampleRecord(evidenceId = MemoryEvidenceId("e2"), fingerprint = "fp2").copy(
+                model = otherModel,
+            ),
+        )
+
+        assertEquals(1, store.countForModel(model))
+        assertEquals(1, store.countForModel(otherModel))
+
+        val deleted = store.deleteForModel(model)
+
+        assertEquals(1, deleted)
+        assertEquals(0, store.countForModel(model))
+        assertEquals(1, store.countForModel(otherModel))
+    }
+
     private fun sampleRecord(
         evidenceId: MemoryEvidenceId,
         fingerprint: String,
@@ -135,5 +157,13 @@ class MemoryEvidenceEmbeddingStoreTest {
             records.values.filter {
                 it.model.modelId == model.modelId && it.model.version == model.version
             }
+
+        override fun deleteForModel(model: ModelVersionIdentity): Int {
+            val keysToRemove = records.filterValues {
+                it.model.modelId == model.modelId && it.model.version == model.version
+            }.keys.toList()
+            keysToRemove.forEach { records.remove(it) }
+            return keysToRemove.size
+        }
     }
 }

@@ -17,8 +17,8 @@ import com.memora.app.application.intelligence.MeaningEncoderChallengerProbeRepo
 import com.memora.app.application.intelligence.MeaningEncoderProbeReport
 import com.memora.app.application.intelligence.ProbeMeaningEncoderChallenger
 import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
-import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupMeaningEncoderChallengerStore
+import com.memora.app.data.intelligence.OnnxBgeSmallEmbeddingEngine
 import com.memora.app.domain.intelligence.AiPackInstallLedger
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.AiPackManager
@@ -71,7 +71,7 @@ class AiPackDisclosureViewModel @Inject constructor(
     private val modelStore: OnDeviceEmbeddingModelStore,
     private val challengerStore: NoBackupMeaningEncoderChallengerStore,
     private val embeddingEngine: EmbeddingEngine,
-    private val mediaPipeEmbeddingEngine: MediaPipeEmbeddingEngine,
+    private val onnxBgeSmallEmbeddingEngine: OnnxBgeSmallEmbeddingEngine,
     private val loadCorpusCompleteness: LoadCorpusCompleteness,
     private val meaningIndexScheduler: MeaningIndexWorkScheduler,
     private val probeMeaningEncoderRanks: ProbeMeaningEncoderRanks,
@@ -141,7 +141,7 @@ class AiPackDisclosureViewModel @Inject constructor(
         setBusy()
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) { downloadModel() }
-            withContext(Dispatchers.IO) { mediaPipeEmbeddingEngine.reset() }
+            withContext(Dispatchers.IO) { onnxBgeSmallEmbeddingEngine.reset() }
             val feedback = when (result) {
                 DownloadOnDeviceEmbeddingModelResult.Installed ->
                     AiPackDisclosureCopy.FEEDBACK_MODEL_INSTALLED
@@ -279,7 +279,7 @@ class AiPackDisclosureViewModel @Inject constructor(
     fun onDerivedDataCleared() {
         drainRequested = false
         meaningIndexScheduler.cancel()
-        mediaPipeEmbeddingEngine.reset()
+        onnxBgeSmallEmbeddingEngine.reset()
         viewModelScope.launch {
             mutableUiState.value = withContext(Dispatchers.IO) { buildStateWithCorpus() }
         }

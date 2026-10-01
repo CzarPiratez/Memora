@@ -1,16 +1,15 @@
 package com.memora.app.domain.intelligence
 
 /**
- * ADR-055 slice 3 challenger pack: BGE-small-en-v1.5 (ONNX uint8/q8).
+ * Product meaning pack (ADR-055 slice 4): BGE-small-en-v1.5 (ONNX uint8/q8).
  *
- * Probe-only. Does **not** replace the product [EmbeddingEngine] (USE).
- * Does **not** write Room meaning vectors. Swap remains slice 4 and only
- * if [com.memora.app.application.intelligence.MeaningEncoderBakeOffVerdict]
- * says challenger_wins.
+ * Won the slice-3 bake-off (`challenger_wins`, gold@60=11 vs USE 0). Product
+ * [EmbeddingEngine] binds this pack. Find cues use [QUERY_PREFIX]; Memory /
+ * evidence text does not.
  *
  * Artifact: Xenova/bge-small-en-v1.5 `onnx/model_quantized.onnx`
- * (~34 MiB; sha256 pinned below). Inference uses the existing ONNX Runtime
- * Android dependency (already on the classpath for Stage A).
+ * (~34 MiB; sha256 pinned below). Inference uses ONNX Runtime Android
+ * (already on the classpath for Stage A).
  */
 object OnnxBgeSmallEnV15Spec {
     const val DOWNLOAD_URL =
@@ -50,7 +49,7 @@ object OnnxBgeSmallEnV15Spec {
         version = "quantized-v1",
     )
 
-    const val PACK_ID = "memora-meaning-encoder-challenger-bge-small-v1"
+    const val PACK_ID = "memora-meaning-encoder-bge-small-v1"
 
     const val LICENSE = "MIT (BAAI/bge-small-en-v1.5); MIT (ONNX Runtime)"
 }

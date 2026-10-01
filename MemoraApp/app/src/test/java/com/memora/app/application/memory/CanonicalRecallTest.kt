@@ -177,6 +177,7 @@ private class EmptyMemoryEmbeddingStore : MemoryEmbeddingStore {
     override fun listForModel(model: ModelVersionIdentity) =
         emptyList<MemoryEmbeddingRecord>()
 
+    override fun deleteForModel(model: ModelVersionIdentity): Int = 0
     override fun countForModel(model: ModelVersionIdentity) = 0
 }
 
@@ -192,5 +193,6 @@ private class EmptyMemoryEvidenceEmbeddingStore : MemoryEvidenceEmbeddingStore {
     override fun listForModel(model: ModelVersionIdentity) =
         emptyList<MemoryEvidenceEmbeddingRecord>()
 
+    override fun deleteForModel(model: ModelVersionIdentity): Int = 0
     override fun countForModel(model: ModelVersionIdentity) = 0
 }

@@ -14,7 +14,6 @@ import com.memora.app.application.intelligence.ProbeMeaningEncoderRanks
 import com.memora.app.application.intelligence.RunPendingMeaningIndexResult
 import com.memora.app.domain.intelligence.AiPackInstallState
 import com.memora.app.domain.intelligence.EmbeddingFirstAiPackTrack
-import com.memora.app.domain.intelligence.MediaPipeUniversalSentenceEncoderSpec
 import com.memora.app.domain.intelligence.OnnxBgeSmallEnV15Spec
 
 /**
@@ -34,10 +33,10 @@ object AiPackDisclosureCopy {
 
     const val SCOPE_BODY =
         "The meaning model is stored privately in UNFYND. It is not your photos, PDFs, " +
-            "or notes. This model is MediaPipe’s Universal Sentence Encoder — a stronger " +
-            "on-device semantic embedder than the earlier compact average-word model. " +
-            "Meaning search stays a candidate path until measured on your device class. " +
-            "Keyword Find saved text buttons remain available."
+            "or notes. This model is BGE-small (ONNX) — the measured on-device meaning " +
+            "pack that replaced MediaPipe’s Universal Sentence Encoder after a bake-off " +
+            "on this product’s cue set. Meaning search stays a candidate path until " +
+            "measured on your device class. Keyword Find saved text buttons remain available."
 
     const val NETWORK_TITLE = "Network"
 
@@ -49,17 +48,18 @@ object AiPackDisclosureCopy {
 
     val SIZE_BODY: String =
         "Meaning model download is under about " +
-            "${MediaPipeUniversalSentenceEncoderSpec.DISCLOSED_SIZE_MB_CEILING} MB. " +
+            "${OnnxBgeSmallEnV15Spec.DISCLOSED_SIZE_MB_CEILING} MB. " +
             "Pack-container verify (optional pipeline check) uses about " +
             "${EmbeddingFirstAiPackTrack.PLANNED_DOWNLOAD_SIZE_BYTES} bytes. " +
-            "After upgrading the model, rebuild the meaning index."
+            "After installing or upgrading the model, rebuild the meaning index. " +
+            "Older Universal Sentence Encoder vectors are removed so packs never mix."
 
     const val LICENSE_TITLE = "License"
 
     val LICENSE_BODY: String =
         EmbeddingFirstAiPackTrack.PLANNED_LICENSE +
-            " The MediaPipe Universal Sentence Encoder model is subject to Google’s " +
-            "published MediaPipe model terms."
+            " The BGE-small-en-v1.5 model is MIT (BAAI). ONNX Runtime is MIT. " +
+            "The ONNX export used here is from Xenova/bge-small-en-v1.5."
 
     const val STATUS_TITLE = "Status right now"
 
@@ -114,12 +114,11 @@ object AiPackDisclosureCopy {
             "(MeaningEncoderProbe). Never uploads your files."
 
     val CHALLENGER_PROBE_HINT: String =
-        "ADR-055 bake-off only. Downloads BGE-small (~" +
-            "${OnnxBgeSmallEnV15Spec.DISCLOSED_SIZE_MB_CEILING} MB) " +
-            "into private storage, re-embeds the same USE-indexed Memories in memory, " +
-            "and scores gold@60 against the frozen USE card. Does not change Find, " +
-            "does not swap the product meaning model, does not write the meaning index. " +
-            "Model bytes only — never uploads your files. Can take several minutes."
+        "Historical ADR-055 bake-off CTA. Product meaning pack is already BGE-small. " +
+            "This still downloads a second private copy (~" +
+            "${OnnxBgeSmallEnV15Spec.DISCLOSED_SIZE_MB_CEILING} MB) for a probe-only " +
+            "re-score against the frozen USE card. Does not change Find and does not " +
+            "write the meaning index. Model bytes only — never uploads your files."
 
     const val DOWNLOAD_CHALLENGER_LABEL = "Download BGE challenger (probe only)"
 
@@ -146,7 +145,8 @@ object AiPackDisclosureCopy {
         "Acknowledge the details above before continuing."
 
     const val FEEDBACK_MODEL_INSTALLED =
-        "Meaning model installed. Rebuild the meaning index so rankings use this model."
+        "BGE meaning model installed. Rebuild the meaning index so rankings use this model. " +
+            "Older Universal Sentence Encoder vectors were cleared."
 
     const val FEEDBACK_MODEL_ALREADY =
         "Meaning model is already installed on this phone."

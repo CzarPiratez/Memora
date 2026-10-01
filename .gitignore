@@ -5,6 +5,7 @@ MemoraApp/build/
 MemoraApp/app/build/
 MemoraApp/local.properties
 MemoraApp/.idea/
+.junie/
 
 # Local rendering and operating-system files
 memora-render/

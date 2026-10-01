@@ -3,10 +3,10 @@ package com.memora.app.data.di
 import android.content.Context
 import com.memora.app.data.intelligence.HttpOnDeviceEmbeddingModelDownloader
 import com.memora.app.data.intelligence.HttpMeaningEncoderChallengerDownloader
-import com.memora.app.data.intelligence.MediaPipeEmbeddingEngine
 import com.memora.app.data.intelligence.NoBackupAiPackPayloadStore
 import com.memora.app.data.intelligence.NoBackupMeaningEncoderChallengerStore
 import com.memora.app.data.intelligence.NoBackupOnDeviceEmbeddingModelStore
+import com.memora.app.data.intelligence.OnnxBgeSmallEmbeddingEngine
 import com.memora.app.data.intelligence.StageARecallRanker
 import com.memora.app.domain.intelligence.AiPackPayloadStore
 import com.memora.app.domain.intelligence.DeterministicMemoryBuilder
@@ -78,15 +78,15 @@ abstract class LocalIntelligenceModule {
 object LocalIntelligenceProvidesModule {
     @Provides
     @Singleton
-    fun provideMediaPipeEmbeddingEngine(
+    fun provideOnnxBgeSmallEmbeddingEngine(
         @ApplicationContext context: Context,
         modelStore: OnDeviceEmbeddingModelStore,
-    ): MediaPipeEmbeddingEngine = MediaPipeEmbeddingEngine(
+    ): OnnxBgeSmallEmbeddingEngine = OnnxBgeSmallEmbeddingEngine(
         appContext = context.applicationContext,
         modelStore = modelStore,
     )
 
     @Provides
     @Singleton
-    fun provideEmbeddingEngine(engine: MediaPipeEmbeddingEngine): EmbeddingEngine = engine
+    fun provideEmbeddingEngine(engine: OnnxBgeSmallEmbeddingEngine): EmbeddingEngine = engine
 }
