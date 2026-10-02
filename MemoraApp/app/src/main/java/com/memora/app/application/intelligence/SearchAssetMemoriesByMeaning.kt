@@ -293,7 +293,7 @@ class SearchAssetMemoriesByMeaning @Inject constructor(
         const val DEFAULT_LIMIT = 10
 
         /** Soft floor so near-zero noise is not listed as a candidate. */
-        const val MIN_CANDIDATE_SCORE = 0.05f
+        const val MIN_CANDIDATE_SCORE = MeaningRecallCue.MIN_CANDIDATE_SCORE
     }
 }
 

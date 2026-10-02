@@ -23,6 +23,8 @@ import javax.inject.Singleton
 class MlKitPhotoOcrReader @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) : PhotoOcrReader {
+    override val engineVersion: String get() = ENGINE_VERSION
+
     private val recognizer by lazy {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }

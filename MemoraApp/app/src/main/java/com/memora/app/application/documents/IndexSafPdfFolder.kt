@@ -1,7 +1,6 @@
 package com.memora.app.application.documents
 
 import com.memora.app.application.discovery.DiscoverSourcePage
-import com.memora.app.data.saf.SafPdfDiscoveryCheckpoint
 import com.memora.app.domain.asset.SourceId
 import com.memora.app.domain.discovery.DiscoveryCheckpointRepository
 import com.memora.app.domain.discovery.DiscoveryFailure
@@ -60,11 +59,7 @@ class IndexSafPdfFolder @Inject constructor(
      * explicit index request would return an empty page immediately and miss new PDFs.
      */
     private suspend fun clearCompletedSafPdfCheckpointIfNeeded(sourceId: SourceId) {
-        val cursor = checkpointRepository.find(sourceId) ?: return
-        val completed = runCatching {
-            SafPdfDiscoveryCheckpoint.from(cursor).frames.isEmpty()
-        }.getOrDefault(false)
-        if (completed) {
+        if (checkpointRepository.isCheckpointCompleted(sourceId)) {
             checkpointRepository.delete(sourceId)
         }
     }

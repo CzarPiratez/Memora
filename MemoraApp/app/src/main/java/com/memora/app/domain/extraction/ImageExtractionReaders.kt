@@ -9,6 +9,7 @@ import com.memora.app.domain.asset.Asset
  * in platform adapters.
  */
 fun interface PhotoOcrReader {
+    val engineVersion: String get() = "16.0.1"
     fun read(asset: Asset): PhotoOcrReadResult
 }
 

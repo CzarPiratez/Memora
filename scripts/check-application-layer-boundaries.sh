@@ -25,6 +25,8 @@ ALLOW_APPLICATION_DATA_IMPORTS=(
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/IndexOneNotePages.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/OpenPersistedNotePageInOneNote.kt"
   "MemoraApp/app/src/main/java/com/memora/app/application/notes/RunPendingOneNotePageExtract.kt"
+  # Diagnostic bake-off probe exception: isolated offline probe re-embeds Memories with BGE ONNX runtime
+  "MemoraApp/app/src/main/java/com/memora/app/application/intelligence/ProbeMeaningEncoderChallenger.kt"
 )
 
 is_allowlisted() {

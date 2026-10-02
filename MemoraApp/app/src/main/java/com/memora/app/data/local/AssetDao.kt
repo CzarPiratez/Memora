@@ -18,6 +18,21 @@ interface AssetDao {
     )
     suspend fun find(sourceId: String, sourceAssetKey: String): AssetEntity?
 
+    @Query(
+        """
+        UPDATE assets
+        SET indexing_attempt_count = indexing_attempt_count
+        WHERE source_id = :sourceId
+          AND source_asset_key = :sourceAssetKey
+          AND fingerprint = :expectedFingerprint
+        """,
+    )
+    suspend fun verifyAndLockFingerprint(
+        sourceId: String,
+        sourceAssetKey: String,
+        expectedFingerprint: String,
+    ): Int
+
     @Query("SELECT * FROM assets ORDER BY source_id ASC, source_asset_key ASC")
     suspend fun findAll(): List<AssetEntity>
 

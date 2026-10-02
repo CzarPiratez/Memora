@@ -159,7 +159,7 @@ class ProbeMeaningEncoderRanks @Inject constructor(
         }
 
         val collapsed = byCosine
-            .filter { it.cosine >= SearchAssetMemoriesByMeaning.MIN_CANDIDATE_SCORE }
+            .filter { it.cosine >= com.memora.app.domain.intelligence.MeaningRecallCue.MIN_CANDIDATE_SCORE }
             .groupBy { it.assetKey }
             .values
             .map { group ->

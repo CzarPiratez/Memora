@@ -63,8 +63,28 @@ class RunPendingPhotoOcrExtract @Inject constructor(
         if (cancellationSignal.isCanceled) return@withContext PendingPhotoOcrExtractOutcome.Cancelled
 
         when (val read = photoOcrReader.read(asset)) {
-            PhotoOcrReadResult.AccessStopped -> PendingPhotoOcrExtractOutcome.AccessStopped
-            PhotoOcrReadResult.RetryableFailure -> PendingPhotoOcrExtractOutcome.RetryableFailure
+            PhotoOcrReadResult.AccessStopped -> {
+                persistence.recordFailure(
+                    asset = asset,
+                    schemaVersion = SCHEMA,
+                    engineVersion = photoOcrReader.engineVersion,
+                    failureClass = com.memora.app.domain.indexing.IndexFailureClass.ACCESS_REVOKED,
+                    failureCode = "ACCESS_STOPPED",
+                    failureMessage = "Photo OCR access stopped",
+                )
+                PendingPhotoOcrExtractOutcome.AccessStopped
+            }
+            PhotoOcrReadResult.RetryableFailure -> {
+                persistence.recordFailure(
+                    asset = asset,
+                    schemaVersion = SCHEMA,
+                    engineVersion = photoOcrReader.engineVersion,
+                    failureClass = com.memora.app.domain.indexing.IndexFailureClass.RETRYABLE,
+                    failureCode = "OCR_READ_FAILED",
+                    failureMessage = "Photo OCR read failed for asset",
+                )
+                PendingPhotoOcrExtractOutcome.RetryableFailure
+            }
             is PhotoOcrReadResult.Text -> {
                 persistence.insert(
                     PhotoOcrExtractionRecord(

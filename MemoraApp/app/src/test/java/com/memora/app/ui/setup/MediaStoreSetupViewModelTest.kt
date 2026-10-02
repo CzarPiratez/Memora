@@ -345,6 +345,14 @@ class MediaStoreSetupViewModelTest {
     private class RecordingPhotoOcrPersistence : PhotoOcrExtractionPersistence {
         override suspend fun findHeader(record: PhotoOcrExtractionRecord) = null
         override suspend fun insert(record: PhotoOcrExtractionRecord) = Unit
+        override suspend fun recordFailure(
+            asset: com.memora.app.domain.asset.Asset,
+            schemaVersion: com.memora.app.domain.extraction.PhotoOcrSchemaVersion,
+            engineVersion: String,
+            failureClass: com.memora.app.domain.indexing.IndexFailureClass,
+            failureCode: String,
+            failureMessage: String,
+        ) = Unit
         override suspend fun countCurrentForSource(sourceId: String, schemaVersion: String) = 0
     }
 }

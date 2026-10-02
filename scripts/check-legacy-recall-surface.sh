@@ -363,6 +363,11 @@ grep -RIn --include='*.kt' --include='*.java' -E '\bSearchAssetMemoriesByMeaning
 while IFS= read -r line || [[ -n "${line}" ]]; do
   [[ -z "${line}" ]] && continue
   file="${line%%:*}"
+  rest="${line#*:}"
+  text="${rest#*:}"
+  if [[ "${text}" =~ ^[[:space:]]*[\*\/] ]] && [[ "${text}" != *"import "* ]]; then
+    continue
+  fi
   rel="${file#./}"
   rel="${rel//\\//}"
   if [[ "${rel}" == *"/ui/"* ]]; then
@@ -391,6 +396,11 @@ grep -RIn --include='*.kt' --include='*.java' -E '\bMeaningEvidenceTokenBoost\b'
 while IFS= read -r line || [[ -n "${line}" ]]; do
   [[ -z "${line}" ]] && continue
   file="${line%%:*}"
+  rest="${line#*:}"
+  text="${rest#*:}"
+  if [[ "${text}" =~ ^[[:space:]]*[\*\/] ]] && [[ "${text}" != *"import "* ]]; then
+    continue
+  fi
   rel="${file#./}"
   rel="${rel//\\//}"
   if [[ "${rel}" == *"/ui/"* ]]; then

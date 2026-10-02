@@ -3,7 +3,6 @@ package com.memora.app.application.documents
 import com.memora.app.application.discovery.DiscoverSourcePage
 import com.memora.app.application.discovery.PersistDiscoveryPage
 import com.memora.app.application.discovery.ProcessDiscoveryResult
-import com.memora.app.data.saf.SafPdfDiscoveryCheckpoint
 import com.memora.app.domain.asset.Asset
 import com.memora.app.domain.asset.AssetFingerprint
 import com.memora.app.domain.asset.AssetIdentity
@@ -120,11 +119,8 @@ class IndexSafPdfFolderTest {
 
     @Test
     fun clearsACompletedCheckpointBeforeStartingAFreshFolderWalk() = runBlocking {
-        val completedCheckpoint = SafPdfDiscoveryCheckpoint(
-            sourceId = approval.sourceId,
-            frames = emptyList(),
-        ).toCursor()
-        val checkpointRepository = RecordingCheckpointRepository(completedCheckpoint)
+        val completedCheckpoint = DiscoveryCursor(approval.sourceId, "test-completed-cursor")
+        val checkpointRepository = RecordingCheckpointRepository(completedCheckpoint, completed = true)
         val source = FakeSource(
             sourceId = approval.sourceId,
             result = DiscoveryResult.Page(
@@ -183,6 +179,7 @@ class IndexSafPdfFolderTest {
 
     private class RecordingCheckpointRepository(
         private var cursor: DiscoveryCursor?,
+        private val completed: Boolean = false,
     ) : DiscoveryCheckpointRepository {
         var deleted: Boolean = false
 
@@ -192,6 +189,8 @@ class IndexSafPdfFolderTest {
 
         override suspend fun find(sourceId: SourceId): DiscoveryCursor? =
             cursor?.takeIf { it.sourceId == sourceId }
+
+        override suspend fun isCheckpointCompleted(sourceId: SourceId): Boolean = completed
 
         override suspend fun delete(sourceId: SourceId) {
             if (cursor?.sourceId == sourceId) {

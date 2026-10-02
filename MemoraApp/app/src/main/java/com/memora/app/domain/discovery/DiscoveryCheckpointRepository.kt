@@ -8,6 +8,8 @@ interface DiscoveryCheckpointRepository {
 
     suspend fun find(sourceId: SourceId): DiscoveryCursor?
 
+    suspend fun isCheckpointCompleted(sourceId: SourceId): Boolean = false
+
     /** Removes a saved checkpoint so the next discovery pass can start fresh. */
     suspend fun delete(sourceId: SourceId)
 }

@@ -2,7 +2,7 @@ package com.memora.app.application.memory
 
 import com.memora.app.application.intelligence.MeaningSearchHit
 import com.memora.app.application.intelligence.MeaningSearchOutcome
-import com.memora.app.application.intelligence.SearchAssetMemoriesByMeaning
+import com.memora.app.domain.intelligence.MeaningRecallCue
 import com.memora.app.domain.intelligence.ModelVersionIdentity
 
 /**
@@ -14,7 +14,7 @@ import com.memora.app.domain.intelligence.ModelVersionIdentity
  * set the trusted band. Role score still ranks the fused list.
  */
 object MeaningCandidateFusion {
-    const val LEXICAL_ONLY_COSINE = SearchAssetMemoriesByMeaning.MIN_CANDIDATE_SCORE
+    const val LEXICAL_ONLY_COSINE = MeaningRecallCue.MIN_CANDIDATE_SCORE
 
     fun merge(
         meaning: MeaningSearchOutcome.Matches,

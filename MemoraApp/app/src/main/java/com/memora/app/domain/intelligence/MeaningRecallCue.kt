@@ -12,6 +12,7 @@ import com.memora.app.domain.memory.RecallQueryConstraintClassifier
  */
 object MeaningRecallCue {
     const val MAX_QUERY_CHARS = 120
+    const val MIN_CANDIDATE_SCORE = 0.05f
 
     fun normalize(rawQuery: String): String =
         rawQuery.trim().replace(WHITESPACE, " ").take(MAX_QUERY_CHARS)

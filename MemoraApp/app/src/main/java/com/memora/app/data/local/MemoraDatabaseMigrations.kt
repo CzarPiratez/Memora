@@ -668,6 +668,54 @@ object MemoraDatabaseMigrations {
         }
     }
 
+    /**
+     * UNFYND Index Fabric Slice 1: Stage-state tracking for pipeline stages.
+     */
+    val MIGRATION_19_20: Migration = object : Migration(19, 20) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `index_stage_states` (
+                    `source_id` TEXT NOT NULL,
+                    `source_asset_key` TEXT NOT NULL,
+                    `fingerprint` TEXT NOT NULL,
+                    `stage` TEXT NOT NULL,
+                    `derivation_id` TEXT NOT NULL,
+                    `current_status` TEXT NOT NULL,
+                    `last_attempt_status` TEXT NOT NULL,
+                    `last_failure_class` TEXT,
+                    `last_failure_code` TEXT,
+                    `last_failure_message` TEXT,
+                    `attempt_count` INTEGER NOT NULL,
+                    `run_id` TEXT,
+                    `schema_version` TEXT,
+                    `model_id` TEXT,
+                    `model_version` TEXT,
+                    `engine_version` TEXT,
+                    `updated_at_epoch_ms` INTEGER NOT NULL,
+                    PRIMARY KEY(`source_id`, `source_asset_key`, `fingerprint`, `stage`, `derivation_id`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_index_stage_states_source_id_source_asset_key` " +
+                    "ON `index_stage_states` (`source_id`, `source_asset_key`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_index_stage_states_fingerprint` " +
+                    "ON `index_stage_states` (`fingerprint`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_index_stage_states_current_status` " +
+                    "ON `index_stage_states` (`current_status`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_index_stage_states_stage_current_status` " +
+                    "ON `index_stage_states` (`stage`, `current_status`)",
+            )
+        }
+    }
+
     val ALL: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -687,5 +735,6 @@ object MemoraDatabaseMigrations {
         MIGRATION_16_17,
         MIGRATION_17_18,
         MIGRATION_18_19,
+        MIGRATION_19_20,
     )
 }

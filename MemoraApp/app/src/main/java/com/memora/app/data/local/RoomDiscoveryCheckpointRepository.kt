@@ -18,6 +18,13 @@ class RoomDiscoveryCheckpointRepository(
         .find(sourceId.value)
         ?.toDomain()
 
+    override suspend fun isCheckpointCompleted(sourceId: SourceId): Boolean {
+        val cursor = find(sourceId) ?: return false
+        return runCatching {
+            com.memora.app.data.saf.SafPdfDiscoveryCheckpoint.from(cursor).frames.isEmpty()
+        }.getOrDefault(false)
+    }
+
     override suspend fun delete(sourceId: SourceId) {
         checkpointDao().delete(sourceId.value)
     }

@@ -57,6 +57,7 @@ class MemoraDatabaseMigrationTest {
             MemoraDatabaseMigrations.MIGRATION_16_17,
             MemoraDatabaseMigrations.MIGRATION_17_18,
             MemoraDatabaseMigrations.MIGRATION_18_19,
+            MemoraDatabaseMigrations.MIGRATION_19_20,
         ).build()
 
         try {
@@ -68,7 +69,8 @@ class MemoraDatabaseMigrationTest {
             assertEquals("lake.jpg", preservedAsset?.displayName)
             assertEquals(null, migratedDatabase.discoveryCheckpointDao().find("android-media-store-images"))
             assertTrue(migratedDatabase.documentTreeApprovalDao().findAll().isEmpty())
-            assertEquals(19, migratedDatabase.openHelper.readableDatabase.version)
+            assertEquals(20, migratedDatabase.openHelper.readableDatabase.version)
+            assertTrue(tableExists(migratedDatabase, "index_stage_states"))
             assertTrue(tableExists(migratedDatabase, "memory_assembly_skips"))
             // I5: created empty on purpose — the rows are derived, and the Graph
             // fallback writes one per page on first use.

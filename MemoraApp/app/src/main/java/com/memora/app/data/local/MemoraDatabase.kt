@@ -28,8 +28,9 @@ import androidx.room.RoomDatabase
         MemoryAssemblySkipEntity::class,
         SourceAvailabilityEntity::class,
         FindHiddenEntity::class,
+        IndexStageStateEntity::class,
     ],
-    version = 19,
+    version = 20,
     exportSchema = true,
 )
 abstract class MemoraDatabase : RoomDatabase() {
@@ -66,4 +67,6 @@ abstract class MemoraDatabase : RoomDatabase() {
     abstract fun sourceAvailabilityDao(): SourceAvailabilityDao
 
     abstract fun findHiddenDao(): FindHiddenDao
+
+    abstract fun indexStageStateDao(): IndexStageStateDao
 }
